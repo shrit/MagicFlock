@@ -1,10 +1,16 @@
-/**
+OB/**
  * @file main.cc
  * @brief controller code, that allow user to control the quad
  *
  * @authors Author: Omar Shrit <shrit@lri.fr>
  * @date 2018-06-13
  */
+
+extern "C" {
+
+#include <ncurses.h>
+
+}
 
 #include <chrono>
 #include <cmath>
@@ -14,6 +20,7 @@
 #include <dronecore/offboard.h>
 #include <iostream>
 #include <thread>
+
 
 using namespace dronecore;
 using std::this_thread::sleep_for;
@@ -28,9 +35,8 @@ using std::chrono::seconds;
 void usage (std::string binary_name)
 {
   std::cout<< NORMAL_CONSOLE_TEXT << "Usage : " << binary_name <<
-    "<connection_url> " << std::endl;     
+    "<connection_url> " << std::endl;
 }
-
 
 
 
@@ -80,7 +86,7 @@ int takeoff (std::shared_ptr<dronecore::Action> action)
 	      << action_result_str(takeoff_result)
 	      << std::endl;
     return 1;
-  }            
+  }
   return 0;
 }
 
@@ -95,41 +101,41 @@ int land(std::shared_ptr<dronecore::Action> action)
 	      << action_result_str(land_result)
 	      << NORMAL_CONSOLE_TEXT << std::endl;
     return 1;
-  }  
+  }
   return 0;
 }
 
 
 bool move_x(std::shared_ptr<dronecore::Offboard> offboard)
 {
-  
-  offboard->set_velocity_body({1.0f, 0.0f, 0.0f, 0.0f});
 
+  offboard->set_velocity_body({2.0f, 0.0f, 0.0f, 0.0f});
+  sleep_for(seconds(2));
   return true;
-  
+
 }
 
-bool move_y(std::shared_ptr<dronecore::Offboard> offboard>)
+bool move_y(std::shared_ptr<dronecore::Offboard> offboard)
 {
-  
-  offboard->set_velocity_body({0.0f, 1.0f, 0.0f, 0.0f});
 
+  offboard->set_velocity_body({0.0f, 2.0f, 0.0f, 0.0f});
+  sleep_for(seconds(5));
   return true;
 }
 
 
-bool move_z(std::shared_ptr<dronecore::Offboard> offboard>)
+bool move_z(std::shared_ptr<dronecore::Offboard> offboard)
 {
-  
-  offboard->set_velocity_body({0.0f, 0.0f, 1.0f, 0.0f})
-    
+
+  offboard->set_velocity_body({0.0f, 0.0f, -3.0f, 0.0f});
+  sleep_for(seconds(2));
     return true;
 }
 
-int turn_yaw()std::shared_ptr<dronecore::Offboard> offboard)
+int turn_yaw(std::shared_ptr<dronecore::Offboard> offboard)
 {
-  offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 10.0f})
-
+  offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 10.0f});
+  sleep_for(seconds(1));
     return true;
 }
 
@@ -139,15 +145,15 @@ int main(int argc, char** argv)
 {
 
   DroneCore dc;
-  
+
   std::string connection_url;
   connection_url = "udp://:14540";
-  
+
   ConnectionResult connection_result;
   bool discovered_system = false;
-  
-  connection_result = dc.add_any_connection(connection_url);    
-  
+
+  connection_result = dc.add_any_connection(connection_url);
+
   if (connection_result != ConnectionResult::SUCCESS) {
     std::cout << ERROR_CONSOLE_TEXT
 	      << "Connection failed: "
@@ -157,14 +163,14 @@ int main(int argc, char** argv)
   }
 
 
-  
+
   std::cout << "Waiting to discover system..." << std::endl;
   dc.register_on_discover([&discovered_system](uint64_t uuid) {
 			    std::cout << "Discovered system with UUID: "
 				      << uuid << std::endl;
 			    discovered_system = true;
-			  });      
-  
+			  });
+
   sleep_for(seconds(2));
 
 
@@ -180,7 +186,7 @@ int main(int argc, char** argv)
   auto telemetry = std::make_shared<Telemetry>(system);
   auto action = std::make_shared<Action>(system);
   auto offboard = std::make_shared<Offboard>(system);
- 
+
   const Telemetry::Result set_rate_result = telemetry->set_rate_position(1.0);
 
   if (set_rate_result != Telemetry::Result::SUCCESS){
@@ -203,7 +209,7 @@ int main(int argc, char** argv)
 					<< position.latitude_deg << " deg"
 					<< "Longtitude"
 					<< position.longitude_deg <<" deg"
-					<< std::endl;			      			      			      
+					<< std::endl;
 
 			    });
 
@@ -211,44 +217,96 @@ int main(int argc, char** argv)
         std::cout << "Vehicle is getting ready to arm" << std::endl;
         sleep_for(seconds(1));
       }
-      
+
       ActionResult arm_result = action->arm();
       if(arm_result != ActionResult::SUCCESS){
 	std::cout << "Arming failed: "
 		  << action_result_str(arm_result)
 		  << std::endl;
-	  		
+
       }
+      const std::string offb_mode = "BODY";
 
 
-      takeoff(action);
+      int ch;
+
+      initscr();
+
+      halfdelay(3);
+
+      noecho();
+
+      keypad(stdscr, TRUE);
+
+      while (true) {
+
+	ch = getch();
+	
+	switch (ch) {
+	  
+	case KEY_UP:
+	  std::cout<< "Move forward" << std::endl;
+	  move_x(offboard);
+	  
+	  break;
+	  
+	case KEY_LEFT:
+	//	move_y(offboard);
+	  
+	  break;
+	case KEY_DOWN:
+	  
+	  break;
+	case KEY_RIGHT:
+	  std::cout<< "Move Right" << std::endl;
+	  move_y(offboard);
+	  break;
+	  
+	case 't':
+	  takeoff(action);
+	  sleep_for(seconds(6));
+	  
+	break;
+	
+	case 'l':
+	  land(action);
+	  break;
+	  
+	case 'o':
+	  
+	  break;
+	  
+	case 'p':
+	  break;
+	  
+	default:
+	  std::cout << "Unkown charcter has been pressed" << std::endl;
+	}
+      }
       
+      // takeoff(action);
       
+      // sleep_for(seconds(5));
+
+      // offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
+
+      // Offboard::Result offboard_result =  offboard->start();
+      // offboard_error_exit(offboard_result, "Offboard start failed: ");
+      // offboard_log(offb_mode, "Offboard started");
+
+
+      // offboard_result = offboard->stop();
+      // offboard_error_exit(offboard_result, "Offboard stop failed: ");
+      // offboard_log(offb_mode, "Offboard stopped");
+      clrtoeol();
+      refresh();
+      endwin();
+
+      // land(action);
+
       sleep_for(seconds(10));
+      std::cout << "Landed" << std::endl;
 
-      Offboard::Result offboard_result =  offboard->start();
-      offboard_error_exit(offboard_result, "Offboard start failed: ");
-      offboard_log(offb_mode, "Offboard started");
-      
-      
-      std::cout<< "Move forward" << std::endl;
-      move_x(offboard);
+      return EXIT_SUCCESS;
 
-      std::cout<< "Move right" << std::endl;
-    
-      move_y(offboard);
-
-
-      std::cout<< "Move Down" << std::endl;
-      
-      move_z(offboard);
-      
-      offboard_result = offboard->stop();
-      offboard_error_exit(offboard_result, "Offboard stop failed: ");
-      offboard_log(offb_mode, "Offboard stopped");
-      
-
-      
-      land(action);
-  
 }
