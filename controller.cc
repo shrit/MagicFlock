@@ -119,96 +119,119 @@ bool Controller::land(std::shared_ptr<dronecore::Action> action)
 }
 
 
-bool Controller::goUp(std::shared_ptr<dronecore::Offboard> offboard)
+void Controller::goUp(std::shared_ptr<dronecore::Offboard> offboard)
 {
   std::cout << "To the sky !" << std::endl;
   
-  offboard->set_velocity_body({0.0f, 0.0f, -3.0f, 0.0f});
-  //sleep_for(seconds(2));
-  return true;
-      
+  offboard->set_velocity_body({0.0f, 0.0f, -10.0f, 0.0f});
+  sleep_for(milliseconds(50));
+  offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
     
 }
 
-bool Controller::goDown(std::shared_ptr<dronecore::Offboard> offboard)
+void Controller::goDown(std::shared_ptr<dronecore::Offboard> offboard)
 {
   std::cout << "To the Earth !" << std::endl;
+
   offboard->set_velocity_body({0.0f, 0.0f, +3.0f, 0.0f});
-  //sleep_for(seconds(1));
-  return true;
+  sleep_for(milliseconds(50));
+  offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
   
 }
 
-bool Controller::goRight(std::shared_ptr<dronecore::Offboard> offboard)
+void Controller::goRight(std::shared_ptr<dronecore::Offboard> offboard)
 {
   std::cout << "Right now !" << std::endl;
   
-  offboard->set_velocity_body({0.0f, 2.0f, 0.0f, 0.0f});
-  //sleep_for(seconds(1));
-  return true;
-  
+  offboard->set_velocity_body({0.0f, 10.0f, 0.0f, 0.0f}); 
+  sleep_for(milliseconds(50));
+  offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
 }
 
-bool Controller::goLeft(std::shared_ptr<dronecore::Offboard> offboard)
+void Controller::goLeft(std::shared_ptr<dronecore::Offboard> offboard)
 {
   std::cout << "Left now !" << std::endl;
   
-  offboard->set_velocity_body({0.0f, -2.0f, 0.0f, 0.0f});
-  //sleep_for(seconds(1));
-  return true;
+  offboard->set_velocity_body({0.0f, -10.0f, 0.0f, 0.0f});
+  sleep_for(milliseconds(50));
+  offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
 
 }
 
-bool Controller::forward(std::shared_ptr<dronecore::Offboard> offboard)
+
+void Controller::init_speed(std::shared_ptr<dronecore::Offboard> offboard)
+{
+  offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});		         
+}
+
+
+Offboard::Result Controller::start_offboard_mode(std::shared_ptr<dronecore::Offboard> offboard)
+{
+  
+  Offboard::Result offboard_result = offboard->start();
+  
+  //Offboard::Result offboard_result;
+  
+  // offboard->start_async([&offboard_result](){
+  
+  // 			  if (offboard_result != Offboard::Result::SUCCESS) {
+  // 			    std::cerr << "Offboard::start() failed: " 
+  // 				      << Offboard::result_str(offboard_result) << std::endl;
+  
+  // 			    return offboard_result;
+  // 			  }
+			  			  			  
+  // 			});
+  
+  if (offboard_result != Offboard::Result::SUCCESS) {
+    std::cerr << "Offboard::start() failed: " 
+  	      << Offboard::result_str(offboard_result) << std::endl;
+    
+    return offboard_result; 
+  }
+  
+  return offboard_result; 
+}
+
+void Controller::forward(std::shared_ptr<dronecore::Offboard> offboard)
 {
   std::cout << "go forward !" << std::endl;
-  //  printw("set offboard mode");
-  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});		       
-  
-  Offboard::Result offboard_result = offboard_->start();
-  if (offboard_result != Offboard::Result::SUCCESS) 
-    std::cerr << "Offboard::start() failed: " ;
-      // << Offboard::result_str(offboard_result) << std::endl;		    	    
-  
 
-  
-  // Offboard::Result offboard_result = offboard->start();
-  // if (offboard_result != Offboard::Result::SUCCESS) {
-  //   std::cerr << "Offboard::start() failed: " 
-  // 	      << Offboard::result_str(offboard_result) << std::endl;
-  //}
+  //set velocity function is going to make the quad go  all the time
+  // we need to set it to zero after each keyboard touch
   
   offboard->set_velocity_body({10.0f, 0.0f, 0.0f, 0.0f});
-  // sleep_for(seconds(1));
-  return true;
-
+  sleep_for(milliseconds(50));
+  offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
 }
 
-bool Controller::backward(std::shared_ptr<dronecore::Offboard> offboard)
+void Controller::backward(std::shared_ptr<dronecore::Offboard> offboard)
 {
   std::cout << "go backward !" << std::endl;
     
   offboard->set_velocity_body({-10.0f, 0.0f, 0.0f, 0.0f});
-  //sleep_for(seconds(1));
-  return true;
+  sleep_for(milliseconds(50));
+  offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
 
 
 }
 
-bool Controller::turnToLeft(std::shared_ptr<dronecore::Offboard> offboard)
+void Controller::turnToLeft(std::shared_ptr<dronecore::Offboard> offboard)
 {
-  std::cout << " ... Left rotate !" << std::endl;
-  offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 10.0f});
-  //  sleep_for(seconds(1));
-    return true;
+  std::cout << " ... left rotate !" << std::endl;
+  offboard->set_velocity_body({0.0f, 0.0f, 0.0f, -10.0f});
+  sleep_for(milliseconds(50));
+  offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
+    
 }
 
-bool Controller::turnToRight(std::shared_ptr<dronecore::Offboard> offboard)
+void Controller::turnToRight(std::shared_ptr<dronecore::Offboard> offboard)
 {
     std::cout << " ... right rotate" << std::endl;
-    offboard->set_velocity_body({0.0f, 0.0f, 0.0f, -10.0f});
-    //sleep_for(seconds(1));
-    return true;
+    offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 10.0f});
+    sleep_for(milliseconds(50));
+    offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
+    
 }
 
 
@@ -226,7 +249,6 @@ ActionResult Controller::arm(std::shared_ptr<dronecore::Action> action)
   return arm_result;            
   
 }
-
 
 void Controller::get_position(std::shared_ptr<dronecore::Telemetry> telemetry)
 {

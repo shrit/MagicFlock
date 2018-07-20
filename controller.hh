@@ -37,14 +37,18 @@ public:
   
   bool takeoff(std::shared_ptr<dronecore::Action> action);
   bool land(std::shared_ptr<dronecore::Action> action);
-  bool goUp(std::shared_ptr<dronecore::Offboard> offboard);
-  bool goDown(std::shared_ptr<dronecore::Offboard> offboard);
-  bool goRight(std::shared_ptr<dronecore::Offboard> offboard);
-  bool goLeft(std::shared_ptr<dronecore::Offboard> offboard);
-  bool forward(std::shared_ptr<dronecore::Offboard> offboard);
-  bool backward(std::shared_ptr<dronecore::Offboard> offboard);
-  bool turnToLeft(std::shared_ptr<dronecore::Offboard> offboard);
-  bool turnToRight(std::shared_ptr<dronecore::Offboard> offboard);
+  void goUp(std::shared_ptr<dronecore::Offboard> offboard);
+  void goDown(std::shared_ptr<dronecore::Offboard> offboard);
+  void goRight(std::shared_ptr<dronecore::Offboard> offboard);
+  void goLeft(std::shared_ptr<dronecore::Offboard> offboard);
+  void forward(std::shared_ptr<dronecore::Offboard> offboard);
+  void backward(std::shared_ptr<dronecore::Offboard> offboard);
+  void turnToLeft(std::shared_ptr<dronecore::Offboard> offboard);
+  void turnToRight(std::shared_ptr<dronecore::Offboard> offboard);
+
+
+  void init_speed(std::shared_ptr<dronecore::Offboard> offboard);
+  Offboard::Result start_offboard_mode(std::shared_ptr<dronecore::Offboard> offboard);
   
   bool discover_system(DroneCore& dc);
   ConnectionResult connect_to_quad(DroneCore& dc,

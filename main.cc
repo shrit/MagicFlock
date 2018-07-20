@@ -128,7 +128,6 @@ int main(int argc, char** argv)
   int ch;
   
   boost::asio::posix::stream_descriptor in{io_service, 0};
-  //  in.assign(0); // stdscr
   
   auto lambda = [&](){
 		  
@@ -151,6 +150,14 @@ int main(int argc, char** argv)
 		    printw("key_right");
 		    controller.goRight(offboard_);
 		    break;
+		  case 'u':    
+		    printw("goUp");
+		    controller.goUp(offboard_);
+		    break;
+		  case 'd':
+		    printw("goDown");
+		    controller.goDown(offboard_);
+		    break;		    
 		  case 't':
 		    printw("take_off");
 		    controller.takeoff(action_);
@@ -160,13 +167,21 @@ int main(int argc, char** argv)
 		    controller.land(action_);
 		    break;
 		  case 'a':
+		    printw("arming...");
 		    controller.arm(action_);
 		    sleep_for(seconds(2));
 		    break;
-
+		  case '+':
+		    printw("turn to right");
+		    controller.turnToRight(offboard_);		    
+		    break;
+		  case '-':
+		    printw("turn to left");
+		    controller.turnToLeft(offboard_);		    
+		    break;		    
 		  case 's':
-		    // Start offboard mode.
-
+		    controller.init_speed(offboard_);
+		    controller.start_offboard_mode(offboard_);
 		    break;
 		    
 		  default:		    
