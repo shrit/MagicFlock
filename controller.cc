@@ -1,126 +1,49 @@
-
-
-
-
 # include "controller.hh"
-# include <Qt>
 
-Controller::Controller(QObject* parent)
-  :  QObject(parent), m_gamepad(0)
+Controller::Controller()
 {
 
+  // this->connect_to_quad(dc_, "udp://:14540");
+  // this->discover_system(dc_);  
+
+  
+  // // Wait for the system to connect via heartbeat
+  // // while (!dc_.is_connected()) {
+  // //   std::cout << "Wait for system to connect via heartbeat" << std::endl;
+  // //   sleep_for(seconds(1));
+  // // }
+  
+  // //dc_.register_on_discover(event_callback_t callback)
+  
+  // System& system = dc_.system();
+  
+  // auto telemetry_ = std::make_shared<dronecore::Telemetry>(system);
+  // auto offboard_  = std::make_shared<dronecore::Offboard>(system);
+  // auto action_    = std::make_shared<dronecore::Action>(system);
+    
+  // this->set_rate_result(telemetry_);
+  // this->get_position(telemetry_);
+  // this->quad_health(telemetry_);
 
 
 
-
-
-
-  this->connect(dc, "udp://:11454");
-  this->discover_system(dc);
-  this->get_position(telemetry);
-  this->quad_health(telemetry);
-
-  this->
+  // this->arm(action_);
+  
+  // sleep_for(seconds(2));
 
 
   
-  auto gamepads = QGamepadManager::instance()->connectedGamepads();
+  // this->takeoff(action_);
+  // sleep_for(seconds(6));
+
+  // this->land(action_);
+
   
-  
-  if (gamepads.isEmpty()) {
-    std::cerr << "Did not find any connected gamepads" << std::endl;
-    return;
-  }
-  
-  m_gamepad = new QGamepad(*gamepads.begin(), this);
-  
-  connect(m_gamepad, &QGamepad::axisLeftXChanged,
-	  this, [](double value){
-		  std::cout << "Left X" << value <<std::endl;
-		  
-		});
-  connect(m_gamepad, &QGamepad::axisLeftYChanged,
-	  this, [](double value){
-		  std::cout << "Left Y" << value << std ::endl;
-    });
-    connect(m_gamepad, &QGamepad::axisRightXChanged,
-	    this, [](double value){
-		    std::cout << "Right X" << value << std::endl;
-		    
-		  });
-    connect(m_gamepad, &QGamepad::axisRightYChanged,
-	    this, [](double value){
-		    std::cout << "Right Y" << value << std::endl;
-		    
-		  });
     
-    connect(m_gamepad, &QGamepad::buttonAChanged,
-	    this, [](bool pressed){
-		    std::cout << "Button A" << pressed << std::endl;
-		  });
-    
-    connect(m_gamepad, &QGamepad::buttonBChanged,
-	    this, [](bool pressed){
-		    std::cout << "Button B" << pressed << std::end;
-		    
-		  });
-    
-    connect(m_gamepad, &QGamepad::buttonXChanged,
-	    this, [](bool pressed){
-		    std::cout << "Button X" << pressed << std::endl;
-		    
-		  });
-    connect(m_gamepad, &QGamepad::buttonYChanged,
-	    this, [](bool pressed){
-		    std::cout << "Button Y" << pressed << std::endl;
-		    
-		  });
-    
-    connect(m_gamepad, &QGamepad::buttonL1Changed,
-	    this, [](bool pressed){
-		    std::cout << "Button L1" << pressed << std::endl;
-		    
-		  });
-    
-    connect(m_gamepad, &QGamepad::buttonR1Changed,
-	    this, [](bool pressed){
-		    std::cout << "Button R1" << pressed << std::endl;
-		    this->takeoff(action)
-		  });
-    
-    connect(m_gamepad, &QGamepad::buttonL2Changed,
-	    this, [](double value){
-		    std::cout  << "Button L2: " << value << std::endl;
-		    
-		  });
-    
-    connect(m_gamepad, &QGamepad::buttonR2Changed,
-	    this, [](double value){
-		    std::cout  << "Button R2: " << value << std::endl;
-		    this->land(action)
-		  });
-    
-    connect(m_gamepad, &QGamepad::buttonSelectChanged,
-	    this, [](bool pressed){
-		    std::cout  << "Button Select" << pressed << std::endl;
-		    
-		  });
-    
-    connect(m_gamepad, &QGamepad::buttonStartChanged,
-	    this, [](bool pressed){
-		    std::cout  << "Button Start" << pressed << std::endl;
-		    
-		  });
-    connect(m_gamepad, &QGamepad::buttonGuideChanged,
-	    this, [](bool pressed){
-		    std::cout  << "Button Guide" << pressed << std::endl;
-		    
-		  });
-  
 }
 
 
-ConnectionResult Controller::connect(DroneCore dc,
+ConnectionResult Controller::connect_to_quad(DroneCore& dc,
 				     std::string connection_url)
 {
   //  connection_url = "udp://:14540";  
@@ -138,37 +61,36 @@ ConnectionResult Controller::connect(DroneCore dc,
   
 }
 
-System& Controller::discover_system(Dronecore dc)
+bool Controller::discover_system(DroneCore& dc)
 {
 
   bool discovered_system = false;
     
   std::cout << "Waiting to discover system..." << std::endl;
-  dc.register_on_discover([&discovered_system](uint64_t uuid) {
+  dc_.register_on_discover([&discovered_system](uint64_t uuid) {
 			    std::cout << "Discovered system with UUID: "
 				      << uuid << std::endl;
 			    discovered_system = true;
 			  });
 
-  sleep_for(seconds(2));
+  sleep_for(seconds(5));
 
   if (!discovered_system) {
     std::cout << ERROR_CONSOLE_TEXT
 	      <<"No system found, exiting." << NORMAL_CONSOLE_TEXT
 	      << std::endl;
-    return false;
-    }
-
-  System& system = dc.system();
   
-  return system;
+  }
+
+  return discovered_system;
+
 
 }
 
 bool Controller::takeoff(std::shared_ptr<dronecore::Action> action)
 {
   
-  std::cout << "taking off" << std::endl;
+  std::cout << "taking off..." << std::endl;
   const ActionResult takeoff_result = action->takeoff();
   if(takeoff_result != ActionResult::SUCCESS){
     std::cout << ERROR_CONSOLE_TEXT
@@ -197,12 +119,12 @@ bool Controller::land(std::shared_ptr<dronecore::Action> action)
 }
 
 
-void Controller::goUp(std::shared_ptr<dronecore::Offboard> offboard)
+bool Controller::goUp(std::shared_ptr<dronecore::Offboard> offboard)
 {
   std::cout << "To the sky !" << std::endl;
   
   offboard->set_velocity_body({0.0f, 0.0f, -3.0f, 0.0f});
-  sleep_for(seconds(2));
+  //sleep_for(seconds(2));
   return true;
       
     
@@ -212,7 +134,7 @@ bool Controller::goDown(std::shared_ptr<dronecore::Offboard> offboard)
 {
   std::cout << "To the Earth !" << std::endl;
   offboard->set_velocity_body({0.0f, 0.0f, +3.0f, 0.0f});
-  sleep_for(seconds(2));
+  //sleep_for(seconds(1));
   return true;
   
 }
@@ -222,7 +144,7 @@ bool Controller::goRight(std::shared_ptr<dronecore::Offboard> offboard)
   std::cout << "Right now !" << std::endl;
   
   offboard->set_velocity_body({0.0f, 2.0f, 0.0f, 0.0f});
-  sleep_for(seconds(2));
+  //sleep_for(seconds(1));
   return true;
   
 }
@@ -232,16 +154,32 @@ bool Controller::goLeft(std::shared_ptr<dronecore::Offboard> offboard)
   std::cout << "Left now !" << std::endl;
   
   offboard->set_velocity_body({0.0f, -2.0f, 0.0f, 0.0f});
-  sleep_for(seconds(2));
+  //sleep_for(seconds(1));
   return true;
 
 }
 
 bool Controller::forward(std::shared_ptr<dronecore::Offboard> offboard)
 {
-  std::cout << "go forward !" << std::endl;  
-  offboard->set_velocity_body({2.0f, 0.0f, 0.0f, 0.0f});
-  sleep_for(seconds(2));
+  std::cout << "go forward !" << std::endl;
+  //  printw("set offboard mode");
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});		       
+  
+  Offboard::Result offboard_result = offboard_->start();
+  if (offboard_result != Offboard::Result::SUCCESS) 
+    std::cerr << "Offboard::start() failed: " ;
+      // << Offboard::result_str(offboard_result) << std::endl;		    	    
+  
+
+  
+  // Offboard::Result offboard_result = offboard->start();
+  // if (offboard_result != Offboard::Result::SUCCESS) {
+  //   std::cerr << "Offboard::start() failed: " 
+  // 	      << Offboard::result_str(offboard_result) << std::endl;
+  //}
+  
+  offboard->set_velocity_body({10.0f, 0.0f, 0.0f, 0.0f});
+  // sleep_for(seconds(1));
   return true;
 
 }
@@ -250,8 +188,8 @@ bool Controller::backward(std::shared_ptr<dronecore::Offboard> offboard)
 {
   std::cout << "go backward !" << std::endl;
     
-  offboard->set_velocity_body({-2.0f, 0.0f, 0.0f, 0.0f});
-  sleep_for(seconds(2));
+  offboard->set_velocity_body({-10.0f, 0.0f, 0.0f, 0.0f});
+  //sleep_for(seconds(1));
   return true;
 
 
@@ -261,7 +199,7 @@ bool Controller::turnToLeft(std::shared_ptr<dronecore::Offboard> offboard)
 {
   std::cout << " ... Left rotate !" << std::endl;
   offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 10.0f});
-  sleep_for(seconds(1));
+  //  sleep_for(seconds(1));
     return true;
 }
 
@@ -269,7 +207,7 @@ bool Controller::turnToRight(std::shared_ptr<dronecore::Offboard> offboard)
 {
     std::cout << " ... right rotate" << std::endl;
     offboard->set_velocity_body({0.0f, 0.0f, 0.0f, -10.0f});
-    sleep_for(seconds(1));
+    //sleep_for(seconds(1));
     return true;
 }
 
@@ -315,14 +253,14 @@ void Controller::quad_health(std::shared_ptr<dronecore::Telemetry> telemetry)
 
   while (telemetry->health_all_ok() != true) {
     std::cout << "Vehicle is getting ready to arm" << std::endl;
-    std::this_thread::sleep_for(seconds(1));
+    sleep_for(seconds(1));
   }
   
   
 }
 
 
-dronecore::Telemetry::Result Controller::set_rate_result(							 std::shared_ptr<dronecore::Telemetry> telemetry)
+Telemetry::Result Controller::set_rate_result(std::shared_ptr<dronecore::Telemetry> telemetry)
 {
   const Telemetry::Result set_rate_result = telemetry->set_rate_position(1.0);
   
@@ -333,8 +271,8 @@ dronecore::Telemetry::Result Controller::set_rate_result(							 std::shared_ptr
 	      << NORMAL_CONSOLE_TEXT << std::endl;
     return set_rate_result;
   }
-  
+  return set_rate_result;
       
 }
-  
-  
+    
+

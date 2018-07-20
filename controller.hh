@@ -14,32 +14,27 @@
 # include <dronecore/offboard.h>
 # include <iostream>
 # include <thread>
-# include <QtCore/QObject>
-# include <QtCore/QTimer>
+# include <memory>
+
+using namespace dronecore;
+using std::this_thread::sleep_for;
+using std::chrono::milliseconds;
+using std::chrono::seconds;
 
 
+#define ERROR_CONSOLE_TEXT "\033[31m" // Turn text on console red
+#define TELEMETRY_CONSOLE_TEXT "\033[34m" // Turn text on console blue
+#define NORMAL_CONSOLE_TEXT "\033[0m" // Restore normal console colour
 
 
-class QGamepad;
-
-class Controller
-  : public  QObject, public std::enable_shared_from_this<Controller>  
+class Controller 
 {
 
-  Q_OBJECT
-
-
+  
 public:
-
-  explicit Controller( QObject* parent = 0
-	     
-
-
-
-	     );
-
-  ~Controller();
-
+  
+  Controller();
+  
   bool takeoff(std::shared_ptr<dronecore::Action> action);
   bool land(std::shared_ptr<dronecore::Action> action);
   bool goUp(std::shared_ptr<dronecore::Offboard> offboard);
@@ -51,24 +46,24 @@ public:
   bool turnToLeft(std::shared_ptr<dronecore::Offboard> offboard);
   bool turnToRight(std::shared_ptr<dronecore::Offboard> offboard);
   
-  bool discover_system(DroneCore dc);
-  ConnectionResult connect(DroneCore dc, std::string connection_url);
-  ActionResult arm(DroneCore dc);
+  bool discover_system(DroneCore& dc);
+  ConnectionResult connect_to_quad(DroneCore& dc,
+				   std::string connection_url);
+  ActionResult arm(std::shared_ptr<dronecore::Action> action);
   
-  void get_position(std::shared_ptr<dronecore::Telemetr> telemetry);
-  void quad_health(std::shared_ptr<dronecore::Telemetr> telemetry);
+  void get_position(std::shared_ptr<dronecore::Telemetry> telemetry);
+  void quad_health(std::shared_ptr<dronecore::Telemetry> telemetry);
+  Telemetry::Result set_rate_result(std::shared_ptr<dronecore::Telemetry> telemetry);
   
- 
-
 private:
+  
   DroneCore dc_;
   
-  std::shared_ptr<dronecore::Telemetry>(system) telemetry_;
-  std::shared_ptr<dronecore::Action>(system) action_;
-  std::shared_ptr<dronecore::Offboard>(system) offboard_;
-
-  QGamepad* m_gamepad_;
-
+  std::shared_ptr<dronecore::Telemetry> telemetry_;
+  std::shared_ptr<dronecore::Action> action_;
+  std::shared_ptr<dronecore::Offboard> offboard_;
+  
+  
 };
 
 
