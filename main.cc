@@ -3,7 +3,7 @@
  * @brief controller code, that allow user to control the quad
  *
  * @authors Author: Omar Shrit <shrit@lri.fr>
- * @date 2018-07-1
+ * @date 2018-07-21
  */
 extern "C"
 {
@@ -12,17 +12,30 @@ extern "C"
 
 # include <string>
 # include <iostream>
-# include <boost/asio/posix/stream_descriptor.hpp> 
+# include <boost/asio/posix/stream_descriptor.hpp>
+# include <boost/program_options.hpp>
 # include <boost/asio.hpp>
 
 # include "controller.hh"
-
-
+# include "gazebo/plugin.hh"
 
 using namespace dronecore;
 using std::this_thread::sleep_for;
 using std::chrono::milliseconds;
 using std::chrono::seconds;
+
+/**
+ * TODO: Create a usage for the code
+ * TODO: Manage the error exit
+ * TODO: Comment the code 
+ * TODO: Recover all the info of the telemetry
+ * TODO: print well all the output using ncurses
+ * TODO: use boost log to create a log
+ * TODO: also understand the normal log provided by the library
+ * TODO: implement camera receive video, start, and stop, take photo, etc..
+ * TODO: 
+*/
+
 
 
 // inline void action_error_exit(ActionResult result, const std::string &message)
@@ -70,29 +83,78 @@ void async_wait(boost::asio::posix::stream_descriptor& in, Handler&& handler) {
 }
 
 
-int main(int argc, char** argv)
+void usage(std::string arg)
 {
   
+  std::cout << "Usage : " << std ::endl
+    
+	    << "-h  print out this help message" << std::endl
+	    << "-v  print out the version" << std::endl
+	    << "--verbose be more verbose" << std::endl
+	    << "To control the quadcopter using keyboard use : " << std::endl
+	    << " a : to arm" << std::endl
+	    << " t : to takoff" << std::endl
+	    << " l : to land" << std::endl
+	    << " s : to activate offboard mode" << std::endl
+	    << " key up    : to go forward" << std::endl
+	    << " key right : to go right" << std::endl
+	    << " key left  : to go left" << std::endl
+	    << " key down  : to go backward" << std::endl
+	    << " + : to turn clock wise" << std::endl
+	    << " - : to turn counter clock wise" << std::endl;
+  
+}
 
+int main(int argc, char** argv)
+{
+
+  std::string connection_url;
+  
+
+  namespace po = boost::program_options;
+  po::options_description option("Allowed");
+  
+  option.add_options()
+    ("help,h", "Print this help message and exit" )				
+    ("version,v", "Print the current version")
+    ("Versbose,", "Be more verbose")
+    ("udp",
+     po::value<std::string>(&connection_url)->default_value("udp://:14540"),
+     "Connection URL format should be: udp://[bind_host][:bind_port] \n, For example to connect to simulator use --udp udp://:14540")
+    ("tcp",
+     po::value<std::string>(&connection_url),"Connection URL format should be: tcp://[server_host][:server_port]")
+    ("serial",
+      po::value<std::string>(&connection_url),"Connection URL format should be: serial:///path/to/serial/dev[:baudrate]");
+
+  
+  po::variables_map vm;
+  po::store(po::parse_command_line(argc, argv, option), vm);
+  po::notify(vm);
+  
+  if(vm.count("help")){
+    std::cout << option << std::endl;
+    exit(0);        
+  }
+    
+  if(vm.count("version")){
+    std::cout << "0.1v ";
+    exit(0);        
+  }
+  
+
+          
   boost::asio::io_service	io_service;
   
 
   Controller controller;
-
+  Iris_position iris;
 
   DroneCore dc_;
   
-  controller.connect_to_quad(dc_, "udp://:14540");
-  controller.discover_system(dc_);  
+  controller.connect_to_quad(dc_, connection_url);
 
-  
-  // Wait for the system to connect via heartbeat
-  // while (!dc_.is_connected()) {
-  //   std::cout << "Wait for system to connect via heartbeat" << std::endl;
-  //   sleep_for(seconds(1));
-  // }
-  
-  //dc_.register_on_discover(event_callback_t callback)
+  controller.discover_system(dc_);  
+      
   
   System& system = dc_.system();
   
@@ -103,10 +165,7 @@ int main(int argc, char** argv)
   controller.set_rate_result(telemetry_);
   controller.get_position(telemetry_);
   controller.quad_health(telemetry_);
-
   
-
-
     
   setlocale(LC_ALL, "");
   

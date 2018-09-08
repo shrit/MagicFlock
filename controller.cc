@@ -2,44 +2,7 @@
 
 Controller::Controller()
 {
-
-  // this->connect_to_quad(dc_, "udp://:14540");
-  // this->discover_system(dc_);  
-
-  
-  // // Wait for the system to connect via heartbeat
-  // // while (!dc_.is_connected()) {
-  // //   std::cout << "Wait for system to connect via heartbeat" << std::endl;
-  // //   sleep_for(seconds(1));
-  // // }
-  
-  // //dc_.register_on_discover(event_callback_t callback)
-  
-  // System& system = dc_.system();
-  
-  // auto telemetry_ = std::make_shared<dronecore::Telemetry>(system);
-  // auto offboard_  = std::make_shared<dronecore::Offboard>(system);
-  // auto action_    = std::make_shared<dronecore::Action>(system);
-    
-  // this->set_rate_result(telemetry_);
-  // this->get_position(telemetry_);
-  // this->quad_health(telemetry_);
-
-
-
-  // this->arm(action_);
-  
-  // sleep_for(seconds(2));
-
-
-  
-  // this->takeoff(action_);
-  // sleep_for(seconds(6));
-
-  // this->land(action_);
-
-  
-    
+       
 }
 
 
@@ -169,6 +132,11 @@ Offboard::Result Controller::start_offboard_mode(std::shared_ptr<dronecore::Offb
 {
   
   Offboard::Result offboard_result = offboard->start();
+  
+  /*
+   * Async code to start offboard mode in async, 
+   * need to work on it
+   */
   
   //Offboard::Result offboard_result;
   

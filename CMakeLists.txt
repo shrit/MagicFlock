@@ -42,6 +42,7 @@ set(dronecore_action_lib "/usr/local/lib/libdronecore_action.so")
 set(ncurses_lib "/usr/lib/libncurses.so")
 set(boost_lib_system "/meta/local/lib/libboost_system.so")
 set(boost_lib_thread "/meta/local/lib/libboost_thread.so")
+set(boost_lib_program_options "/meta/local/lib/libboost_program_options.so")
 
 
 add_executable(controller  
@@ -63,8 +64,7 @@ target_link_libraries(controller
   ${ncurses_lib}
   ${boost_lib_system}
   ${boost_lib_thread}
-  
-
+  ${boost_lib_program_options}
 
   )
 
