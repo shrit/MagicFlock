@@ -11,21 +11,23 @@ extern "C"
 }
 
 # include <string>
+# include <sstream>
 # include <iostream>
+# include <future>
+# include <chrono>
+# include <vector>
 # include <boost/asio/posix/stream_descriptor.hpp>
 # include <boost/program_options.hpp>
 # include <boost/asio.hpp>
 
 # include "controller.hh"
-# include "gazebo/plugin.hh"
 
-using namespace dronecore;
+using namespace dronecode_sdk;
 using std::this_thread::sleep_for;
 using std::chrono::milliseconds;
 using std::chrono::seconds;
 
 /**
- * TODO: Create a usage for the code
  * TODO: Manage the error exit
  * TODO: Comment the code 
  * TODO: Recover all the info of the telemetry
@@ -33,7 +35,9 @@ using std::chrono::seconds;
  * TODO: use boost log to create a log
  * TODO: also understand the normal log provided by the library
  * TODO: implement camera receive video, start, and stop, take photo, etc..
- * TODO: 
+ * TODO: Add a timer for data that are sent, also use timer in the client side
+ * to ask for data each 50 ms
+ * TODO: Create asyncronous client to connect to the controller in ns3 
 */
 
 
@@ -83,7 +87,135 @@ void async_wait(boost::asio::posix::stream_descriptor& in, Handler&& handler) {
 }
 
 
-void usage(std::string arg)
+class TCPClient
+{
+  
+  using tcp = boost::asio::ip::tcp;
+  
+public:
+  
+  
+private:
+  
+};
+
+
+class TCPServer {
+
+  using tcp = boost::asio::ip::tcp;
+  
+public:
+  
+  struct TCPConnection : std::enable_shared_from_this<TCPConnection> {
+    TCPServer* server_;
+    tcp::socket socket_;
+    bool write_pending_;
+
+    // streambuf to send messages.
+
+    //std::ostream ostream_;
+
+    TCPConnection(TCPServer* server, tcp::socket&& socket)
+      : server_{server}, socket_{std::move(socket)},
+	write_pending_{false} {
+
+    }
+    // Send a string that must not contain a new line.
+    template<class object>
+    void send(object data) {
+      std::vector<object> msg;
+      msg.push_back(data);
+      boost::asio::buffer(msg);
+      if (write_pending_)
+	return;
+
+      auto shared = shared_from_this();
+      boost::asio::async_write(socket_, boost::asio::buffer(msg),
+	[shared](const boost::system::error_code& e,
+			  std::size_t) {
+	  shared->write_pending_ = false;
+	  if (e) {
+	    boost::system::error_code ignored;
+	    std::cerr << "Error sending to "
+		      << shared->socket_.remote_endpoint(ignored)
+		      << ": " << e << ", closing...\n";
+	    //	    shared->server_->destroy(shared);
+	  }
+	});
+      for(const auto& it : msg){
+	if(it == end(msg)){
+	  assert(!"no thing to send, empty vector");
+	  return;
+	}
+	msg.erase(it);
+      }
+      
+      write_pending_ = true;
+    }
+
+  };
+  
+  using connection_pointer = std::shared_ptr<TCPConnection>;
+  
+  TCPServer()
+    :service_{},
+     acceptor_{service_},
+     socket_to_accept_{service_},
+     connection_{}  {
+     }
+
+
+  void start(const tcp::endpoint& endpoint)
+  {
+    acceptor_.open(endpoint.protocol());
+    acceptor_.bind(endpoint);
+    acceptor_.listen();
+    accept();
+    
+  }
+
+  void accept()
+  {
+    
+    acceptor_.async_accept(socket_to_accept_,
+      [this](boost::system::error_code ec) {
+	if (!ec)
+	  connection_ = std::make_shared<TCPConnection>(this, std::move(socket_to_accept_));	
+	accept();
+      });
+  }
+
+  //  void destroy(){}
+
+  
+  
+  template<class object>
+  void send(object data)
+  {
+    service_.post([this, data](){
+		    connection_->send(data);      
+		  });   
+  }
+  
+  void poll() {
+    service_.run();
+  }
+  void stop() {
+    service_.stop();
+  }
+      
+private:
+  
+  boost::asio::io_service service_;
+  tcp::acceptor acceptor_;
+  tcp::socket socket_to_accept_;
+  connection_pointer connection_;
+
+  
+};
+
+
+void usage()
 {
   
   std::cout << "Usage : " << std ::endl
@@ -109,8 +241,8 @@ int main(int argc, char** argv)
 {
 
   std::string connection_url;
+  std::stringstream ss;
   
-
   namespace po = boost::program_options;
   po::options_description option("Allowed");
   
@@ -140,16 +272,16 @@ int main(int argc, char** argv)
     std::cout << "0.1v ";
     exit(0);        
   }
-  
-
-          
+      
   boost::asio::io_service	io_service;
-  
+
+  TCPServer server;
 
   Controller controller;
-  Iris_position iris;
 
-  DroneCore dc_;
+  DronecodeSDK dc_;
+
+  dronecode_sdk::Telemetry::PositionNED position;
   
   controller.connect_to_quad(dc_, connection_url);
 
@@ -158,15 +290,15 @@ int main(int argc, char** argv)
   
   System& system = dc_.system();
   
-  auto telemetry_ = std::make_shared<dronecore::Telemetry>(system);
-  auto offboard_  = std::make_shared<dronecore::Offboard>(system);
-  auto action_    = std::make_shared<dronecore::Action>(system);
+  auto telemetry_ = std::make_shared<dronecode_sdk::Telemetry>(system);
+  auto offboard_  = std::make_shared<dronecode_sdk::Offboard>(system);
+  auto action_    = std::make_shared<dronecode_sdk::Action>(system);
     
   controller.set_rate_result(telemetry_);
   controller.get_position(telemetry_);
   controller.quad_health(telemetry_);
+  controller.get_position_ned(telemetry_);
   
-    
   setlocale(LC_ALL, "");
   
   initscr();
@@ -186,8 +318,18 @@ int main(int argc, char** argv)
   
   int ch;
   
-  boost::asio::posix::stream_descriptor in{io_service, 0};
+  boost::asio::posix::stream_descriptor in{io_service, 0};  
+
+  server.start({boost::asio::ip::tcp::v4(), 8800});
   
+  auto future = std::async(std::launch::async, [&server]() {
+						 server.poll();
+					       });  
+
+
+  server.send(position);
+  
+    
   auto lambda = [&](){
 		  
 		  ch = getch(); 
@@ -251,7 +393,7 @@ int main(int argc, char** argv)
 		};
     
   async_wait(in, lambda);
-  
+
   io_service.run();
              
 }

@@ -6,12 +6,13 @@ Controller::Controller()
 }
 
 
-ConnectionResult Controller::connect_to_quad(DroneCore& dc,
+ConnectionResult Controller::connect_to_quad(DronecodeSDK& dc,
 				     std::string connection_url)
 {
   //  connection_url = "udp://:14540";  
   ConnectionResult connection_result;  
   connection_result = dc.add_any_connection(connection_url);
+  
   
   if (connection_result != ConnectionResult::SUCCESS) {
     std::cout << ERROR_CONSOLE_TEXT
@@ -24,7 +25,7 @@ ConnectionResult Controller::connect_to_quad(DroneCore& dc,
   
 }
 
-bool Controller::discover_system(DroneCore& dc)
+bool Controller::discover_system(DronecodeSDK& dc)
 {
 
   bool discovered_system = false;
@@ -50,7 +51,7 @@ bool Controller::discover_system(DroneCore& dc)
 
 }
 
-bool Controller::takeoff(std::shared_ptr<dronecore::Action> action)
+bool Controller::takeoff(std::shared_ptr<dronecode_sdk::Action> action)
 {
   
   std::cout << "taking off..." << std::endl;
@@ -66,7 +67,7 @@ bool Controller::takeoff(std::shared_ptr<dronecore::Action> action)
   
 }
 
-bool Controller::land(std::shared_ptr<dronecore::Action> action)
+bool Controller::land(std::shared_ptr<dronecode_sdk::Action> action)
 {
   std::cout << "Landing..." << std::endl;
   const ActionResult land_result = action->land();
@@ -82,7 +83,7 @@ bool Controller::land(std::shared_ptr<dronecore::Action> action)
 }
 
 
-void Controller::goUp(std::shared_ptr<dronecore::Offboard> offboard)
+void Controller::goUp(std::shared_ptr<dronecode_sdk::Offboard> offboard)
 {
   std::cout << "To the sky !" << std::endl;
   
@@ -92,7 +93,7 @@ void Controller::goUp(std::shared_ptr<dronecore::Offboard> offboard)
     
 }
 
-void Controller::goDown(std::shared_ptr<dronecore::Offboard> offboard)
+void Controller::goDown(std::shared_ptr<dronecode_sdk::Offboard> offboard)
 {
   std::cout << "To the Earth !" << std::endl;
 
@@ -102,7 +103,7 @@ void Controller::goDown(std::shared_ptr<dronecore::Offboard> offboard)
   
 }
 
-void Controller::goRight(std::shared_ptr<dronecore::Offboard> offboard)
+void Controller::goRight(std::shared_ptr<dronecode_sdk::Offboard> offboard)
 {
   std::cout << "Right now !" << std::endl;
   
@@ -111,7 +112,7 @@ void Controller::goRight(std::shared_ptr<dronecore::Offboard> offboard)
   offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
 }
 
-void Controller::goLeft(std::shared_ptr<dronecore::Offboard> offboard)
+void Controller::goLeft(std::shared_ptr<dronecode_sdk::Offboard> offboard)
 {
   std::cout << "Left now !" << std::endl;
   
@@ -122,13 +123,13 @@ void Controller::goLeft(std::shared_ptr<dronecore::Offboard> offboard)
 }
 
 
-void Controller::init_speed(std::shared_ptr<dronecore::Offboard> offboard)
+void Controller::init_speed(std::shared_ptr<dronecode_sdk::Offboard> offboard)
 {
   offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});		         
 }
 
 
-Offboard::Result Controller::start_offboard_mode(std::shared_ptr<dronecore::Offboard> offboard)
+Offboard::Result Controller::start_offboard_mode(std::shared_ptr<dronecode_sdk::Offboard> offboard)
 {
   
   Offboard::Result offboard_result = offboard->start();
@@ -161,7 +162,7 @@ Offboard::Result Controller::start_offboard_mode(std::shared_ptr<dronecore::Offb
   return offboard_result; 
 }
 
-void Controller::forward(std::shared_ptr<dronecore::Offboard> offboard)
+void Controller::forward(std::shared_ptr<dronecode_sdk::Offboard> offboard)
 {
   std::cout << "go forward !" << std::endl;
 
@@ -173,7 +174,7 @@ void Controller::forward(std::shared_ptr<dronecore::Offboard> offboard)
   offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
 }
 
-void Controller::backward(std::shared_ptr<dronecore::Offboard> offboard)
+void Controller::backward(std::shared_ptr<dronecode_sdk::Offboard> offboard)
 {
   std::cout << "go backward !" << std::endl;
     
@@ -184,7 +185,7 @@ void Controller::backward(std::shared_ptr<dronecore::Offboard> offboard)
 
 }
 
-void Controller::turnToLeft(std::shared_ptr<dronecore::Offboard> offboard)
+void Controller::turnToLeft(std::shared_ptr<dronecode_sdk::Offboard> offboard)
 {
   std::cout << " ... left rotate !" << std::endl;
   offboard->set_velocity_body({0.0f, 0.0f, 0.0f, -10.0f});
@@ -193,7 +194,7 @@ void Controller::turnToLeft(std::shared_ptr<dronecore::Offboard> offboard)
     
 }
 
-void Controller::turnToRight(std::shared_ptr<dronecore::Offboard> offboard)
+void Controller::turnToRight(std::shared_ptr<dronecode_sdk::Offboard> offboard)
 {
     std::cout << " ... right rotate" << std::endl;
     offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 10.0f});
@@ -203,7 +204,7 @@ void Controller::turnToRight(std::shared_ptr<dronecore::Offboard> offboard)
 }
 
 
-ActionResult Controller::arm(std::shared_ptr<dronecore::Action> action)
+ActionResult Controller::arm(std::shared_ptr<dronecode_sdk::Action> action)
 {
   ActionResult arm_result = action->arm();
   if(arm_result != ActionResult::SUCCESS){
@@ -218,7 +219,7 @@ ActionResult Controller::arm(std::shared_ptr<dronecore::Action> action)
   
 }
 
-void Controller::get_position(std::shared_ptr<dronecore::Telemetry> telemetry)
+void Controller::get_position(std::shared_ptr<dronecode_sdk::Telemetry> telemetry)
 {
   
   telemetry->position_async([](Telemetry::Position position){
@@ -237,20 +238,33 @@ void Controller::get_position(std::shared_ptr<dronecore::Telemetry> telemetry)
 }
 
 
+Telemetry::PositionVelocityNED Controller::get_position_ned(std::shared_ptr<dronecode_sdk::Telemetry> telemetry)
+{
 
-void Controller::quad_health(std::shared_ptr<dronecore::Telemetry> telemetry)
+  Telemetry::PositionVelocityNED P_V_N;
+  
+  telemetry->position_velocity_ned_async([&](Telemetry::PositionVelocityNED pvn){
+
+					   P_V_N = pvn;
+					 });
+  
+  return P_V_N;
+}
+
+
+
+void Controller::quad_health(std::shared_ptr<dronecode_sdk::Telemetry> telemetry)
 {
 
   while (telemetry->health_all_ok() != true) {
     std::cout << "Vehicle is getting ready to arm" << std::endl;
     sleep_for(seconds(1));
   }
-  
-  
+    
 }
 
 
-Telemetry::Result Controller::set_rate_result(std::shared_ptr<dronecore::Telemetry> telemetry)
+Telemetry::Result Controller::set_rate_result(std::shared_ptr<dronecode_sdk::Telemetry> telemetry)
 {
   const Telemetry::Result set_rate_result = telemetry->set_rate_position(1.0);
   
