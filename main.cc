@@ -37,7 +37,7 @@ using std::chrono::seconds;
  * TODO: implement camera receive video, start, and stop, take photo, etc..
  * TODO: Add a timer for data that are sent, also use timer in the client side
  * to ask for data each 50 ms
- * TODO: Create asyncronous client to connect to the controller in ns3 
+ * TODO: Create asyncronous clin
 */
 
 
@@ -91,7 +91,7 @@ class TCPClient
 {
   
   using tcp = boost::asio::ip::tcp;
-  
+ 
 public:
   
   
@@ -325,6 +325,7 @@ int main(int argc, char** argv)
   auto future = std::async(std::launch::async, [&server]() {
 						 server.poll();
 					       });  
+
 
 
   server.send(position);
