@@ -52,10 +52,10 @@ set(pthread_lib "/usr/lib/libpthread.so")
 set(boost_lib_system "/meta/local/lib/libboost_system.so")
 set(boost_lib_thread "/meta/local/lib/libboost_thread.so")
 set(boost_lib_program_options "/meta/local/lib/libboost_program_options.so")
-# set(ros_lib "/opt/ros/melodic/lib/libroscpp.so")
-# set(ros_console_lib "/opt/ros/melodic/lib/librosconsole.so")
-# set(ros_serialization_lib "/opt/ros/melodic/lib/libroscpp_serialization.so")
-# set(ros_lib_lib "/opt/ros/melodic/lib/libroslib.so")
+set(ros_lib "/opt/ros/melodic/lib/libroscpp.so")
+set(ros_console_lib "/opt/ros/melodic/lib/librosconsole.so")
+set(ros_serialization_lib "/opt/ros/melodic/lib/libroscpp_serialization.so")
+set(ros_lib_lib "/opt/ros/melodic/lib/libroslib.so")
 
 # #old boost
 # set(boost_lib_system_66 "/meta/local_boost_66/lib/libboost_system.so")
@@ -86,10 +86,10 @@ target_link_libraries(controller
   # Add  'dronecode_sdk_lib' variable defining
   #where the Dronecode_Sdk library can be found
   ${pthread_lib}
-  # ${ros_lib}
-  # ${ros_console_lib}
-  # ${ros_serialization_lib}
-  # ${ros_lib_lib}
+  ${ros_lib}
+  ${ros_console_lib}
+  ${ros_serialization_lib}
+  ${ros_lib_lib}
   # ${GAZEBO_LIBRARIES}
   ${dronecode_sdk_lib}
   ${dronecode_sdk_offboard_lib}
