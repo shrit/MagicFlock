@@ -55,8 +55,9 @@ public:
 				   std::string connection_url);
   ActionResult arm(std::shared_ptr<dronecode_sdk::Action> action);
   
-  void get_position(std::shared_ptr<dronecode_sdk::Telemetry> telemetry);
-  Telemetry::PositionVelocityNED get_position_ned(std::shared_ptr<dronecode_sdk::Telemetry> telemetry);
+  void print_position(std::shared_ptr<dronecode_sdk::Telemetry> telemetry);
+  void async_position_ned(std::shared_ptr<dronecode_sdk::Telemetry> telemetry);
+  Telemetry::PositionVelocityNED get_position_ned();
   
   void quad_health(std::shared_ptr<dronecode_sdk::Telemetry> telemetry);
   Telemetry::Result set_rate_result(std::shared_ptr<dronecode_sdk::Telemetry> telemetry);
@@ -64,7 +65,7 @@ public:
 private:
   
   DronecodeSDK dc_;
-  
+  Telemetry::PositionVelocityNED position_ned_ ;
   std::shared_ptr<dronecode_sdk::Telemetry> telemetry_;
   std::shared_ptr<dronecode_sdk::Action> action_;
   std::shared_ptr<dronecode_sdk::Offboard> offboard_;

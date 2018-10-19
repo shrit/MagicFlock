@@ -11,6 +11,7 @@ extern "C"
 }
 
 # include <string>
+#include "dronecode_sdk/logging.h"
 # include <sstream>
 # include <iostream>
 # include <future>
@@ -20,6 +21,10 @@ extern "C"
 # include <boost/program_options.hpp>
 # include <boost/asio.hpp>
 
+# include <ros/ros.h>
+# include <geometry_msgs/Pose.h>
+
+
 # include "controller.hh"
 
 using namespace dronecode_sdk;
@@ -27,7 +32,12 @@ using std::this_thread::sleep_for;
 using std::chrono::milliseconds;
 using std::chrono::seconds;
 
-/**
+/**  
+ * TODO: Reput the code in several files URGENT
+ * TODO: keep the ros commented in the main
+ * TODO: Make the client send the position message to the server
+ * TODO: Reimplement the server seperatly in a connection file 
+ * TODO: Comment all the code 
  * TODO: Manage the error exit
  * TODO: Comment the code 
  * TODO: Recover all the info of the telemetry
@@ -37,7 +47,6 @@ using std::chrono::seconds;
  * TODO: implement camera receive video, start, and stop, take photo, etc..
  * TODO: Add a timer for data that are sent, also use timer in the client side
  * to ask for data each 50 ms
- * TODO: Create asyncronous clin
 */
 
 
@@ -91,12 +100,58 @@ class TCPClient
 {
   
   using tcp = boost::asio::ip::tcp;
+  using socket_type        = tcp::socket;
+  using endpoint_type      = boost::asio::ip::tcp::endpoint;
  
 public:
-  
+  TCPClient(   socket_type&&				socket,
+	       const boost::optional<endpoint_type>&	ep = boost::none
+	       ):
+    resolver_(service_),
+    socket_(service_),
+    endpoint_(ep),
+  {}
+    
+
+    void connect() {
+      
+      auto self(this->shared_from_this());
+      if (endpoint_)
+      socket_.async_connect(*endpoint_,
+			    [this, self](boost::system::error_code ec) {
+			      if (ec) {
+				if (ec == boost::asio::error::operation_aborted)
+				  return;
+				// Some error occurred on connection
+				// attempt.  Close the socket and
+				// schedule a later connection attempt.
+				std::cout <<
+				  "Session: could not connect to endpoint: " <<
+				  ec.message() << '.' << std::endl;
+				socket_.close();
+				//do_connect_later();
+				return;
+			      }
+			      // Connection succeeded.  Schedule a
+			      // reception as soon as input data is
+			      // available.
+			      start();
+			    });
+  }
+
+  void start() {
+    //    status_sender_.start();
+    //  do_read_header();
+  }
+  boost::
   
 private:
-  
+
+  tcp::resolver resolver_;
+  socket_type socket_;
+  boost::asio::streambuf request_;
+  boost::asio::streambuf response_;
+  boost::optional<endpoint_type>	endpoint_;
 };
 
 
@@ -142,16 +197,16 @@ public:
 	    //	    shared->server_->destroy(shared);
 	  }
 	});
-      for(const auto& it : msg){
-	if(it == end(msg)){
-	  assert(!"no thing to send, empty vector");
-	  return;
-	}
-	msg.erase(it);
-      }
+    //   for(const auto& it : msg){
+    // 	if(it == end(msg)){
+    // 	  assert(!"no thing to send, empty vector");
+    // 	  return;
+    // 	}
+    // 	msg.erase(it);
+    //   // }
       
-      write_pending_ = true;
-    }
+       write_pending_ = true;
+     }
 
   };
   
@@ -234,7 +289,6 @@ void usage()
 	    << " key down  : to go backward" << std::endl
 	    << " + : to turn clock wise" << std::endl
 	    << " - : to turn counter clock wise" << std::endl;
-  
 }
 
 int main(int argc, char** argv)
@@ -257,7 +311,7 @@ int main(int argc, char** argv)
      po::value<std::string>(&connection_url),"Connection URL format should be: tcp://[server_host][:server_port]")
     ("serial",
       po::value<std::string>(&connection_url),"Connection URL format should be: serial:///path/to/serial/dev[:baudrate]");
-
+ 
   
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, option), vm);
@@ -275,18 +329,17 @@ int main(int argc, char** argv)
       
   boost::asio::io_service	io_service;
 
-  TCPServer server;
+  //  TCPServer server;
 
   Controller controller;
 
   DronecodeSDK dc_;
-
-  dronecode_sdk::Telemetry::PositionNED position;
   
   controller.connect_to_quad(dc_, connection_url);
 
   controller.discover_system(dc_);  
-      
+
+
   
   System& system = dc_.system();
   
@@ -295,15 +348,38 @@ int main(int argc, char** argv)
   auto action_    = std::make_shared<dronecode_sdk::Action>(system);
     
   controller.set_rate_result(telemetry_);
-  controller.get_position(telemetry_);
+  controller.print_position(telemetry_);
   controller.quad_health(telemetry_);
-  controller.get_position_ned(telemetry_);
+  controller.get_position_ned();
+
+
+  ///////////
+  // //ROS //
+  ///////////
   
-  setlocale(LC_ALL, "");
+   ros::init(argc, argv, "node");
   
-  initscr();
-  
-  halfdelay(3);
+   //ros::NodeHandle node_handle_;
+   boost::
+    ros::Publisher pose_pub;
+
+    using pose_msg = geometry_msgs::Pose;
+    
+    
+  // pose_pub = node_handle_.advertise<pose_msg>("/" + ss.str() + "/pose", 1000);
+    
+    pose_msg pose;							 
+    pose.position.x = controller.get_position_ned().position.down_m ;	
+    pose.position.y = controller.get_position_ned().position.east_m;
+    pose.position.z = controller.get_position_ned().position.north_m;   
+    
+    pose_pub.publish(pose);
+    
+    setlocale(LC_ALL, "");
+    
+    initscr();
+    
+    halfdelay(3);
   
   
   // Suppress automatic echoing
@@ -320,17 +396,17 @@ int main(int argc, char** argv)
   
   boost::asio::posix::stream_descriptor in{io_service, 0};  
 
-  server.start({boost::asio::ip::tcp::v4(), 8800});
-  
-  auto future = std::async(std::launch::async, [&server]() {
-						 server.poll();
-					       });  
+  //////////////////////////////////////////////////////////////////////////
+  // server.start({boost::asio::ip::tcp::v4(), 8800});			  //
+  // 									  //
+  // auto future = std::async(std::launch::async, [&server]() {		  //
+  // 						 server.poll();		  //
+  // 					       });  			  //
+  //////////////////////////////////////////////////////////////////////////
 
 
-
-  server.send(position);
-  
-    
+  //server.send(position);
+      
   auto lambda = [&](){
 		  
 		  ch = getch(); 

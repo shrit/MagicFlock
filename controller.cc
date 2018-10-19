@@ -1,15 +1,9 @@
 # include "controller.hh"
 
-Controller::Controller()
-{
-       
-}
-
 
 ConnectionResult Controller::connect_to_quad(DronecodeSDK& dc,
 				     std::string connection_url)
 {
-  //  connection_url = "udp://:14540";  
   ConnectionResult connection_result;  
   connection_result = dc.add_any_connection(connection_url);
   
@@ -219,7 +213,7 @@ ActionResult Controller::arm(std::shared_ptr<dronecode_sdk::Action> action)
   
 }
 
-void Controller::get_position(std::shared_ptr<dronecode_sdk::Telemetry> telemetry)
+void Controller::print_position(std::shared_ptr<dronecode_sdk::Telemetry> telemetry)
 {
   
   telemetry->position_async([](Telemetry::Position position){
@@ -237,18 +231,17 @@ void Controller::get_position(std::shared_ptr<dronecode_sdk::Telemetry> telemetr
   
 }
 
-
-Telemetry::PositionVelocityNED Controller::get_position_ned(std::shared_ptr<dronecode_sdk::Telemetry> telemetry)
+Telemetry::PositionVelocityNED Controller::get_position_ned()
 {
+  this->position_ned_;
+}
 
-  Telemetry::PositionVelocityNED P_V_N;
-  
-  telemetry->position_velocity_ned_async([&](Telemetry::PositionVelocityNED pvn){
 
-					   P_V_N = pvn;
-					 });
-  
-  return P_V_N;
+void Controller::async_position_ned(std::shared_ptr<dronecode_sdk::Telemetry> telemetry)
+{
+  telemetry->position_velocity_ned_async([this](Telemetry::PositionVelocityNED pvn){
+					   this->position_ned_ = pvn;
+					 });   
 }
 
 
