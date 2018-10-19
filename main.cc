@@ -5,27 +5,40 @@
  * @authors Author: Omar Shrit <shrit@lri.fr>
  * @date 2018-07-21
  */
+
 extern "C"
 {
   # include <curses.h>         
 }
 
+/*  C++ Standard library include */
+
 # include <string>
-#include "dronecode_sdk/logging.h"
 # include <sstream>
-# include <iostream>
 # include <future>
 # include <chrono>
 # include <vector>
+
+/*  Boost asio library include */
+
 # include <boost/asio/posix/stream_descriptor.hpp>
-# include <boost/program_options.hpp>
 # include <boost/asio.hpp>
 
-# include <ros/ros.h>
-# include <geometry_msgs/Pose.h>
+//# include <ros/ros.h>
+//# include <geometry_msgs/Pose.h>
 
 
+/*  gazebo include */
+
+# include <gazebo/gazebo_config.h>
+# include <gazebo/transport/transport.hh>
+# include <gazebo/gazebo_client.hh>
+# include <gazebo/msgs/msgs.hh>
+
+/*  locale defined include */
 # include "controller.hh"
+# include "dronecode_sdk/logging.h"
+# include "settings.hh"
 
 using namespace dronecode_sdk;
 using std::this_thread::sleep_for;
@@ -33,20 +46,21 @@ using std::chrono::milliseconds;
 using std::chrono::seconds;
 
 /**  
- * TODO: Reput the code in several files URGENT
+ * TODO: Reput the code in several files URGENT, 
  * TODO: keep the ros commented in the main
  * TODO: Make the client send the position message to the server
  * TODO: Reimplement the server seperatly in a connection file 
  * TODO: Comment all the code 
  * TODO: Manage the error exit
- * TODO: Comment the code 
  * TODO: Recover all the info of the telemetry
  * TODO: print well all the output using ncurses
- * TODO: use boost log to create a log
- * TODO: also understand the normal log provided by the library
- * TODO: implement camera receive video, start, and stop, take photo, etc..
+ * TODO: use boost log to create a log, and to create possible statistical output
+ * TODO: Also understand the normal log provided by the library
+ * TODO: Implement camera receive video, start, and stop, take photo, etc..
  * TODO: Add a timer for data that are sent, also use timer in the client side
  * to ask for data each 50 ms
+ * TODO: Try to use opengl instead of ncurses for keyboard command,
+ * TODO: Use the opengl graphical interface
 */
 
 
@@ -96,251 +110,23 @@ void async_wait(boost::asio::posix::stream_descriptor& in, Handler&& handler) {
 }
 
 
-class TCPClient
-{
-  
-  using tcp = boost::asio::ip::tcp;
-  using socket_type        = tcp::socket;
-  using endpoint_type      = boost::asio::ip::tcp::endpoint;
- 
-public:
-  TCPClient(   socket_type&&				socket,
-	       const boost::optional<endpoint_type>&	ep = boost::none
-	       ):
-    resolver_(service_),
-    socket_(service_),
-    endpoint_(ep),
-  {}
-    
-
-    void connect() {
-      
-      auto self(this->shared_from_this());
-      if (endpoint_)
-      socket_.async_connect(*endpoint_,
-			    [this, self](boost::system::error_code ec) {
-			      if (ec) {
-				if (ec == boost::asio::error::operation_aborted)
-				  return;
-				// Some error occurred on connection
-				// attempt.  Close the socket and
-				// schedule a later connection attempt.
-				std::cout <<
-				  "Session: could not connect to endpoint: " <<
-				  ec.message() << '.' << std::endl;
-				socket_.close();
-				//do_connect_later();
-				return;
-			      }
-			      // Connection succeeded.  Schedule a
-			      // reception as soon as input data is
-			      // available.
-			      start();
-			    });
-  }
-
-  void start() {
-    //    status_sender_.start();
-    //  do_read_header();
-  }
-  boost::
-  
-private:
-
-  tcp::resolver resolver_;
-  socket_type socket_;
-  boost::asio::streambuf request_;
-  boost::asio::streambuf response_;
-  boost::optional<endpoint_type>	endpoint_;
-};
-
-
-class TCPServer {
-
-  using tcp = boost::asio::ip::tcp;
-  
-public:
-  
-  struct TCPConnection : std::enable_shared_from_this<TCPConnection> {
-    TCPServer* server_;
-    tcp::socket socket_;
-    bool write_pending_;
-
-    // streambuf to send messages.
-
-    //std::ostream ostream_;
-
-    TCPConnection(TCPServer* server, tcp::socket&& socket)
-      : server_{server}, socket_{std::move(socket)},
-	write_pending_{false} {
-
-    }
-    // Send a string that must not contain a new line.
-    template<class object>
-    void send(object data) {
-      std::vector<object> msg;
-      msg.push_back(data);
-      boost::asio::buffer(msg);
-      if (write_pending_)
-	return;
-
-      auto shared = shared_from_this();
-      boost::asio::async_write(socket_, boost::asio::buffer(msg),
-	[shared](const boost::system::error_code& e,
-			  std::size_t) {
-	  shared->write_pending_ = false;
-	  if (e) {
-	    boost::system::error_code ignored;
-	    std::cerr << "Error sending to "
-		      << shared->socket_.remote_endpoint(ignored)
-		      << ": " << e << ", closing...\n";
-	    //	    shared->server_->destroy(shared);
-	  }
-	});
-    //   for(const auto& it : msg){
-    // 	if(it == end(msg)){
-    // 	  assert(!"no thing to send, empty vector");
-    // 	  return;
-    // 	}
-    // 	msg.erase(it);
-    //   // }
-      
-       write_pending_ = true;
-     }
-
-  };
-  
-  using connection_pointer = std::shared_ptr<TCPConnection>;
-  
-  TCPServer()
-    :service_{},
-     acceptor_{service_},
-     socket_to_accept_{service_},
-     connection_{}  {
-     }
-
-
-  void start(const tcp::endpoint& endpoint)
-  {
-    acceptor_.open(endpoint.protocol());
-    acceptor_.bind(endpoint);
-    acceptor_.listen();
-    accept();
-    
-  }
-
-  void accept()
-  {
-    
-    acceptor_.async_accept(socket_to_accept_,
-      [this](boost::system::error_code ec) {
-	if (!ec)
-	  connection_ = std::make_shared<TCPConnection>(this, std::move(socket_to_accept_));	
-	accept();
-      });
-  }
-
-  //  void destroy(){}
-
-  
-  
-  template<class object>
-  void send(object data)
-  {
-    service_.post([this, data](){
-		    connection_->send(data);      
-		  });   
-  }
-  
-  void poll() {
-    service_.run();
-  }
-  void stop() {
-    service_.stop();
-  }
-      
-private:
-  
-  boost::asio::io_service service_;
-  tcp::acceptor acceptor_;
-  tcp::socket socket_to_accept_;
-  connection_pointer connection_;
-
-  
-};
-
-
-void usage()
-{
-  
-  std::cout << "Usage : " << std ::endl
-    
-	    << "-h  print out this help message" << std::endl
-	    << "-v  print out the version" << std::endl
-	    << "--verbose be more verbose" << std::endl
-	    << "To control the quadcopter using keyboard use : " << std::endl
-	    << " a : to arm" << std::endl
-	    << " t : to takoff" << std::endl
-	    << " l : to land" << std::endl
-	    << " s : to activate offboard mode" << std::endl
-	    << " key up    : to go forward" << std::endl
-	    << " key right : to go right" << std::endl
-	    << " key left  : to go left" << std::endl
-	    << " key down  : to go backward" << std::endl
-	    << " + : to turn clock wise" << std::endl
-	    << " - : to turn counter clock wise" << std::endl;
-}
-
-int main(int argc, char** argv)
+int main(int argc, char* argv[])
 {
 
-  std::string connection_url;
   std::stringstream ss;
-  
-  namespace po = boost::program_options;
-  po::options_description option("Allowed");
-  
-  option.add_options()
-    ("help,h", "Print this help message and exit" )				
-    ("version,v", "Print the current version")
-    ("Versbose,", "Be more verbose")
-    ("udp",
-     po::value<std::string>(&connection_url)->default_value("udp://:14540"),
-     "Connection URL format should be: udp://[bind_host][:bind_port] \n, For example to connect to simulator use --udp udp://:14540")
-    ("tcp",
-     po::value<std::string>(&connection_url),"Connection URL format should be: tcp://[server_host][:server_port]")
-    ("serial",
-      po::value<std::string>(&connection_url),"Connection URL format should be: serial:///path/to/serial/dev[:baudrate]");
- 
-  
-  po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, option), vm);
-  po::notify(vm);
-  
-  if(vm.count("help")){
-    std::cout << option << std::endl;
-    exit(0);        
-  }
-    
-  if(vm.count("version")){
-    std::cout << "0.1v ";
-    exit(0);        
-  }
-      
-  boost::asio::io_service	io_service;
 
-  //  TCPServer server;
+  Settings settings(argc, argv);
+        
+  boost::asio::io_service	io_service;
 
   Controller controller;
 
   DronecodeSDK dc_;
   
-  controller.connect_to_quad(dc_, connection_url);
+  controller.connect_to_quad(dc_, settings.get_connection_url());
 
   controller.discover_system(dc_);  
 
-
-  
   System& system = dc_.system();
   
   auto telemetry_ = std::make_shared<dronecode_sdk::Telemetry>(system);
@@ -352,34 +138,65 @@ int main(int argc, char** argv)
   controller.quad_health(telemetry_);
   controller.get_position_ned();
 
+  //Connect to the server installed in ns3
 
+  ////////////
+  // Gazebo //
+  ////////////
+
+
+  using PubPtr =  gazebo::transport::PublisherPtr ;
+  
+ 
+  gazebo::client::setup(argc, argv);
+  
+  gazebo::transport::NodePtr node(new gazebo::transport::Node());
+  
+  node->Init();
+
+  PubPtr pub = node->Advertise<gazebo::msgs::Vector3d>("~/quad_position/pose");
+
+  // std::vector<double> msg;
+  
+  // msg.push_back(controller.get_position_ned().position.down_m);
+  // msg.push_back(controller.get_position_ned().position.east_m);
+  // msg.push_back(controller.get_position_ned().position.north_m);
+  
+  
+  gazebo::msgs::Vector3d msg;
+  gazebo::msgs::Set(&msg,
+		    ignition::math::Vector3d(controller.get_position_ned().position.down_m,
+					     controller.get_position_ned().position.east_m,
+					     controller.get_position_ned().position.north_m));
+  pub->Publish(msg);  
+  
   ///////////
-  // //ROS //
+  // ROS   //
   ///////////
   
-   ros::init(argc, argv, "node");
+  //   ros::init(argc, argv, "node");
   
-   //ros::NodeHandle node_handle_;
-   boost::
-    ros::Publisher pose_pub;
-
-    using pose_msg = geometry_msgs::Pose;
+   //  ros::NodeHandle node_handle_;
+  
+   //    ros::Publisher pose_pub;
+  
+  //  using pose_msg = geometry_msgs::Pose;
     
     
   // pose_pub = node_handle_.advertise<pose_msg>("/" + ss.str() + "/pose", 1000);
     
-    pose_msg pose;							 
-    pose.position.x = controller.get_position_ned().position.down_m ;	
-    pose.position.y = controller.get_position_ned().position.east_m;
-    pose.position.z = controller.get_position_ned().position.north_m;   
+    // pose_msg pose;							 
+    // pose.position.x = controller.get_position_ned().position.down_m ;	
+    // pose.position.y = controller.get_position_ned().position.east_m;
+    // pose.position.z = controller.get_position_ned().position.north_m;   
     
-    pose_pub.publish(pose);
+    // pose_pub.publish(pose);
     
-    setlocale(LC_ALL, "");
-    
-    initscr();
-    
-    halfdelay(3);
+  setlocale(LC_ALL, "");
+  
+  initscr();
+  
+  halfdelay(3);
   
   
   // Suppress automatic echoing
@@ -395,17 +212,6 @@ int main(int argc, char** argv)
   int ch;
   
   boost::asio::posix::stream_descriptor in{io_service, 0};  
-
-  //////////////////////////////////////////////////////////////////////////
-  // server.start({boost::asio::ip::tcp::v4(), 8800});			  //
-  // 									  //
-  // auto future = std::async(std::launch::async, [&server]() {		  //
-  // 						 server.poll();		  //
-  // 					       });  			  //
-  //////////////////////////////////////////////////////////////////////////
-
-
-  //server.send(position);
       
   auto lambda = [&](){
 		  
