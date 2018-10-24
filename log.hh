@@ -17,8 +17,8 @@ namespace log {
   namespace keywords = boost::log::keywords;
 
   /// Initialize the log system
-  void	init();
-
+  void	init_logging();
+  
   using severity_level = logging::trivial::severity_level;
   using logger_type    = logging::sources::severity_logger<severity_level>;
 
