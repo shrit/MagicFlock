@@ -32,8 +32,7 @@ class Controller
 
   
 public:
-  
-  Controller();
+ 
   
   bool takeoff(std::shared_ptr<dronecode_sdk::Action> action);
   bool land(std::shared_ptr<dronecode_sdk::Action> action);

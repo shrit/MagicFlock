@@ -233,7 +233,7 @@ void Controller::print_position(std::shared_ptr<dronecode_sdk::Telemetry> teleme
 
 Telemetry::PositionVelocityNED Controller::get_position_ned()
 {
-  this->position_ned_;
+ return this->position_ned_;
 }
 
 

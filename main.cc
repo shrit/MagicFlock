@@ -163,7 +163,8 @@ int main(int argc, char* argv[])
   node->Init();
 
   // to subscribe to the 
-  SubPtr sub = node->Subscribe("~/", function_to_call_treat_the_msg);  
+  SubPtr sub = node->Subscribe("~/info/pose", function_to_call_treat_the_msg);
+  
  
   /////////////
   // ncurses //
