@@ -1,15 +1,13 @@
 # include "settings.hh"
-# include <boost/program_options.hpp>
 
+
+
+/*  Print the out the possible keyboard input */
 
 void usage(std::ostream& out)
 {
   
-  out<< "Usage : " << std ::endl
-    
-     << "-h  print out this help message" << std::endl
-     << "-v  print out the version" << std::endl
-     << "--verbose be more verbose" << std::endl
+  out<< "Usage : " << std ::endl   
      << "To control the quadcopter using keyboard use : " << std::endl
      << " a : to arm" << std::endl
      << " t : to takoff" << std::endl
@@ -23,6 +21,8 @@ void usage(std::ostream& out)
      << " - : to turn counter clock wise" << std::endl;
 }
 
+/*  Constructor for program options */
+
 Settings::Settings(int argc, char* argv[])
 {
 
@@ -32,7 +32,11 @@ Settings::Settings(int argc, char* argv[])
   option.add_options()
     ("help,h", "Print this help message and exit" )				
     ("version,v", "Print the current version")
-    ("Versbose,", "Be more verbose")
+    ("Versbose,V", "Be more verbose")
+    ("r", po::value<std::string>(&file_name_),"Read program option from a file")
+    
+    ("n", po::value<int>(&number_of_quads_)->default_value(1),
+     "Number of quadcopters to create")
     ("udp",
      po::value<std::string>(&connection_url_)->default_value("udp://:14540"),
      "Connection URL format should be: udp://[bind_host][:bind_port] \n, For example to connect to simulator use --udp udp://:14540")
@@ -53,14 +57,28 @@ Settings::Settings(int argc, char* argv[])
   }
     
   if(vm.count("version")){
-    std::cout << "0.1v ";
+    std::cout << "0.2v ";
     exit(0);        
   }
 
-
+}
+/*  read the program options from a json file */
+void Settings::read_json(const std::string& file_path)
+{
+  boost::property_tree::ptree  input; 
+  boost::property_tree::read_json(file_path, input);
+  input.get<std::string>("quad_L", );
+  input.get<std::vector<port_type>>("port_number", );
+   
+  
 }
 
 std::string Settings::get_connection_url() const
 {
   return connection_url_;
+}
+
+std::string Settings::get_file_name() const
+{
+  return file_name_;
 }
