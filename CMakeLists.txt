@@ -19,8 +19,7 @@ set ( SOURCES
   main.cc
   controller.cc
   settings.cc
-  # connection.cc
-  # position.cc  
+  gazebo.cc
   )
 
 set (BOOST_INCLUDE_DIRS "/meta/local/include/")
