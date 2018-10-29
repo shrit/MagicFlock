@@ -16,6 +16,9 @@ https://sdk.dronecode.org/en/examples/transition_vtol_fixed_wing.html  * @file c
 # include <thread>
 # include <memory>
 
+# include "settings.hh"
+
+
 using namespace dronecode_sdk;
 using std::this_thread::sleep_for;
 using std::chrono::milliseconds;
@@ -32,34 +35,36 @@ class Controller
 
   
 public:
- 
+
+  Controller(Settings settings);
+
+  ActionResult arm();
   
-  bool takeoff(std::shared_ptr<dronecode_sdk::Action> action);
-  bool land(std::shared_ptr<dronecode_sdk::Action> action);
-  void goUp(std::shared_ptr<dronecode_sdk::Offboard> offboard);
-  void goDown(std::shared_ptr<dronecode_sdk::Offboard> offboard);
-  void goRight(std::shared_ptr<dronecode_sdk::Offboard> offboard);
-  void goLeft(std::shared_ptr<dronecode_sdk::Offboard> offboard);
-  void forward(std::shared_ptr<dronecode_sdk::Offboard> offboard);
-  void backward(std::shared_ptr<dronecode_sdk::Offboard> offboard);
-  void turnToLeft(std::shared_ptr<dronecode_sdk::Offboard> offboard);
-  void turnToRight(std::shared_ptr<dronecode_sdk::Offboard> offboard);
+  bool takeoff();
+  bool land();
+  void goUp();
+  void goDown();
+  void goRight();
+  void goLeft();
+  void forward();
+  void backward();
+  void turnToLeft();
+  void turnToRight();
 
 
-  void init_speed(std::shared_ptr<dronecode_sdk::Offboard> offboard);
-  Offboard::Result start_offboard_mode(std::shared_ptr<dronecode_sdk::Offboard> offboard);
+  void init_speed();
+  Offboard::Result start_offboard_mode();
   
-  bool discover_system(DronecodeSDK& dc);
-  ConnectionResult connect_to_quad(DronecodeSDK& dc,
-				   std::string connection_url);
-  ActionResult arm(std::shared_ptr<dronecode_sdk::Action> action);
+  bool discover_system();
+  ConnectionResult connect_to_quad(std::string connection_url);
+
   
-  void print_position(std::shared_ptr<dronecode_sdk::Telemetry> telemetry);
-  void async_position_ned(std::shared_ptr<dronecode_sdk::Telemetry> telemetry);
+  void print_position();
+  void async_position_ned();
   Telemetry::PositionVelocityNED get_position_ned();
   
-  void quad_health(std::shared_ptr<dronecode_sdk::Telemetry> telemetry);
-  Telemetry::Result set_rate_result(std::shared_ptr<dronecode_sdk::Telemetry> telemetry);
+  void quad_health();
+  Telemetry::Result set_rate_result();
   
 private:
   
@@ -67,10 +72,7 @@ private:
   Telemetry::PositionVelocityNED position_ned_ ;
   std::shared_ptr<dronecode_sdk::Telemetry> telemetry_;
   std::shared_ptr<dronecode_sdk::Action> action_;
-  std::shared_ptr<dronecode_sdk::Offboard> offboard_;
-
-
-
+  std::shared_ptr<dronecode_sdk::Offboard> offboard_;  
   
 };
 

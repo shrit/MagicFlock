@@ -1,11 +1,30 @@
 # include "controller.hh"
 
 
-ConnectionResult Controller::connect_to_quad(DronecodeSDK& dc,
-				     std::string connection_url)
+
+Controller::Controller(Settings settings)
+{
+
+  connect_to_quad(settings.get_connection_url());
+
+  discover_system();  
+
+  System& system = dc_.system();  
+  
+  auto telemetry_ = std::make_shared<dronecode_sdk::Telemetry>(system);
+  auto offboard_  = std::make_shared<dronecode_sdk::Offboard>(system);
+  auto action_    = std::make_shared<dronecode_sdk::Action>(system);
+  
+  set_rate_result();
+  print_position();
+  quad_health();      
+  
+}
+
+ConnectionResult Controller::connect_to_quad(std::string connection_url)
 {
   ConnectionResult connection_result;  
-  connection_result = dc.add_any_connection(connection_url);
+  connection_result = dc_.add_any_connection(connection_url);
   
   
   if (connection_result != ConnectionResult::SUCCESS) {
@@ -19,7 +38,7 @@ ConnectionResult Controller::connect_to_quad(DronecodeSDK& dc,
   
 }
 
-bool Controller::discover_system(DronecodeSDK& dc)
+bool Controller::discover_system()
 {
 
   bool discovered_system = false;
@@ -41,15 +60,13 @@ bool Controller::discover_system(DronecodeSDK& dc)
   }
 
   return discovered_system;
-
-
 }
 
-bool Controller::takeoff(std::shared_ptr<dronecode_sdk::Action> action)
+bool Controller::takeoff()
 {
   
   std::cout << "taking off..." << std::endl;
-  const ActionResult takeoff_result = action->takeoff();
+  const ActionResult takeoff_result = action_->takeoff();
   if(takeoff_result != ActionResult::SUCCESS){
     std::cout << ERROR_CONSOLE_TEXT
 	      << "take off failed: "
@@ -61,10 +78,10 @@ bool Controller::takeoff(std::shared_ptr<dronecode_sdk::Action> action)
   
 }
 
-bool Controller::land(std::shared_ptr<dronecode_sdk::Action> action)
+bool Controller::land()
 {
   std::cout << "Landing..." << std::endl;
-  const ActionResult land_result = action->land();
+  const ActionResult land_result = action_->land();
   if (land_result != ActionResult::SUCCESS) {
     std::cout << ERROR_CONSOLE_TEXT
 	      << "Land failed:"
@@ -76,57 +93,56 @@ bool Controller::land(std::shared_ptr<dronecode_sdk::Action> action)
 
 }
 
-
-void Controller::goUp(std::shared_ptr<dronecode_sdk::Offboard> offboard)
+void Controller::goUp()
 {
   std::cout << "To the sky !" << std::endl;
   
-  offboard->set_velocity_body({0.0f, 0.0f, -10.0f, 0.0f});
+  offboard_->set_velocity_body({0.0f, 0.0f, -10.0f, 0.0f});
   sleep_for(milliseconds(50));
-  offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
     
 }
 
-void Controller::goDown(std::shared_ptr<dronecode_sdk::Offboard> offboard)
+void Controller::goDown()
 {
   std::cout << "To the Earth !" << std::endl;
 
-  offboard->set_velocity_body({0.0f, 0.0f, +3.0f, 0.0f});
+  offboard_->set_velocity_body({0.0f, 0.0f, +3.0f, 0.0f});
   sleep_for(milliseconds(50));
-  offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
   
 }
 
-void Controller::goRight(std::shared_ptr<dronecode_sdk::Offboard> offboard)
+void Controller::goRight()
 {
   std::cout << "Right now !" << std::endl;
   
-  offboard->set_velocity_body({0.0f, 10.0f, 0.0f, 0.0f}); 
+  offboard_->set_velocity_body({0.0f, 10.0f, 0.0f, 0.0f}); 
   sleep_for(milliseconds(50));
-  offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
 }
 
-void Controller::goLeft(std::shared_ptr<dronecode_sdk::Offboard> offboard)
+void Controller::goLeft()
 {
   std::cout << "Left now !" << std::endl;
   
-  offboard->set_velocity_body({0.0f, -10.0f, 0.0f, 0.0f});
+  offboard_->set_velocity_body({0.0f, -10.0f, 0.0f, 0.0f});
   sleep_for(milliseconds(50));
-  offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
 
 }
 
 
-void Controller::init_speed(std::shared_ptr<dronecode_sdk::Offboard> offboard)
+void Controller::init_speed()
 {
-  offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});		         
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});		         
 }
 
 
-Offboard::Result Controller::start_offboard_mode(std::shared_ptr<dronecode_sdk::Offboard> offboard)
+Offboard::Result Controller::start_offboard_mode()
 {
   
-  Offboard::Result offboard_result = offboard->start();
+  Offboard::Result offboard_result = offboard_->start();
   
   /*
    * Async code to start offboard mode in async, 
@@ -156,51 +172,51 @@ Offboard::Result Controller::start_offboard_mode(std::shared_ptr<dronecode_sdk::
   return offboard_result; 
 }
 
-void Controller::forward(std::shared_ptr<dronecode_sdk::Offboard> offboard)
+void Controller::forward()
 {
   std::cout << "go forward !" << std::endl;
 
   //set velocity function is going to make the quad go  all the time
   // we need to set it to zero after each keyboard touch
   
-  offboard->set_velocity_body({10.0f, 0.0f, 0.0f, 0.0f});
+  offboard_->set_velocity_body({10.0f, 0.0f, 0.0f, 0.0f});
   sleep_for(milliseconds(50));
-  offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
 }
 
-void Controller::backward(std::shared_ptr<dronecode_sdk::Offboard> offboard)
+void Controller::backward()
 {
   std::cout << "go backward !" << std::endl;
     
-  offboard->set_velocity_body({-10.0f, 0.0f, 0.0f, 0.0f});
+  offboard_->set_velocity_body({-10.0f, 0.0f, 0.0f, 0.0f});
   sleep_for(milliseconds(50));
-  offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
 
 
 }
 
-void Controller::turnToLeft(std::shared_ptr<dronecode_sdk::Offboard> offboard)
+void Controller::turnToLeft()
 {
   std::cout << " ... left rotate !" << std::endl;
-  offboard->set_velocity_body({0.0f, 0.0f, 0.0f, -10.0f});
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, -10.0f});
   sleep_for(milliseconds(50));
-  offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
     
 }
 
-void Controller::turnToRight(std::shared_ptr<dronecode_sdk::Offboard> offboard)
+void Controller::turnToRight()
 {
     std::cout << " ... right rotate" << std::endl;
-    offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 10.0f});
+    offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 10.0f});
     sleep_for(milliseconds(50));
-    offboard->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
+    offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
     
 }
 
 
-ActionResult Controller::arm(std::shared_ptr<dronecode_sdk::Action> action)
+ActionResult Controller::arm()
 {
-  ActionResult arm_result = action->arm();
+  ActionResult arm_result = action_->arm();
   if(arm_result != ActionResult::SUCCESS){
     std::cout << "Arming failed: "
 	      << action_result_str(arm_result)
@@ -213,10 +229,10 @@ ActionResult Controller::arm(std::shared_ptr<dronecode_sdk::Action> action)
   
 }
 
-void Controller::print_position(std::shared_ptr<dronecode_sdk::Telemetry> telemetry)
+void Controller::print_position()
 {
   
-  telemetry->position_async([](Telemetry::Position position){
+  telemetry_->position_async([](Telemetry::Position position){
 			      std::cout << TELEMETRY_CONSOLE_TEXT
  					<< "Altitude : "
 					<< position.relative_altitude_m
@@ -233,23 +249,23 @@ void Controller::print_position(std::shared_ptr<dronecode_sdk::Telemetry> teleme
 
 Telemetry::PositionVelocityNED Controller::get_position_ned()
 {
- return this->position_ned_;
+ return position_ned_;
 }
 
 
-void Controller::async_position_ned(std::shared_ptr<dronecode_sdk::Telemetry> telemetry)
+void Controller::async_position_ned()
 {
-  telemetry->position_velocity_ned_async([this](Telemetry::PositionVelocityNED pvn){
+  telemetry_->position_velocity_ned_async([this](Telemetry::PositionVelocityNED pvn){
 					   this->position_ned_ = pvn;
 					 });   
 }
 
 
 
-void Controller::quad_health(std::shared_ptr<dronecode_sdk::Telemetry> telemetry)
+void Controller::quad_health()
 {
 
-  while (telemetry->health_all_ok() != true) {
+  while (telemetry_->health_all_ok() != true) {
     std::cout << "Vehicle is getting ready to arm" << std::endl;
     sleep_for(seconds(1));
   }
@@ -257,9 +273,9 @@ void Controller::quad_health(std::shared_ptr<dronecode_sdk::Telemetry> telemetry
 }
 
 
-Telemetry::Result Controller::set_rate_result(std::shared_ptr<dronecode_sdk::Telemetry> telemetry)
+Telemetry::Result Controller::set_rate_result()
 {
-  const Telemetry::Result set_rate_result = telemetry->set_rate_position(1.0);
+  const Telemetry::Result set_rate_result = telemetry_->set_rate_position(1.0);
   
   if (set_rate_result != Telemetry::Result::SUCCESS){
     std::cout << ERROR_CONSOLE_TEXT
