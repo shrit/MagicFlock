@@ -14,7 +14,6 @@ extern "C"
 /*  C++ Standard library include */
 
 # include <string>
-# include <sstream>
 # include <future>
 # include <chrono>
 # include <vector>
@@ -25,16 +24,12 @@ extern "C"
 # include <boost/asio.hpp>
 
 /*  gazebo include */
-
-# include <gazebo/gazebo_config.h>
-# include <gazebo/transport/transport.hh>
-# include <gazebo/gazebo_client.hh>
-# include <gazebo/msgs/msgs.hh>
+# include "gazebo.hh"
 
 /*  locale defined include */
 # include "controller.hh"
 # include "dronecode_sdk/logging.h"
-# include "settings.hh"
+//# include "settings.hh"
 
 using namespace dronecode_sdk;
 using std::this_thread::sleep_for;
@@ -53,8 +48,11 @@ using std::chrono::seconds;
  * TODO: Implement camera receive video, start, and stop, take photo, etc..
  * TODO: Add a timer for data that are sent, also use timer in the client side
  * to ask for data each 50 ms
-*/
 
+ * TODO: Use boost.python to interface python to C++, for using numpy.
+ * TODO: Complete the Q_learning algorithm, and the classes.
+ * 
+*/
 
 // inline void action_error_exit(ActionResult result, const std::string &message)
 // {
@@ -104,7 +102,6 @@ void async_wait(boost::asio::posix::stream_descriptor& in, Handler&& handler) {
 		     });
 }
 
-
 /*  Main file: Start one controller by quadcopters, 
  *  Start ncurses to intercept keyboard keystrokes.
  */
@@ -112,38 +109,20 @@ void async_wait(boost::asio::posix::stream_descriptor& in, Handler&& handler) {
 int main(int argc, char* argv[])
 {
 
-  std::stringstream ss;
-
   Settings settings(argc, argv);
-        
+  
   boost::asio::io_service	io_service;
-
+  
   /* Create a vector of controllers
    * Each controller connect to one quadcopters at a time
    * 
    */
   
   std::vector<Controller> controllers;
-
   
   for(auto i : controllers){
-    Controller controller;
-    DronecodeSDK dc_;
-    //find a hack to pass port numbers to quads
-    controller.connect_to_quad(dc_, settings.get_connection_url());
     
-    controller.discover_system(dc_);  
-    
-    System& system = dc_.system();
-    
-    auto telemetry_ = std::make_shared<dronecode_sdk::Telemetry>(system);
-    auto offboard_  = std::make_shared<dronecode_sdk::Offboard>(system);
-    auto action_    = std::make_shared<dronecode_sdk::Action>(system);
-    
-    controller.set_rate_result(telemetry_);
-    controller.print_position(telemetry_);
-    controller.quad_health(telemetry_);    
-    
+    Controller controller(settings);    
     controllers.push_back(controller);
   }
 
@@ -152,24 +131,15 @@ int main(int argc, char* argv[])
   ////////////
   // Gazebo /
   ///////////
-  
-  
-  using SubPtr = gazebo::transport::SubscriberPtr
- 
-  gazebo::client::setup(argc, argv);
-  
-  gazebo::transport::NodePtr node(new gazebo::transport::Node());
-  
-  node->Init();
 
-  // to subscribe to the 
-  SubPtr sub = node->Subscribe("~/info/pose", function_to_call_treat_the_msg);
+  Gazebo gazebo(argc, argv);
   
- 
+  gazebo.subscriber("/gazebo/default/pose/info");
+    
+  
   /////////////
   // ncurses //
   /////////////
-
   
   setlocale(LC_ALL, "");
   
@@ -200,52 +170,52 @@ int main(int argc, char* argv[])
 		  switch (ch) {
 		  case KEY_UP:
 		    printw("key_up");
-		    controllers.at(0).forward(offboard_);
+		    controller.forward();
 		    break;
 		  case KEY_DOWN:
 		    printw("key_down");
-		    controllers.at(0).backward(offboard_);
+		    controller.backward();
 		    break;
 		  case KEY_LEFT:
 		    printw("key_left");
-		    controllers.at(0).goLeft(offboard_);
+		    controller.goLeft();
 		    break;
 		  case KEY_RIGHT:
 		    printw("key_right");
-		    controller.goRight(offboard_);
+		    controller.goRight();
 		    break;
 		  case 'u':    
 		    printw("goUp");
-		    controllers.at(0).goUp(offboard_);
+		    controller.goUp();
 		    break;
 		  case 'd':
 		    printw("goDown");
-		    controllers.at(0).goDown(offboard_);
+		    controller.goDown();
 		    break;		    
 		  case 't':
 		    printw("take_off");
-		    controllers.at(0).takeoff(action_);
+		    controller.takeoff();
 		    break;
 		  case 'l':
 		    printw("land");
-		    controllers.at(0).land(action_);
+		    controller.land();
 		    break;
 		  case 'a':
 		    printw("arming...");
-		    controllers.at(0).arm(action_);
+		    controller.arm();
 		    sleep_for(seconds(2));
 		    break;
 		  case '+':
 		    printw("turn to right");
-		    controllers.at(0).turnToRight(offboard_);		    
+		    controller.turnToRight();		    
 		    break;
 		  case '-':
 		    printw("turn to left");
-		    controllers.at(0).turnToLeft(offboard_);		    
+		    controller.turnToLeft();		    
 		    break;		    
 		  case 's':
-		    controllers.at(0).init_speed(offboard_);
-		    controllers.at(0).start_offboard_mode(offboard_);
+		    controller.init_speed();
+		    controller.start_mode();
 		    break;
 		    
 		  default:		    
