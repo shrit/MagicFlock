@@ -1,6 +1,6 @@
 /**
-https://sdk.dronecode.org/en/examples/transition_vtol_fixed_wing.html  * @file controller.hh
- * @brief controller code, that allow user to control the quad
+ * @file px4_device.hh
+ * @brief Device code, that allow user to handle the quadcopters
  *
  * @authors Author: Omar Shrit <shrit@lri.fr>
  * @date 2018-06-13
@@ -16,7 +16,7 @@ https://sdk.dronecode.org/en/examples/transition_vtol_fixed_wing.html  * @file c
 # include <thread>
 # include <memory>
 
-# include "settings.hh"
+# include "global.hh"
 
 
 using namespace dronecode_sdk;
@@ -29,14 +29,14 @@ using std::chrono::seconds;
 #define TELEMETRY_CONSOLE_TEXT "\033[34m" // Turn text on console blue
 #define NORMAL_CONSOLE_TEXT "\033[0m" // Restore normal console colour
 
+namespace lt = local_types;
 
-class Controller 
+class Px4Device // : std::enable_shared_from_this<Px4Device>
 {
-
   
 public:
 
-  Controller(Settings settings);
+  Px4Device(lt::connection_type socket, lt::port_type port);
 
   ActionResult arm();
   

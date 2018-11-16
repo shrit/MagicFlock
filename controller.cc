@@ -1,23 +1,26 @@
-# include "controller.hh"
+# include "px4_device.hh"
 
 
 
-Controller::Controller(Settings settings)
+Controller::Controller(lt::connection_type socket,
+		       lt::port_type port)
 {
 
-  connect_to_quad(settings.get_connection_url());
-
+  std::string connection_url = socket + "://:" + std::to_string(port);    
+  
+  connect_to_quad(connection_url);
+  
   discover_system();  
-
+  
   System& system = dc_.system();  
   
-  auto telemetry_ = std::make_shared<dronecode_sdk::Telemetry>(system);
-  auto offboard_  = std::make_shared<dronecode_sdk::Offboard>(system);
-  auto action_    = std::make_shared<dronecode_sdk::Action>(system);
+  telemetry_ = std::make_shared<dronecode_sdk::Telemetry>(system);
+  offboard_  = std::make_shared<dronecode_sdk::Offboard>(system);
+  action_    = std::make_shared<dronecode_sdk::Action>(system);
   
-  set_rate_result();
-  print_position();
-  quad_health();      
+   set_rate_result();
+   print_position();
+   quad_health();      
   
 }
 
@@ -25,8 +28,7 @@ ConnectionResult Controller::connect_to_quad(std::string connection_url)
 {
   ConnectionResult connection_result;  
   connection_result = dc_.add_any_connection(connection_url);
-  
-  
+   
   if (connection_result != ConnectionResult::SUCCESS) {
     std::cout << ERROR_CONSOLE_TEXT
 	      << "Connection failed: "
@@ -132,36 +134,16 @@ void Controller::goLeft()
 
 }
 
-
 void Controller::init_speed()
 {
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});		         
 }
 
-
 Offboard::Result Controller::start_offboard_mode()
 {
   
   Offboard::Result offboard_result = offboard_->start();
-  
-  /*
-   * Async code to start offboard mode in async, 
-   * need to work on it
-   */
-  
-  //Offboard::Result offboard_result;
-  
-  // offboard->start_async([&offboard_result](){
-  
-  // 			  if (offboard_result != Offboard::Result::SUCCESS) {
-  // 			    std::cerr << "Offboard::start() failed: " 
-  // 				      << Offboard::result_str(offboard_result) << std::endl;
-  
-  // 			    return offboard_result;
-  // 			  }
-			  			  			  
-  // 			});
-  
+    
   if (offboard_result != Offboard::Result::SUCCESS) {
     std::cerr << "Offboard::start() failed: " 
   	      << Offboard::result_str(offboard_result) << std::endl;
