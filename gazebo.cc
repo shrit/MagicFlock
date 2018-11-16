@@ -11,7 +11,7 @@ Gazebo::Gazebo(int argc, char* argv[])
 }
 
 //template <typename MsgHandler>
-void Gazebo::subscriber(topic_name name)
+void Gazebo::subscriber(lt::topic_name name)
 {
   
   SubPtr sub = node_->Subscribe(name, &Gazebo::Parse_position_msg, this);
@@ -25,7 +25,7 @@ void Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
 
   ::google::protobuf::int32 sec = posesStamped->time().sec();
   ::google::protobuf::int32 nsec = posesStamped->time().nsec();
-  std::cout << "Read time: sec: " << sec << " nsec: " << nsec << std::endl;
+  //  std::cout << "Read time: sec: " << sec << " nsec: " << nsec << std::endl;
 
   for (int i =0; i < posesStamped->pose_size(); ++i)
     {
@@ -33,28 +33,30 @@ void Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
       std::string name = pose.name();
       if (name == std::string("iris"))
         {
-          std::cout << "ID: " << pose.id() << std::endl;
+	  //         std::cout << "ID: " << pose.id() << std::endl;
           const ::gazebo::msgs::Vector3d& position = pose.position();
 
           position_.x = position.x();
           position_.y = position.y();
           position_.z = position.z();
 
-          std::cout << "Read position: x: "
-		    << position_.x
-                    << " y: "
-		    << position_.y
-		    << " z: "
-		    << position_.z << std::endl;
-        }
+        //   std::cout << "Read position: x: "
+	// 	    << position_.x
+        //             << " y: "
+	// 	    << position_.y
+	// 	    << " z: "
+	// 	    << position_.z << std::endl;
+	}
     }
   
 }
 
 //quad_positions
-position Gazebo::get_quads_positions() const
+lt::position Gazebo::get_quads_positions() const
 { return position_;}
 
 //quads_rssi
-gazebo::msgs::Vector3d Gazebo::get_quads_rssi() const
+quads_rssi Gazebo::get_quads_rssi() const
 {return rssi_;}
+
+
