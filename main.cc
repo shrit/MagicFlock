@@ -12,7 +12,7 @@ extern "C"
 }
 
 /*  C++ Standard library include */
-
+# include <cstdlib>
 # include <string>
 # include <future>
 # include <chrono>
@@ -23,12 +23,15 @@ extern "C"
 # include <boost/asio/posix/stream_descriptor.hpp>
 # include <boost/asio.hpp>
 
-/*  gazebo include */
-# include "gazebo.hh"
 
 /*  locale defined include */
+# include "gazebo.hh"
 # include "controller.hh"
+# include "global.hh"
+# include "settings.hh"
+# include "algo/q_learning.hh"
 # include "dronecode_sdk/logging.h"
+
 //# include "settings.hh"
 
 using namespace dronecode_sdk;
@@ -48,10 +51,10 @@ using std::chrono::seconds;
  * TODO: Implement camera receive video, start, and stop, take photo, etc..
  * TODO: Add a timer for data that are sent, also use timer in the client side
  * to ask for data each 50 ms
-
+ * TODO: Use Google protobuf to parse the input
  * TODO: Use boost.python to interface python to C++, for using numpy.
  * TODO: Complete the Q_learning algorithm, and the classes.
- * 
+ * TODO: No defautl values for settings every thing shiyld be entered manually
 */
 
 // inline void action_error_exit(ActionResult result, const std::string &message)
@@ -88,6 +91,9 @@ using std::chrono::seconds;
  * Wait for keyboard input, non-blocking implementation using asio
 */
 
+
+namespace lt = local_types;
+
 template <class Handler>
 void async_wait(boost::asio::posix::stream_descriptor& in, Handler&& handler) {
   in.async_read_some(boost::asio::null_buffers(),
@@ -108,26 +114,37 @@ void async_wait(boost::asio::posix::stream_descriptor& in, Handler&& handler) {
 
 int main(int argc, char* argv[])
 {
-
+  
   Settings settings(argc, argv);
   
-  boost::asio::io_service	io_service;
+  boost::asio::io_service	io_service;  
   
   /* Create a vector of controllers
    * Each controller connect to one quadcopters at a time
    * 
    */
-  
-  std::vector<Controller> controllers;
-  
-  for(auto i : controllers){
-    
-    Controller controller(settings);    
-    controllers.push_back(controller);
-  }
 
+  // int x = std::system("cd /meta/ns-allinone-3.29/ns-3.29/ && /meta/ns-allinone-3.29/ns-3.29/waf --run  \"triangolo --fMode=4 --workDir=/meta/ns-allinone-3.29/ns-3.29 --xmlFilename=/meta/Spider-pig/gazebo/ns3/ns3.world --radioRange=300 --numusers=3\"");
+  // if (x == 0)
+  //   std::cout << "we are in ns3 directory" << std::endl; 
+  
+  int size = settings.quad_number() ;
+  
+  std::vector<lt::port_type> ports  =  settings.quads_ports();
+  
+  std::vector<std::shared_ptr<Controller>> controllers;
+
+  
+  
+  for(auto& it : ports){					       
+    								      
+    controllers.push_back(std::make_shared<Controller>("udp", it)); 
+    std::cout  << "create a controller" << std::endl;	       
+  }								      
+  
+  
   //Subscribe to gazebo topics published by Ns3
-
+  
   ////////////
   // Gazebo /
   ///////////
@@ -136,6 +153,12 @@ int main(int argc, char* argv[])
   
   gazebo.subscriber("/gazebo/default/pose/info");
     
+
+  ////////////////
+  // Q_learning //
+  ////////////////
+  
+  //  Q_learning qlearning;
   
   /////////////
   // ncurses //
@@ -170,52 +193,52 @@ int main(int argc, char* argv[])
 		  switch (ch) {
 		  case KEY_UP:
 		    printw("key_up");
-		    controller.forward();
+		    controllers[0]->forward();
 		    break;
 		  case KEY_DOWN:
 		    printw("key_down");
-		    controller.backward();
+		    controllers[0]->backward();
 		    break;
 		  case KEY_LEFT:
 		    printw("key_left");
-		    controller.goLeft();
+		    controllers[0]->goLeft();
 		    break;
 		  case KEY_RIGHT:
 		    printw("key_right");
-		    controller.goRight();
+		    controllers[0]->goRight();
 		    break;
 		  case 'u':    
 		    printw("goUp");
-		    controller.goUp();
+		    controllers[0]->goUp();
 		    break;
 		  case 'd':
 		    printw("goDown");
-		    controller.goDown();
+		    controllers[0]->goDown();
 		    break;		    
 		  case 't':
 		    printw("take_off");
-		    controller.takeoff();
+		    controllers[0]->takeoff();
 		    break;
 		  case 'l':
 		    printw("land");
-		    controller.land();
+		    controllers[0]->land();
 		    break;
 		  case 'a':
-		    printw("arming...");
-		    controller.arm();
+		    printw("arming->->->");
+		    controllers[0]->arm();
 		    sleep_for(seconds(2));
 		    break;
 		  case '+':
 		    printw("turn to right");
-		    controller.turnToRight();		    
+		    controllers[0]->turnToRight();		    
 		    break;
 		  case '-':
 		    printw("turn to left");
-		    controller.turnToLeft();		    
+		    controllers[0]->turnToLeft();		    
 		    break;		    
 		  case 's':
-		    controller.init_speed();
-		    controller.start_mode();
+		    controllers[0]->init_speed();
+		    controllers[0]->start_offboard_mode();
 		    break;
 		    
 		  default:		    
