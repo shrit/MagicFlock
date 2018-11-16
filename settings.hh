@@ -31,6 +31,7 @@ public:
 
   std::vector<lt::port_type> quads_ports() const;
   
+  float speed() const;
   
 private:
   
@@ -46,7 +47,9 @@ private:
   std::string file_name_;
   std::string connection_url_;
   lt::connection_type socket_;
-
+  
+  float speed_;
+  
 };
 
 
