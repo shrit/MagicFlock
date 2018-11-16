@@ -6,18 +6,24 @@
  * @date 2018-06-13
  */
 
+/*  C++ Standard includes */
+
 # include <chrono>
 # include <cmath>
-# include <dronecode_sdk/action.h>
-# include <dronecode_sdk/telemetry.h>
-# include <dronecode_sdk/dronecode_sdk.h>
-# include <dronecode_sdk/offboard.h>
 # include <iostream>
 # include <thread>
 # include <memory>
 
-# include "global.hh"
+/*  DronecodeSDK includes */
 
+# include <dronecode_sdk/action.h>
+# include <dronecode_sdk/telemetry.h>
+# include <dronecode_sdk/dronecode_sdk.h>
+# include <dronecode_sdk/offboard.h>
+
+/*  local includes */
+
+# include "global.hh"
 
 using namespace dronecode_sdk;
 using std::this_thread::sleep_for;
@@ -42,14 +48,14 @@ public:
   
   bool takeoff();
   bool land();
-  void goUp();
-  void goDown();
-  void goRight();
-  void goLeft();
-  void forward();
-  void backward();
-  void turnToLeft();
-  void turnToRight();
+  void goUp(float speed);
+  void goDown(float speed);
+  void goRight(float speed);
+  void goLeft(float speed);
+  void forward(float speed);
+  void backward(float speed);
+  void turnToLeft(float speed);
+  void turnToRight(float speed);
 
 
   void init_speed();
@@ -75,7 +81,5 @@ private:
   std::shared_ptr<dronecode_sdk::Offboard> offboard_;  
   
 };
-
-
 
   

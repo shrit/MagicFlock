@@ -2,8 +2,8 @@
 
 
 
-Controller::Controller(lt::connection_type socket,
-		       lt::port_type port)
+Px4Device::Px4Device(lt::connection_type socket,
+		     lt::port_type port)
 {
 
   std::string connection_url = socket + "://:" + std::to_string(port);    
@@ -18,13 +18,13 @@ Controller::Controller(lt::connection_type socket,
   offboard_  = std::make_shared<dronecode_sdk::Offboard>(system);
   action_    = std::make_shared<dronecode_sdk::Action>(system);
   
-   set_rate_result();
-   print_position();
-   quad_health();      
+  set_rate_result();
+  print_position();
+  quad_health();      
   
 }
 
-ConnectionResult Controller::connect_to_quad(std::string connection_url)
+ConnectionResult Px4Device::connect_to_quad(std::string connection_url)
 {
   ConnectionResult connection_result;  
   connection_result = dc_.add_any_connection(connection_url);
@@ -40,17 +40,17 @@ ConnectionResult Controller::connect_to_quad(std::string connection_url)
   
 }
 
-bool Controller::discover_system()
+bool Px4Device::discover_system()
 {
 
   bool discovered_system = false;
     
   std::cout << "Waiting to discover system..." << std::endl;
   dc_.register_on_discover([&discovered_system](uint64_t uuid) {
-			    std::cout << "Discovered system with UUID: "
-				      << uuid << std::endl;
-			    discovered_system = true;
-			  });
+			     std::cout << "Discovered system with UUID: "
+				       << uuid << std::endl;
+			     discovered_system = true;
+			   });
 
   sleep_for(seconds(5));
 
@@ -64,7 +64,7 @@ bool Controller::discover_system()
   return discovered_system;
 }
 
-bool Controller::takeoff()
+bool Px4Device::takeoff()
 {
   
   std::cout << "taking off..." << std::endl;
@@ -80,7 +80,7 @@ bool Controller::takeoff()
   
 }
 
-bool Controller::land()
+bool Px4Device::land()
 {
   std::cout << "Landing..." << std::endl;
   const ActionResult land_result = action_->land();
@@ -95,51 +95,51 @@ bool Controller::land()
 
 }
 
-void Controller::goUp()
+void Px4Device::goUp(float speed)
 {
   std::cout << "To the sky !" << std::endl;
   
-  offboard_->set_velocity_body({0.0f, 0.0f, -10.0f, 0.0f});
+  offboard_->set_velocity_body({0.0f, 0.0f, -speed, 0.0f});
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
     
 }
 
-void Controller::goDown()
+void Px4Device::goDown(float speed)
 {
   std::cout << "To the Earth !" << std::endl;
 
-  offboard_->set_velocity_body({0.0f, 0.0f, +3.0f, 0.0f});
+  offboard_->set_velocity_body({0.0f, 0.0f, +speed, 0.0f});
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
   
 }
 
-void Controller::goRight()
+void Px4Device::goRight(float speed)
 {
   std::cout << "Right now !" << std::endl;
   
-  offboard_->set_velocity_body({0.0f, 10.0f, 0.0f, 0.0f}); 
+  offboard_->set_velocity_body({0.0f, +speed, 0.0f, 0.0f}); 
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
 }
 
-void Controller::goLeft()
+void Px4Device::goLeft(float speed)
 {
   std::cout << "Left now !" << std::endl;
   
-  offboard_->set_velocity_body({0.0f, -10.0f, 0.0f, 0.0f});
+  offboard_->set_velocity_body({0.0f, -speed, 0.0f, 0.0f});
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
 
 }
 
-void Controller::init_speed()
+void Px4Device::init_speed()
 {
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});		         
 }
 
-Offboard::Result Controller::start_offboard_mode()
+Offboard::Result Px4Device::start_offboard_mode()
 {
   
   Offboard::Result offboard_result = offboard_->start();
@@ -154,49 +154,48 @@ Offboard::Result Controller::start_offboard_mode()
   return offboard_result; 
 }
 
-void Controller::forward()
+void Px4Device::forward(float speed)
 {
   std::cout << "go forward !" << std::endl;
 
   //set velocity function is going to make the quad go  all the time
   // we need to set it to zero after each keyboard touch
   
-  offboard_->set_velocity_body({10.0f, 0.0f, 0.0f, 0.0f});
+  offboard_->set_velocity_body({speed, 0.0f, 0.0f, 0.0f});
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
 }
 
-void Controller::backward()
+void Px4Device::backward(float speed)
 {
   std::cout << "go backward !" << std::endl;
     
-  offboard_->set_velocity_body({-10.0f, 0.0f, 0.0f, 0.0f});
+  offboard_->set_velocity_body({-speed, 0.0f, 0.0f, 0.0f});
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
 
 
 }
 
-void Controller::turnToLeft()
+void Px4Device::turnToLeft(float speed)
 {
   std::cout << " ... left rotate !" << std::endl;
-  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, -10.0f});
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, -speed});
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
     
 }
 
-void Controller::turnToRight()
+void Px4Device::turnToRight(float speed)
 {
-    std::cout << " ... right rotate" << std::endl;
-    offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 10.0f});
-    sleep_for(milliseconds(50));
-    offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
+  std::cout << " ... right rotate" << std::endl;
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, speed});
+  sleep_for(milliseconds(50));
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
     
 }
 
-
-ActionResult Controller::arm()
+ActionResult Px4Device::arm()
 {
   ActionResult arm_result = action_->arm();
   if(arm_result != ActionResult::SUCCESS){
@@ -211,40 +210,40 @@ ActionResult Controller::arm()
   
 }
 
-void Controller::print_position()
+void Px4Device::print_position()
 {
   
   telemetry_->position_async([](Telemetry::Position position){
-			      std::cout << TELEMETRY_CONSOLE_TEXT
- 					<< "Altitude : "
-					<< position.relative_altitude_m
-					<< " m"
-					<< "Latitude"
-					<< position.latitude_deg << " deg"
-					<< "Longtitude"
-					<< position.longitude_deg <<" deg"
-					<< std::endl;
+			       std::cout << TELEMETRY_CONSOLE_TEXT
+					 << "Altitude : "
+					 << position.relative_altitude_m
+					 << " m"
+					 << "Latitude"
+					 << position.latitude_deg << " deg"
+					 << "Longtitude"
+					 << position.longitude_deg <<" deg"
+					 << std::endl;
 
-			    });
+			     });
   
 }
 
-Telemetry::PositionVelocityNED Controller::get_position_ned()
+Telemetry::PositionVelocityNED Px4Device::get_position_ned()
 {
- return position_ned_;
+  return position_ned_;
 }
 
 
-void Controller::async_position_ned()
+void Px4Device::async_position_ned()
 {
   telemetry_->position_velocity_ned_async([this](Telemetry::PositionVelocityNED pvn){
-					   this->position_ned_ = pvn;
-					 });   
+					    this->position_ned_ = pvn;
+					  });   
 }
 
 
 
-void Controller::quad_health()
+void Px4Device::quad_health()
 {
 
   while (telemetry_->health_all_ok() != true) {
@@ -255,7 +254,7 @@ void Controller::quad_health()
 }
 
 
-Telemetry::Result Controller::set_rate_result()
+Telemetry::Result Px4Device::set_rate_result()
 {
   const Telemetry::Result set_rate_result = telemetry_->set_rate_position(1.0);
   
