@@ -1,8 +1,14 @@
+#ifndef SETTINGS_HH_
+#define SETTINGS_HH_
+
+
 # include <iostream>
 
 # include <boost/program_options.hpp>
 # include <boost/property_tree/ptree.hpp>
 # include <boost/property_tree/json_parser.hpp>
+
+# include "global.hh"
 
 /**
  * Settings for the controller code
@@ -10,33 +16,40 @@
  * TODO: make the configuration readable from a file
 */
 
+
+namespace lt = local_types;
+
 class Settings {
 
 public:
-   /// Type of a drone's IP
-    using ip_type   = std::string;
-    /// Type of a drone's port
-    using port_type = uint16_t;
-
-
+  
   Settings(int argc, char* argv[]);
   
-  std::string get_connection_url() const;
+  std::string get_file_name() const;
 
-  void read_json(const std::string& file_path);
+  int quad_number() const;
+
+  std::vector<lt::port_type> quads_ports() const;
+  
   
 private:
   
   int number_of_quads_;
-  port_type	port_;
+  lt::port_type	port_;
   
   /// Drone on which to connect to.
-  ip_type	drone_ip_;
+  lt::ip_type	drone_ip_;
 
+  
   // number of udp ports to connects to quads
-  std::vector<port_type> ports_;
+  std::vector<lt::port_type> ports_;
   std::string file_name_;
   std::string connection_url_;
-
+  lt::connection_type socket_;
 
 };
+
+
+
+
+#endif

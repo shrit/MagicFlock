@@ -1,7 +1,5 @@
 # include "settings.hh"
 
-
-
 /*  Print the out the possible keyboard input */
 
 void usage(std::ostream& out)
@@ -27,28 +25,27 @@ Settings::Settings(int argc, char* argv[])
 {
 
   namespace po = boost::program_options;
-  po::options_description option("Allowed");
+  po::options_description option("Allowed:");
   
   option.add_options()
     ("help,h", "Print this help message and exit" )				
     ("version,v", "Print the current version")
     ("Versbose,V", "Be more verbose")
     ("r", po::value<std::string>(&file_name_),"Read program option from a file")
-    
-    ("n", po::value<int>(&number_of_quads_)->default_value(1),
-     "Number of quadcopters to create")
-    ("udp",
-     po::value<std::string>(&connection_url_)->default_value("udp://:14540"),
-     "Connection URL format should be: udp://[bind_host][:bind_port] \n, For example to connect to simulator use --udp udp://:14540")
-    ("tcp",
-     po::value<std::string>(&connection_url_),"Connection URL format should be: tcp://[server_host][:server_port]")
-    ("serial",
-      po::value<std::string>(&connection_url_),"Connection URL format should be: serial:///path/to/serial/dev[:baudrate]");
- 
+    ("n", po::value<int>(&number_of_quads_),
+	 "Number of quadcopters to create")
+    ("p", po::value<lt::port_type>(&port_), "Enter the port number for the Leader")
+    ("connection-type,c", po::value<std::string>(&socket_),
+     "Enter the connection type: udp or tcp")
+    ("ports-for-followers, P", po::value< std::vector<lt::port_type> >(&ports_),
+     "Insert a vector of  ports of followers");
   
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, option), vm);
   po::notify(vm);
+
+  //if(vm.count())
+
   
   if(vm.count("help")){
     usage(std::cout);
@@ -62,23 +59,18 @@ Settings::Settings(int argc, char* argv[])
   }
 
 }
-/*  read the program options from a json file */
-void Settings::read_json(const std::string& file_path)
-{
-  boost::property_tree::ptree  input; 
-  boost::property_tree::read_json(file_path, input);
-  input.get<std::string>("quad_L", );
-  input.get<std::vector<port_type>>("port_number", );
-   
-  
-}
-
-std::string Settings::get_connection_url() const
-{
-  return connection_url_;
-}
 
 std::string Settings::get_file_name() const
 {
   return file_name_;
+}
+
+int Settings::quad_number() const
+{
+  return number_of_quads_;
+}
+
+std::vector<lt::port_type> Settings::quads_ports() const
+{
+  return ports_;
 }
