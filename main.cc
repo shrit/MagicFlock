@@ -116,14 +116,14 @@ int main(int argc, char* argv[])
   Settings settings(argc, argv);
   
   boost::asio::io_service	io_service;  
-
-  /*  Dirty Hack to run NS3 using the code, it needs professionals to
-  * integrate the entire NS3 simulation code into our code. Thus we
-  * are using this method */
   
-  // int x = std::system("cd /meta/ns-allinone-3.29/ns-3.29/ && /meta/ns-allinone-3.29/ns-3.29/waf --run  \"triangolo --fMode=4 --workDir=/meta/ns-allinone-3.29/ns-3.29 --xmlFilename=/meta/Spider-pig/gazebo/ns3/ns3.world --radioRange=300 --numusers=3\"");
-  // if (x == 0)
-  //   std::cout << "we are in ns3 directory" << std::endl; 
+  /*  Dirty Hack to run NS3 using the code, it needs professionals to
+   * integrate the entire NS3 simulation code into our code. Thus we
+   * are using this method */
+  
+  int x = std::system("cd /meta/ns-allinone-3.29/ns-3.29/ && /meta/ns-allinone-3.29/ns-3.29/waf --run  \"triangolo --fMode=4 --workDir=/meta/ns-allinone-3.29/ns-3.29 --xmlFilename=/meta/Spider-pig/gazebo/ns3/ns3.world --radioRange=300 --numusers=3\"");
+  if (x == 0)
+    std::cout << "we are in ns3 directory" << std::endl; 
   
   int size = settings.quad_number() ;
 
@@ -134,14 +134,13 @@ int main(int argc, char* argv[])
   /* Create a vector of controllers. Each controller connect to one
    * quadcopters at a time
    */
-
   
-  std::vector<std::shared_ptr<Controller>> controllers;  
+  std::vector<std::shared_ptr<Px4Device>> iris_x;  
   
   for(auto& it : ports){					       
     								      
-    controllers.push_back(std::make_shared<Controller>("udp", it)); 
-    std::cout  << "create a controller" << std::endl;	       
+    iris_x.push_back(std::make_shared<Px4Device>("udp", it)); 
+    std::cout  << "create an iris device" << std::endl;	       
   }								      
    
   //Subscribe to gazebo topics published by NS3
@@ -193,52 +192,52 @@ int main(int argc, char* argv[])
 		  switch (ch) {
 		  case KEY_UP:
 		    printw("key_up");
-		    controllers[0]->forward(speed);
+		    iris_x[0]->forward(speed);
 		    break;
 		  case KEY_DOWN:
 		    printw("key_down");
-		    controllers[0]->backward(speed);
+		    iris_x[0]->backward(speed);
 		    break;
 		  case KEY_LEFT:
 		    printw("key_left");
-		    controllers[0]->goLeft(speed);
+		    iris_x[0]->goLeft(speed);
 		    break;
 		  case KEY_RIGHT:
 		    printw("key_right");
-		    controllers[0]->goRight(speed);
+		    iris_x[0]->goRight(speed);
 		    break;
 		  case 'u':    
 		    printw("goUp");
-		    controllers[0]->goUp(speed);
+		    iris_x[0]->goUp(speed);
 		    break;
 		  case 'd':
 		    printw("goDown");
-		    controllers[0]->goDown(speed);
+		    iris_x[0]->goDown(speed);
 		    break;		    
 		  case 't':
 		    printw("take_off");
-		    controllers[0]->takeoff();
+		    iris_x[0]->takeoff();
 		    break;
 		  case 'l':
 		    printw("land");
-		    controllers[0]->land();
+		    iris_x[0]->land();
 		    break;
 		  case 'a':
 		    printw("arming->->->");
-		    controllers[0]->arm();
+		    iris_x[0]->arm();
 		    sleep_for(seconds(2));
 		    break;
 		  case '+':
 		    printw("turn to right");
-		    controllers[0]->turnToRight(speed);		    
+		    iris_x[0]->turnToRight(speed);		    
 		    break;
 		  case '-':
 		    printw("turn to left");
-		    controllers[0]->turnToLeft(speed);		    
+		    iris_x[0]->turnToLeft(speed);		    
 		    break;		    
 		  case 's':
-		    controllers[0]->init_speed();
-		    controllers[0]->start_offboard_mode();
+		    iris_x[0]->init_speed();
+		    iris_x[0]->start_offboard_mode();
 		    break;
 		    
 		  default:		    
