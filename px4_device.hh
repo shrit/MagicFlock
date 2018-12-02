@@ -1,3 +1,6 @@
+# ifndef PX4_DEVICE_HH_
+# define PX4_DEVICE_HH_
+
 /**
  * @file px4_device.hh
  * @brief Device code, that allow user to handle the quadcopters
@@ -82,4 +85,6 @@ private:
   
 };
 
-  
+
+
+#endif

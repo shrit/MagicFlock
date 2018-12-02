@@ -19,7 +19,7 @@ Px4Device::Px4Device(lt::connection_type socket,
   action_    = std::make_shared<dronecode_sdk::Action>(system);
   
   set_rate_result();
-  print_position();
+  //  async_position_ned();
   quad_health();      
   
 }
@@ -210,11 +210,12 @@ ActionResult Px4Device::arm()
   
 }
 
+
 void Px4Device::print_position()
 {
   
   telemetry_->position_async([](Telemetry::Position position){
-			       std::cout << TELEMETRY_CONSOLE_TEXT
+			       			       std::cout << TELEMETRY_CONSOLE_TEXT
 					 << "Altitude : "
 					 << position.relative_altitude_m
 					 << " m"
@@ -238,6 +239,15 @@ void Px4Device::async_position_ned()
 {
   telemetry_->position_velocity_ned_async([this](Telemetry::PositionVelocityNED pvn){
 					    this->position_ned_ = pvn;
+					    ////////////////////////////////////////////////////////
+					    // std::cout << position_ned_.position.north_m	  //
+					    // 	      << " "					  //
+					    // 	      << position_ned_.position.down_m		  //
+					    // 	      << " "					  //
+					    // 	      << position_ned_.position.east_m		  //
+					    // 	      << " "					  //
+					    // 	      << std::endl;				  //
+					    ////////////////////////////////////////////////////////
 					  });   
 }
 
