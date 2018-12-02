@@ -1,14 +1,19 @@
+# ifndef Q_LEARNING_HH_
+# define Q_LEARNING_HH_
+
+
 /*  Standard C++ includes  */
 # include <iostream>
 # include <vector>
 # include <cstdlib>
 /* Eigne includes */
+
 # include <Eigen/Dense>
 
 
 
 /* Quadcopter controller includes  */
-# include "../controller.hh"
+# include "../px4_device.hh"
 # include "../global.hh"
 
 # include "../gazebo.hh"
@@ -32,10 +37,10 @@ namespace algo{
   }
   
   
-  namespace Eigen{
+  namespace Data{
     template<class Matrix>
     void write_binary(const char* filename, const Matrix& matrix){
-      std::ofstream out(filename,ios::out | ios::binary | ios::trunc);
+      std::ofstream out(filename, std::ios::out | std::ios::binary | std::ios::trunc);
       typename Matrix::Index rows=matrix.rows(), cols=matrix.cols();
       out.write((char*) (&rows), sizeof(typename Matrix::Index));
       out.write((char*) (&cols), sizeof(typename Matrix::Index));
@@ -44,15 +49,15 @@ namespace algo{
     }
     template<class Matrix>
     void read_binary(const char* filename, Matrix& matrix){
-      std::ifstream in(filename,ios::in | std::ios::binary);
+      std::ifstream in(filename, std::ios::in | std::ios::binary);
       typename Matrix::Index rows=0, cols=0;
-      in.read((char*) (&rows),sizeof(typename Matrix::Index));
-      in.read((char*) (&cols),sizeof(typename Matrix::Index));
+      in.read((char*) (&rows), sizeof(typename Matrix::Index));
+      in.read((char*) (&cols), sizeof(typename Matrix::Index));
     matrix.resize(rows, cols);
     in.read( (char *) matrix.data() , rows*cols*sizeof(typename Matrix::Scalar) );
     in.close();
     }
-  } // Eigen::
+  } 
   
   
   
@@ -61,27 +66,30 @@ namespace algo{
   {
     
   public:
-    Q_learning();
+    using matrix = Eigen::MatrixXd;
+    Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x, float speed);
     
     void init();
-    void run_episods(std::vector<std::shared_ptr<Controller>> controllers);
-    void move_quads_followers_action(std::vector<std::shared_ptr<Controller>> controllers,
+    void run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x);
+    void move_quads_followers_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
 				     int action);
        
   private:
 
-    Eigne::MatrixXd  qtable_;
-    Eigne::MatrixXd  states_, new_state_;
 
-    Eigne::VectorXd  rewards_;
+    matrix   qtable_;
+    matrix   states_, new_state_;
+    
+    Eigen::VectorXd  rewards_;
     
     Gazebo gazebo_;  
   
-    Controller controller_;
-  
-  
- 
+    Px4Device iris_;
+          
   
   };
 
 }
+
+
+#endif
