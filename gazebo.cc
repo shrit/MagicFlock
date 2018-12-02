@@ -19,6 +19,12 @@ void Gazebo::subscriber(lt::topic_name name)
   
 }
 
+void Gazebo::Parse_rssi_msg()
+{
+
+
+
+}
 
 void Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
 {
@@ -56,7 +62,7 @@ lt::position Gazebo::get_quads_positions() const
 { return position_;}
 
 //quads_rssi
-quads_rssi Gazebo::get_quads_rssi() const
+Eigen::VectorXd Gazebo::get_quads_rssi() const
 {return rssi_;}
 
 

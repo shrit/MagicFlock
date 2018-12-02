@@ -6,6 +6,7 @@
 # include <gazebo/gazebo_client.hh>
 # include <gazebo/msgs/msgs.hh>
 # include <gazebo/msgs/pose.pb.h>
+
 # include <Eigen/Dense>
 
 # include "global.hh"
@@ -15,11 +16,12 @@ namespace lt = local_types;
 class Gazebo
 {
 
+public:
+
   using SubPtr                   = gazebo::transport::SubscriberPtr;
   using NodePtr                  = gazebo::transport::NodePtr;
-  using quads_rssi               = Eigne::VectorXd;
+  using quads_rssi               = Eigen::VectorXd;
   
-public:
 
   Gazebo(int argc, char* argv[]);
   /*  This function subscribe to any topic and handle 
@@ -30,9 +32,11 @@ public:
   lt::position get_quads_positions() const;
 
   void Parse_position_msg(ConstPosesStampedPtr& posesStamped);
+
+  void Parse_rssi_msg();
   
   //  quads_rssi
-  quads_rssi get_quads_rssi() const;
+  Eigen::VectorXd get_quads_rssi() const;
   
   
 private:
