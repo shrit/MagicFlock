@@ -17,7 +17,7 @@ find_package(gazebo REQUIRED)
 
 set ( SOURCES  
   main.cc
-  controller.cc
+  px4_device.cc
   settings.cc
   gazebo.cc
   )
@@ -33,6 +33,7 @@ include_directories(
  ${GAZEBO_INCLUDE_DIRS}
   /usr/local/include/dronecode_sdk
   /usr/include/
+  /usr/include/eigen3
 #  /opt/ros/melodic/include
   # ... any other header files
   )
