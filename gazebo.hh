@@ -20,7 +20,7 @@ public:
 
   using SubPtr                   = gazebo::transport::SubscriberPtr;
   using NodePtr                  = gazebo::transport::NodePtr;
-  using quads_rssi               = Eigen::VectorXd;
+  using quads_rssi               = std::vector<double>;
   
 
   Gazebo(int argc, char* argv[]);
@@ -33,10 +33,10 @@ public:
 
   void Parse_position_msg(ConstPosesStampedPtr& posesStamped);
 
-  void Parse_rssi_msg();
+  void Parse_rssi_msg(ConstVector2dPtr& msg);
   
   //  quads_rssi
-  Eigen::VectorXd get_quads_rssi() const;
+  std::vector<double> get_quads_rssi() const;
   
   
 private:
@@ -48,6 +48,8 @@ private:
   lt::position position_;
 
   quads_rssi     rssi_;
+  
+  lt::rssi signal_;
   
   std::vector<SubPtr> subs_;
   

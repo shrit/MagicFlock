@@ -9,9 +9,10 @@
     defintion used in all files 
 */
 
+
+
+
 namespace local_types {
-
-
   
   struct position {
     
@@ -19,6 +20,12 @@ namespace local_types {
     double y;
     double z;
     
+  };
+
+  struct rssi {
+    double lf1;
+    double lf2;
+    double ff;
   };
   
   /// Type of a drone's IP

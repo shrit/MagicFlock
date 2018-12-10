@@ -120,10 +120,10 @@ int main(int argc, char* argv[])
   /*  Dirty Hack to run NS3 using the code, it needs professionals to
    * integrate the entire NS3 simulation code into our code. Thus we
    * are using this method */
-  
-  int x = std::system("cd /meta/ns-allinone-3.29/ns-3.29/ && /meta/ns-allinone-3.29/ns-3.29/waf --run  \"triangolo --fMode=4 --workDir=/meta/ns-allinone-3.29/ns-3.29 --xmlFilename=/meta/Spider-pig/gazebo/ns3/ns3.world --radioRange=300 --numusers=3\"");
-  if (x == 0)
-    std::cout << "we are in ns3 directory" << std::endl; 
+   
+  // int x = std::system("cd /meta/ns-allinone-3.29/ns-3.29/ && /meta/ns-allinone-3.29/ns-3.29/waf --run  \"triangolo --fMode=4 --workDir=/meta/ns-allinone-3.29/ns-3.29 --xmlFilename=/meta/Spider-pig/gazebo/ns3/ns3.world --radioRange=300 --numusers=3\"");
+  // if (x == 0)
+  //   std::cout << "we are in ns3 directory" << std::endl; 
   
   int size = settings.quad_number() ;
 
@@ -151,8 +151,9 @@ int main(int argc, char* argv[])
 
   Gazebo gazebo(argc, argv);
   
-  gazebo.subscriber("/gazebo/default/pose/info");
-    
+  gazebo.subscriber("/gazebo/default/1/0");
+  gazebo.subscriber("/gazebo/default/2/0");
+  gazebo.subscriber("/gazebo/default/1/2");
 
   ////////////////
   // Q_learning //
