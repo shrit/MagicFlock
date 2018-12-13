@@ -6,16 +6,13 @@
 # include <iostream>
 # include <vector>
 # include <cstdlib>
+# include <algorithm>
 /* Eigne includes */
-
 # include <Eigen/Dense>
-
-
 
 /* Quadcopter controller includes  */
 # include "../px4_device.hh"
 # include "../global.hh"
-
 # include "../gazebo.hh"
 
 
@@ -32,8 +29,7 @@ namespace algo{
     
     const int epsilon = 1;
     const int min_epsilon = 0;
-    const float decay_rate  = 0.01;
-    
+    const float decay_rate  = 0.01;    
   }
   
   
@@ -58,38 +54,37 @@ namespace algo{
     in.close();
     }
   } 
-  
-  
-  
-  
+        
   class Q_learning
   {
     
   public:
-    using matrix = Eigen::MatrixXd;
-    Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x, float speed);
+
+    Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
+	       float speed,
+	       std::vector<Gazebo> gzs);
     
     void init();
+
+    int get_action(std::vector<std::vector<double>>  qtable , double state);
+
+    double get_state_index(lt::rssi<double> signal, lt::rssi<double> original_signal);
+    
     void run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x);
+
     void move_quads_followers_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
 				     int action);
        
   private:
-
-
-    matrix   qtable_;
-    matrix   states_, new_state_;
     
-    Eigen::VectorXd  rewards_;
+    std::vector<std::vector<double>>  qtable_;
     
-    Gazebo gazebo_;  
-  
-    Px4Device iris_;
-          
-  
+    lt::rssi<double>   states_, new_state_;
+    
+    Eigen::VectorXd  rewards_;              
+    
   };
 
 }
-
 
 #endif
