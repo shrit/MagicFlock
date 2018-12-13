@@ -16,6 +16,7 @@ extern "C"
 # include <string>
 # include <future>
 # include <chrono>
+# include <thread>
 # include <vector>
 
 /*  Boost asio library include */
@@ -106,6 +107,20 @@ void async_wait(boost::asio::posix::stream_descriptor& in, Handler&& handler) {
 		     });
 }
 
+
+
+
+void cb(ConstVector2dPtr& msg)
+{
+  /*  Parsing the RSSI send by NS3 */
+   float rssi;
+  //  rssi_ = msg->x();
+   rssi = msg->x();
+  //printw(msg-DebugString());
+   //   std::cout << "rssi "<< rssi << std::endl;
+}
+
+
 /*  Main file: Start one controller by quadcopters, 
  *  Start ncurses to intercept keyboard keystrokes.
  */
@@ -116,15 +131,13 @@ int main(int argc, char* argv[])
   Settings settings(argc, argv);
   
   boost::asio::io_service	io_service;  
+
+  /*  
+   * The ns3 Command commented inside the code, A good way to remember it :)
+   */
+  //  /meta/ns-allinone-3.29/ns-3.29/ && /meta/ns-allinone-3.29/ns-3.29/waf --run  \"triangolo --fMode=4 --workDir=/meta/ns-allinone-3.29/ns-3.29 --xmlFilename=/meta/Spider-pig/gazebo/ns3/ns3.world --radioRange=300 --numusers=3\"
   
-  /*  Dirty Hack to run NS3 using the code, it needs professionals to
-   * integrate the entire NS3 simulation code into our code. Thus we
-   * are using this method */
-   
-  // int x = std::system("cd /meta/ns-allinone-3.29/ns-3.29/ && /meta/ns-allinone-3.29/ns-3.29/waf --run  \"triangolo --fMode=4 --workDir=/meta/ns-allinone-3.29/ns-3.29 --xmlFilename=/meta/Spider-pig/gazebo/ns3/ns3.world --radioRange=300 --numusers=3\"");
-  // if (x == 0)
-  //   std::cout << "we are in ns3 directory" << std::endl; 
-  
+    
   int size = settings.quad_number() ;
 
   float speed = settings.speed();
@@ -142,24 +155,61 @@ int main(int argc, char* argv[])
     iris_x.push_back(std::make_shared<Px4Device>("udp", it)); 
     std::cout  << "create an iris device" << std::endl;	       
   }								      
-   
-  //Subscribe to gazebo topics published by NS3
-  
+     
   ////////////
-  // Gazebo /
+  // Gazebo //
   ///////////
-
-  Gazebo gazebo(argc, argv);
+  //this is working perfectly?? why??!!!
+  // Classes are making call back not fire??
+  // to be seen later
   
-  gazebo.subscriber("/gazebo/default/1/0");
-  gazebo.subscriber("/gazebo/default/2/0");
-  gazebo.subscriber("/gazebo/default/1/2");
+  gazebo::client::setup(argc, argv);
 
+  gazebo::transport::NodePtr node_(new gazebo::transport::Node());
+
+  node_->Init();
+  
+  gazebo::transport::SubscriberPtr sub
+    = node_->Subscribe("/gazebo/default/1/2", &cb );
+
+   
+  /*  gazebo local test */
+  
+   Gazebo gazebo(argc, argv);
+   gazebo.subscriber("/gazebo/default/1/2");
+
+  //std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(argc,argv);
+
+  //gz->subscriber("/gazebo/default/1/2");
+  
+  //  gazebo.subscriber("/gazebo/default/1/2");
+  // gazebo.subscriber("/gazebo/default/0/1");
+  // gazebo.subscriber("/gazebo/default/0/2");
+
+  // std::this_thread::sleep_for(milliseconds(10000));
+  // gazebo.subscriber("/gazebo/default/pose/info");
+  
+  //std::cout << gazebo.quad_rssi() << std::endl;
+  
+  //  std::vector<Gazebo> gazebos;
+  
+  // for(auto& it : ports){					           								      
+  //   gazebos.push_back(Gazebo(argc, argv)); 
+  //   std::cout  << "create a gazebo device" << std::endl;	       
+  // }
+  
+  //Subscribe to gazebo topics published by NS3
+
+  // gazebos.at(0).subscriber("/gazebo/default/0/1");
+  // gazebos.at(1).subscriber("/gazebo/default/0/2");
+  // gazebos.at(2).subscriber("/gazebo/default/1/2");
+  
   ////////////////
   // Q_learning //
   ////////////////
-  
-  //  Q_learning qlearning;
+  // Pass the devices to the q learning algorithm
+  //  Q_learning qlearning(iris_x, gazebos);
+
   
   /////////////
   // ncurses //
