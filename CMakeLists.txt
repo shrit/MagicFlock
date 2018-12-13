@@ -20,10 +20,11 @@ set ( SOURCES
   px4_device.cc
   settings.cc
   gazebo.cc
+  algo/q_learning.cc
   )
 
 set (BOOST_INCLUDE_DIRS "/meta/local/include/")
-#set (BOOST_66_INCLUDE_DIRS "/meta/local_boost_66/include")
+
 
 # Specify include directories
 include_directories(
@@ -34,15 +35,15 @@ include_directories(
   /usr/local/include/dronecode_sdk
   /usr/include/
   /usr/include/eigen3
+  /meta/DeviceController/algo/
 #  /opt/ros/melodic/include
   # ... any other header files
   )
 
 
-# Find required pacakge by qt to link agaisnt
-#find_library(ros_lib HINT "/opt/ros/melodic/lib")
+# Find required pacakge by qt to link against
 
-#find_package(catkin REQUIRED COMPONENTS roscpp rospy geometric_msgs genmsg)
+#find_library(ros_lib HINT "/opt/ros/melodic/lib")
 
 
 # Specify variable 'dronecode_sdk_lib' containing location of Dronecode_Sdk library.
@@ -56,19 +57,6 @@ set(pthread_lib "/usr/lib/libpthread.so")
 set(boost_lib_system "/meta/local/lib/libboost_system.so")
 set(boost_lib_thread "/meta/local/lib/libboost_thread.so")
 set(boost_lib_program_options "/meta/local/lib/libboost_program_options.so")
-# set(ros_lib "/opt/ros/melodic/lib/libroscpp.so")
-# set(ros_console_lib "/opt/ros/melodic/lib/librosconsole.so")
-# set(ros_serialization_lib "/opt/ros/melodic/lib/libroscpp_serialization.so")
-# set(ros_lib_lib "/opt/ros/melodic/lib/libroslib.so")
-
-#old boost
-# set(boost_lib_system_66 "/meta/local_boost_66/lib/libboost_system.so")
-# set(boost_lib_filesystem_66 "/meta/local_boost_66/lib/libboost_filesystem.so")
-# set(boost_lib_thread_66 "/meta/local_boost_66/lib/libboost_thread.so")
-# set(boost_lib_chrono_66 "/meta/local_boost_66/lib/libboost_chrono.so")
-# set(boost_lib_regexp_66 "/meta/local_boost_66/lib/libboost_regex.so")
-# set(boost_lib_program_options "/meta/local_boost_66/lib/libboost_program_options.so")
-
 
 
 link_directories(${GAZEBO_LIBRARY_DIRS})
@@ -94,10 +82,6 @@ target_link_libraries(controller
   # Add  'dronecode_sdk_lib' variable defining
   #where the Dronecode_Sdk library can be found
   ${pthread_lib}
-  # ${ros_lib}
-  # ${ros_console_lib}
-  # ${ros_serialization_lib}
-  # ${ros_lib_lib}
   ${GAZEBO_LIBRARIES}
   ${dronecode_sdk_lib}
   ${dronecode_sdk_offboard_lib}
@@ -109,12 +93,6 @@ target_link_libraries(controller
   ${boost_lib_thread}
   ${boost_lib_program_options}
   
-  # ${boost_lib_system_66}
-  # ${boost_lib_filesystem_66}
-  # ${boost_lib_thread_66}
-  # ${boost_lib_chrono_66}
-  # ${boost_lib_regexp_66}
-  # ${boost_lib_program_options}
   )
 
 
