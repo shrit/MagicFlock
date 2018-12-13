@@ -6,6 +6,7 @@
 # include <iostream>
 # include <vector>
 # include <cstdlib>
+# include <cmath>
 # include <algorithm>
 /* Eigne includes */
 # include <Eigen/Dense>
@@ -18,73 +19,79 @@
 
 /*  Parameters for Q-learning algorithm  */
 
-namespace algo{
+//namespace algo{
 
-  namespace q_values{
+namespace q_values{
     
-    const int max_episode = 10000;
-    const int max_step    = 2;
-    const float learning_rate = 0.9;
-    const float discount_rate =0.95;
+  const int max_episode = 10000;
+  const int max_step    = 2;
+  const float learning_rate = 0.9;
+  const float discount_rate =0.95;
     
-    const int epsilon = 1;
-    const int min_epsilon = 0;
-    const float decay_rate  = 0.01;    
+  const int epsilon = 1;
+  const int min_epsilon = 0;
+  const float decay_rate  = 0.01;    
+}
+  
+  
+namespace Data{
+  template<class Matrix>
+  void write_binary(const char* filename, const Matrix& matrix){
+    std::ofstream out(filename, std::ios::out | std::ios::binary | std::ios::trunc);
+    typename Matrix::Index rows=matrix.rows(), cols=matrix.cols();
+    out.write((char*) (&rows), sizeof(typename Matrix::Index));
+    out.write((char*) (&cols), sizeof(typename Matrix::Index));
+    out.write((char*) matrix.data(), rows*cols*sizeof(typename Matrix::Scalar) );
+    out.close();
   }
-  
-  
-  namespace Data{
-    template<class Matrix>
-    void write_binary(const char* filename, const Matrix& matrix){
-      std::ofstream out(filename, std::ios::out | std::ios::binary | std::ios::trunc);
-      typename Matrix::Index rows=matrix.rows(), cols=matrix.cols();
-      out.write((char*) (&rows), sizeof(typename Matrix::Index));
-      out.write((char*) (&cols), sizeof(typename Matrix::Index));
-      out.write((char*) matrix.data(), rows*cols*sizeof(typename Matrix::Scalar) );
-      out.close();
-    }
-    template<class Matrix>
-    void read_binary(const char* filename, Matrix& matrix){
-      std::ifstream in(filename, std::ios::in | std::ios::binary);
-      typename Matrix::Index rows=0, cols=0;
-      in.read((char*) (&rows), sizeof(typename Matrix::Index));
-      in.read((char*) (&cols), sizeof(typename Matrix::Index));
+  template<class Matrix>
+  void read_binary(const char* filename, Matrix& matrix){
+    std::ifstream in(filename, std::ios::in | std::ios::binary);
+    typename Matrix::Index rows=0, cols=0;
+    in.read((char*) (&rows), sizeof(typename Matrix::Index));
+    in.read((char*) (&cols), sizeof(typename Matrix::Index));
     matrix.resize(rows, cols);
     in.read( (char *) matrix.data() , rows*cols*sizeof(typename Matrix::Scalar) );
     in.close();
-    }
-  } 
+  }
+} 
         
-  class Q_learning
-  {
+class Q_learning
+{
     
-  public:
+public:
 
-    Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
-	       float speed,
-	       std::vector<Gazebo> gzs);
+  Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
+	     float speed,
+	     std::vector<Gazebo> gzs);
     
-    void init();
+  void init();
 
-    int get_action(std::vector<std::vector<double>>  qtable , double state);
+  int get_action(std::vector<std::vector<double>>  qtable , double state);
 
-    double get_state_index(lt::rssi<double> signal, lt::rssi<double> original_signal);
-    
-    void run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x);
+  double get_state_index(lt::rssi<double> signal, lt::rssi<double> original_signal);
+  
+  void move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
+		   float speed,
+		   int action,
+		   int quad_number);  
+  
+  void run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
+		   float speed,
+		   std::vector<Gazebo> gzs);
 
-    void move_quads_followers_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
-				     int action);
+  lt::rssi<double> rssi(std::vector<Gazebo> gzs);
        
-  private:
+private:
     
-    std::vector<std::vector<double>>  qtable_;
+  std::vector<std::vector<double>>  qtable_;
     
-    lt::rssi<double>   states_, new_state_;
+  lt::rssi<double>   states_, new_state_;
     
-    Eigen::VectorXd  rewards_;              
+  std::vector<double> rewards_;              
     
-  };
+};
 
-}
+  //}
 
 #endif
