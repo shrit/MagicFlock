@@ -21,18 +21,6 @@
 
 //namespace algo{
 
-namespace q_values{
-    
-  const int max_episode = 10000;
-  const int max_step    = 2;
-  const float learning_rate = 0.9;
-  const float discount_rate =0.95;
-    
-  const int epsilon = 1;
-  const int min_epsilon = 0;
-  const float decay_rate  = 0.01;    
-}
-  
   
 namespace Data{
   template<class Matrix>
@@ -86,10 +74,18 @@ private:
     
   std::vector<std::vector<double>>  qtable_;
     
-  lt::rssi<double>   states_, new_state_;
+  lt::rssi<double>   original_signal_, states_, new_state_;
     
-  std::vector<double> rewards_;              
-    
+  std::vector<double> rewards_;
+  
+  int max_episode_ ;       
+  int max_step_ ;            
+  int epsilon_ ;        
+  int min_epsilon_ ;    
+  float decay_rate_ ;   
+  float learning_rate_ ;
+  float discount_rate_ ;
+     
 };
 
   //}

@@ -4,7 +4,13 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		       float speed,
 		       std::vector<Gazebo> gzs)
   :qtable_{64 ,std::vector<double>(5,1)}, /*  Init to ones */
-   rewards_{}
+   max_episode_(10000),
+   max_step_(2),
+   epsilon_(1),
+   min_epsilon_(0),
+   decay_rate_(0.01),
+   learning_rate_(0.9),
+   discount_rate_(0.95)
 {
 
   run_episods(iris_x, speed, gzs);  
@@ -12,8 +18,8 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
 
 int Q_learning::get_action(std::vector<std::vector<double>> q_table , double state)   
 {
-   
-  auto it = std::max_element(std::begin(q_table.[state]), std::end(q_table.[state]));
+  
+  auto it = std::max_element(q_table.at(state).begin(), q_table.at(state).end());
   
   return *it;
 }
@@ -91,8 +97,16 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 			     float speed,
 			     std::vector<Gazebo> gzs)
 {
+
+  /*
+   * Needs to review the algorithm, we do not know if it is working yet.
+   * This code is complete for the q learning part. However, dron part needs to
+   * be tested.
+   */
+
   
-  for (int episode = 0; episode < q_values::max_episode; episode++){
+  
+  for (int episode = 0; episode < max_episode_; episode++){
 
     /* Intilization phase, in each episode we should reset the
      * position of each quadcopter to the initial position. Thus,
@@ -108,19 +122,28 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
      * the code functions
      */
     
-
-    /*  start resetting the world  */
+    gazebo::transport::NodePtr node(new gazebo::transport::Node());
     
-
+    /*  start resetting the world  */
+    gazebo::transport::PublisherPtr reset_pub;
+    
+    reset_pub=node->Advertise<gazebo::msgs::WorldControl>("~/world_control");       
+    
+    gazebo::msgs::WorldControl w_ctrl;
+    
+    w_ctrl.mutable_reset()->set_all(true); //I believe this is equal to indicating a world reset
+    
+    reset_pub->Publish(w_ctrl);
+    
 
     /*  intilization of position of the quads */
     
     std::cout << "Episode : " << episode << std::endl;            
     std::vector<lt::position<float>> pos;    
     
-    pos.push_back(iris_x[0].get_position_ned());
-    pos.push_back(iris_x[1].get_position_ned());
-    pos.push_back(iris_x[2].get_position_ned());
+    pos.push_back(iris_x[0]->get_position_ned());
+    pos.push_back(iris_x[1]->get_position_ned());
+    pos.push_back(iris_x[2]->get_position_ned());
        
     double dif_x = pos.at(0).x - pos.at(1).x; 
     double dif2_x = pos.at(0).x - pos.at(2).x; 
@@ -132,11 +155,15 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
     lt::rssi<double> e_rssi = rssi(gzs);
     
     // put the recoved signls in state struct
-
+    
+    original_signal_ = e_rssi;
     states_ = e_rssi;
     
-    double state_index = get_state_index(states_,  original_signal);
+    double state_index = get_state_index(states_,  original_signal_);
 
+    //defin episode reward here
+    double e_reward;
+    
     /* 
      * Step phase, where we update the q table each step
      * Each episode has a fixed step number.
@@ -144,7 +171,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
      */
     
     
-    for(int steps = 0; steps < q_values::max_step; steps++){
+    for(int steps = 0; steps < max_step_; steps++){
 
       int action = std::rand() % 4;
       
@@ -154,7 +181,9 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       //get the new signal of strength difference
       
       states_ = rssi(gzs);
-
+      state_index = get_state_index(states_, original_signal_);
+      
+      // random number between 0 and 1 TODO::
       int random = std::rand() % 10;
       
       int action1;
@@ -168,9 +197,9 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 
       /*  find a way to look inside this tables */
       
-      if(random > q_values::epsilon){
+      if(random > epsilon_){
 	
-	action1 = get_action(qtable_);
+	action1 = get_action(qtable_, state_index);
 	action2 = action1;
       }
       else {
@@ -184,16 +213,18 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       move_action(iris_x, speed, action2, 2);
       
       /*  recalculate the RSSI after moveing the quads */
-      /*  get the new  */
+      /*  get the new  state index*/
+      
       new_state_ = rssi(gzs);
+      state_index = get_state_index(new_states_, original_signal_);
 
       std::vector<lt::position<float>> new_pos;    
 
       std::vector<float> error;
       
-      new_pos.push_back(iris_x.at(0).get_position_ned());
-      new_pos.push_back(iris_x.at(1).get_position_ned());
-      new_pos.push_back(iris_x.at(2).get_position_ned());
+      new_pos.push_back(iris_x.at(0)->get_position_ned());
+      new_pos.push_back(iris_x.at(1)->get_position_ned());
+      new_pos.push_back(iris_x.at(2)->get_position_ned());
       
       error.push_back(std::sqrt(std::pow(pos.at(0).x - new_pos.at(0).x, 2) -
 				std::pow(pos.at(0).y - new_pos.at(0).y, 2)));
@@ -209,11 +240,20 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       /*  Recalculate the distance between quadcopter  */
       int reward = 50 - error.at(0);
       int reward2 = 50 - error.at(1);
+
+      e_reward = reward + reward2;
       
       qtable_.at(state_index).at(action1) =
-	(1 - q_values::learning_rate) * qtable_.at(state_index).at(action1) +
-	q_values::learning_rate * (reward +  q_values::discount_rate * get_action(qtable_,
-										  state_index));
+	(1 - learning_rate_) * qtable_.at(state_index).at(action1) +
+	learning_rate_ * (reward +  discount_rate_ * get_action(qtable_,
+								state_index));
+
+      //reduce epsilon as we explore more each episode
+      epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode); 
+      
+      
+      //std::cout << "Score over time: " << 
+      rewards_.push_back(e_reward);
       
     }          
   }
