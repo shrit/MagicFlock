@@ -40,7 +40,7 @@ using std::chrono::seconds;
 
 namespace lt = local_types;
 
-class Px4Device // : std::enable_shared_from_this<Px4Device>
+class Px4Device 
 {
   
 public:
@@ -70,7 +70,7 @@ public:
   
   void print_position();
   void async_position_ned();
-  Telemetry::PositionVelocityNED get_position_ned();
+  lt::position<float> get_position_ned();
   
   void quad_health();
   Telemetry::Result set_rate_result();

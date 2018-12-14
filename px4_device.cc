@@ -229,9 +229,14 @@ void Px4Device::print_position()
   
 }
 
-Telemetry::PositionVelocityNED Px4Device::get_position_ned()
+lt::position<float> Px4Device::get_position_ned()
 {
-  return position_ned_;
+  lt::position<float> pos;
+
+  pos.x = position_ned_.position.north_m;
+  pos.y = position_ned_.position.east_m;
+  pos.z = position_ned_.position.down_m;
+  return pos;
 }
 
 
