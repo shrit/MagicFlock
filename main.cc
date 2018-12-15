@@ -159,7 +159,7 @@ int main(int argc, char* argv[])
   // Q_learning //
   ////////////////
   // Pass the devices to the q learning algorithm
-  //  Q_learning qlearning(iris_x, gz);
+  Q_learning qlearning(iris_x, speed, gz);
 
   
   /////////////

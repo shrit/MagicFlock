@@ -2,7 +2,7 @@
 
 Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		       float speed,
-		       std::vector<Gazebo> gzs)
+		       std::shared_ptr<Gazebo> gzs)
   :qtable_{64 ,std::vector<double>(5,1)}, /*  Init to ones */
    max_episode_(10000),
    max_step_(2),
@@ -83,19 +83,9 @@ void Q_learning::move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
   }  
 }
 
-lt::rssi<double> Q_learning::rssi(std::vector<Gazebo> gzs)
-{ 
-  lt::rssi<double> rssi;
-  rssi.lf1 = gzs.at(0).rssi();
-  rssi.lf2 = gzs.at(1).rssi();
-  rssi.ff  = gzs.at(2).rssi();
-  
-  return rssi;  
-}
-
 void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 			     float speed,
-			     std::vector<Gazebo> gzs)
+			     std::shared_ptr<Gazebo> gzs)
 {
 
   /*
@@ -134,8 +124,28 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
     w_ctrl.mutable_reset()->set_all(true); //I believe this is equal to indicating a world reset
     
     reset_pub->Publish(w_ctrl);
-    
 
+    iris_x.at(0)->arm();
+    iris_x.at(1)->arm();
+    iris_x.at(2)->arm();
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    
+    iris_x.at(0)->takeoff();
+    iris_x.at(1)->takeoff();
+    iris_x.at(2)->takeoff();
+    
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
+
+
+    iris_x.at(0)->init_speed();
+    iris_x.at(1)->init_speed();
+    iris_x.at(2)->init_speed();
+
+    iris_x.at(0)->start_offboard_mode();
+    iris_x.at(1)->start_offboard_mode();
+    iris_x.at(2)->start_offboard_mode();
+    
     /*  intilization of position of the quads */
     
     std::cout << "Episode : " << episode << std::endl;            
@@ -152,7 +162,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
     /* TODO: Calculate the distance between each quadcopter */
         
     /*  put rssi inside a state */
-    lt::rssi<double> e_rssi = rssi(gzs);
+    lt::rssi<double> e_rssi = gzs->rssi();
     
     // put the recoved signls in state struct
     
@@ -177,10 +187,10 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       
       move_action(iris_x, speed, action, 0) ; // move the leader 100 CM 
       
-	   
+      
       //get the new signal of strength difference
       
-      states_ = rssi(gzs);
+      states_ = gzs->rssi();
       state_index = get_state_index(states_, original_signal_);
       
       // random number between 0 and 1 TODO::
@@ -215,8 +225,8 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       /*  recalculate the RSSI after moveing the quads */
       /*  get the new  state index*/
       
-      new_state_ = rssi(gzs);
-      state_index = get_state_index(new_states_, original_signal_);
+      new_state_ = gzs->rssi();
+      state_index = get_state_index(new_state_, original_signal_);
 
       std::vector<lt::position<float>> new_pos;    
 

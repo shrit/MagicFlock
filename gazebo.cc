@@ -36,21 +36,18 @@ void Gazebo::Parse_rssi_msg_0(ConstVector2dPtr& msg)
 {
   /*  Parsing the RSSI send by NS3 */
   signal_.lf1 = msg->x();
-  std::cout << msg->x() << std::endl;
 }
 
 void Gazebo::Parse_rssi_msg_1(ConstVector2dPtr& msg)
 {
   /*  Parsing the RSSI send by NS3 */
   signal_.lf2 = msg->x();
-  std::cout << msg->x() << std::endl;
 }
 
 void Gazebo::Parse_rssi_msg_2(ConstVector2dPtr& msg)
 {
   /*  Parsing the RSSI send by NS3 */
   signal_.ff = msg->x();
-  std::cout << msg->x() << std::endl;
 }
 
 
@@ -70,14 +67,12 @@ void Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
           position_.y = position.y();
           position_.z = position.z();
 	  
-	  std::cout << position_.z << std::endl;
-	  //printw("%d",position_.z );
-
+	  //std::cout << position_.z << std::endl;
 	}
-    }  
+    }
 }
 
-double Gazebo::rssi() const
-{return rssi_;}
+lt::rssi<double> Gazebo::rssi() const
+{return signal_;}
 
 

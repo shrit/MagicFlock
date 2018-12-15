@@ -40,7 +40,7 @@ public:
   void Parse_rssi_msg_1(ConstVector2dPtr& msg);
   void Parse_rssi_msg_2(ConstVector2dPtr& msg);
   
-  double rssi() const;
+  lt::rssi<double> rssi() const;
   
   
 private:

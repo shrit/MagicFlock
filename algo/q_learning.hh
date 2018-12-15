@@ -8,6 +8,8 @@
 # include <cstdlib>
 # include <cmath>
 # include <algorithm>
+# include <chrono>
+# include <thread>
 /* Eigne includes */
 # include <Eigen/Dense>
 
@@ -51,7 +53,7 @@ public:
 
   Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	     float speed,
-	     std::vector<Gazebo> gzs);
+	     std::shared_ptr<Gazebo> gzs);
     
   void init();
 
@@ -66,9 +68,8 @@ public:
   
   void run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		   float speed,
-		   std::vector<Gazebo> gzs);
+		   std::shared_ptr<Gazebo> gzs);
 
-  lt::rssi<double> rssi(std::vector<Gazebo> gzs);
        
 private:
     

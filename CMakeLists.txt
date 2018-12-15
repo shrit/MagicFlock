@@ -30,13 +30,12 @@ set (BOOST_INCLUDE_DIRS "/meta/local/include/")
 include_directories(
 
  ${BOOST_INCLUDE_DIRS}
- #${BOOST_66_INCLUDE_DIRS}
  ${GAZEBO_INCLUDE_DIRS}
   /usr/local/include/dronecode_sdk
   /usr/include/
   /usr/include/eigen3
   /meta/DeviceController/algo/
-#  /opt/ros/melodic/include
+
   # ... any other header files
   )
 
