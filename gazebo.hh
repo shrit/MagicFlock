@@ -19,39 +19,44 @@ class Gazebo
 public:
 
   using SubPtr                   = gazebo::transport::SubscriberPtr;
+  using PubPtr                   = gazebo::transport::PublisherPtr;
   using NodePtr                  = gazebo::transport::NodePtr;
-  using quads_rssi               = std::vector<double>;
   
-
   Gazebo(int argc, char* argv[]);
+
   /*  This function subscribe to any topic and handle 
    the message */
   //  template <typename MsgHandler> , MsgHandler&& handler // to see later
+
   void subscriber(lt::topic_name name);
-  //  quad_positions
-  lt::position get_quads_positions() const;
+  
+  void publisher(lt::topic_name name);
+
+  void reset_world();
 
   void Parse_position_msg(ConstPosesStampedPtr& posesStamped);
 
-  void Parse_rssi_msg(ConstVector2dPtr& msg);
+  void Parse_rssi_msg_0(ConstVector2dPtr& msg);
+  void Parse_rssi_msg_1(ConstVector2dPtr& msg);
+  void Parse_rssi_msg_2(ConstVector2dPtr& msg);
   
-  //  quads_rssi
-  std::vector<double> get_quads_rssi() const;
+  double rssi() const;
   
   
 private:
 
   //  signal_type parse_msg;
   /*  node process that connecte to gazebo topic */
+  double rssi_;
+
+  std::vector<SubPtr> subs_;
+  
   NodePtr node_;
   
-  lt::position position_;
-
-  quads_rssi     rssi_;
+  lt::position<double> position_;
   
-  lt::rssi signal_;
+  lt::rssi<double> signal_;   
   
-  std::vector<SubPtr> subs_;
   
   
 };

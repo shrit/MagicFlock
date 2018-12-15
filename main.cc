@@ -107,20 +107,6 @@ void async_wait(boost::asio::posix::stream_descriptor& in, Handler&& handler) {
 		     });
 }
 
-
-
-
-void cb(ConstVector2dPtr& msg)
-{
-  /*  Parsing the RSSI send by NS3 */
-   float rssi;
-  //  rssi_ = msg->x();
-   rssi = msg->x();
-  //printw(msg-DebugString());
-   //   std::cout << "rssi "<< rssi << std::endl;
-}
-
-
 /*  Main file: Start one controller by quadcopters, 
  *  Start ncurses to intercept keyboard keystrokes.
  */
@@ -129,6 +115,7 @@ int main(int argc, char* argv[])
 {
   
   Settings settings(argc, argv);
+
   
   boost::asio::io_service	io_service;  
 
@@ -159,56 +146,20 @@ int main(int argc, char* argv[])
   ////////////
   // Gazebo //
   ///////////
-  //this is working perfectly?? why??!!!
-  // Classes are making call back not fire??
-  // to be seen later
-  
-  gazebo::client::setup(argc, argv);
-
-  gazebo::transport::NodePtr node_(new gazebo::transport::Node());
-
-  node_->Init();
-  
-  gazebo::transport::SubscriberPtr sub
-    = node_->Subscribe("/gazebo/default/1/2", &cb );
-
    
   /*  gazebo local test */
   
-   Gazebo gazebo(argc, argv);
-   gazebo.subscriber("/gazebo/default/1/2");
-
-  //std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(argc,argv);
-
-  //gz->subscriber("/gazebo/default/1/2");
+  std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(argc,argv);
   
-  //  gazebo.subscriber("/gazebo/default/1/2");
-  // gazebo.subscriber("/gazebo/default/0/1");
-  // gazebo.subscriber("/gazebo/default/0/2");
-
-  // std::this_thread::sleep_for(milliseconds(10000));
-  // gazebo.subscriber("/gazebo/default/pose/info");
-  
-  //std::cout << gazebo.quad_rssi() << std::endl;
-  
-  //  std::vector<Gazebo> gazebos;
-  
-  // for(auto& it : ports){					           								      
-  //   gazebos.push_back(Gazebo(argc, argv)); 
-  //   std::cout  << "create a gazebo device" << std::endl;	       
-  // }
-  
-  //Subscribe to gazebo topics published by NS3
-
-  // gazebos.at(0).subscriber("/gazebo/default/0/1");
-  // gazebos.at(1).subscriber("/gazebo/default/0/2");
-  // gazebos.at(2).subscriber("/gazebo/default/1/2");
-  
+  gz->subscriber("/gazebo/default/0/1");
+  gz->subscriber("/gazebo/default/0/2");
+  gz->subscriber("/gazebo/default/1/2");
+               
   ////////////////
   // Q_learning //
   ////////////////
   // Pass the devices to the q learning algorithm
-  //  Q_learning qlearning(iris_x, gazebos);
+  //  Q_learning qlearning(iris_x, gz);
 
   
   /////////////
