@@ -95,6 +95,36 @@ bool Px4Device::land()
 
 }
 
+bool Px4Device::return_to_launch()
+{
+  std::cout << "return to launch position..." << std::endl;
+  const ActionResult rtl_result = action_->return_to_launch();
+  if (rtl_result != ActionResult::SUCCESS) {
+    std::cout << ERROR_CONSOLE_TEXT
+	      << "return to launch position failed:"
+	      << action_result_str(rtl_result)
+	      << NORMAL_CONSOLE_TEXT << std::endl;
+    return false;
+  }
+  return true;  
+}
+
+
+bool Px4Device::set_altitude_rtl_max(float meter)
+{
+  std::cout << "set altitude rtl..." << std::endl;
+  const ActionResult rtl_altitude = action_->set_return_to_launch_return_altitude(meter);
+  if (rtl_altitude != ActionResult::SUCCESS) {
+    std::cout << ERROR_CONSOLE_TEXT
+	      << "return to launch position failed:"
+	      << action_result_str(rtl_altitude)
+	      << NORMAL_CONSOLE_TEXT << std::endl;
+    return false;
+  }
+  return true;  
+}
+
+
 void Px4Device::goUp(float speed)
 {
   std::cout << "To the sky !" << std::endl;

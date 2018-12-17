@@ -51,6 +51,9 @@ public:
   
   bool takeoff();
   bool land();
+  bool return_to_launch();
+  bool set_altitude_rtl_max(float meter);
+  
   void goUp(float speed);
   void goDown(float speed);
   void goRight(float speed);
@@ -59,7 +62,6 @@ public:
   void backward(float speed);
   void turnToLeft(float speed);
   void turnToRight(float speed);
-
 
   void init_speed();
   Offboard::Result start_offboard_mode();
