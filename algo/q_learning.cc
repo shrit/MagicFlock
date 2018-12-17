@@ -93,8 +93,10 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
    * This code is complete for the q learning part. However, dron part needs to
    * be tested.
    */
-
-  
+  //to be overloaded
+  for( int i = 0; i <  qtable_.size(); i++){
+    std::cout << qtable_.at(i) << std::endl;
+  }
   
   for (int episode = 0; episode < max_episode_; episode++){
 
@@ -111,44 +113,28 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
      * instead of only this file. Do better encapsulation and comments
      * the code functions
      */
-    
-    gazebo::transport::NodePtr node(new gazebo::transport::Node());
-    
-    /*  start resetting the world  */
-    gazebo::transport::PublisherPtr reset_pub;
-    
-    reset_pub=node->Advertise<gazebo::msgs::WorldControl>("~/world_control");       
-    
-    gazebo::msgs::WorldControl w_ctrl;
-    
-    w_ctrl.mutable_reset()->set_all(true); //I believe this is equal to indicating a world reset
-    
-    reset_pub->Publish(w_ctrl);
 
-    iris_x.at(0)->arm();
-    iris_x.at(1)->arm();
-    iris_x.at(2)->arm();
-    
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    
-    iris_x.at(0)->takeoff();
-    iris_x.at(1)->takeoff();
-    iris_x.at(2)->takeoff();
-    
-    std::this_thread::sleep_for(std::chrono::milliseconds(2));
-
-
-    iris_x.at(0)->init_speed();
-    iris_x.at(1)->init_speed();
-    iris_x.at(2)->init_speed();
-
-    iris_x.at(0)->start_offboard_mode();
-    iris_x.at(1)->start_offboard_mode();
-    iris_x.at(2)->start_offboard_mode();
-    
-    /*  intilization of position of the quads */
-    
     std::cout << "Episode : " << episode << std::endl;            
+
+
+    /* Need to investigate in this method, This method will allow to
+     * gain alot of simulation time instead of waiting until the quads
+     * return to the home using RTL function.
+     * To be tested using integration test. 
+     */
+    
+    // gazebo::transport::NodePtr node(new gazebo::transport::Node());
+    
+    // /*  start resetting the world  */
+    // gazebo::transport::PublisherPtr reset_pub;
+    
+    // reset_pub=node->Advertise<gazebo::msgs::WorldControl>("~/world_control");       
+    
+    // gazebo::msgs::WorldControl w_ctrl;
+    
+    // w_ctrl.mutable_reset()->set_all(true); //I believe this is equal to indicating a world reset
+    
+    
     std::vector<lt::position<float>> pos;    
     
     pos.push_back(iris_x[0]->get_position_ned());
@@ -157,7 +143,8 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
        
     double dif_x = pos.at(0).x - pos.at(1).x; 
     double dif2_x = pos.at(0).x - pos.at(2).x; 
-    
+
+
     
     /* TODO: Calculate the distance between each quadcopter */
         
@@ -178,27 +165,62 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
      * Step phase, where we update the q table each step
      * Each episode has a fixed step number.
      * Note: at the end of each episode, we re-intilize everything   
+     */    
+    /*  put the take off functions inside the steps */
+    /*  needs to land the drones and then reset using the world reset 
+     *  functionality using the gazebo publish system
+     * to be tested separatly 
      */
-    
     
     for(int steps = 0; steps < max_step_; steps++){
 
+
+      // reset_pub->Publish(w_ctrl);
+    
+    
+    iris_x.at(0)->arm();
+    iris_x.at(1)->arm();
+    iris_x.at(2)->arm();
+    
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    
+    iris_x.at(0)->takeoff();
+    iris_x.at(1)->takeoff();
+    iris_x.at(2)->takeoff();
+    
+    std::this_thread::sleep_for(std::chrono::seconds(4));
+
+
+    iris_x.at(0)->init_speed();
+    iris_x.at(1)->init_speed();
+    iris_x.at(2)->init_speed();
+
+    iris_x.at(0)->start_offboard_mode();
+    iris_x.at(1)->start_offboard_mode();
+    iris_x.at(2)->start_offboard_mode();
+    
+    /*  intilization of position of the quads */
+    
+    std::this_thread::sleep_for(std::chrono::seconds(1));          
+
+      
       int action = std::rand() % 4;
-      
-      move_action(iris_x, speed, action, 0) ; // move the leader 100 CM 
-      
-      
+
+      for (int i = 0; i < 10; i++){
+      move_action(iris_x, speed, action, 0) ; // move the leader 100 CM
+      std::this_thread::sleep_for(std::chrono::milliseconds(50));
+      }
       //get the new signal of strength difference
       
       states_ = gzs->rssi();
       state_index = get_state_index(states_, original_signal_);
       
       // random number between 0 and 1 TODO::
-      int random = std::rand() % 10;
-      
+      double random =   (double)std::rand()/((double)RAND_MAX+1); 
+      std::cout << random << std::endl;
+
       int action1;
       int action2;
-
       
       /* Start exploitation instead of exploration, 
        * if the condition is valid
@@ -207,66 +229,90 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 
       /*  find a way to look inside this tables */
       
-      if(random > epsilon_){
-	
-	action1 = get_action(qtable_, state_index);
-	action2 = action1;
-      }
-      else {
-	action1 = std::rand() % 4;
-	action2 = action1;
-      }
+      //////////////////////////////////////////////////////////
+      // if(random > epsilon_){				      //
+      // 						      //
+      // 	action1 = get_action(qtable_, state_index);   //
+      // 	action2 = action1;			      //
+      // }						      //
+      //////////////////////////////////////////////////////////
+      // else {
+    	action1 = std::rand() % 4;
+    	action2 = action1;
+	// }
 
       /*  moving the followers randomly */
+      for (int i = 0; i < 10; i++){
+       move_action(iris_x, speed, action1, 1);
+       move_action(iris_x, speed, action2, 2);
+       std::this_thread::sleep_for(std::chrono::milliseconds(50));
+      }
       
-      move_action(iris_x, speed, action1, 1);
-      move_action(iris_x, speed, action2, 2);
-      
+       std::this_thread::sleep_for(std::chrono::seconds(2));
+       
       /*  recalculate the RSSI after moveing the quads */
-      /*  get the new  state index*/
+       /*  get the new  state index*/
       
-      new_state_ = gzs->rssi();
-      state_index = get_state_index(new_state_, original_signal_);
+       new_state_ = gzs->rssi();
 
-      std::vector<lt::position<float>> new_pos;    
+       std::cout << "rssi values"<< gzs->rssi() << std::endl;
+       state_index = get_state_index(new_state_, original_signal_);
 
-      std::vector<float> error;
+       std::cout << "state_index: " << state_index << std::endl;
+       
+       std::vector<lt::position<float>> new_pos;    
+
+       std::vector<float> error;
       
-      new_pos.push_back(iris_x.at(0)->get_position_ned());
-      new_pos.push_back(iris_x.at(1)->get_position_ned());
-      new_pos.push_back(iris_x.at(2)->get_position_ned());
+       new_pos.push_back(iris_x.at(0)->get_position_ned());
+       new_pos.push_back(iris_x.at(1)->get_position_ned());
+       new_pos.push_back(iris_x.at(2)->get_position_ned());
       
-      error.push_back(std::sqrt(std::pow(pos.at(0).x - new_pos.at(0).x, 2) -
-				std::pow(pos.at(0).y - new_pos.at(0).y, 2)));
-      
+       error.push_back(std::sqrt(std::pow(pos.at(0).x - new_pos.at(0).x, 2) -
+  				 std::pow(pos.at(0).y - new_pos.at(0).y, 2)));
+       
 
       error.push_back(std::sqrt(std::pow(pos.at(1).x - new_pos.at(1).x, 2) -
-				std::pow(pos.at(1).y - new_pos.at(1).y, 2)));
+      				std::pow(pos.at(1).y - new_pos.at(1).y, 2)));
       
       error.push_back(std::sqrt(std::pow(pos.at(2).x - new_pos.at(2).x, 2) -
-				std::pow(pos.at(2).y - new_pos.at(2).y, 2)));
-      
-      
-      /*  Recalculate the distance between quadcopter  */
+      				std::pow(pos.at(2).y - new_pos.at(2).y, 2)));
+           
+
+    //   /*  Recalculate the distance between quadcopter  */
       int reward = 50 - error.at(0);
       int reward2 = 50 - error.at(1);
 
-      e_reward = reward + reward2;
       
-      qtable_.at(state_index).at(action1) =
-	(1 - learning_rate_) * qtable_.at(state_index).at(action1) +
-	learning_rate_ * (reward +  discount_rate_ * get_action(qtable_,
-								state_index));
+       e_reward = reward + reward2;
 
-      //reduce epsilon as we explore more each episode
-      epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode); 
-      
-      
-      //std::cout << "Score over time: " << 
-      rewards_.push_back(e_reward);
-      
-    }          
-  }
+       std::cout << "reward: " << e_reward << std::endl;
+       
+       // qtable_.at(state_index).at(action1) =
+       // 	 (1 - learning_rate_) * qtable_.at(state_index).at(action1) +
+       // 	 learning_rate_ * (reward +  discount_rate_ * get_action(qtable_,
+       // 								 state_index));
+
+    //   //reduce epsilon as we explore more each episode
+       epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode); 
+       
+       std::cout << "epsilon: " << epsilon_ << std::endl;
+       
+       //std::cout << "Score over time: " << 
+       //      rewards_.push_back(e_reward);
+
+       iris_x.at(0)->set_altitude_rtl_max(4.0);
+       iris_x.at(1)->set_altitude_rtl_max(4.0);
+       iris_x.at(2)->set_altitude_rtl_max(4.0);
+           
+       
+       iris_x.at(0)->return_to_launch();
+       iris_x.at(1)->return_to_launch();
+       iris_x.at(2)->return_to_launch();
+       
+       std::this_thread::sleep_for(std::chrono::seconds(38));
+     }          
+   }
 }
   
 
