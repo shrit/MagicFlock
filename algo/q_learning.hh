@@ -23,6 +23,18 @@
 
 //namespace algo{
 
+
+template <typename T>
+std::ostream& operator<< (std::ostream& out,
+			  const Telemetry::PositionVelocityNED& p)
+{					   
+  out << "[ "
+      << p.position.north_m <<", "
+      << p.position.east_m <<", "
+      << p.position.down_m <<
+    "]"<<"\n";
+  return out;
+}
   
 namespace Data{
   template<class Matrix>

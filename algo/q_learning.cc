@@ -25,7 +25,9 @@ int Q_learning::get_action(std::vector<std::vector<double>> q_table , double sta
 }
 
 double Q_learning::get_state_index(lt::rssi<double> signal, lt::rssi<double> original_signal)
-{  
+{
+  /*  verify if this algorithm is working */
+  
   double x = signal.lf1 - (original_signal.lf1 - 2);
   if(x < 0)
     {
@@ -83,6 +85,17 @@ void Q_learning::move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
   }  
 }
 
+
+/*  TODO LIST: */
+/*
+ * 1- Verify the generation of the random number in a different int test 
+ * 2- Update and debug the q table
+ * 3- Verify the altitude of RTL !?? why it is not working
+ * 4- Rest the model using the code, find a way to do it !!! important
+ * 5- At the end comment the code, and create small functions
+*/
+
+
 void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 			     float speed,
 			     std::shared_ptr<Gazebo> gzs)
@@ -94,9 +107,10 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
    * be tested.
    */
   //to be overloaded
-  for( int i = 0; i <  qtable_.size(); i++){
-    std::cout << qtable_.at(i) << std::endl;
-  }
+
+  // for( int i = 0; i <  qtable_.size(); i++){
+  //   std::cout << qtable_.at(i) << std::endl;
+  // }
   
   for (int episode = 0; episode < max_episode_; episode++){
 
@@ -135,14 +149,18 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
     // w_ctrl.mutable_reset()->set_all(true); //I believe this is equal to indicating a world reset
     
     
-    std::vector<lt::position<float>> pos;    
+    std::vector<lt::position<double>> pos;    
     
-    pos.push_back(iris_x[0]->get_position_ned());
-    pos.push_back(iris_x[1]->get_position_ned());
-    pos.push_back(iris_x[2]->get_position_ned());
-       
-    double dif_x = pos.at(0).x - pos.at(1).x; 
-    double dif2_x = pos.at(0).x - pos.at(2).x; 
+    pos.push_back(gzs->get_positions().leader);
+    pos.push_back(gzs->get_positions().f1);
+    pos.push_back(gzs->get_positions().f2);
+   
+    std::cout << "New position l : " << pos.at(0) << std::endl;
+    std::cout << "New position f1: " << pos.at(1) << std::endl;
+    std::cout << "New position f2: " << pos.at(2) << std::endl;
+    
+    // double dif_x = pos.at(0).x - pos.at(1).x; 
+    // double dif2_x = pos.at(0).x - pos.at(2).x; 
 
 
     
@@ -260,45 +278,53 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 
        std::cout << "state_index: " << state_index << std::endl;
        
-       std::vector<lt::position<float>> new_pos;    
+       std::vector<lt::position<double>> new_pos;    
 
-       std::vector<float> error;
-      
-       new_pos.push_back(iris_x.at(0)->get_position_ned());
-       new_pos.push_back(iris_x.at(1)->get_position_ned());
-       new_pos.push_back(iris_x.at(2)->get_position_ned());
-      
-       error.push_back(std::sqrt(std::pow(pos.at(0).x - new_pos.at(0).x, 2) -
-  				 std::pow(pos.at(0).y - new_pos.at(0).y, 2)));
+       std::vector<double> error;
        
+       new_pos.push_back(gzs->get_positions().leader);
+       new_pos.push_back(gzs->get_positions().f1);
+       new_pos.push_back(gzs->get_positions().f2);           
 
-      error.push_back(std::sqrt(std::pow(pos.at(1).x - new_pos.at(1).x, 2) -
-      				std::pow(pos.at(1).y - new_pos.at(1).y, 2)));
-      
-      error.push_back(std::sqrt(std::pow(pos.at(2).x - new_pos.at(2).x, 2) -
-      				std::pow(pos.at(2).y - new_pos.at(2).y, 2)));
+       std::cout << "New position l : " << new_pos.at(0) << std::endl;
+       std::cout << "New position f1: " << new_pos.at(1) << std::endl;
+       std::cout << "New position f2: " << new_pos.at(2) << std::endl;               	      
+
+
+
+       std::cout  << "diff in pos1 " << pos.at(1).x - new_pos.at(1).x << std::endl;
+       std::cout  << "diff in pos2 " << pos.at(2).x - new_pos.at(2).x << std::endl;
+		
+       error.push_back(std::sqrt(std::pow(pos.at(1).x - new_pos.at(1).x, 2) -
+				 std::pow(pos.at(1).y - new_pos.at(1).y, 2)));
+       
+       error.push_back(std::sqrt(std::pow(pos.at(2).x - new_pos.at(2).x, 2) -
+				 std::pow(pos.at(2).y - new_pos.at(2).y, 2)));
            
 
-    //   /*  Recalculate the distance between quadcopter  */
-      int reward = 50 - error.at(0);
-      int reward2 = 50 - error.at(1);
+    // //   /*  Recalculate the distance between quadcopter  */
+       std::cout << "Error :" << error << std::endl;
 
-      
+       
+       int reward = 50 - error.at(0);
+       int reward2 = 50 - error.at(1);
+       
+       
        e_reward = reward + reward2;
-
+       
        std::cout << "reward: " << e_reward << std::endl;
        
-       // qtable_.at(state_index).at(action1) =
-       // 	 (1 - learning_rate_) * qtable_.at(state_index).at(action1) +
-       // 	 learning_rate_ * (reward +  discount_rate_ * get_action(qtable_,
-       // 								 state_index));
-
-    //   //reduce epsilon as we explore more each episode
-       epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode); 
+       qtable_.at(state_index).at(action1) =
+       	 (1 - learning_rate_) * qtable_.at(state_index).at(action1) +
+       	 learning_rate_ * (reward +  discount_rate_ * get_action(qtable_,
+       								 state_index));
        
-       std::cout << "epsilon: " << epsilon_ << std::endl;
+       // //   //reduce epsilon as we explore more each episode
+    //    epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode); 
        
-       //std::cout << "Score over time: " << 
+    //    std::cout << "epsilon: " << epsilon_ << std::endl;
+       
+    //    //std::cout << "Score over time: " << 
        //      rewards_.push_back(e_reward);
 
        iris_x.at(0)->set_altitude_rtl_max(4.0);
@@ -310,7 +336,8 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
        iris_x.at(1)->return_to_launch();
        iris_x.at(2)->return_to_launch();
        
-       std::this_thread::sleep_for(std::chrono::seconds(38));
+       std::this_thread::sleep_for(std::chrono::seconds(10));
+       std::this_thread::sleep_for(std::chrono::seconds(15));
      }          
    }
 }
