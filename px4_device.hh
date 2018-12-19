@@ -16,6 +16,8 @@
 # include <iostream>
 # include <thread>
 # include <memory>
+# include <mutex>
+# include <atomic>
 
 /*  DronecodeSDK includes */
 
@@ -71,8 +73,8 @@ public:
 
   
   void print_position();
-  void async_position_ned();
-  lt::position<float> get_position_ned();
+  void position_ned();
+  Telemetry::PositionVelocityNED position() const;
   
   void quad_health();
   Telemetry::Result set_rate_result();
@@ -80,7 +82,11 @@ public:
 private:
   
   DronecodeSDK dc_;
-  Telemetry::PositionVelocityNED position_ned_ ;
+  //  std::atomic<Telemetry::PositionVelocityNED> position_ned_ ;
+
+  
+  //  mutable std::mutex _position_ned_mutex{};
+  Telemetry::PositionVelocityNED _position_ned{{0, 0, 0}, {0, 0, 0}};
   std::shared_ptr<dronecode_sdk::Telemetry> telemetry_;
   std::shared_ptr<dronecode_sdk::Action> action_;
   std::shared_ptr<dronecode_sdk::Offboard> offboard_;  

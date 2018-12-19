@@ -1,11 +1,8 @@
 # include "px4_device.hh"
-
-
-
 Px4Device::Px4Device(lt::connection_type socket,
 		     lt::port_type port)
 {
-
+    
   std::string connection_url = socket + "://:" + std::to_string(port);    
   
   connect_to_quad(connection_url);
@@ -19,7 +16,7 @@ Px4Device::Px4Device(lt::connection_type socket,
   action_    = std::make_shared<dronecode_sdk::Action>(system);
   
   set_rate_result();
-  //  async_position_ned();
+  position_ned();
   quad_health();      
   
 }
@@ -245,7 +242,7 @@ void Px4Device::print_position()
 {
   
   telemetry_->position_async([](Telemetry::Position position){
-			       			       std::cout << TELEMETRY_CONSOLE_TEXT
+			       std::cout << TELEMETRY_CONSOLE_TEXT
 					 << "Altitude : "
 					 << position.relative_altitude_m
 					 << " m"
@@ -259,30 +256,33 @@ void Px4Device::print_position()
   
 }
 
-lt::position<float> Px4Device::get_position_ned()
+Telemetry::PositionVelocityNED Px4Device::position() const
 {
-  lt::position<float> pos;
+  // Telemetry::PositionVelocityNED po;
 
-  pos.x = position_ned_.position.north_m;
-  pos.y = position_ned_.position.east_m;
-  pos.z = position_ned_.position.down_m;
-  return pos;
+  // po = position_ned_.load(std::memory_order_acquire);
+
+  //  std::lock_guard<std::mutex> lock(_position_ned_mutex);
+  
+  // std::cout<<"position ned: "<< _position_ned.position.north_m << std::endl;
+  // std::cout<<"position ned: "<< _position_ned.position.east_m << std::endl;
+  // std::cout<<"position ned: "<< _position_ned.position.down_m << std::endl;
+
+  return _position_ned;    
 }
 
 
-void Px4Device::async_position_ned()
+void Px4Device::position_ned()
 {
   telemetry_->position_velocity_ned_async([this](Telemetry::PositionVelocityNED pvn){
-					    this->position_ned_ = pvn;
-					    ////////////////////////////////////////////////////////
-					    // std::cout << position_ned_.position.north_m	  //
-					    // 	      << " "					  //
-					    // 	      << position_ned_.position.down_m		  //
-					    // 	      << " "					  //
-					    // 	      << position_ned_.position.east_m		  //
-					    // 	      << " "					  //
-					    // 	      << std::endl;				  //
-					    ////////////////////////////////////////////////////////
+					    //std::lock_guard<std::mutex> unlock(_position_ned_mutex);
+					    
+					    this->_position_ned = pvn ;
+					    
+					    //std::cout<< _position_ned.position.north_m <<std::endl;
+					    // std::cout<< _position_ned.position.east_m <<std::endl;
+					    //std::cout<< _position_ned.position.down_m <<std::endl;
+					    
 					  });   
 }
 
