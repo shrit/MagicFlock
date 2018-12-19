@@ -13,6 +13,14 @@
 
 namespace lt = local_types;
 
+
+struct positions {
+  lt::position<double> leader;
+  lt::position<double> f1;
+  lt::position<double> f2;
+};
+
+
 class Gazebo
 {
 
@@ -41,7 +49,7 @@ public:
   void Parse_rssi_msg_2(ConstVector2dPtr& msg);
   
   lt::rssi<double> rssi() const;
-  
+  positions get_positions() const;
   
 private:
 
@@ -53,12 +61,10 @@ private:
   
   NodePtr node_;
   
-  lt::position<double> position_;
+  positions positions_;
   
   lt::rssi<double> signal_;   
-  
-  
-  
+     
 };
 
 
