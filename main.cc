@@ -142,7 +142,10 @@ int main(int argc, char* argv[])
     iris_x.push_back(std::make_shared<Px4Device>("udp", it)); 
     std::cout  << "create an iris device" << std::endl;	       
   }								      
-     
+
+  std::cout<< ports << std::endl;
+
+  
   ////////////
   // Gazebo //
   ///////////
@@ -151,13 +154,20 @@ int main(int argc, char* argv[])
   
   std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(argc,argv);
   
+  gz->subscriber("/gazebo/default/pose/info");  
   gz->subscriber("/gazebo/default/0/1");
   gz->subscriber("/gazebo/default/0/2");
   gz->subscriber("/gazebo/default/1/2");
-               
+
+  /* Wait for 2 seconds, Just to finish subscribe to
+  * gazebo topics before Starting Q learning*/
+  
+  std::this_thread::sleep_for(std::chrono::seconds(2));
+  
   ////////////////
   // Q_learning //
   ////////////////
+
   // Pass the devices to the q learning algorithm
   Q_learning qlearning(iris_x, speed, gz);
 
@@ -186,68 +196,71 @@ int main(int argc, char* argv[])
   int ch;
   
   boost::asio::posix::stream_descriptor in{io_service, 0};  
-      
+
+  /* Hand control using keyboard, manual control of the quadcopters */
+
+  
   auto lambda = [&](){
 		  
-		  ch = getch(); 
+		//   ch = getch(); 
 		  		  
-		  switch (ch) {
-		  case KEY_UP:
-		    printw("key_up");
-		    iris_x[0]->forward(speed);
-		    break;
-		  case KEY_DOWN:
-		    printw("key_down");
-		    iris_x[0]->backward(speed);
-		    break;
-		  case KEY_LEFT:
-		    printw("key_left");
-		    iris_x[0]->goLeft(speed);
-		    break;
-		  case KEY_RIGHT:
-		    printw("key_right");
-		    iris_x[0]->goRight(speed);
-		    break;
-		  case 'u':    
-		    printw("goUp");
-		    iris_x[0]->goUp(speed);
-		    break;
-		  case 'd':
-		    printw("goDown");
-		    iris_x[0]->goDown(speed);
-		    break;		    
-		  case 't':
-		    printw("take_off");
-		    iris_x[0]->takeoff();
-		    break;
-		  case 'l':
-		    printw("land");
-		    iris_x[0]->land();
-		    break;
-		  case 'a':
-		    printw("arming->->->");
-		    iris_x[0]->arm();
-		    sleep_for(seconds(2));
-		    break;
-		  case '+':
-		    printw("turn to right");
-		    iris_x[0]->turnToRight(speed);		    
-		    break;
-		  case '-':
-		    printw("turn to left");
-		    iris_x[0]->turnToLeft(speed);		    
-		    break;		    
-		  case 's':
-		    iris_x[0]->init_speed();
-		    iris_x[0]->start_offboard_mode();
-		    break;
+		//   switch (ch) {
+		//   case KEY_UP:
+		//     printw("key_up");
+		//     iris_x[0]->forward(speed);
+		//     break;
+		//   case KEY_DOWN:
+		//     printw("key_down");
+		//     iris_x[0]->backward(speed);
+		//     break;
+		//   case KEY_LEFT:
+		//     printw("key_left");
+		//     iris_x[0]->goLeft(speed);
+		//     break;
+		//   case KEY_RIGHT:
+		//     printw("key_right");
+		//     iris_x[0]->goRight(speed);
+		//     break;
+		//   case 'u':    
+		//     printw("goUp");
+		//     iris_x[0]->goUp(speed);
+		//     break;
+		//   case 'd':
+		//     printw("goDown");
+		//     iris_x[0]->goDown(speed);
+		//     break;		    
+		//   case 't':
+		//     printw("take_off");
+		//     iris_x[0]->takeoff();
+		//     break;
+		//   case 'l':
+		//     printw("land");
+		//     iris_x[0]->land();
+		//     break;
+		//   case 'a':
+		//     printw("arming->->->");
+		//     iris_x[0]->arm();
+		//     sleep_for(seconds(2));
+		//     break;
+		//   case '+':
+		//     printw("turn to right");
+		//     iris_x[0]->turnToRight(speed);		    
+		//     break;
+		//   case '-':
+		//     printw("turn to left");
+		//     iris_x[0]->turnToLeft(speed);		    
+		//     break;		    
+		//   case 's':
+		//     iris_x[0]->init_speed();
+		//     iris_x[0]->start_offboard_mode();
+		//     break;
 		    
-		  default:		    
-		    printw("key_NOT DEFINED: %c", ch);
-		    endwin();
-		  }		  
+		//   default:		    
+		//     printw("key_NOT DEFINED: %c", ch);
+		//     endwin();
+		//   }		  
 
-		};
+		 };
     
   async_wait(in, lambda);
 
