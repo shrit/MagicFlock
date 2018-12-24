@@ -1,4 +1,24 @@
 	Quadcopter DeviceController
 
 This project is intended to control quadcopters in Gazebosim, it has
-the capacity to control several quads at the same time. 
+the capacity to control several quads at the same time.
+
+
+Installation:
+
+To compile the project, create a a directory using mkdir build
+use the command:
+
+cmake ../
+
+Please verify that you have installed the following dependecies on your
+machine.
+
+
+
+Dependencies:
+
+Boost asio
+
+
+
