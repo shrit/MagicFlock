@@ -52,7 +52,7 @@ set(dronecode_sdk_telemetry_lib "/usr/local/lib/libdronecode_sdk_telemetry.so")
 set(dronecode_sdk_action_lib "/usr/local/lib/libdronecode_sdk_action.so")
 set(ncurses_lib "/usr/lib/libncurses.so")
 set(pthread_lib "/usr/lib/libpthread.so")
-
+set(atomic_lib "/usr/lib/libatomic.so")		
 set(boost_lib_system "/meta/local/lib/libboost_system.so")
 set(boost_lib_thread "/meta/local/lib/libboost_thread.so")
 set(boost_lib_program_options "/meta/local/lib/libboost_program_options.so")
@@ -81,6 +81,7 @@ target_link_libraries(controller
   # Add  'dronecode_sdk_lib' variable defining
   #where the Dronecode_Sdk library can be found
   ${pthread_lib}
+  ${atomic_lib}
   ${GAZEBO_LIBRARIES}
   ${dronecode_sdk_lib}
   ${dronecode_sdk_offboard_lib}

@@ -1,0 +1,4 @@
+	Quadcopter DeviceController
+
+This project is intended to control quadcopters in Gazebosim, it has
+the capacity to control several quads at the same time. 

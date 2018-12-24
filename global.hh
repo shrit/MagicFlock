@@ -6,6 +6,7 @@
 # include <vector>
 # include <iterator>
 
+
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const std::vector<T>& v) {
   if ( !v.empty() ) {
@@ -15,6 +16,18 @@ std::ostream& operator<< (std::ostream& out, const std::vector<T>& v) {
   }
   return out;
 }
+
+// template <typename T>
+// std::ostream& operator<< (std::ostream& out, const std::vector<std::vector<T>>& v) {
+//   if ( !v.empty() ) {
+//     out << '[';
+//     for (int i=0; i < v.size(); i++ )
+//       std::copy (v.at(i).begin(), v.at(i).end(), std::ostream_iterator<T>(out, ", "));
+//     out << "\b\b]";
+//   }
+//   return out;
+// }
+
 
 /*  Global name space for the simulation
     It contain a namespace with several 
@@ -56,14 +69,15 @@ namespace local_types {
 }
 
 template <typename T>
-std::ostream& operator<< (std::ostream& out, const local_types::position<T> p)
+std::ostream& operator<< (std::ostream& out, const local_types::position<T>& p)
 {
   out << "[ "<< p.x <<", " << p.y <<", " << p.z <<"]"<<"\n";
   return out;
 }
-  
+
+
 template <typename T>
-std::ostream& operator<< (std::ostream& out, const local_types::rssi<T> r)
+std::ostream& operator<< (std::ostream& out, const local_types::rssi<T>& r)
 {
   out << "[ "<< r.lf1 <<", " << r.lf2 <<", " << r.ff <<"]"<<"\n";
   return out;
