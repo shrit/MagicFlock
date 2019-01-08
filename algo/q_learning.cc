@@ -354,10 +354,17 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       }
        
       std::this_thread::sleep_for(std::chrono::seconds(8));
+
+      std::this_thread::sleep_for(std::chrono::seconds(2));
       
       gzs->reset_models();
       
       std::this_thread::sleep_for(std::chrono::seconds(1));
+
+      
+      for (auto it: iris_x){
+	it->calibrate_accelerometer();
+      }
 
     }
     /*  we need to save the q table to be ale to use it after

@@ -50,6 +50,7 @@ set(dronecode_sdk_lib "/usr/local/lib/libdronecode_sdk.so")
 set(dronecode_sdk_offboard_lib "/usr/local/lib/libdronecode_sdk_offboard.so")
 set(dronecode_sdk_telemetry_lib "/usr/local/lib/libdronecode_sdk_telemetry.so")
 set(dronecode_sdk_action_lib "/usr/local/lib/libdronecode_sdk_action.so")
+set(dronecode_sdk_calibrattion_lib "/usr/local/lib/libdronecode_sdk_calibration.so")
 set(ncurses_lib "/usr/lib/libncurses.so")
 set(pthread_lib "/usr/lib/libpthread.so")
 set(atomic_lib "/usr/lib/libatomic.so")		
@@ -87,6 +88,7 @@ target_link_libraries(controller
   ${dronecode_sdk_offboard_lib}
   ${dronecode_sdk_action_lib}
   ${dronecode_sdk_telemetry_lib}
+  ${dronecode_sdk_calibrattion_lib}
   ${ncurses_lib}
   
   ${boost_lib_system}

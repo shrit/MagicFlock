@@ -4,7 +4,7 @@
 /**
  * @file px4_device.hh
  * @brief Device code, that allow user to handle the quadcopters
- *
+ * using keyboard or joystick
  * @authors Author: Omar Shrit <shrit@lri.fr>
  * @date 2018-06-13
  */
@@ -18,6 +18,7 @@
 # include <memory>
 # include <mutex>
 # include <atomic>
+# include <future>
 
 /*  DronecodeSDK includes */
 
@@ -25,6 +26,7 @@
 # include <dronecode_sdk/telemetry.h>
 # include <dronecode_sdk/dronecode_sdk.h>
 # include <dronecode_sdk/offboard.h>
+# include <dronecode_sdk/calibration.h>
 
 /*  local includes */
 
@@ -42,6 +44,17 @@ using std::chrono::seconds;
 
 namespace lt = local_types;
 
+/*  TODO list: 
+
+ * Add the joystick and the calibration
+ * Add error management 
+ * Put the code inside the examples of the api 
+ * send a pull request with your modification
+ * Open source this part of your code
+ *
+ */
+
+
 class Px4Device 
 {
   
@@ -49,7 +62,7 @@ public:
 
   Px4Device(lt::connection_type socket, lt::port_type port);
 
-  ActionResult arm();
+  Action::Result arm();
   
   bool takeoff();
   bool land();
@@ -71,11 +84,15 @@ public:
   bool discover_system();
   ConnectionResult connect_to_quad(std::string connection_url);
 
-  
   void print_position();
   void position_ned();
+
+  Calibration::calibration_callback_t
+  create_calibration_callback(std::promise<void> &calibration_promise);
+
+  void calibrate_accelerometer();
   Telemetry::PositionVelocityNED position() const;
-  
+    
   void quad_health();
   Telemetry::Result set_rate_result();
   
@@ -89,7 +106,8 @@ private:
   Telemetry::PositionVelocityNED _position_ned{{0, 0, 0}, {0, 0, 0}};
   std::shared_ptr<dronecode_sdk::Telemetry> telemetry_;
   std::shared_ptr<dronecode_sdk::Action> action_;
-  std::shared_ptr<dronecode_sdk::Offboard> offboard_;  
+  std::shared_ptr<dronecode_sdk::Offboard> offboard_;
+  std::shared_ptr<dronecode_sdk::Calibration> calibration_;
   
 };
 

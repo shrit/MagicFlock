@@ -1,4 +1,6 @@
 # include "px4_device.hh"
+
+
 Px4Device::Px4Device(lt::connection_type socket,
 		     lt::port_type port)
 {
@@ -11,9 +13,10 @@ Px4Device::Px4Device(lt::connection_type socket,
   
   System& system = dc_.system();  
   
-  telemetry_ = std::make_shared<dronecode_sdk::Telemetry>(system);
-  offboard_  = std::make_shared<dronecode_sdk::Offboard>(system);
-  action_    = std::make_shared<dronecode_sdk::Action>(system);
+  telemetry_   = std::make_shared<dronecode_sdk::Telemetry>(system);
+  offboard_    = std::make_shared<dronecode_sdk::Offboard>(system);
+  action_      = std::make_shared<dronecode_sdk::Action>(system);
+  calibration_ = std::make_shared<dronecode_sdk::Calibration>(system);
   
   set_rate_result();
   position_ned();
@@ -65,11 +68,11 @@ bool Px4Device::takeoff()
 {
   
   std::cout << "taking off..." << std::endl;
-  const ActionResult takeoff_result = action_->takeoff();
-  if(takeoff_result != ActionResult::SUCCESS){
+  const Action::Result takeoff_result = action_->takeoff();
+  if(takeoff_result != Action::Result::SUCCESS){
     std::cout << ERROR_CONSOLE_TEXT
 	      << "take off failed: "
-	      << action_result_str(takeoff_result)
+	      << Action::result_str(takeoff_result)
 	      << std::endl;
     return false;
   }
@@ -80,11 +83,11 @@ bool Px4Device::takeoff()
 bool Px4Device::land()
 {
   std::cout << "Landing..." << std::endl;
-  const ActionResult land_result = action_->land();
-  if (land_result != ActionResult::SUCCESS) {
+  const Action::Result land_result = action_->land();
+  if (land_result != Action::Result::SUCCESS) {
     std::cout << ERROR_CONSOLE_TEXT
 	      << "Land failed:"
-	      << action_result_str(land_result)
+	      << Action::result_str(land_result)
 	      << NORMAL_CONSOLE_TEXT << std::endl;
     return false;
   }
@@ -95,11 +98,11 @@ bool Px4Device::land()
 bool Px4Device::return_to_launch()
 {
   std::cout << "return to launch position..." << std::endl;
-  const ActionResult rtl_result = action_->return_to_launch();
-  if (rtl_result != ActionResult::SUCCESS) {
+  const Action::Result rtl_result = action_->return_to_launch();
+  if (rtl_result != Action::Result::SUCCESS) {
     std::cout << ERROR_CONSOLE_TEXT
 	      << "return to launch position failed:"
-	      << action_result_str(rtl_result)
+	      << Action::result_str(rtl_result)
 	      << NORMAL_CONSOLE_TEXT << std::endl;
     return false;
   }
@@ -110,11 +113,11 @@ bool Px4Device::return_to_launch()
 bool Px4Device::set_altitude_rtl_max(float meter)
 {
   std::cout << "set altitude rtl..." << std::endl;
-  const ActionResult rtl_altitude = action_->set_return_to_launch_return_altitude(meter);
-  if (rtl_altitude != ActionResult::SUCCESS) {
+  const Action::Result rtl_altitude = action_->set_return_to_launch_return_altitude(meter);
+  if (rtl_altitude != Action::Result::SUCCESS) {
     std::cout << ERROR_CONSOLE_TEXT
 	      << "return to launch position failed:"
-	      << action_result_str(rtl_altitude)
+	      << Action::result_str(rtl_altitude)
 	      << NORMAL_CONSOLE_TEXT << std::endl;
     return false;
   }
@@ -222,12 +225,12 @@ void Px4Device::turnToRight(float speed)
     
 }
 
-ActionResult Px4Device::arm()
+Action::Result Px4Device::arm()
 {
-  ActionResult arm_result = action_->arm();
-  if(arm_result != ActionResult::SUCCESS){
+  Action::Result arm_result = action_->arm();
+  if(arm_result != Action::Result::SUCCESS){
     std::cout << "Arming failed: "
-	      << action_result_str(arm_result)
+	      << Action::result_str(arm_result)
 	      << std::endl;
     return arm_result;
     
@@ -278,12 +281,49 @@ void Px4Device::position_ned()
 					    //std::lock_guard<std::mutex> unlock(_position_ned_mutex);
 					    
 					    this->_position_ned = pvn ;
-					    
-					    //std::cout<< _position_ned.position.north_m <<std::endl;
-					    // std::cout<< _position_ned.position.east_m <<std::endl;
-					    //std::cout<< _position_ned.position.down_m <<std::endl;
-					    
+					    					    
 					  });   
+}
+
+Calibration::calibration_callback_t
+Px4Device::create_calibration_callback(std::promise<void> &calibration_promise)
+{
+
+  return [&calibration_promise](const Calibration::Result result,
+				const Calibration::ProgressData progress_data) {
+	   switch (result) {
+	   case Calibration::Result::SUCCESS:
+	     std::cout << "--- Calibration succeeded!" << std::endl;
+	     calibration_promise.set_value();
+	     break;
+	   case Calibration::Result::IN_PROGRESS:
+	     std::cout << "    Progress: " << progress_data.progress << std::endl;
+	     break;
+	   case Calibration::Result::INSTRUCTION:
+	     std::cout << "    Instruction: " << progress_data.status_text << std::endl;
+	     break;
+	   default:
+	     std::cout << "--- Calibration failed with message: "
+		       << Calibration::result_str(result) << std::endl;
+                calibration_promise.set_value();
+                break;
+	   }
+	 };
+  
+}
+
+void Px4Device::calibrate_accelerometer()
+{
+  
+  std::cout << "Calibrating accelerometer..." << std::endl;
+  
+  std::promise<void> calibration_promise;
+  auto calibration_future = calibration_promise.get_future();
+  
+  calibration_->
+    calibrate_accelerometer_async(Px4Device::create_calibration_callback(calibration_promise));
+  
+  calibration_future.wait();
 }
 
 
