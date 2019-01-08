@@ -29,13 +29,29 @@ void Gazebo::subscriber(lt::topic_name name)
 
 void Gazebo::publisher(lt::topic_name name)
 {
-  //  PubPtr pub = node_->Advertise<>
-}
-
-void Gazebo::reset_world()
-{
+  if (name == "/gazebo/default/iris/model_reset"){    
+    pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));
+  }
+  else if (name == "/gazebo/default/iris_1/model_reset"){    
+    pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));
+  }
+  else if (name == "/gazebo/default/iris_2/model_reset"){    
+    pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));
+  }
   
 }
+
+void Gazebo::reset_models()
+{
+  for (auto it : pubs_) {
+    
+    it->WaitForConnection();  
+    gazebo::msgs::Vector2d msg;
+    gazebo::msgs::Set(&msg, ignition::math::Vector2d(1, 0));  
+    it->Publish(msg);
+  }
+}
+
 
 void Gazebo::Parse_rssi_msg_0(ConstVector2dPtr& msg)
 {

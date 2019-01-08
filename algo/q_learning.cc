@@ -89,12 +89,11 @@ void Q_learning::move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
 /*  TODO LIST: */
 
 /*
+ *-2- Calibrate the quacopter after each episode (Accelero) 
  *-1- Implement the EMA filter for the wrong values of RSSI. 
  * 0- Change the Quadcopter, add the Optical flow camera
  * 1- Verify the generation of the random number in a different int test 
  * 2- Update and debug the q table
- * 3- Verify the altitude of RTL !?? why it is not working
- * 4- Rest the model using the code, find a way to do it !!! important
  * 5- At the end comment the code, and create small functions
  */
 
@@ -263,7 +262,6 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       // 	action2 = action1;			      //
       // }						      //
       //////////////////////////////////////////////////////////
-
       // else {
       action1 = std::rand() % 4;
       action2 = action1;
@@ -351,17 +349,16 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       
       rewards_.push_back(e_reward);
 
-      /*  Set the RTL values  */
-      for (auto it : iris_x){
-	it->set_altitude_rtl_max(4.0);
-      }
-
       for (auto it: iris_x){
-	it->->return_to_launch();
+	it->land();
       }
        
-      std::this_thread::sleep_for(std::chrono::seconds(10));
-      std::this_thread::sleep_for(std::chrono::seconds(25));
+      std::this_thread::sleep_for(std::chrono::seconds(8));
+      
+      gzs->reset_models();
+      
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+
     }
     /*  we need to save the q table to be ale to use it after
      *	the simulation.

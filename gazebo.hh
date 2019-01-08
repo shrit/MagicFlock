@@ -40,7 +40,7 @@ public:
   
   void publisher(lt::topic_name name);
 
-  void reset_world();
+  void reset_models();
 
   void Parse_position_msg(ConstPosesStampedPtr& posesStamped);
 
@@ -58,6 +58,8 @@ private:
   double rssi_;
 
   std::vector<SubPtr> subs_;
+  
+  std::vector<PubPtr> pubs_;
   
   NodePtr node_;
   
