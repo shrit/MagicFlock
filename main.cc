@@ -159,9 +159,14 @@ int main(int argc, char* argv[])
   gz->subscriber("/gazebo/default/0/2");
   gz->subscriber("/gazebo/default/1/2");
 
-  gz->publisher("/gazebo/default/iris/model_reset");
-  gz->publisher("/gazebo/default/iris_1/model_reset");
-  gz->publisher("/gazebo/default/iris_2/model_reset");
+  // gz->publisher("/gazebo/default/iris/model_reset");
+  // gz->publisher("/gazebo/default/iris_1/model_reset");
+  // gz->publisher("/gazebo/default/iris_2/model_reset");
+
+
+  gz->publisher("/gazebo/default/iris_opt_flow/model_reset");
+  gz->publisher("/gazebo/default/iris_opt_flow_1/model_reset");
+  gz->publisher("/gazebo/default/iris_opt_flow_2/model_reset");
 
   
   /* Wait for 2 seconds, Just to finish subscribe to

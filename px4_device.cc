@@ -240,6 +240,22 @@ Action::Result Px4Device::arm()
   
 }
 
+Action::Result Px4Device::reboot()
+{
+
+  std::cout << "Rebooting..." << std::endl;
+  Action::Result reboot_result = action_->reboot();
+  if(reboot_result != Action::Result::SUCCESS){
+    std::cout << "Rebooting failed: "
+	      << Action::result_str(reboot_result)
+	      << std::endl;
+    return reboot_result;
+    
+  }
+  
+  return reboot_result;            
+  
+}
 
 void Px4Device::print_position()
 {
@@ -260,17 +276,7 @@ void Px4Device::print_position()
 }
 
 Telemetry::PositionVelocityNED Px4Device::position() const
-{
-  // Telemetry::PositionVelocityNED po;
-
-  // po = position_ned_.load(std::memory_order_acquire);
-
-  //  std::lock_guard<std::mutex> lock(_position_ned_mutex);
-  
-  // std::cout<<"position ned: "<< _position_ned.position.north_m << std::endl;
-  // std::cout<<"position ned: "<< _position_ned.position.east_m << std::endl;
-  // std::cout<<"position ned: "<< _position_ned.position.down_m << std::endl;
-
+{  
   return _position_ned;    
 }
 
@@ -354,4 +360,3 @@ Telemetry::Result Px4Device::set_rate_result()
       
 }
     
-

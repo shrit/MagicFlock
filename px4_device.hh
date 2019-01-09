@@ -63,9 +63,11 @@ public:
   Px4Device(lt::connection_type socket, lt::port_type port);
 
   Action::Result arm();
+  Action::Result reboot();
   
   bool takeoff();
   bool land();
+  
   bool return_to_launch();
   bool set_altitude_rtl_max(float meter);
   
