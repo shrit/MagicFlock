@@ -24,16 +24,15 @@ extern "C"
 # include <boost/asio/posix/stream_descriptor.hpp>
 # include <boost/asio.hpp>
 
-
 /*  locale defined include */
-# include "gazebo.hh"
-# include "px4_device.hh"
-# include "global.hh"
-# include "settings.hh"
 # include "algo/q_learning.hh"
 # include "dronecode_sdk/logging.h"
+# include "gazebo.hh"
+# include "global.hh"
+# include "log.hh"
+# include "px4_device.hh"
+# include "settings.hh"
 
-//# include "settings.hh"
 
 using namespace dronecode_sdk;
 using std::this_thread::sleep_for;
@@ -47,12 +46,7 @@ using std::chrono::seconds;
  * TODO: print well all the output using ncurses
  * TODO: use boost log to create a log, and to create possible statistical output
  * TODO: the log sould be in different folder, created at the start 
- * TODO: Also understand the normal log provided by the library
- * TODO: Create a phase like principle in this code with the same content of robotsim
  * TODO: Implement camera receive video, start, and stop, take photo, etc..
- * TODO: Use Google protobuf to parse the input
- * TODO: Use boost.python to interface python to C++, for using numpy.
- * TODO: Complete the Q_learning algorithm, and the classes.
  * TODO: No defautl values for settings every thing shiyld be entered manually
 */
 
@@ -113,9 +107,17 @@ void async_wait(boost::asio::posix::stream_descriptor& in, Handler&& handler) {
 
 int main(int argc, char* argv[])
 {
+
+  /*  Calling the init logging file */
+  /*  to be encapsulated in a classes */
+  
+  init();
+
+  logging::add_common_attributes();
+  
+  boost::log::sources::severity_logger<level> lg;
   
   Settings settings(argc, argv);
-
   
   boost::asio::io_service	io_service;  
 

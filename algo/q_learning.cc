@@ -89,9 +89,8 @@ void Q_learning::move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
 /*  TODO LIST: */
 
 /*
- *-2- Calibrate the quacopter after each episode (Accelero) 
  *-1- Implement the EMA filter for the wrong values of RSSI. 
- * 0- Change the Quadcopter, add the Optical flow camera
+ * 0- Save the data inside a file a use a log functionality
  * 1- Verify the generation of the random number in a different int test 
  * 2- Update and debug the q table
  * 5- At the end comment the code, and create small functions
@@ -354,9 +353,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       }
        
       std::this_thread::sleep_for(std::chrono::seconds(8));
-
-      
-      
+            
       gzs->reset_models();
       
       std::this_thread::sleep_for(std::chrono::seconds(1));

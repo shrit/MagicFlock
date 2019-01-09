@@ -6,6 +6,8 @@ project(controller)
 # Enable strict handling of warnings
 
 #add_definitions(" -fPIC -O0 -g -std=c++11")
+add_definitions("-DBOOST_LOG_DYN_LINK")
+
 
 # Set moc compilling for qt 
 set(CMAKE_AUTOMOC ON)
@@ -21,9 +23,10 @@ set ( SOURCES
   settings.cc
   gazebo.cc
   algo/q_learning.cc
+  log.cc
   )
 
-set (BOOST_INCLUDE_DIRS "/meta/local/include/")
+#set (BOOST_INCLUDE_DIRS "/meta/local/include/")
 
 
 # Specify include directories
@@ -33,7 +36,7 @@ include_directories(
  ${GAZEBO_INCLUDE_DIRS}
   /usr/local/include/dronecode_sdk
   /usr/include/
-  /usr/include/eigen3
+
   /meta/DeviceController/algo/
 
   # ... any other header files
@@ -53,7 +56,11 @@ set(dronecode_sdk_action_lib "/usr/local/lib/libdronecode_sdk_action.so")
 set(dronecode_sdk_calibrattion_lib "/usr/local/lib/libdronecode_sdk_calibration.so")
 set(ncurses_lib "/usr/lib/libncurses.so")
 set(pthread_lib "/usr/lib/libpthread.so")
-set(atomic_lib "/usr/lib/libatomic.so")		
+set(atomic_lib "/usr/lib/libatomic.so")
+
+
+set(boost_lib_log "/meta/local/lib/libboost_log.so")
+set(boost_lib_log_setup "/meta/local/lib/libboost_log_setup.so")
 set(boost_lib_system "/meta/local/lib/libboost_system.so")
 set(boost_lib_thread "/meta/local/lib/libboost_thread.so")
 set(boost_lib_program_options "/meta/local/lib/libboost_program_options.so")
@@ -90,7 +97,9 @@ target_link_libraries(controller
   ${dronecode_sdk_telemetry_lib}
   ${dronecode_sdk_calibrattion_lib}
   ${ncurses_lib}
-  
+
+  ${boost_lib_log}
+  ${boost_lib_log_setup}
   ${boost_lib_system}
   ${boost_lib_thread}
   ${boost_lib_program_options}

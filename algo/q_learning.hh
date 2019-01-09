@@ -10,8 +10,6 @@
 # include <algorithm>
 # include <chrono>
 # include <thread>
-/* Eigne includes */
-# include <Eigen/Dense>
 
 /* Quadcopter controller includes  */
 # include "../px4_device.hh"

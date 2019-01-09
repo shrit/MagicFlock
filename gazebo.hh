@@ -7,8 +7,6 @@
 # include <gazebo/msgs/msgs.hh>
 # include <gazebo/msgs/pose.pb.h>
 
-# include <Eigen/Dense>
-
 # include "global.hh"
 
 namespace lt = local_types;
