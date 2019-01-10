@@ -97,6 +97,13 @@ public:
     
   void quad_health();
   Telemetry::Result set_rate_result();
+
+
+  /*  Handles plugin results. */
+  
+  inline void action_error_exit(Action::Result result, const std::string &message);
+  inline void offboard_error_exit(Offboard::Result result, const std::string &message);
+  inline void connection_error_exit(ConnectionResult result, const std::string &message);
   
 private:
   

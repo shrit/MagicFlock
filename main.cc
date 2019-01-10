@@ -3,13 +3,13 @@
  * @brief controller code, that allow user to control the quad
  *
  * @authors Author: Omar Shrit <shrit@lri.fr>
- * @date 2018-07-21
+ * 
  */
 
-extern "C"
-{
-  # include <curses.h>         
-}
+// extern "C"
+// {
+//   # include <curses.h>         
+// }
 
 /*  C++ Standard library include */
 # include <cstdlib>
@@ -21,14 +21,15 @@ extern "C"
 
 /*  Boost asio library include */
 
-# include <boost/asio/posix/stream_descriptor.hpp>
-# include <boost/asio.hpp>
+//# include <boost/asio/posix/stream_descriptor.hpp>
+//# include <boost/asio.hpp>
 
 /*  locale defined include */
 # include "algo/q_learning.hh"
 # include "dronecode_sdk/logging.h"
 # include "gazebo.hh"
 # include "global.hh"
+# include "joystick/joystick.hh"
 # include "log.hh"
 # include "px4_device.hh"
 # include "settings.hh"
@@ -50,57 +51,34 @@ using std::chrono::seconds;
  * TODO: No defautl values for settings every thing shiyld be entered manually
 */
 
-// inline void action_error_exit(ActionResult result, const std::string &message)
-// {
-//     if (result != ActionResult::SUCCESS) {
-//         std::cerr << ERROR_CONSOLE_TEXT << message << action_result_str(result)
-//                   << NORMAL_CONSOLE_TEXT << std::endl;
-//         exit(EXIT_FAILURE);
-//     }
-// }
-
-// // Handles Offboard's result
-// inline void offboard_error_exit(Offboard::Result result, const std::string &message)
-// {
-//     if (result != Offboard::Result::SUCCESS) {
-//         std::cerr << ERROR_CONSOLE_TEXT << message << Offboard::result_str(result)
-//                   << NORMAL_CONSOLE_TEXT << std::endl;
-//         exit(EXIT_FAILURE);
-//     }
-// }
-
-// // Handles connection result
-// inline void connection_error_exit(ConnectionResult result, const std::string &message)
-// {
-//     if (result != ConnectionResult::SUCCESS) {
-//         std::cerr << ERROR_CONSOLE_TEXT << message << connection_result_str(result)
-//                   << NORMAL_CONSOLE_TEXT << std::endl;
-//         exit(EXIT_FAILURE);
-//     }
-// }
-
 
 /*
  * Wait for keyboard input, non-blocking implementation using asio
 */
 
 
+/*
+ * Wait for Joystick input, non-blocking implementation using STL 
+*/
+
+
+
 namespace lt = local_types;
 
-template <class Handler>
-void async_wait(boost::asio::posix::stream_descriptor& in, Handler&& handler) {
-  in.async_read_some(boost::asio::null_buffers(),
-		     [&](boost::system::error_code ec,
-			 size_t /* bytes_transferred */) {
-		       if (not ec)
-			 handler();
-		       else
-			   std::cerr << "Error: " << ec.message() << std::endl;
+// template <class Handler>
+// void async_wait(boost::asio::posix::stream_descriptor& in, Handler&& handler) {
+//   in.async_read_some(boost::asio::null_buffers(),
+// 		     [&](boost::system::error_code ec,
+// 			 size_t /* bytes_transferred */) {
+// 		       if (not ec)
+// 			 handler();
+// 		       else
+// 			   std::cerr << "Error: " << ec.message() << std::endl;
 		       
-			 async_wait(in, std::forward<Handler>(handler));
-		     });
-}
-
+// 			 async_wait(in, std::forward<Handler>(handler));
+// 		     });
+// }
+ 
 /*  Main file: Start one controller by quadcopters, 
  *  Start ncurses to intercept keyboard keystrokes.
  */
@@ -119,7 +97,7 @@ int main(int argc, char* argv[])
   
   Settings settings(argc, argv);
   
-  boost::asio::io_service	io_service;  
+  //  boost::asio::io_service	io_service;  
 
   /*  
    * The ns3 Command commented inside the code, A good way to remember it :)
@@ -188,26 +166,26 @@ int main(int argc, char* argv[])
   // ncurses //
   /////////////
   
-  setlocale(LC_ALL, "");
+  // setlocale(LC_ALL, "");
   
-  initscr();
+  // initscr();
   
-  halfdelay(3);
+  // halfdelay(3);
     
-  // Suppress automatic echoing
-  noecho();
+  // // Suppress automatic echoing
+  // noecho();
   
-  // Do not translate the return key into newline
-  nonl();
+  // // Do not translate the return key into newline
+  // nonl();
   
-  // Capture special keystrokes (including the four arrow keys)
-  keypad(stdscr, TRUE);
+  // // Capture special keystrokes (including the four arrow keys)
+  // keypad(stdscr, TRUE);
   
-  refresh();
+  // refresh();
   
-  int ch;
+  // int ch;
   
-  boost::asio::posix::stream_descriptor in{io_service, 0};  
+  //  boost::asio::posix::stream_descriptor in{io_service, 0};  
 
   /* Hand control using keyboard, manual control of the quadcopters */
 
@@ -274,8 +252,8 @@ int main(int argc, char* argv[])
 
 		 };
     
-  async_wait(in, lambda);
+  //  async_wait(in, lambda);
 
-  io_service.run();
+  //  io_service.run();
              
 }

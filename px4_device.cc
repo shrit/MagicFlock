@@ -360,3 +360,32 @@ Telemetry::Result Px4Device::set_rate_result()
       
 }
     
+// Handles Action result
+inline void Px4Device::action_error_exit(Action::Result result, const std::string &msg)
+{
+  if (result != Action::Result::SUCCESS) {
+    std::cerr << ERROR_CONSOLE_TEXT << msg << Action::result_str(result)
+                  << NORMAL_CONSOLE_TEXT << std::endl;
+        exit(EXIT_FAILURE);
+    }
+}
+
+// Handles Offboard result
+inline void Px4Device::offboard_error_exit(Offboard::Result result, const std::string &msg)
+{
+    if (result != Offboard::Result::SUCCESS) {
+        std::cerr << ERROR_CONSOLE_TEXT << msg << Offboard::result_str(result)
+                  << NORMAL_CONSOLE_TEXT << std::endl;
+        exit(EXIT_FAILURE);
+    }
+}
+
+// Handles Connection result
+inline void Px4Device::connection_error_exit(ConnectionResult result, const std::string &msg)
+{
+  if (result != ConnectionResult::SUCCESS) {
+        std::cerr << ERROR_CONSOLE_TEXT << msg << connection_result_str(result)
+                  << NORMAL_CONSOLE_TEXT << std::endl;
+        exit(EXIT_FAILURE);
+    }
+}
