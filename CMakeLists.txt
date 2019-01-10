@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.1.0)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 ## Specify your project's name
-project(controller)
+project(DeviceController)
 
 # Enable strict handling of warnings
 
-#add_definitions(" -fPIC -O0 -g -std=c++11")
+add_definitions(" -fPIC -O0 -g")
 add_definitions("-DBOOST_LOG_DYN_LINK")
 
 
@@ -24,6 +24,7 @@ set ( SOURCES
   gazebo.cc
   algo/q_learning.cc
   log.cc
+  joystick/joystick.cc
   )
 
 #set (BOOST_INCLUDE_DIRS "/meta/local/include/")
@@ -35,17 +36,14 @@ include_directories(
  ${BOOST_INCLUDE_DIRS}
  ${GAZEBO_INCLUDE_DIRS}
   /usr/local/include/dronecode_sdk
+
   /usr/include/
 
   /meta/DeviceController/algo/
-
+  /meta/DeviceController/joystick/
+  
   # ... any other header files
   )
-
-
-# Find required pacakge by qt to link against
-
-#find_library(ros_lib HINT "/opt/ros/melodic/lib")
 
 
 # Specify variable 'dronecode_sdk_lib' containing location of Dronecode_Sdk library.
@@ -58,19 +56,18 @@ set(ncurses_lib "/usr/lib/libncurses.so")
 set(pthread_lib "/usr/lib/libpthread.so")
 set(atomic_lib "/usr/lib/libatomic.so")
 
-
-set(boost_lib_log "/meta/local/lib/libboost_log.so")
-set(boost_lib_log_setup "/meta/local/lib/libboost_log_setup.so")
-set(boost_lib_system "/meta/local/lib/libboost_system.so")
-set(boost_lib_thread "/meta/local/lib/libboost_thread.so")
-set(boost_lib_program_options "/meta/local/lib/libboost_program_options.so")
+set(boost_lib_log "/usr/lib/libboost_log.so")
+set(boost_lib_log_setup "/usr/lib/libboost_log_setup.so")
+set(boost_lib_system "/usr/lib/libboost_system.so")
+set(boost_lib_thread "/usr/lib/libboost_thread.so")
+set(boost_lib_program_options "/usr/lib/libboost_program_options.so")
 
 
 link_directories(${GAZEBO_LIBRARY_DIRS})
 
 list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
 
-add_executable(controller  
+add_executable(DeviceController  
   
  ${SOURCES}  
   # ... any other source files
@@ -80,11 +77,8 @@ add_executable(controller
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
 
 
-
-#link_directories("/opt/ros/melodic/lib/")
-
 # Specify your app's executable name and a list of linked libraries
-target_link_libraries(controller
+target_link_libraries(DeviceController
   
   # Add  'dronecode_sdk_lib' variable defining
   #where the Dronecode_Sdk library can be found
