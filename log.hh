@@ -1,3 +1,9 @@
+# ifndef LOG_HH_
+# define LOG_HH_
+
+
+
+
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/log/expressions.hpp>
@@ -35,3 +41,4 @@ using severity_level = logging::trivial::severity_level;
 using logger_type    = logging::sources::severity_logger<severity_level>;
 
 
+#endif

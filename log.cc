@@ -1,4 +1,5 @@
-#include "log.hh"
+# include "log.hh"
+# include "global.hh"
 
 
 std::ostream& operator<< (std::ostream& os, level level)
@@ -18,6 +19,30 @@ std::ostream& operator<< (std::ostream& os, level level)
 
     return os;
 }
+
+template <typename T>
+boost::log::formatting_ostream& operator<< (
+					    boost::log::formatting_ostream& p,
+					    std::vector<T>& vector)
+{
+        p << "[ ";
+        for(auto i:vector){
+            p << " "<< i << " ,";
+        }
+        p<< "]";
+        return p;
+}
+
+
+template <typename T>
+boost::log::formatting_ostream& operator<<(
+					   boost::log::formatting_ostream& out,
+					   const local_types::rssi<T>& r)
+{
+  out << "[ "<< r.lf1 <<", " << r.lf2 <<", " << r.ff <<"]"<<"\n";
+  return out;
+}
+
 
 
 void init()
