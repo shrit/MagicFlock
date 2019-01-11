@@ -15,7 +15,7 @@
 # include "../px4_device.hh"
 # include "../global.hh"
 # include "../gazebo.hh"
-
+# include "../log.hh"
 
 /*  Parameters for Q-learning algorithm  */
 

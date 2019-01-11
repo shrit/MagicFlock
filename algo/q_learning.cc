@@ -89,11 +89,8 @@ void Q_learning::move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
 /*  TODO LIST: */
 
 /*
- *-1- Implement the EMA filter for the wrong values of RSSI. 
  * 0- Save the data inside a file a use a log functionality
  * 1- Verify the generation of the random number in a different int test 
- * 2- Update and debug the q table
- * 5- At the end comment the code, and create small functions
  */
 
 /* Updated TODO List:
@@ -108,6 +105,11 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 			     float speed,
 			     std::shared_ptr<Gazebo> gzs)
 {
+
+  boost::log::sources::severity_logger<level> lg;
+  
+  std::ofstream file;
+  file.open("data_sample");
 
   /*
    * Needs to review the algorithm, we do not know if it is working yet.
@@ -195,10 +197,6 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
      */
     
     /* put the take off functions inside the steps */
-    /* needs to land the drones and then reset using the world reset 
-     * functionality using the gazebo publish system
-     * to be tested separatly 
-     */
     
     for(int steps = 0; steps < max_step_; steps++){
 
@@ -247,7 +245,6 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       std::cout << random << std::endl;
 
       int action1;
-      int action2;
       
       /* Start exploitation instead of exploration, 
        * if the condition is valid
@@ -263,13 +260,13 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       //////////////////////////////////////////////////////////
       // else {
       action1 = std::rand() % 4;
-      action2 = action1;
+
       // }
 
       /*  moving the followers randomly */
       for (int i = 0; i < 10; i++){
 	move_action(iris_x, speed, action1, 1);
-	move_action(iris_x, speed, action2, 2);
+	move_action(iris_x, speed, action1, 2);
 	std::this_thread::sleep_for(std::chrono::milliseconds(50));
       }
       
@@ -336,8 +333,8 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	(1 - learning_rate_) * qtable_.at(state_index).at(action1) +
 	learning_rate_ * (reward +  discount_rate_ * get_action(qtable_,
 								state_index));
-      qtable_.at(state_index).at(action2) =
-	(1 - learning_rate_) * qtable_.at(state_index).at(action2) +
+      qtable_.at(state_index).at(action1) =
+	(1 - learning_rate_) * qtable_.at(state_index).at(action1) +
 	learning_rate_ * (reward +  discount_rate_ * get_action(qtable_,
 								state_index));
  
@@ -353,23 +350,46 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       }
        
       std::this_thread::sleep_for(std::chrono::seconds(8));
-            
-      gzs->reset_models();
-      
-      std::this_thread::sleep_for(std::chrono::seconds(1));
 
-      
-      for (auto it: iris_x){
-	it->reboot();
-      }
-      
-      std::this_thread::sleep_for(std::chrono::seconds(20));
+      gzs->reset_models();      
 
+
+      /*BIAS accelerometer problem after resetting the models*/
+      
+      /*  The only possible solution was to change the upper limit
+       * value for the bias inside thee code of te firmware direclty.
+       * The solution can be found at this link:
+       * https://github.com/PX4/Firmware/issues/10833 Where they
+       * propose to increase the value of COM_ARM_EKF_AB. Note that,
+       * the default value is 0.00024 I have increased it to 0.00054
+       * which is very high to their standard. Because other wise
+       * there is no way to do the simulation. Remember, the reboot()
+       * function in the action class is not implemented at the time
+       * of writing this comment, and maybe it will never be
+       * implemented as it is quite complicated to reboot the px4
+       * software from the simulator.
+       * I understand this choice, we need to leave a big sleep_for 
+       * after resetting the quadcopters, that is going to helper
+       * resetting the accelerometer values without any problems!
+       */
+
+      /*  I have quite tested a lot of different solution, if I am going
+       * to find a better one, I will replace it directly. */
+      log_file(file, new_state_, action1, error);
+      
+      std::this_thread::sleep_for(std::chrono::seconds(10));                  
+      //      BOOST_LOG_SEV(lg, Msg) << action1 ; //<< action << error ;
+      
+      
     }
-    /*  we need to save the q table to be ale to use it after
-     *	the simulation.
-     *  The q table is going to be loaded to so test flight 
-     *
+    /* 
+     * Here I save the generated data set in a specifc file.
+     * We use boost log to do that.
+     * I am intended to use supervised learning in order to keep 
+     * the formation as it has been.
+     * Further, we need to look at perceptron in Python and in C++
+     * use python to get faster results. Then integrate the result 
+     * in the simulation
      */
     
   }
