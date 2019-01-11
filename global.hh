@@ -5,6 +5,12 @@
 # include <fstream>
 # include <vector>
 # include <iterator>
+# include <chrono>  // chrono::system_clock
+# include <ctime>   // localtime
+# include <sstream> // stringstream
+# include <iomanip> // put_time
+# include <string>  // string
+
 
 
 template <typename T>
@@ -16,6 +22,9 @@ std::ostream& operator<< (std::ostream& out, const std::vector<T>& v) {
   }
   return out;
 }
+
+
+/*  tp be completed vector of vector printing */
 
 // template <typename T>
 // std::ostream& operator<< (std::ostream& out, const std::vector<std::vector<T>>& v) {
@@ -71,7 +80,7 @@ namespace local_types {
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const local_types::position<T>& p)
 {
-  out << "[ "<< p.x <<", " << p.y <<", " << p.z <<"]"<<"\n";
+  out << "["<< p.x <<", " << p.y <<", " << p.z <<"]";
   return out;
 }
 
@@ -79,10 +88,22 @@ std::ostream& operator<< (std::ostream& out, const local_types::position<T>& p)
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const local_types::rssi<T>& r)
 {
-  out << "[ "<< r.lf1 <<", " << r.lf2 <<", " << r.ff <<"]"<<"\n";
+  out << "["<< r.lf1 <<", " << r.lf2 <<", " << r.ff <<"]";
   return out;
 }
 
+template <typename A, typename B, typename C>
+void log_file(std::ofstream& file, A a, B b, C c)
+{
+  std::stringstream time;
+  auto now = std::chrono::system_clock::now();
+  auto in_time_t = std::chrono::system_clock::to_time_t(now);
+  
+  time << std::put_time(std::localtime(&in_time_t), "%H:%M:%S");
+
+  file << "[" << time.str() << "]" << a <<"["<< b <<"]"<< c << "\n";
+  file.flush();  
+}
 
 
 

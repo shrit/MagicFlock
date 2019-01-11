@@ -30,7 +30,6 @@
 # include "gazebo.hh"
 # include "global.hh"
 # include "joystick/joystick.hh"
-# include "log.hh"
 # include "px4_device.hh"
 # include "settings.hh"
 
@@ -139,28 +138,60 @@ int main(int argc, char* argv[])
   gz->subscriber("/gazebo/default/0/2");
   gz->subscriber("/gazebo/default/1/2");
 
-  // gz->publisher("/gazebo/default/iris/model_reset");
-  // gz->publisher("/gazebo/default/iris_1/model_reset");
-  // gz->publisher("/gazebo/default/iris_2/model_reset");
+  gz->publisher("/gazebo/default/iris/model_reset");
+  gz->publisher("/gazebo/default/iris_1/model_reset");
+  gz->publisher("/gazebo/default/iris_2/model_reset");
 
 
-  gz->publisher("/gazebo/default/iris_opt_flow/model_reset");
-  gz->publisher("/gazebo/default/iris_opt_flow_1/model_reset");
-  gz->publisher("/gazebo/default/iris_opt_flow_2/model_reset");
+  // gz->publisher("/gazebo/default/iris_opt_flow/model_reset");
+  // gz->publisher("/gazebo/default/iris_opt_flow_1/model_reset");
+  // gz->publisher("/gazebo/default/iris_opt_flow_2/model_reset");
 
   
   /* Wait for 2 seconds, Just to finish subscribe to
   * gazebo topics before Starting Q learning*/
   
-  std::this_thread::sleep_for(std::chrono::seconds(2));
+  std::this_thread::sleep_for(std::chrono::seconds(10));
   
   ////////////////
   // Q_learning //
   ////////////////
 
+
+
   // Pass the devices to the q learning algorithm
   Q_learning qlearning(iris_x, speed, gz);
 
+
+
+  // // Testing one drones components
+  
+  // iris_x.at(0)->arm();
+  //   std::this_thread::sleep_for(std::chrono::seconds(1));
+  
+  // iris_x.at(0)->takeoff();
+  // std::this_thread::sleep_for(std::chrono::seconds(5));
+
+  // iris_x.at(0)->init_speed();
+
+  // iris_x.at(0)->start_offboard_mode();
+
+  //     std::this_thread::sleep_for(std::chrono::seconds(1));          
+  
+  // for (int i =0 ; i < 30; i++ ){
+  // iris_x.at(0)->forward(10);
+  // std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  // }
+
+  // std::this_thread::sleep_for(std::chrono::seconds(1));          
+  // iris_x.at(0)->land();
+
+  // std::this_thread::sleep_for(std::chrono::seconds(10));          
+  
+  // gz->reset_models();
+
+  // iris_x.at(0)->reboot();
+  
   
   /////////////
   // ncurses //
