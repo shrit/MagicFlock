@@ -10,7 +10,7 @@ public:
       const type&	initial_value);
 
   /// Apply the smoothing on a new value, store and return the result.
-  type	        filtered_values(const value_type& new_value);
+  type	        filtered_values(const type& new_value);
   
   
 private:
