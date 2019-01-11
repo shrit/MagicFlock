@@ -86,21 +86,6 @@ void Q_learning::move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
 }
 
 
-/*  TODO LIST: */
-
-/*
- * 0- Save the data inside a file a use a log functionality
- * 1- Verify the generation of the random number in a different int test 
- */
-
-/* Updated TODO List:
- * 1- Save the data in a file <SS,SS, SS, A, E>
- * 2- Create A Supervised learning algorithm with perceptron
- * 3- Implement and train the algorithm with the data Set
- * 4- Test with the drones.
- */
-
-
 void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 			     float speed,
 			     std::shared_ptr<Gazebo> gzs)

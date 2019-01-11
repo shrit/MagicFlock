@@ -40,13 +40,9 @@ using std::chrono::milliseconds;
 using std::chrono::seconds;
 
 /**  
- * TODO: Comment all the code 
- * TODO: Manage the error exit
  * TODO: Recover all the info of the telemetry
  * TODO: print well all the output using ncurses
  * TODO: use boost log to create a log, and to create possible statistical output
- * TODO: the log sould be in different folder, created at the start 
- * TODO: Implement camera receive video, start, and stop, take photo, etc..
  * TODO: No defautl values for settings every thing shiyld be entered manually
 */
 

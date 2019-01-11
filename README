@@ -6,19 +6,23 @@ the capacity to control several quads at the same time.
 
 Installation:
 
-To compile the project, create a a directory using mkdir build
-use the command:
+To compile the project:
+
+
+mkdir build && cd
 
 cmake ../
 
+make 
+
 Please verify that you have installed the following dependecies on your
-machine.
-
-
+machine:
 
 Dependencies:
 
-Boost asio
+Boost
+Dronecodesdk
+
 
 
 
