@@ -1,8 +1,12 @@
 # include "data_set.h"
 
-DataSet::DataSet();
+DataSet::DataSet() :
+  line_number_(0)
+{
+  
+}
 
-DataSet::read_data_set_file(std::string file_name)
+void DataSet::read_data_set_file(std::string file_name)
 {
 
   std::string line;
@@ -24,7 +28,7 @@ DataSet::read_data_set_file(std::string file_name)
       std::replace_if(line.begin(), line.end(), boost::is_any_of(",[]") , ' ');
       boost::split(values, line, boost::is_any_of(" "));
 
-      rssi r;
+      lt::rssi<double> r;
       
       r.lf1 = std::stod(values.at(1), &sz);
       r.lf2 = std::stod(values.at(3), &sz);
@@ -34,12 +38,12 @@ DataSet::read_data_set_file(std::string file_name)
       
       action_.push_back(std::stod(values.at(7), &sz));
 
-      error e;
+      lt::error<double> e;
 
       e.x = std::stod(values.at(9), &sz);
       e.y = std::stod(values.at(11), &sz);
 
-      error_push_back(e);
+      error_.push_back(e);
 
     }
   fs.close();
@@ -47,7 +51,7 @@ DataSet::read_data_set_file(std::string file_name)
 }
 
 template <typename A, typename B, typename C>
-void write_data_set_file(std::ofstream& file, A a, B b, C c)
+void DataSet::write_data_set_file(std::ofstream& file, A a, B b, C c)
 {
   std::stringstream time;
   auto now = std::chrono::system_clock::now();

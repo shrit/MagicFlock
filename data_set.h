@@ -1,5 +1,3 @@
-/*  C++ STL include */
-
 # include <algorithm>
 # include <chrono> 
 # include <ctime>
@@ -20,6 +18,7 @@
 
 namespace lt = local_types;
 
+
 class DataSet
 {
 public:
@@ -27,9 +26,8 @@ public:
   DataSet();
     
   void read_data_set_file(std::string file_name);
-  
-  template <typename A, typename B, typename C>
-  void write_data_set_file();
+  template <typename A,  typename B, typename C>  
+  void write_data_set_file(std::ofstream& file, A a, B b, C c);
 
   std::vector<lt::rssi<double>>  rssi_vector() const;
   std::vector<int>  action_vector() const;
