@@ -17,6 +17,7 @@ Px4Device::Px4Device(lt::connection_type socket,
   offboard_    = std::make_shared<dronecode_sdk::Offboard>(system);
   action_      = std::make_shared<dronecode_sdk::Action>(system);
   calibration_ = std::make_shared<dronecode_sdk::Calibration>(system);
+  // log_files_   = std::make_shared<dronecode_sdk::LogFiles>(system);
   
   set_rate_result();
   position_ned();
@@ -359,7 +360,23 @@ Telemetry::Result Px4Device::set_rate_result()
   return set_rate_result;
       
 }
-    
+
+LogFiles::Result Px4Device::download_log_files_from_px4(unsigned id, const std::string& file_path)
+{
+
+  // LogFiles::Result result =   log_files_->download_log_file(id, file_path);
+  
+  // if (result != LogFiles::Result::SUCCESS) {
+  //       std::cout << "Downloading log files failed: "
+  // 	      << LogFiles::result_str(result)
+  // 	      << std::endl;
+  // 	return result;    
+	
+  // }
+  // return result;    
+  
+}
+
 // Handles Action result
 inline void Px4Device::action_error_exit(Action::Result result, const std::string &msg)
 {
@@ -389,3 +406,7 @@ inline void Px4Device::connection_error_exit(ConnectionResult result, const std:
         exit(EXIT_FAILURE);
     }
 }
+
+
+
+

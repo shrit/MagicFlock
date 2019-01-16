@@ -23,10 +23,14 @@
 /*  DronecodeSDK includes */
 
 # include <dronecode_sdk/action.h>
-# include <dronecode_sdk/telemetry.h>
-# include <dronecode_sdk/dronecode_sdk.h>
-# include <dronecode_sdk/offboard.h>
 # include <dronecode_sdk/calibration.h>
+# include <dronecode_sdk/dronecode_sdk.h>
+# include <dronecode_sdk/log_files.h>
+# include <dronecode_sdk/offboard.h>
+# include <dronecode_sdk/telemetry.h>
+
+
+
 
 /*  local includes */
 
@@ -98,6 +102,8 @@ public:
   void quad_health();
   Telemetry::Result set_rate_result();
 
+  LogFiles::Result download_log_files_from_px4(unsigned id, const std::string& file_path);
+  
 
   /*  Handles plugin results. */
   
@@ -117,6 +123,7 @@ private:
   std::shared_ptr<dronecode_sdk::Action> action_;
   std::shared_ptr<dronecode_sdk::Offboard> offboard_;
   std::shared_ptr<dronecode_sdk::Calibration> calibration_;
+  //  std::shared_ptr<dronecode_sdk::LogFiles> log_files_;
   
 };
 
