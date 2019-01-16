@@ -1,3 +1,5 @@
+# include "perceptron.h"
+
 
 Perceptron::Perceptron(int input_count, const double learning_rate = 0.1,
 		       const double threshold = 0.5)
@@ -15,13 +17,19 @@ void Perceptron::train(std::vector<TrainingItem> & training_set, unsigned int ma
     throw std::invalid_argument("The maximum number of iterations cannot be 0.");
   
   unsigned int iterations(0);
-  while (true) {
-    if (iterations > max_iterations)
-      break;
-    else
-      iterations++;
+  
+  for (int i =0; i < line_number_; i++){
     
     int error_count = 0;
+
+    for(int j = 0; j < vector.length(); j++){
+      
+      bool output = learn(.output(), .inputs());
+      
+      
+    }
+    
+    
     
     for (auto &item : training_set) {
       bool output = learn(item.output(), item.inputs());
@@ -29,11 +37,10 @@ void Perceptron::train(std::vector<TrainingItem> & training_set, unsigned int ma
       if (output != item.output())
 	error_count++;
     }
-    
+    /*  check this thing very disturbing */
     if (error_count == 0)
       break;
   }
-
 }
 
 bool Perceptron::learn(bool expected_result, const std::vector<double> &inputs)
@@ -49,4 +56,20 @@ bool Perceptron::learn(bool expected_result, const std::vector<double> &inputs)
   
   return result;
 }
+
+bool Perceptron::get_result(const std::vector<double> &inputs)
+{
+  if (inputs.size() != weights_.size())
+    throw std::invalid_argument("Invalid number of inputs. Expected: "
+				+ weights_.size());
+  
+    return dot_product(inputs, weights_) > threshold_;
+}
+
+double Perceptron::dot_product(const std::vector<double> &v1,
+			       const std::vector<double> &v2)
+{
+      return std::inner_product(v1.begin(), v1.end(), v2.begin(), 0);
+}
+
 
