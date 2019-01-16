@@ -1,47 +1,30 @@
+/*  C++ STL include */
+
 # include <fstream>
 # include <iostream>
 # include <iterator>
 # include <string>
 # include <vector>
 # include <algorithm>
+
+/*  Boost library include */
 # include <boost/algorithm/string.hpp>
 
-template <typename T> 
-struct rssi {
-  T lf1;
-    T lf2;
-  T ff;
-};
+/*  local defined include */
+# include "global.hh"
 
 
-
-template <typename T> 
-struct error {
-  T x;
-  T y;
-};
-
-
-template <typename T>
-std::ostream& operator<< (std::ostream& out, const std::vector<T>& v) {
-  if ( !v.empty() ) {
-    out << '[';
-    std::copy (v.begin(), v.end(), std::ostream_iterator<T>(out, " "));
-    out << "]";
-  }
-  return out;
-}
-
-
-template <typename T>
-std::ostream& operator<< (std::ostream& out, const rssi<T>& r)
+class DataSet
 {
-  out << "["<< r.lf1 <<", " << r.lf2 <<", " << r.ff <<"]";
-  return out;
-}
+public:
+  
+  DataSet();
+  
+
+  
 
 
-void parse_log_file(std::string file_name,
+void read_data_set_file(std::string file_name,
 		    std::vector<rssi<double>>& rssi_,
 		    std::vector<int>& action_,
 		    std::vector<error<double>>& error_)
@@ -49,7 +32,7 @@ void parse_log_file(std::string file_name,
   std::string line;
   std::ifstream fs;
   fs.open(file_name);
-  
+
   while (std::getline(fs, line))
     {
       /*   
@@ -57,6 +40,8 @@ void parse_log_file(std::string file_name,
 	   structure. Find all the delimiter and replace them with
 	   space then split the values from the string into a vector	   
       */
+      line_number++;
+      
       line = line.substr(10);
       std::vector<std::string> values;
       std::string::size_type sz;
@@ -82,6 +67,19 @@ void parse_log_file(std::string file_name,
 
     } 
 }
+  
+private:
+  
+  int line_number_;
+  std::string file_name;
+  std::vector<rssi<double>>& rssi_;
+  std::vector<int>& action_;
+  std::vector<error<double>>& error_;
+    
+};
+
+
+
 
 int main(int argc, char* argv[])
 {
@@ -90,7 +88,7 @@ int main(int argc, char* argv[])
   std::vector<int> action;
   std::vector<error<double>> error;
   
-  parse_log_file("data_sample", rssi, action, error);
+  read_data_set_file("data_sample", rssi, action, error);
 
   std::cout << "RSSI: " << rssi << std::endl;
 

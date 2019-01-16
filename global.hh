@@ -63,6 +63,12 @@ namespace local_types {
   };
   
   
+  template <typename T> 
+  struct error {
+    T x;
+    T y;
+  };
+
   /// Type of a drone's IP
   using ip_type   = std::string;
   /// Type of a drone's port
