@@ -3,10 +3,17 @@
 
 # build folder
 
-build/*
+build
+doc/build/*
 paper/auto/*
 material/auto/*
+model_plugin/build/*
 
+
+
+GPATH
+GRTAGS
+GTAGS
 
 config.*
 ._*
