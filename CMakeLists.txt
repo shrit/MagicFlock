@@ -17,14 +17,18 @@ find_package(gazebo REQUIRED)
 
 # Specfiy a list of source files .
 
-set ( SOURCES  
+set ( SOURCES
+  
+  algo/perceptron.cc
+  algo/q_learning.cc  
+  data_set.cc
+  gazebo.cc
+  joystick/joystick.cc
+  log.cc
   main.cc
   px4_device.cc
-  settings.cc
-  gazebo.cc
-  algo/q_learning.cc
-  log.cc
-  joystick/joystick.cc
+  settings.cc  
+  
   )
 
 #set (BOOST_INCLUDE_DIRS "/meta/local/include/")
@@ -35,6 +39,7 @@ include_directories(
 
  ${BOOST_INCLUDE_DIRS}
  ${GAZEBO_INCLUDE_DIRS}
+ 
   /usr/local/include/dronecode_sdk
 
   /usr/include/
