@@ -33,13 +33,13 @@ public:
   std::vector<int>  action_vector() const;
   std::vector<lt::error<double>> error_vector() const;
   
+  std::vector<std::vector<double>> data_set() const;
+  
 private:
   
   int line_number_;
-  std::vector<lt::rssi<double>> rssi_;
-  std::vector<int> action_;
-  std::vector<lt::error<double>> error_;
-  
+
+  std::vector<std::vector<double>> data_set_;  
     
 };
 

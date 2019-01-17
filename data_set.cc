@@ -18,32 +18,26 @@ void DataSet::read_data_set_file(std::string file_name)
       /*   
 	   parse each line by itself and put the result into the data
 	   structure. Find all the delimiter and replace them with
-	   space then split the values from the string into a vector	   
+	   space then split the values from the string into a vector
+	   If the number of matrix element change, we only need to
+	   change the two numbers in the following code.
       */
       line_number_++;
       
-      line = line.substr(10);
+      line = line.substr(11);
       std::vector<std::string> values;
       std::string::size_type sz;
       std::replace_if(line.begin(), line.end(), boost::is_any_of(",[]") , ' ');
-      boost::split(values, line, boost::is_any_of(" "));
-
-      lt::rssi<double> r;
+      boost::split(values, line, boost::is_any_of(" "), boost::token_compress_on);
       
-      r.lf1 = std::stod(values.at(1), &sz);
-      r.lf2 = std::stod(values.at(3), &sz);
-      r.ff  = std::stod(values.at(5), &sz);
-
-      rssi_.push_back(r);
+      values.resize(6);
+      std::vector<double> double_values(values.size());
       
-      action_.push_back(std::stod(values.at(7), &sz));
-
-      lt::error<double> e;
-
-      e.x = std::stod(values.at(9), &sz);
-      e.y = std::stod(values.at(11), &sz);
-
-      error_.push_back(e);
+      std::transform(values.begin(), values.end(), double_values.begin(), [](const std::string& val)
+      									  {
+      									    return std::stod(val);
+      									  });      
+      data_set_.push_back(double_values);            
 
     }
   fs.close();
@@ -63,11 +57,6 @@ void DataSet::write_data_set_file(std::ofstream& file, A a, B b, C c)
   file.flush();  
 }
 
-std::vector<lt::rssi<double>>  DataSet::rssi_vector() const
-{  return rssi_; }
 
-std::vector<int>  DataSet::action_vector() const
-{return action_;}
-
-std::vector<lt::error<double>> DataSet::error_vector() const
-{ return error_; }  
+std::vector<std::vector<double>>  DataSet::data_set() const
+{  return data_set_; }
