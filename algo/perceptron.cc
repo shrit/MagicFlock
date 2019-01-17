@@ -2,73 +2,107 @@
 
 
 Perceptron::Perceptron(int input_count, double learning_rate,
-		       double threshold)
-  :  weights_(input_count),
+		       double threshold, const lt::matrix<double>& data_set)
+  :  weights_(input_count, std::vector<double>(4,0.0)),
      learning_rate_(0.1),
-     threshold_(0.5)
+     threshold_(0.2)
 {
   learning_rate_ = learning_rate;
   threshold_ = threshold;
+
+
+  Classifier(data_set);
+  
 }
 
 
-template <typename A,  typename B, typename C>  
-void Perceptron::train(A& a, B& b, C& c, unsigned int max_iterations)
+void Perceptron::Classifier(const lt::matrix<double>& data_set)
 {
-  if (max_iterations == 0)
-    throw std::invalid_argument("The maximum number of iterations cannot be 0.");
+  /*  Extracting error from the data set, and save it into 
+   * A vector  
+   *
+   */
+  std::vector<double> error;              
+  for(int  i = 0; i < data_set.size(); i++){
+    double sum_of_elems = 0;
+    std::for_each(data_set.at(i).begin()+5, data_set.at(i).end(), [&] (double n) {
+							sum_of_elems += n;
+						      });
+    error.push_back(sum_of_elems);
+  }
+
+  std::cout << "error of the data set" << error <<std::endl;
+
+  // lt::matrix<double> data{data_set.size(), std::vector<double>(4)};
   
-  unsigned int iterations(0);
   
-  for (int i =0; i < max_iterations; i++){
+  // for(int  i = 0; i < data_set.size(); i++){					    
+  										    
+  //   std::copy_n(data_set.at(i).begin(), data_set.at(i).begin() + 4, data.begin()); 
+  // }										    
+  										    
+  // std::cout << "the data: " << data <<std::endl;				    
+  
+
+  
+  int error_count = 0;
+
+
+  // /*  Trainning loop used to adjust the weights of the input, in order to 
+  //  be equal to the ouput. */
+  // /*  1 we start by calculate the weights  */
+  // /* 2 we compare the result obtained with the known error */
+  
+  for(;;){        
     
-    int error_count = 0;
+    std::vector<double> result;
+    for(int  i = 0; i < data_set.size(); i++){
+      //     /*  Here we filter only the good data_set from the bad one */
+      //     //to check wether it is treating the error or not, printing needed
+      double value =
+	std::inner_product(data_set.at(i).begin(), data_set.at(i).begin()+4, weights_.at(i).begin(), 0.0);
 
-    for(int j = 0; j < a.size(); j++){
-      
-      bool output = learn(c, a, b);
-      
-      if (output != c)
-	error_count++;
-    }
-    /*  check this thing very disturbing */
-    if (error_count == 0)
-      break;
-  }
-}
+      /*  the following is throwing exceptions because it is empty as the data set 
+       will never be smaller than the threshold*/
 
-template <typename A,  typename B, typename C>  
-bool Perceptron::learn(C expected_result, const A& a, const B& b)
-{
-  bool result = get_result(a, b);
-  
-  if (result != expected_result) {
-    double error = expected_result - result;
-        
+      result.push_back(value);
+      
+      if (value > threshold_){
+	
+	std::vector<double> error_diff;
+	for(int j =0; j < result.size(); j++){
+	  
+	  if (result.at(j) != error.at(j)) {
+	
+    	error_diff.push_back(error.at(j) - result.at(j));
+    	error_count++;
+      }   
+	}
+    
+	std::cout << "error diff: " << error_diff << std::endl;
+    
     for (int i = 0; i < weights_.size(); i++) {
-      
-      weights_.at(i) += learning_rate_ * error * a.at(i);
+      for(int j =0; j < 4; j ++)
+    	weights_.at(i).at(j) += learning_rate_ * error_diff.at(i) * data_set.at(i).at(j);    
     }
-  }
-  
-  return result;
+    
+
+
+	
+	
+      }
+     }
+    
+    // std::cout << "result " << result << std::endl;
+    
+    
+    // // Compare the result obtained with the one calculated
+     
+    std::cout << "Weights: " <<  weights_ << std::endl;
+    //   if (error_count == 0)
+    //  break;
+    
+  }  
+
 }
-
-
-template <typename A,  typename B, typename C>  
-bool Perceptron::get_result(const A& inputs)
-{
-  if (inputs.size() != weights_.size())
-    throw std::invalid_argument("Invalid number of inputs. Expected: "
-				+ weights_.size());
-  
-    return dot_product(inputs, weights_) > threshold_;
-}
-
-double Perceptron::dot_product(const std::vector<double> &v1,
-			       const std::vector<double> &v2)
-{
-      return std::inner_product(v1.begin(), v1.end(), v2.begin(), 0);
-}
-
 

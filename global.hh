@@ -12,25 +12,23 @@ template <typename T>
 std::ostream& operator<< (std::ostream& out, const std::vector<T>& v) {
   if ( !v.empty() ) {
     out << '[';
-    std::copy (v.begin(), v.end(), std::ostream_iterator<T>(out, ", "));
+    std::copy (v.begin(), v.end(), std::ostream_iterator<T>(out, ","));
     out << "\b\b]";
   }
   return out;
 }
 
 
-/*  tp be completed vector of vector printing */
-
-// template <typename T>
-// std::ostream& operator<< (std::ostream& out, const std::vector<std::vector<T>>& v) {
-//   if ( !v.empty() ) {
-//     out << '[';
-//     for (int i=0; i < v.size(); i++ )
-//       std::copy (v.at(i).begin(), v.at(i).end(), std::ostream_iterator<T>(out, ", "));
-//     out << "\b\b]";
-//   }
-//   return out;
-// }
+template <typename T>
+std::ostream& operator<< (std::ostream& out, const std::vector<std::vector<T>>& v) {
+  if ( !v.empty() ) {
+    out << '[';
+    for (int i=0; i < v.size(); i++ )
+      std::copy (v.at(i).begin(), v.at(i).end(), std::ostream_iterator<T>(out, ","));
+    out << "\b\b]";
+  }
+  return out;
+}
 
 
 /*  Global name space for the simulation
@@ -76,6 +74,10 @@ namespace local_types {
   using quads_positions          = std::vector<position<double>>;
 
   using quads_rssi               = std::vector<double>;
+
+  template<typename T>
+  using matrix                = std::vector<std::vector<T>>; 
+  
 }
 
 template <typename T>
