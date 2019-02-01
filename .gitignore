@@ -53,4 +53,5 @@ config.*
 # Executables
 *.out
 
-
+#emacs generated directories and files
+.dir-locals.el
