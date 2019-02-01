@@ -1,0 +1,18 @@
+Thought and test to be questioned
+=======================================
+
+
+
+In the Q learning algorithm, or when generating th data set, The
+leader execute a random action according to a random function. While
+the followers execute another random actions.
+
+The idea behind it to make the q learning algorithm find and learn the
+best action to choose for the followers. This is done by making the algorithm
+read the estimate the positionning error, and learn from the case where the error
+is minimum.
+
+During the trainning using the reinforcement learning, the algorithm
+generate a data when executing the episods. Thus, we think about exploitation
+this data set by applying Supervised learning. 
+
