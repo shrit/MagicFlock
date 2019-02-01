@@ -16,11 +16,7 @@
 # include "../global.hh"
 # include "../gazebo.hh"
 # include "../log.hh"
-
-
-
-//namespace algo{
-
+# include "../data_set.h"
 
 template <typename T>
 std::ostream& operator<< (std::ostream& out,
@@ -42,7 +38,8 @@ public:
 
   Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	     float speed,
-	     std::shared_ptr<Gazebo> gzs);
+	     std::shared_ptr<Gazebo> gzs,
+	     DataSet data_set);
     
   void init();
 
@@ -57,7 +54,8 @@ public:
   
   void run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		   float speed,
-		   std::shared_ptr<Gazebo> gzs);
+		   std::shared_ptr<Gazebo> gzs,
+		   DataSet data_set);
 
        
 private:

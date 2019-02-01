@@ -2,7 +2,8 @@
 
 Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		       float speed,
-		       std::shared_ptr<Gazebo> gzs)
+		       std::shared_ptr<Gazebo> gzs,
+		       DataSet data_set)
   :qtable_{64 ,std::vector<double>(5,1)}, /*  Init to ones */
    max_episode_(10000),
    max_step_(2),
@@ -12,8 +13,7 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
    learning_rate_(0.9),
    discount_rate_(0.95)
 {
-
-  run_episods(iris_x, speed, gzs);  
+  run_episods(iris_x, speed, gzs, data_set);  
 }
 
 int Q_learning::get_action(std::vector<std::vector<double>> q_table , double state)   
@@ -86,9 +86,24 @@ void Q_learning::move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
 }
 
 
+/*  TODO LIST: */
+
+/*
+ * 1- Verify the generation of the random number in a different int test 
+ */
+
+/* Updated TODO List:
+
+ * 2- Create A Supervised learning algorithm with perceptron
+ * 3- Implement and train the algorithm with the data Set
+ * 4- Test with the drones.
+ */
+
+
 void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 			     float speed,
-			     std::shared_ptr<Gazebo> gzs)
+			     std::shared_ptr<Gazebo> gzs,
+			     DataSet data_set)
 {
 
   boost::log::sources::severity_logger<level> lg;
@@ -98,15 +113,11 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 
   /*
    * Needs to review the algorithm, we do not know if it is working yet.
-   * This code is complete for the q learning part. However, dron part needs to
+   * This code is complete for the q learning part. However, drone part needs to
    * be tested.
    */
   //to be overloaded
-
-  // for( int i = 0; i <  qtable_.size(); i++){
-  //   std::cout << qtable_.at(i) << std::endl;
-  // }
-  
+ 
   for (int episode = 0; episode < max_episode_; episode++){
 
     /* Intilization phase, in each episode we should reset the
@@ -360,7 +371,8 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 
       /*  I have quite tested a lot of different solution, if I am going
        * to find a better one, I will replace it directly. */
-      log_file(file, new_state_, action1, error);
+      
+      data_set.write_csv_data_set_file(file, new_state_, action1, error);
       
       std::this_thread::sleep_for(std::chrono::seconds(10));                  
       //      BOOST_LOG_SEV(lg, Msg) << action1 ; //<< action << error ;
