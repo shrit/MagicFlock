@@ -11,9 +11,9 @@
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const std::vector<T>& v) {
   if ( !v.empty() ) {
-    out << '[';
+    //    out << '[';
     std::copy (v.begin(), v.end(), std::ostream_iterator<T>(out, ","));
-    out << "\b\b]";
+    // out << "\b\b]";
   }
   return out;
 }
@@ -91,7 +91,8 @@ std::ostream& operator<< (std::ostream& out, const local_types::position<T>& p)
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const local_types::rssi<T>& r)
 {
-  out << "["<< r.lf1 <<", " << r.lf2 <<", " << r.ff <<"]";
+  //  out << "["<< r.lf1 <<", " << r.lf2 <<", " << r.ff <<"]";
+  out << r.lf1 <<"," << r.lf2 <<"," << r.ff;
   return out;
 }
 

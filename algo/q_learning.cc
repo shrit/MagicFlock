@@ -313,10 +313,15 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
        
       error.push_back(std::sqrt(std::abs (std::pow((distance.at(1).x - new_distance.at(1).x) -
 						   (distance.at(1).y - new_distance.at(1).y), 2))));
-              
+
+      
       /*  Recalculate the Error between quadcopters  */
       std::cout << "Error :" << error << std::endl;
-       
+
+      double sum_of_error = 0;
+      
+      for (auto& n : error)
+	sum_of_error += n; 
        
       double reward = 0.5 - error.at(0);
       double reward2 = 0.5 - error.at(1);
@@ -372,7 +377,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       /*  I have quite tested a lot of different solution, if I am going
        * to find a better one, I will replace it directly. */
       
-      data_set.write_csv_data_set_file(file, new_state_, action1, error);
+      data_set.write_csv_data_set_file(file, new_state_, action1, sum_of_error);
       
       std::this_thread::sleep_for(std::chrono::seconds(10));                  
       //      BOOST_LOG_SEV(lg, Msg) << action1 ; //<< action << error ;
