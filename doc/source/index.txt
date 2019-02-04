@@ -3,12 +3,29 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to 3QS's documentation!
+Welcome!
 ===============================
+
+
+The following are a colllection of documentations for the
+DeviceController code, That is used to control quadcopters in
+Gazebo simulator.
+
+The following section are developped to help to understand
+some part of the source code, and to keep a list of question
+to ask as a part of developpmenet of this thesis project.
+
+
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+
+   Questions
+   gazebo
+   firmware    	  
+   
+   
 
 
 
