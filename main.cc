@@ -111,13 +111,13 @@ int main(int argc, char* argv[])
    * quadcopters at a time
    */
   
-  // std::vector<std::shared_ptr<Px4Device>> iris_x;  
+  std::vector<std::shared_ptr<Px4Device>> iris_x;  
   
-  // for(auto& it : ports){					       
+  for(auto& it : ports){					       
     								      
-  //   iris_x.push_back(std::make_shared<Px4Device>("udp", it)); 
-  //   std::cout  << "create an iris device" << std::endl;	       
-  // }								      
+    iris_x.push_back(std::make_shared<Px4Device>("udp", it)); 
+    std::cout  << "create an iris device" << std::endl;	       
+  }								      
 
   std::cout<< ports << std::endl;
 
@@ -135,9 +135,9 @@ int main(int argc, char* argv[])
   gz->subscriber("/gazebo/default/0/2");
   gz->subscriber("/gazebo/default/1/2");
 
-  gz->publisher("/gazebo/default/iris/model_reset");
   gz->publisher("/gazebo/default/iris_1/model_reset");
   gz->publisher("/gazebo/default/iris_2/model_reset");
+  gz->publisher("/gazebo/default/iris_3/model_reset");
 
 
   // gz->publisher("/gazebo/default/iris_opt_flow/model_reset");
@@ -148,7 +148,7 @@ int main(int argc, char* argv[])
   /* Wait for 2 seconds, Just to finish subscribe to
   * gazebo topics before Starting Q learning*/
   /*  to be reset 10 seconds before generating data set */
-  std::this_thread::sleep_for(std::chrono::seconds(4));
+  std::this_thread::sleep_for(std::chrono::seconds(10));
   
   ////////////////
   // Q_learning //
@@ -156,26 +156,17 @@ int main(int argc, char* argv[])
 
  
   //  std::cout <<   data_set.data_set() << std::endl;
-
-
   
-
   // Pass the devices to the q learning algorithm
-  //  Q_learning qlearning(iris_x, speed, gz);
+    DataSet data_set;
+    Q_learning qlearning(iris_x, speed, gz, data_set);
 
 
   ////////////////
   // Perceptron //
   ////////////////
-  DataSet data_set;
-  
-  data_set.read_data_set_file("data_sample");
-  
-  data_set.data_set();
 
-  Perceptron tron(data_set.data_set().size(), 0.1, 0.4, data_set.data_set());
-
-  
+    //  data_set.read_data_set_file("data_sample");      
   
   // // Testing one drones components
   

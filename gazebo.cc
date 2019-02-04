@@ -29,13 +29,13 @@ void Gazebo::subscriber(lt::topic_name name)
 
 void Gazebo::publisher(lt::topic_name name)
 {
-  if (name == "/gazebo/default/iris/model_reset"){    
-    pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));
-  }
-  else if (name == "/gazebo/default/iris_1/model_reset"){    
+  if (name == "/gazebo/default/iris_1/model_reset"){    
     pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));
   }
   else if (name == "/gazebo/default/iris_2/model_reset"){    
+    pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));
+  }
+  else if (name == "/gazebo/default/iris_3/model_reset"){    
     pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));
   }
   
@@ -45,11 +45,16 @@ void Gazebo::reset_models()
 {
   for (auto it : pubs_) {
     
-    it->WaitForConnection();  
+    if (it->WaitForConnection(5)){  
     gazebo::msgs::Vector2d msg;
     gazebo::msgs::Set(&msg, ignition::math::Vector2d(1, 0));  
     it->Publish(msg);
+    }
+    else{
+      std::cout << "NO Connection from the subscriber to reset the model" << std::endl;
+    }
   }
+
 }
 
 

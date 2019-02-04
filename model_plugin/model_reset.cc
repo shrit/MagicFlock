@@ -30,6 +30,7 @@ namespace gazebo
       // Subscribe to the topic, and register a callback
       this->sub = this->node->Subscribe(topicName,
 					&ResetPlugin::OnMsg, this);
+      
     }
     
     // Called by the world update start event
