@@ -115,13 +115,14 @@ JoystickEvent event_handler(Joystick& joystick,
 	
 	if(joystick.RightAxisYChanged(event) > 0 ){
 	  /* Speed should be function of the value of joystick  */
-	  iris_x.at(0)->forward(speed);	  
-	  std::cout << "Moving forward... " << std::endl;
+	  iris_x.at(0)->backward(speed);
+	  std::cout << "Moving backward... " << std::endl;	  	  
 	}
 	else{
 	  /* Speed should be function of the value of joystick  */
-	  iris_x.at(0)->backward(speed);
-	  std::cout << "Moving backward... " << std::endl;
+	  /*  Speed should be fixed as the joystick does not move */
+	  iris_x.at(0)->forward(speed);	  
+	  std::cout << "Moving forward... " << std::endl;
 	}		
 		
       }
@@ -142,13 +143,14 @@ JoystickEvent event_handler(Joystick& joystick,
 
        if(joystick.LeftAxisYChanged(event) > 0 ){
 	 /* Speed should be function of the value of joystick  */
-	 iris_x.at(0)->up(speed);	 
-	 std::cout << "Moving up...: " <<std::endl;
+	 iris_x.at(0)->down(speed);
+	 std::cout << "Moving down...: " <<std::endl;
+	 	
        }
        else{
 	 /* Speed should be function of the value of joystick  */
-	 iris_x.at(0)->down(speed);
-	 std::cout << "Moving down...: " <<std::endl;
+	 iris_x.at(0)->up(speed);	 
+	 std::cout << "Moving up...: " <<std::endl;
        }
 	 
      }
