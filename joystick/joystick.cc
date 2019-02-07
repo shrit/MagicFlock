@@ -219,5 +219,5 @@ bool Joystick::isButton(JoystickEvent& event)
 
 bool Joystick::isAxis(JoystickEvent& event)
 {
-  return (type & JS_EVENT_AXIS) != 0;
+  return (event.type & JS_EVENT_AXIS) != 0;
 }
