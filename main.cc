@@ -46,7 +46,7 @@ namespace lt = local_types;
  * Wait for Joystick input, non-blocking implementation using STL 
 */
 
- JoystickEvent event_handler(Joystick& joystick, JoystickEvent event)
+JoystickEvent event_handler(Joystick& joystick, JoystickEvent event, iris, floart speed)
 {
   
   while (true)
@@ -57,16 +57,27 @@ namespace lt = local_types;
     if (joystick.read_event(&event)){
       
       if(joystick.ButtonAChanged(event)) {
-	std::cout << "A" << std::endl;			 
+	iris_x.at(0)->arm();
+	std::cout << "arming..." << std::endl;
+	std::this_thread::sleep_for(std::chrono::seconds(1));
       }
       else if(joystick.ButtonBChanged(event)) {
-	std::cout << "B" << std::endl;			 
+	iris_x.at(0)->land();
+	std::cout << "landing..." << std::endl;			 
       }
       else if(joystick.ButtonXChanged(event)) {
-	std::cout << "X" << std::endl;			 
+
+	iris_x.at(0)->takeoff();
+	std::cout << "taking off..." << std::endl;
+	std::this_thread::sleep_for(std::chrono::seconds(5));
       }
       else if(joystick.ButtonYChanged(event)) {
-	std::cout << "Y" << std::endl;			 
+	
+	iris_x.at(0)->init_speed();	
+	iris_x.at(0)->start_offboard_mode();	
+	std::cout << "Start offoard mode..." << std::endl;
+	std::this_thread::sleep_for(std::chrono::seconds(1));          
+	
       }
       else if(joystick.ButtonL1Changed(event)) {
 	std::cout << "L1" << std::endl;			 
@@ -84,16 +95,59 @@ namespace lt = local_types;
 	std::cout << "Guide" << std::endl;			 
       }
       else if(joystick.RightAxisXChanged(event)) {
-	std::cout << "Rx: " << joystick.RightAxisXChanged(event) << std::endl;	 
+	
+	if(joystick.RightAxisXChanged(event) > 0 ){
+	  /* Speed should be function of the value of joystick  */
+	  iris_x.at(0)->forward(speed);
+	  std::cout << "Moving forward... " <<  << std::endl;
+	}
+	else{
+	  /* Speed should be function of the value of joystick  */
+	  iris_x.at(0)->backward(speed);
+	  std::cout << "Moving backward... " <<  << std::endl;
+	}
+	
       }
       else if (joystick.RightAxisYChanged(event)) {
-	std::cout << "Ry: " << joystick.RightAxisYChanged(event) << std::endl;	 
+
+	if(joystick.RightAxisYChanged(event) > 0 ){
+	  /* Speed should be function of the value of joystick  */
+	  iris_x.at(0)->right(speed);
+	  std::cout << "Moving right... " << std::endl;
+	}
+	else{
+	  /* Speed should be function of the value of joystick  */
+	  iris_x.at(0)->left(speed);
+	  std::cout << "Moving left... " << std::endl;
+	}
+		
       }
       else if (joystick.LeftAxisXChanged(event)) {
-	std::cout << "Lx: " << joystick.LeftAxisXChanged(event) << std::endl;
+
+	if(joystick.LeftAxisXChanged(event) > 0 ){
+
+	  iris_x.at(0)->turnToLeft(speed);		    
+	  std::cout << "Turn to left... " <<std::endl;	  
+	}
+	else{
+	  iris_x.at(0)->turnToRight(speed);		    
+	  std::cout << "Turn to right... " <<std::endl;
+	}
+		
       }
      else if (joystick.LeftAxisYChanged(event)) {
-	std::cout << "Ly: " << joystick.LeftAxisYChanged(event) << std::endl;
+
+       if(joystick.LeftAxisYChanged(event) > 0 ){
+	 /* Speed should be function of the value of joystick  */
+	 iris_x.at(0)->up(speed);	 
+	 std::cout << "Moving up...: " <<std::endl;
+       }
+       else{
+	 /* Speed should be function of the value of joystick  */
+	 iris_x.at(0)->down(speed);
+	 std::cout << "Moving down...: " <<std::endl;
+       }
+	 
      }
      else if (joystick.AxisL2Changed(event)) {
 	std::cout << "L2: " << joystick.AxisL2Changed(event) << std::endl;
@@ -187,23 +241,16 @@ int main(int argc, char* argv[])
   gz->publisher("/gazebo/default/iris_2/model_reset");
   gz->publisher("/gazebo/default/iris_3/model_reset");
 
-
-  // gz->publisher("/gazebo/default/iris_opt_flow/model_reset");
-  // gz->publisher("/gazebo/default/iris_opt_flow_1/model_reset");
-  // gz->publisher("/gazebo/default/iris_opt_flow_2/model_reset");
-
   
-  /* Wait for 2 seconds, Just to finish subscribe to
+  /* Wait for 10 seconds, Just to finish subscribe to
   * gazebo topics before Starting Q learning*/
-  /*  to be reset 10 seconds before generating data set */
+  
   std::this_thread::sleep_for(std::chrono::seconds(10));
   
   ////////////////
   // Q_learning //
   ////////////////
-
- 
-  //  std::cout <<   data_set.data_set() << std::endl;
+  
   
   // Pass the devices to the q learning algorithm
   if(settings.train()) {
@@ -220,38 +267,12 @@ int main(int argc, char* argv[])
 
   double  maxi = arma::max(qtable(state));        
 
-  
-
-  
+   
   ////////////////
   // Perceptron //
   ////////////////
 
     //  data_set.read_data_set_file("data_sample");      
-  
-  // // Testing one drones components
-  
-  // iris_x.at(0)->arm();
-  //   std::this_thread::sleep_for(std::chrono::seconds(1));
-  
-  // iris_x.at(0)->takeoff();
-  // std::this_thread::sleep_for(std::chrono::seconds(5));
-
-  // iris_x.at(0)->init_speed();
-
-  // iris_x.at(0)->start_offboard_mode();
-
-  //     std::this_thread::sleep_for(std::chrono::seconds(1));          
-  
-  // for (int i =0 ; i < 30; i++ ){
-  // iris_x.at(0)->forward(10);
-  // std::this_thread::sleep_for(std::chrono::milliseconds(50));
-  // }
-
-  // std::this_thread::sleep_for(std::chrono::seconds(1));          
-  // iris_x.at(0)->land();
-
-  // std::this_thread::sleep_for(std::chrono::seconds(10));          
   
   // gz->reset_models();
 
@@ -275,98 +296,5 @@ int main(int argc, char* argv[])
   
   events.get();
   
-  /////////////
-  // ncurses //
-  /////////////
-  
-  // setlocale(LC_ALL, "");
-  
-  // initscr();
-  
-  // halfdelay(3);
-    
-  // // Suppress automatic echoing
-  // noecho();
-  
-  // // Do not translate the return key into newline
-  // nonl();
-  
-  // // Capture special keystrokes (including the four arrow keys)
-  // keypad(stdscr, TRUE);
-  
-  // refresh();
-  
-  // int ch;
-  
-  //  boost::asio::posix::stream_descriptor in{io_service, 0};  
-
-  /* Hand control using keyboard, manual control of the quadcopters */
-
-  
-  auto lambda = [&](){
-		  
-		//   ch = getch(); 
-		  		  
-		//   switch (ch) {
-		//   case KEY_UP:
-		//     printw("key_up");
-		//     iris_x[0]->forward(speed);
-		//     break;
-		//   case KEY_DOWN:
-		//     printw("key_down");
-		//     iris_x[0]->backward(speed);
-		//     break;
-		//   case KEY_LEFT:
-		//     printw("key_left");
-		//     iris_x[0]->goLeft(speed);
-		//     break;
-		//   case KEY_RIGHT:
-		//     printw("key_right");
-		//     iris_x[0]->goRight(speed);
-		//     break;
-		//   case 'u':    
-		//     printw("goUp");
-		//     iris_x[0]->goUp(speed);
-		//     break;
-		//   case 'd':
-		//     printw("goDown");
-		//     iris_x[0]->goDown(speed);
-		//     break;		    
-		//   case 't':
-		//     printw("take_off");
-		//     iris_x[0]->takeoff();
-		//     break;
-		//   case 'l':
-		//     printw("land");
-		//     iris_x[0]->land();
-		//     break;
-		//   case 'a':
-		//     printw("arming->->->");
-		//     iris_x[0]->arm();
-		//     sleep_for(seconds(2));
-		//     break;
-		//   case '+':
-		//     printw("turn to right");
-		//     iris_x[0]->turnToRight(speed);		    
-		//     break;
-		//   case '-':
-		//     printw("turn to left");
-		//     iris_x[0]->turnToLeft(speed);		    
-		//     break;		    
-		//   case 's':
-		//     iris_x[0]->init_speed();
-		//     iris_x[0]->start_offboard_mode();
-		//     break;
-		    
-		//   default:		    
-		//     printw("key_NOT DEFINED: %c", ch);
-		//     endwin();
-		//   }		  
-
-		 };
-    
-  //  async_wait(in, lambda);
-
-  //  io_service.run();
-             
+                
 }
