@@ -32,6 +32,8 @@ public:
   std::vector<lt::port_type> quads_ports() const;
   
   float speed() const;
+
+  bool train() const;
   
 private:
   
@@ -49,6 +51,8 @@ private:
   lt::connection_type socket_;
   
   float speed_;
+
+  bool train_;
   
 };
 

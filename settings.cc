@@ -26,6 +26,8 @@ Settings::Settings(int argc, char* argv[])
 
   namespace po = boost::program_options;
   po::options_description option("Allowed:");
+
+  train_ = false;
   
   option.add_options()
     ("help,h", "Print this help message and exit" )				
@@ -39,7 +41,8 @@ Settings::Settings(int argc, char* argv[])
     ("connection-type,c", po::value<std::string>(&socket_),
      "Enter the connection type: udp or tcp")
     ("ports-for-followers, P", po::value< std::vector<lt::port_type> >(&ports_)->multitoken(),
-     "Insert a vector of  ports of followers");
+     "Insert a vector of  ports of followers")
+    ("train,t");
   
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, option), vm);
@@ -57,6 +60,10 @@ Settings::Settings(int argc, char* argv[])
   if(vm.count("version")){
     std::cout << "0.2v ";
     exit(0);        
+  }
+
+  if(vm.count("train")){
+    train_ = true;    
   }
 
 }
@@ -80,4 +87,9 @@ std::vector<lt::port_type> Settings::quads_ports() const
 float Settings::speed() const
 {
   return speed_;
+}
+
+bool Settings::train() const
+{
+  return train_;
 }
