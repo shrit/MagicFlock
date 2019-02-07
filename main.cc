@@ -6,23 +6,13 @@
  * 
  */
 
-// extern "C"
-// {
-//   # include <curses.h>         
-// }
-
 /*  C++ Standard library include */
-# include <cstdlib>
-# include <string>
-# include <future>
 # include <chrono>
+# include <cstdlib>
+# include <future>
+# include <string>3
 # include <thread>
 # include <vector>
-
-/*  Boost asio library include */
-
-//# include <boost/asio/posix/stream_descriptor.hpp>
-//# include <boost/asio.hpp>
 
 /*  locale defined include */
 # include "algo/perceptron.h"
@@ -49,34 +39,80 @@ using std::chrono::seconds;
 */
 
 
-/*
- * Wait for keyboard input, non-blocking implementation using asio
-*/
+namespace lt = local_types;
 
 
 /*
  * Wait for Joystick input, non-blocking implementation using STL 
 */
 
+ JoystickEvent event_handler(Joystick& joystick, JoystickEvent event)
+{
+  
+  while (true)
+  {            
+    // Attempt to read an event from the joystick
+    JoystickEvent event;
 
-namespace lt = local_types;
+    if (joystick.read_event(&event)){
+      
+      if(joystick.ButtonAChanged(event)) {
+	std::cout << "A" << std::endl;			 
+      }
+      else if(joystick.ButtonBChanged(event)) {
+	std::cout << "B" << std::endl;			 
+      }
+      else if(joystick.ButtonXChanged(event)) {
+	std::cout << "X" << std::endl;			 
+      }
+      else if(joystick.ButtonYChanged(event)) {
+	std::cout << "Y" << std::endl;			 
+      }
+      else if(joystick.ButtonL1Changed(event)) {
+	std::cout << "L1" << std::endl;			 
+      }
+      else if(joystick.ButtonR1Changed(event)) {
+	std::cout << "R1" << std::endl;			 
+      }
+      else if(joystick.ButtonSelectChanged(event)) {
+	std::cout << "Select" << std::endl;			 
+      }
+      else if(joystick.ButtonStartChanged(event)) {
+	std::cout << "Start" << std::endl;			 
+      }     
+      else if(joystick.ButtonGuideChanged(event)) {
+	std::cout << "Guide" << std::endl;			 
+      }
+      else if(joystick.RightAxisXChanged(event)) {
+	std::cout << "Rx: " << joystick.RightAxisXChanged(event) << std::endl;	 
+      }
+      else if (joystick.RightAxisYChanged(event)) {
+	std::cout << "Ry: " << joystick.RightAxisYChanged(event) << std::endl;	 
+      }
+      else if (joystick.LeftAxisXChanged(event)) {
+	std::cout << "Lx: " << joystick.LeftAxisXChanged(event) << std::endl;
+      }
+     else if (joystick.LeftAxisYChanged(event)) {
+	std::cout << "Ly: " << joystick.LeftAxisYChanged(event) << std::endl;
+     }
+     else if (joystick.AxisL2Changed(event)) {
+	std::cout << "L2: " << joystick.AxisL2Changed(event) << std::endl;
+     }
+     else if (joystick.AxisR2Changed(event)) {
+       std::cout << "R2: " << joystick.AxisR2Changed(event) << std::endl;
+     }
+     else if (joystick.DpadXChanged(event)) {
+       std::cout << "Dx: " << joystick.DpadXChanged(event) << std::endl;
+     }
+     else if (joystick.DpadYChanged(event)) {
+       std::cout << "Dy: " << joystick.DpadYChanged(event) << std::endl;
+     }      
+    }       
+  }
+}
 
-// template <class Handler>
-// void async_wait(boost::asio::posix::stream_descriptor& in, Handler&& handler) {
-//   in.async_read_some(boost::asio::null_buffers(),
-// 		     [&](boost::system::error_code ec,
-// 			 size_t /* bytes_transferred */) {
-// 		       if (not ec)
-// 			 handler();
-// 		       else
-// 			   std::cerr << "Error: " << ec.message() << std::endl;
-		       
-// 			 async_wait(in, std::forward<Handler>(handler));
-// 		     });
-// }
- 
 /*  Main file: Start one controller by quadcopters, 
- *  Start ncurses to intercept keyboard keystrokes.
+ *  
  */
 
 int main(int argc, char* argv[])
@@ -90,6 +126,18 @@ int main(int argc, char* argv[])
   logging::add_common_attributes();
   
   boost::log::sources::severity_logger<level> lg;
+
+  Joystick joystick("/dev/input/js0");
+  
+  // Ensure that it was found and that we can use it
+  if (!joystick.isFound())
+    {
+      std::cout << "No device found, please connect a joystick" << std::endl;
+      exit(1);
+    }
+  
+  JoystickEvent event;
+  
   
   Settings settings(argc, argv);
   
@@ -158,10 +206,23 @@ int main(int argc, char* argv[])
   //  std::cout <<   data_set.data_set() << std::endl;
   
   // Pass the devices to the q learning algorithm
+  if(settings.train()) {
     DataSet data_set;
     Q_learning qlearning(iris_x, speed, gz, data_set);
+    
+  }
 
+  arma::mat qtable;
+  
+  qtable.load("qtable_test");
+  
+  gz->rssi();
 
+  double  maxi = arma::max(qtable(state));        
+
+  
+
+  
   ////////////////
   // Perceptron //
   ////////////////
@@ -196,6 +257,23 @@ int main(int argc, char* argv[])
 
   // iris_x.at(0)->reboot();
   
+
+
+  auto update_handler = [&](){			 
+
+			  /**Update signal strength here 
+			     other wise update it an other function 
+			     each unit of time
+			   */
+
+			  
+			  event_handler(joystick, event);
+			};
+  
+  auto events =  std::async(std::launch::async, update_handler);
+  
+  
+  events.get();
   
   /////////////
   // ncurses //
