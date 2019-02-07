@@ -10,7 +10,7 @@
 # include <chrono>
 # include <cstdlib>
 # include <future>
-# include <string>3
+# include <string>
 # include <thread>
 # include <vector>
 
@@ -46,7 +46,10 @@ namespace lt = local_types;
  * Wait for Joystick input, non-blocking implementation using STL 
 */
 
-JoystickEvent event_handler(Joystick& joystick, JoystickEvent event, iris, floart speed)
+JoystickEvent event_handler(Joystick& joystick,
+			    JoystickEvent event,
+			    std::vector<std::shared_ptr<Px4Device>> iris_x,
+			    float speed)
 {
   
   while (true)
@@ -98,20 +101,6 @@ JoystickEvent event_handler(Joystick& joystick, JoystickEvent event, iris, floar
 	
 	if(joystick.RightAxisXChanged(event) > 0 ){
 	  /* Speed should be function of the value of joystick  */
-	  iris_x.at(0)->forward(speed);
-	  std::cout << "Moving forward... " <<  << std::endl;
-	}
-	else{
-	  /* Speed should be function of the value of joystick  */
-	  iris_x.at(0)->backward(speed);
-	  std::cout << "Moving backward... " <<  << std::endl;
-	}
-	
-      }
-      else if (joystick.RightAxisYChanged(event)) {
-
-	if(joystick.RightAxisYChanged(event) > 0 ){
-	  /* Speed should be function of the value of joystick  */
 	  iris_x.at(0)->right(speed);
 	  std::cout << "Moving right... " << std::endl;
 	}
@@ -120,6 +109,20 @@ JoystickEvent event_handler(Joystick& joystick, JoystickEvent event, iris, floar
 	  iris_x.at(0)->left(speed);
 	  std::cout << "Moving left... " << std::endl;
 	}
+	
+      }
+      else if (joystick.RightAxisYChanged(event)) {        
+	
+	if(joystick.RightAxisYChanged(event) > 0 ){
+	  /* Speed should be function of the value of joystick  */
+	  iris_x.at(0)->forward(speed);	  
+	  std::cout << "Moving forward... " << std::endl;
+	}
+	else{
+	  /* Speed should be function of the value of joystick  */
+	  iris_x.at(0)->backward(speed);
+	  std::cout << "Moving backward... " << std::endl;
+	}		
 		
       }
       else if (joystick.LeftAxisXChanged(event)) {
@@ -265,7 +268,7 @@ int main(int argc, char* argv[])
   
   gz->rssi();
 
-  double  maxi = arma::max(qtable(state));        
+  //  double  maxi = arma::max(qtable(state));        
 
    
   ////////////////
@@ -288,7 +291,7 @@ int main(int argc, char* argv[])
 			   */
 
 			  
-			  event_handler(joystick, event);
+			  event_handler(joystick, event, iris_x, speed);
 			};
   
   auto events =  std::async(std::launch::async, update_handler);
