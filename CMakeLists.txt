@@ -60,7 +60,7 @@ set(dronecode_sdk_calibrattion_lib "/usr/local/lib/libdronecode_sdk_calibration.
 set(ncurses_lib "/usr/lib/libncurses.so")
 set(pthread_lib "/usr/lib/libpthread.so")
 set(atomic_lib "/usr/lib/libatomic.so")
-
+set(arma "/usr/lib/libarmadillo.so")
 set(boost_lib_log "/usr/lib/libboost_log.so")
 set(boost_lib_log_setup "/usr/lib/libboost_log_setup.so")
 set(boost_lib_system "/usr/lib/libboost_system.so")
@@ -89,6 +89,7 @@ target_link_libraries(DeviceController
   #where the Dronecode_Sdk library can be found
   ${pthread_lib}
   ${atomic_lib}
+  ${arma}
   ${GAZEBO_LIBRARIES}
   ${dronecode_sdk_lib}
   ${dronecode_sdk_offboard_lib}
