@@ -42,7 +42,7 @@ Settings::Settings(int argc, char* argv[])
      "Enter the connection type: udp or tcp")
     ("ports-for-followers, P", po::value< std::vector<lt::port_type> >(&ports_)->multitoken(),
      "Insert a vector of  ports of followers")
-    ("train,t");
+    ("train,t", "Train the quadcopter using Qlearning");
   
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, option), vm);
