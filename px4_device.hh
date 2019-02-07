@@ -49,14 +49,13 @@ using std::chrono::seconds;
 namespace lt = local_types;
 
 /*  TODO list: 
-
- * Add the joystick and the calibration
- * Add error management 
- * Put the code inside the examples of the api 
- * send a pull request with your modification
- * Open source this part of your code
- *
- */
+    /*
+    * Add error management 
+    * Put the code inside the examples of the api 
+    * send a pull request with your modification
+    * Open source this part of your code
+    *
+    */
 
 
 class Px4Device 
@@ -75,10 +74,10 @@ public:
   bool return_to_launch();
   bool set_altitude_rtl_max(float meter);
   
-  void goUp(float speed);
-  void goDown(float speed);
-  void goRight(float speed);
-  void goLeft(float speed);
+  void up(float speed);
+  void down(float speed);
+  void right(float speed);
+  void left(float speed);
   void forward(float speed);
   void backward(float speed);
   void turnToLeft(float speed);

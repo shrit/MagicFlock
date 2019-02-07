@@ -126,7 +126,7 @@ bool Px4Device::set_altitude_rtl_max(float meter)
 }
 
 
-void Px4Device::goUp(float speed)
+void Px4Device::up(float speed)
 {
   std::cout << "To the sky !" << std::endl;
   
@@ -136,7 +136,7 @@ void Px4Device::goUp(float speed)
     
 }
 
-void Px4Device::goDown(float speed)
+void Px4Device::down(float speed)
 {
   std::cout << "To the Earth !" << std::endl;
 
@@ -146,7 +146,7 @@ void Px4Device::goDown(float speed)
   
 }
 
-void Px4Device::goRight(float speed)
+void Px4Device::right(float speed)
 {
   std::cout << "Right now !" << std::endl;
   
@@ -155,7 +155,7 @@ void Px4Device::goRight(float speed)
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
 }
 
-void Px4Device::goLeft(float speed)
+void Px4Device::left(float speed)
 {
   std::cout << "Left now !" << std::endl;
   
@@ -187,9 +187,9 @@ Offboard::Result Px4Device::start_offboard_mode()
 
 void Px4Device::forward(float speed)
 {
-  std::cout << "go forward !" << std::endl;
+  std::cout << " forward !" << std::endl;
 
-  //set velocity function is going to make the quad go  all the time
+  //set velocity function is ing to make the quad   all the time
   // we need to set it to zero after each keyboard touch
   
   offboard_->set_velocity_body({speed, 0.0f, 0.0f, 0.0f});
@@ -199,7 +199,7 @@ void Px4Device::forward(float speed)
 
 void Px4Device::backward(float speed)
 {
-  std::cout << "go backward !" << std::endl;
+  std::cout << " backward !" << std::endl;
     
   offboard_->set_velocity_body({-speed, 0.0f, 0.0f, 0.0f});
   sleep_for(milliseconds(50));
