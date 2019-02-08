@@ -6,7 +6,7 @@
 # include <gazebo/gazebo_client.hh>
 # include <gazebo/msgs/msgs.hh>
 # include <gazebo/msgs/pose.pb.h>
-
+# include "ema_filter.hh"
 # include "global.hh"
 
 namespace lt = local_types;
@@ -47,6 +47,7 @@ public:
   void Parse_rssi_msg_2(ConstVector2dPtr& msg);
   
   lt::rssi<double> rssi() const;
+  lt::rssi<double> filtered_rssi();
   positions get_positions() const;
   
 private:
@@ -62,6 +63,8 @@ private:
   NodePtr node_;
   
   positions positions_;
+
+  EWMAFilter<double> ema_filter_;
   
   lt::rssi<double> signal_;   
      

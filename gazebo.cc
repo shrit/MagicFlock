@@ -1,15 +1,16 @@
 # include "gazebo.hh"
 
 Gazebo::Gazebo(int argc, char* argv[])
-  :  node_(new gazebo::transport::Node())
+  :  node_(new gazebo::transport::Node()),
+     ema_filter_{0.9, 42}
 
 {  
   gazebo::client::setup(argc, argv);
   
-  node_->Init();  
+  node_->Init();
+  
 }
 
-//template <typename MsgHandler>
 void Gazebo::subscriber(lt::topic_name name)
 {
   if(name == "/gazebo/default/0/1" ) {
@@ -56,7 +57,6 @@ void Gazebo::reset_models()
   }
 
 }
-
 
 void Gazebo::Parse_rssi_msg_0(ConstVector2dPtr& msg)
 {
@@ -121,6 +121,21 @@ void Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
 
 lt::rssi<double> Gazebo::rssi() const
 {return signal_;}
+
+lt::rssi<double> Gazebo::filtered_rssi() 
+{
+
+  ema_filter_.input(signal_.lf1);
+  signal_.lf1 = ema_filter_.output();
+  
+  ema_filter_.input(signal_.lf2);
+  signal_.lf2 = ema_filter_.output();
+    
+  ema_filter_.input(signal_.ff);
+  signal_.ff = ema_filter_.output();
+  
+  return signal_;
+}
 
 positions Gazebo::get_positions() const
 {return positions_;}
