@@ -4,25 +4,36 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		       float speed,
 		       std::shared_ptr<Gazebo> gzs,
 		       DataSet data_set)
-  :qtable_{64 ,std::vector<double>(5,1)}, /*  Init to ones */
-   max_episode_(10000),
-   max_step_(2),
-   epsilon_(1),
-   min_epsilon_(0),
-   decay_rate_(0.01),
-   learning_rate_(0.9),
-   discount_rate_(0.95)
+  ://qtable_{64 ,std::vector<double>(5,1)}, /*  Init to ones */
+  qtable_{64, 5, arma::fill::ones},
+  max_episode_(2000),
+  max_step_(2),
+  epsilon_(1.0),
+  min_epsilon_(0.0),
+  decay_rate_(0.01),
+  learning_rate_(0.9),
+  discount_rate_(0.95)
 {
   run_episods(iris_x, speed, gzs, data_set);  
 }
 
-int Q_learning::get_action(std::vector<std::vector<double>> q_table , double state)   
+// int Q_learning::get_action(std::vector<std::vector<double>> q_table , double state)   
+// {
+  
+//   auto it = std::max_element(q_table.at(state).begin(), q_table.at(state).end());
+  
+//   return *it;
+// }
+
+
+double Q_learning::get_action(arma::mat q_table , double state)   
 {
   
-  auto it = std::max_element(q_table.at(state).begin(), q_table.at(state).end());
-  
-  return *it;
+  double maxi;
+  maxi = arma::max(q_table(state));        
+  return maxi;
 }
+
 
 double Q_learning::get_state_index(lt::rssi<double> signal, lt::rssi<double> original_signal)
 {
@@ -69,10 +80,10 @@ void Q_learning::move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
   switch(action){
 
   case 0:
-    iris_x.at(quad_number)->goLeft(speed);
+    iris_x.at(quad_number)->left(speed);
     break;
   case 1:
-    iris_x.at(quad_number)->goRight(speed);
+    iris_x.at(quad_number)->right(speed);
     break;
   case 2:
     iris_x.at(quad_number)->forward(speed); 
@@ -117,7 +128,10 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
    * be tested.
    */
   //to be overloaded
- 
+
+
+  std::cout << qtable_ << std::endl;
+  
   for (int episode = 0; episode < max_episode_; episode++){
 
     /* Intilization phase, in each episode we should reset the
@@ -247,17 +261,15 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
        * Look inside the Q_tables to find the best action
        */
       
-      //////////////////////////////////////////////////////////
-      // if(random > epsilon_){				      //
-      // 						      //
-      // 	action1 = get_action(qtable_, state_index);   //
-      // 	action2 = action1;			      //
-      // }						      //
-      //////////////////////////////////////////////////////////
-      // else {
+      
+      if(random > epsilon_){			           
+      						     
+      	action1 = get_action(qtable_, state_index);  
+      }						     
+      
+      else {
       action1 = std::rand() % 4;
-
-      // }
+      }
 
       /*  moving the followers randomly */
       for (int i = 0; i < 10; i++){
@@ -330,19 +342,19 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
        
       std::cout << "reward: " << e_reward << std::endl;
        
-      qtable_.at(state_index).at(action1) =
-	(1 - learning_rate_) * qtable_.at(state_index).at(action1) +
+      qtable_(state_index, action1) =
+	(1 - learning_rate_) * qtable_(state_index, action1) +
 	learning_rate_ * (reward +  discount_rate_ * get_action(qtable_,
 								state_index));
-      qtable_.at(state_index).at(action1) =
-	(1 - learning_rate_) * qtable_.at(state_index).at(action1) +
-	learning_rate_ * (reward +  discount_rate_ * get_action(qtable_,
-								state_index));
+      // qtable_.at(state_index).at(action1) =
+      // 	(1 - learning_rate_) * qtable_.at(state_index).at(action1) +
+      // 	learning_rate_ * (reward +  discount_rate_ * get_action(qtable_,
+      // 								state_index));
  
       //reduce epsilon as we explore more each episode
-      // epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode); 
+      epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode); 
       
-      //  std::cout << "epsilon: " << epsilon_ << std::endl;
+      std::cout << "epsilon: " << epsilon_ << std::endl;
       
       rewards_.push_back(e_reward);
 
@@ -380,7 +392,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       data_set.write_csv_data_set_file(file, new_state_, action1, sum_of_error);
       
       std::this_thread::sleep_for(std::chrono::seconds(10));                  
-      //      BOOST_LOG_SEV(lg, Msg) << action1 ; //<< action << error ;
+      //      BOOST_LOG_SEV(lg, Msg) << action1 ;
       
       
     }
@@ -393,7 +405,9 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
      * use python to get faster results. Then integrate the result 
      * in the simulation
      */
-    
+
+      
+    qtable_.save("qtable", arma::raw_ascii);
   }
 }
   

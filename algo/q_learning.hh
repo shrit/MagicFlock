@@ -11,12 +11,17 @@
 # include <chrono>
 # include <thread>
 
+/*  Armadillo includes  */
+# include <armadillo>
+
 /* Quadcopter controller includes  */
 # include "../px4_device.hh"
 # include "../global.hh"
 # include "../gazebo.hh"
 # include "../log.hh"
 # include "../data_set.h"
+
+
 
 template <typename T>
 std::ostream& operator<< (std::ostream& out,
@@ -43,7 +48,7 @@ public:
     
   void init();
 
-  int get_action(std::vector<std::vector<double>>  qtable , double state);
+  double get_action(arma::mat qtable , double state);
 
   double get_state_index(lt::rssi<double> signal, lt::rssi<double> original_signal);
   
@@ -60,16 +65,17 @@ public:
        
 private:
     
-  std::vector<std::vector<double>>  qtable_;
+  arma::mat  qtable_;
     
   lt::rssi<double>   original_signal_, states_, new_state_;
     
   std::vector<double> rewards_;
+
   
   int max_episode_ ;       
   int max_step_ ;            
-  int epsilon_ ;        
-  int min_epsilon_ ;    
+  float epsilon_ ;        
+  float min_epsilon_ ;    
   float decay_rate_ ;   
   float learning_rate_ ;
   float discount_rate_ ;
