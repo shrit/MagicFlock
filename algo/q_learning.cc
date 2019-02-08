@@ -5,7 +5,7 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		       std::shared_ptr<Gazebo> gzs,
 		       DataSet data_set)
   ://qtable_{64 ,std::vector<double>(5,1)}, /*  Init to ones */
-  qtable_{64, 5, arma::fill::ones},
+  qtable_{4096, 5, arma::fill::ones},
   max_episode_(2000),
   max_step_(2),
   epsilon_(1.0),
@@ -17,21 +17,12 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
   run_episods(iris_x, speed, gzs, data_set);  
 }
 
-// int Q_learning::get_action(std::vector<std::vector<double>> q_table , double state)   
-// {
-  
-//   auto it = std::max_element(q_table.at(state).begin(), q_table.at(state).end());
-  
-//   return *it;
-// }
-
-
 double Q_learning::get_action(arma::mat q_table , double state)   
 {
   
-  double maxi;
-  maxi = arma::max(q_table(state));        
-  return maxi;
+  arma::uword index;
+  index = arma::index_max(q_table.row(state));        
+  return index;
 }
 
 
@@ -254,7 +245,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 
       std::cout << random << std::endl;
 
-      int action1;
+      int action1 = 0 ;
       
       /* Start exploitation instead of exploration, 
        * if the condition is valid
@@ -263,12 +254,12 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       
       
       if(random > epsilon_){			           
-      						     
-      	action1 = get_action(qtable_, state_index);  
-      }						     
-      
-      else {
-      action1 = std::rand() % 4;
+	
+	action1 = get_action(qtable_, state_index);
+	std::cout << "action " << action1 << std::endl;
+      }						           
+      else  {
+	action1 = std::rand() % 4;
       }
 
       /*  moving the followers randomly */
