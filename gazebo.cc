@@ -85,7 +85,7 @@ void Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
     {
       const ::gazebo::msgs::Pose &pose = posesStamped->pose(i);
       std::string name = pose.name();
-      if (name == std::string("iris"))
+      if (name == std::string("iris_1"))
         {
           const ::gazebo::msgs::Vector3d& position = pose.position();
 	  
@@ -96,7 +96,7 @@ void Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
 	  //	  std::cout << "pos" << positions_.leader << std::endl;
 	  
 	}
-      else if (name == std::string("iris_1")){
+      else if (name == std::string("iris_2")){
 	const ::gazebo::msgs::Vector3d& position = pose.position();
 	
 	positions_.f1.x = position.x();
@@ -106,7 +106,7 @@ void Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
 	//	std::cout << "pos1" << positions_.f1 << std::endl;
 	
       }
-      else if (name == std::string("iris_2")){
+      else if (name == std::string("iris_3")){
 	const ::gazebo::msgs::Vector3d& position = pose.position();
 	
 	positions_.f2.x = position.x();
