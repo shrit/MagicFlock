@@ -4,15 +4,16 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		       float speed,
 		       std::shared_ptr<Gazebo> gzs,
 		       DataSet data_set)
-  ://qtable_{64 ,std::vector<double>(5,1)}, /*  Init to ones */
-  qtable_{4096, 5, arma::fill::ones},
-  max_episode_(2000),
-  max_step_(2),
-  epsilon_(1.0),
-  min_epsilon_(0.0),
-  decay_rate_(0.01),
-  learning_rate_(0.9),
-  discount_rate_(0.95)
+  :qtable_{4096, 5, arma::fill::ones},
+   max_episode_(2000),
+   max_step_(2),
+   epsilon_(1.0),
+   min_epsilon_(0.0),
+   decay_rate_(0.01),
+   learning_rate_(0.9),
+   discount_rate_(0.95),
+   distribution_(0.0, 1.0),
+   distribution_int_(0, 4)
 {
   run_episods(iris_x, speed, gzs, data_set);  
 }
@@ -86,20 +87,6 @@ void Q_learning::move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
     break;
   }  
 }
-
-
-/*  TODO LIST: */
-
-/*
- * 1- Verify the generation of the random number in a different int test 
- */
-
-/* Updated TODO List:
-
- * 2- Create A Supervised learning algorithm with perceptron
- * 3- Implement and train the algorithm with the data Set
- * 4- Test with the drones.
- */
 
 
 void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
@@ -226,24 +213,27 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
             
       /*  intilization of position of the quads */
     
-      std::this_thread::sleep_for(std::chrono::seconds(1));          
-      
-      int action = std::rand() % 4;
 
+      std::this_thread::sleep_for(std::chrono::seconds(1));          
+
+      double random =  distribution_(generator_);
+      std::cout << random << std::endl;
+
+      int action = distribution_int_(generator_);
+      std::cout << action << std::endl;
+            
       for (int i = 0; i < 10; i++){
 	move_action(iris_x, speed, action, 0) ; // move the leader 100 CM
 	std::this_thread::sleep_for(std::chrono::milliseconds(50));
       }
-      //get the new signal of strength difference
+      // get the new signal of strength difference
       
       states_ = gzs->rssi();
       
-      state_index = get_state_index(states_, original_signal_);
-      
+      state_index = get_state_index(states_, original_signal_);            
+           
       // random number between 0 and 1 TODO::
-      double random =   (double)std::rand()/((double)RAND_MAX+1); 
-
-      std::cout << random << std::endl;
+      
 
       int action1 = 0 ;
       
@@ -259,7 +249,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	std::cout << "action " << action1 << std::endl;
       }						           
       else  {
-	action1 = std::rand() % 4;
+	action1 = distribution_int_(generator_);
       }
 
       /*  moving the followers randomly */
@@ -269,7 +259,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	std::this_thread::sleep_for(std::chrono::milliseconds(50));
       }
       
-      std::this_thread::sleep_for(std::chrono::seconds(2));
+      std::this_thread::sleep_for(std::chrono::milliseconds(300));
        
       /*  Recalculate the RSSI after moving the quads */
       /*  get the new  state index*/
@@ -311,12 +301,12 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
               
       new_distance.push_back(new_dist2);       
        
-      error.push_back(std::sqrt(std::abs (std::pow((distance.at(0).x - new_distance.at(0).x) -
-						   (distance.at(0).y - new_distance.at(0).y), 2))));
+      error.push_back(std::sqrt(std::pow((distance.at(0).x - new_distance.at(0).x), 2)  +
+				std::pow((distance.at(0).y - new_distance.at(0).y), 2)));
        
-      error.push_back(std::sqrt(std::abs (std::pow((distance.at(1).x - new_distance.at(1).x) -
-						   (distance.at(1).y - new_distance.at(1).y), 2))));
-
+      error.push_back(std::sqrt(std::pow((distance.at(1).x - new_distance.at(1).x), 2)  +
+				std::pow((distance.at(1).y - new_distance.at(1).y), 2)));
+       
       
       /*  Recalculate the Error between quadcopters  */
       std::cout << "Error :" << error << std::endl;

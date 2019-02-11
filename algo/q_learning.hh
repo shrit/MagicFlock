@@ -3,14 +3,17 @@
 
 
 /*  Standard C++ includes  */
-# include <iostream>
-# include <vector>
-# include <cstdlib>
-# include <cmath>
+
+
+
+
 # include <algorithm>
 # include <chrono>
+# include <cmath>
+# include <iostream>
+# include <random>
 # include <thread>
-
+# include <vector>
 /*  Armadillo includes  */
 # include <armadillo>
 
@@ -71,6 +74,13 @@ private:
     
   std::vector<double> rewards_;
 
+  //  std::random_device rd;
+  //  std::mt19937 gen(rd());
+  std::default_random_engine generator_;
+  std::uniform_real_distribution<> distribution_;
+
+  std::uniform_int_distribution<> distribution_int_;
+  
   
   int max_episode_ ;       
   int max_step_ ;            
