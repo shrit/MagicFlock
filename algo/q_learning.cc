@@ -13,7 +13,7 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
    learning_rate_(0.9),
    discount_rate_(0.95),
    distribution_(0.0, 1.0),
-   distribution_int_(0, 4)
+   distribution_int_(0,3)
 {
   run_episods(iris_x, speed, gzs, data_set);  
 }
@@ -343,7 +343,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	it->land();
       }
        
-      std::this_thread::sleep_for(std::chrono::seconds(8));
+      std::this_thread::sleep_for(std::chrono::seconds(5));
 
       gzs->reset_models();      
 
@@ -372,7 +372,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       
       data_set.write_csv_data_set_file(file, new_state_, action1, sum_of_error);
       
-      std::this_thread::sleep_for(std::chrono::seconds(10));                  
+      std::this_thread::sleep_for(std::chrono::seconds(15));                  
       //      BOOST_LOG_SEV(lg, Msg) << action1 ;
       
       
