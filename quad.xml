@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+
+<simulation>
+  
+  <quad_number>3</quad_number>
+  <train>yes</train>
+  <use_joystick>yes</use_joystick>
+  
+  <quadcopter>
+    <name>iris_1</name>
+    <number>1</number>
+    <port>14541</port>
+    <speed>10</speed>
+  </quadcopter>
+
+  <quadcopter>
+    <name>iris_2</name>
+    <number>1</number>
+    <port>14542</port>
+    <speed>10</speed>
+  </quadcopter>
+
+  <quadcopter>
+    <name>iris_3</name>
+    <number>1</number>
+    <port>14543</port>
+    <speed>10</speed>
+  </quadcopter>
+  
+
+</simulation>
