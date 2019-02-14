@@ -15,7 +15,7 @@
 # include <vector>
 
 /*  locale defined include */
-# include "algo/perceptron.h"
+
 # include "algo/q_learning.hh"
 # include "data_set.h"
 # include "dronecode_sdk/logging.h"
