@@ -61,19 +61,19 @@ void Gazebo::reset_models()
 void Gazebo::Parse_rssi_msg_0(ConstVector2dPtr& msg)
 {
   /*  Parsing the RSSI send by NS3 */
-  signal_.lf1 = msg->x();
+  signal_.lf1(msg->x());
 }
 
 void Gazebo::Parse_rssi_msg_1(ConstVector2dPtr& msg)
 {
   /*  Parsing the RSSI send by NS3 */
-  signal_.lf2 = msg->x();
+  signal_.lf2 (msg->x());
 }
 
 void Gazebo::Parse_rssi_msg_2(ConstVector2dPtr& msg)
 {
   /*  Parsing the RSSI send by NS3 */
-  signal_.ff = msg->x();
+  signal_.ff (msg->x());
 }
 
 
@@ -125,14 +125,14 @@ lt::rssi<double> Gazebo::rssi() const
 lt::rssi<double> Gazebo::filtered_rssi() 
 {
 
-  ema_filter_.input(signal_.lf1);
-  signal_.lf1 = ema_filter_.output();
+  ema_filter_.input(signal_.lf1());
+  signal_.lf1(ema_filter_.output());
   
-  ema_filter_.input(signal_.lf2);
-  signal_.lf2 = ema_filter_.output();
+  ema_filter_.input(signal_.lf2());
+  signal_.lf2(ema_filter_.output());
     
-  ema_filter_.input(signal_.ff);
-  signal_.ff = ema_filter_.output();
+  ema_filter_.input(signal_.ff());
+  signal_.ff(ema_filter_.output());
   
   return signal_;
 }

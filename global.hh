@@ -37,7 +37,6 @@ std::ostream& operator<< (std::ostream& out, const std::vector<std::vector<T>>& 
 */
 
 namespace local_types {
-
   
   template <typename T> 
   struct position {
@@ -49,13 +48,35 @@ namespace local_types {
   };
   
   template <typename T> 
-  struct rssi {
-    T lf1;
-    T lf2;
-    T ff;
+  class rssi {
+    
+  public:
+    
+    rssi<T>(){}
+	    
+    
+    const T lf1() const
+    { return lf1_;}
+    const T lf2() const
+    { return lf2_;}
+    const T ff() const
+    {return ff_;}      
+
+    void lf1(T value) 
+    {  lf1_ =  value;}
+    void lf2(T value) 
+    {  lf2_ = value;}
+    void ff(T value) 
+    { ff_ = value;}      
+    
+    
+  private:
+    
+    T lf1_;
+    T lf2_;
+    T ff_;
   };
-  
-  
+    
   template <typename T> 
   struct error {
     T x;
@@ -73,11 +94,7 @@ namespace local_types {
 
   using quads_positions          = std::vector<position<double>>;
 
-  using quads_rssi               = std::vector<double>;
-
-  template<typename T>
-  using matrix                = std::vector<std::vector<T>>; 
-  
+  using quads_rssi               = std::vector<double>;  
 }
 
 template <typename T>
@@ -92,7 +109,7 @@ template <typename T>
 std::ostream& operator<< (std::ostream& out, const local_types::rssi<T>& r)
 {
   //  out << "["<< r.lf1 <<", " << r.lf2 <<", " << r.ff <<"]";
-  out << r.lf1 <<"," << r.lf2 <<"," << r.ff;
+  out << r.lf1() <<"," << r.lf2() <<"," << r.ff();
   return out;
 }
 
