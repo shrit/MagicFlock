@@ -3,10 +3,6 @@
 
 
 /*  Standard C++ includes  */
-
-
-
-
 # include <algorithm>
 # include <chrono>
 # include <cmath>
@@ -14,6 +10,8 @@
 # include <random>
 # include <thread>
 # include <vector>
+# include <unordered_map>
+
 /*  Armadillo includes  */
 # include <armadillo>
 
@@ -48,12 +46,12 @@ public:
 	     float speed,
 	     std::shared_ptr<Gazebo> gzs,
 	     DataSet data_set);
-    
-  void init();
+   
+  int cantor_pairing(int x, int y);
+  
+  double qtable_action(arma::mat qtable , arma::uword state);
 
-  double get_action(arma::mat qtable , double state);
-
-  double get_state_index(lt::rssi<double> signal, lt::rssi<double> original_signal);
+  int qtable_state(std::shared_ptr<Gazebo> gzs);
   
   void move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		   float speed,
@@ -65,25 +63,26 @@ public:
 		   std::shared_ptr<Gazebo> gzs,
 		   DataSet data_set);
 
-       
+
 private:
     
   arma::mat  qtable_;
     
-  lt::rssi<double>   original_signal_, states_, new_state_;
+  lt::rssi<double>   new_state_;
     
   std::vector<double> rewards_;
-
-  //  std::random_device rd;
-  //  std::mt19937 gen(rd());
+  
   std::default_random_engine generator_;
   std::uniform_real_distribution<> distribution_;
-
+  
   std::uniform_int_distribution<> distribution_int_;
+
+  std::unordered_map<int, int> signal_map_;
   
-  
-  int max_episode_ ;       
-  int max_step_ ;            
+  int max_episode_ ;
+  int episode_ ;
+  int max_step_ ;
+  arma::uword index_;
   float epsilon_ ;        
   float min_epsilon_ ;    
   float decay_rate_ ;   

@@ -4,8 +4,8 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		       float speed,
 		       std::shared_ptr<Gazebo> gzs,
 		       DataSet data_set)
-  :qtable_{4096, 5, arma::fill::ones},
-   max_episode_(2000),
+  :qtable_{10000, 5, arma::fill::ones},
+   max_episode_(5000),
    max_step_(2),
    epsilon_(1.0),
    min_epsilon_(0.0),
@@ -13,55 +13,45 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
    learning_rate_(0.9),
    discount_rate_(0.95),
    distribution_(0.0, 1.0),
-   distribution_int_(0,3)
+   distribution_int_(0, 3)
 {
   run_episods(iris_x, speed, gzs, data_set);  
 }
 
-double Q_learning::get_action(arma::mat q_table , double state)   
+
+int Q_learning::cantor_pairing(int x, int y)
 {
-  
+  int unique = 0.5*(x + y)*(x + y + 1) + y;
+  return unique;  
+}
+
+double Q_learning::qtable_action(arma::mat q_table ,arma::uword state)   
+{  
   arma::uword index;
   index = arma::index_max(q_table.row(state));        
   return index;
 }
 
-
-double Q_learning::get_state_index(lt::rssi<double> signal, lt::rssi<double> original_signal)
+int Q_learning::qtable_state(std::shared_ptr<Gazebo> gzs)
 {
-  /*  verify if this algorithm is working */
+  int unique = cantor_pairing((int)std::round(gzs->rssi().lf1()),
+			      (int)std::round(gzs->rssi().lf2()));
   
-  double x = signal.lf1 - (original_signal.lf1 - 2);
-  if(x < 0)
-    {
-      x = 0;
-    }
-  else if (x > 3)
-    {
-      x = 3;
-    }
+  unique = cantor_pairing(unique,
+			  (int)std::round(gzs->rssi().ff()));
   
-  double y =  signal.lf2 - (original_signal.lf2 - 2);
-  if(y < 0)
-    {
-      y = 0;
-    }
-  else if (y > 3)
-    {
-      y = 3;
-    }
-  
-  double z =  signal.ff - (original_signal.ff - 2);
-  if(z < 0)
-    {
-      z = 0;
-    }
-  else if (z > 3)
-    {
-      z = 3;
-    }
-  return x * 16 + y * 4 + z;
-    
+  int index = 0;
+  auto it = signal_map_.find(unique);
+  if(it == signal_map_.end()){
+    std::cout << "Signal is not yet aded to the table" << std::endl;
+    signal_map_.insert(it, std::pair<int, int>(unique, episode_));
+    index = episode_;
+  }
+  else {
+    index = it->second;      
+  }
+
+  return index;
 }
 
 void Q_learning::move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
@@ -88,7 +78,6 @@ void Q_learning::move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
   }  
 }
 
-
 void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 			     float speed,
 			     std::shared_ptr<Gazebo> gzs,
@@ -110,7 +99,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 
   std::cout << qtable_ << std::endl;
   
-  for (int episode = 0; episode < max_episode_; episode++){
+  for (episode_ = 0; episode_ < max_episode_; episode_++){
 
     /* Intilization phase, in each episode we should reset the
      * position of each quadcopter to the initial position. Thus,
@@ -126,7 +115,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
      * the code functions
      */
 
-    std::cout << "Episode : " << episode << std::endl;            
+    std::cout << "Episode : " << episode_ << std::endl;            
     
     
     /* Need to investigate in Reset Model method, it will allow to
@@ -157,23 +146,13 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
     distance.push_back(dist);
 
     dist2.x = pos.at(0).x - pos.at(2).x;
-    dist2.y =  pos.at(0).y - pos.at(2).y;
-    dist2.z =  pos.at(0).z - pos.at(2).z;
+    dist2.y = pos.at(0).y - pos.at(2).y;
+    dist2.z = pos.at(0).z - pos.at(2).z;
 
 
     distance.push_back(dist2);
     
     /* TODO: Calculate the distance between each quadcopter */
-        
-    /*  put rssi inside a state */
-    lt::rssi<double> e_rssi = gzs->rssi();
-    
-    // put the recoved signls in state struct
-    
-    original_signal_ = e_rssi;
-    states_ = e_rssi;
-    
-    double state_index = get_state_index(states_,  original_signal_);
 
     //defin episode reward here
     double e_reward;
@@ -226,26 +205,28 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	move_action(iris_x, speed, action, 0) ; // move the leader 100 CM
 	std::this_thread::sleep_for(std::chrono::milliseconds(50));
       }
-      // get the new signal of strength difference
-      
-      states_ = gzs->rssi();
-      
-      state_index = get_state_index(states_, original_signal_);            
+      // get the new signal of strength difference            
            
       // random number between 0 and 1 TODO::
       
 
       int action1 = 0 ;
+
+      /*  Create a function that recover the state index 
+       *  from the know signal stregnth
+       *  move the down map into this function
+       */
       
+      index_ = qtable_state(gzs);
+
       /* Start exploitation instead of exploration, 
        * if the condition is valid
        * Look inside the Q_tables to find the best action
        */
-      
-      
+            
       if(random > epsilon_){			           
 	
-	action1 = get_action(qtable_, state_index);
+	action1 = qtable_action(qtable_, index_);
 	std::cout << "action " << action1 << std::endl;
       }						           
       else  {
@@ -263,15 +244,13 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
        
       /*  Recalculate the RSSI after moving the quads */
       /*  get the new  state index*/
-      
+
+
+      index_ = qtable_state(gzs);
       new_state_ = gzs->rssi();
-
-      std::cout << "rssi values"<< gzs->rssi() << std::endl;
-
-      state_index = get_state_index(new_state_, original_signal_);
-
-      std::cout << "state_index: " << state_index << std::endl;
-       
+      
+      std::cout << "state_index: " << index_ << std::endl;
+             
       std::vector<lt::position<double>> new_pos;    
 
       std::vector<double> error;
@@ -323,17 +302,12 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
        
       std::cout << "reward: " << e_reward << std::endl;
        
-      qtable_(state_index, action1) =
-	(1 - learning_rate_) * qtable_(state_index, action1) +
-	learning_rate_ * (reward +  discount_rate_ * get_action(qtable_,
-								state_index));
-      // qtable_.at(state_index).at(action1) =
-      // 	(1 - learning_rate_) * qtable_.at(state_index).at(action1) +
-      // 	learning_rate_ * (reward +  discount_rate_ * get_action(qtable_,
-      // 								state_index));
- 
+      qtable_(index_, action1) =
+      	(1 - learning_rate_) * qtable_(index_, action1) +
+      	learning_rate_ * (reward +  discount_rate_ * qtable_action(qtable_,
+      							        index_)); 
       //reduce epsilon as we explore more each episode
-      epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode); 
+      epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode_); 
       
       std::cout << "epsilon: " << epsilon_ << std::endl;
       
