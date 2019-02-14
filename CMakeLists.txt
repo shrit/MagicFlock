@@ -18,7 +18,6 @@ find_package(gazebo REQUIRED)
 # Specfiy a list of source files .
 
 set ( SOURCES 
-  algo/perceptron.cc
   algo/q_learning.cc  
   data_set.cc
   gazebo.cc
