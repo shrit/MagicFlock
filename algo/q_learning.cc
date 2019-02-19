@@ -165,205 +165,207 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
     
     /* put the take off functions inside the steps */
     
-    for(int steps = 0; steps < max_step_; steps++){
+    //for(int steps = 0; steps < max_step_; steps++){
 
-      /*  Arming the Quads */
-      for (auto it : iris_x){
-	it->arm();
-      }
+    /*  Arming the Quads */
+    for (auto it : iris_x){
+      it->arm();
+    }
           
-      std::this_thread::sleep_for(std::chrono::seconds(2));
+    std::this_thread::sleep_for(std::chrono::seconds(2));
       
-      /*  Taking off the quad */
-      for (auto it : iris_x){
-	it->takeoff();	
-      }
+    /*  Taking off the quad */
+    for (auto it : iris_x){
+      it->takeoff();	
+    }
       
-      std::this_thread::sleep_for(std::chrono::seconds(3));
-      /*  Setting up speed important to switch the mode */
-      for (auto it : iris_x){
-	it->init_speed();
-      }
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    /*  Setting up speed important to switch the mode */
+    for (auto it : iris_x){
+      it->init_speed();
+    }
 
-      /*  Switch to offboard mode, Allow the control */
-      for(auto it : iris_x){
-	it->start_offboard_mode();
-      }
+    /*  Switch to offboard mode, Allow the control */
+    for(auto it : iris_x){
+      it->start_offboard_mode();
+    }
             
-      /*  intilization of position of the quads */
+    /*  intilization of position of the quads */
     
 
-      std::this_thread::sleep_for(std::chrono::seconds(1));          
+    std::this_thread::sleep_for(std::chrono::seconds(1));          
 
-      double random =  distribution_(generator_);
-      std::cout << random << std::endl;
+    double random =  distribution_(generator_);
+    std::cout << random << std::endl;
 
-      int action = distribution_int_(generator_);
-      std::cout << action << std::endl;
+    int action = distribution_int_(generator_);
+    std::cout << action << std::endl;
             
-      for (int i = 0; i < 10; i++){
-	move_action(iris_x, speed, action, 0) ; // move the leader 100 CM
-	std::this_thread::sleep_for(std::chrono::milliseconds(50));
-      }
-      // get the new signal of strength difference            
+    for (int i = 0; i < 10; i++){
+      move_action(iris_x, speed, action, 0) ; // move the leader 100 CM
+      std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
+    // get the new signal of strength difference            
            
-      // random number between 0 and 1 TODO::
+    // random number between 0 and 1 TODO::
       
 
-      int action1 = 0 ;
+    int action1 = 0 ;
 
-      /*  Create a function that recover the state index 
-       *  from the know signal stregnth
-       *  move the down map into this function
-       */
+    /*  Create a function that recover the state index 
+     *  from the know signal stregnth
+     *  move the down map into this function
+     */
       
-      index_ = qtable_state(gzs);
+    index_ = qtable_state(gzs);
 
-      /* Start exploitation instead of exploration, 
-       * if the condition is valid
-       * Look inside the Q_tables to find the best action
-       */
+    /* Start exploitation instead of exploration, 
+     * if the condition is valid
+     * Look inside the Q_tables to find the best action
+     */
             
-      if(random > epsilon_){			           
+    if(random > epsilon_){			           
 	
-	action1 = qtable_action(qtable_, index_);
-	std::cout << "action " << action1 << std::endl;
-      }						           
-      else  {
-	action1 = distribution_int_(generator_);
-      }
+      action1 = qtable_action(qtable_, index_);
+      std::cout << "action " << action1 << std::endl;
+    }						           
+    else  {
+      action1 = distribution_int_(generator_);
+    }
 
-      /*  moving the followers randomly */
-      for (int i = 0; i < 10; i++){
-	move_action(iris_x, speed, action1, 1);
-	move_action(iris_x, speed, action1, 2);
-	std::this_thread::sleep_for(std::chrono::milliseconds(50));
-      }
+    /*  moving the followers randomly */
+    for (int i = 0; i < 10; i++){
+      move_action(iris_x, speed, action1, 1);
+      move_action(iris_x, speed, action1, 2);
+      std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
       
-      std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
        
-      /*  Recalculate the RSSI after moving the quads */
-      /*  get the new  state index*/
+    /*  Recalculate the RSSI after moving the quads */
+    /*  get the new  state index*/
 
 
-      index_ = qtable_state(gzs);
-      new_state_ = gzs->rssi();
+    index_ = qtable_state(gzs);
+    new_state_ = gzs->rssi();
       
-      std::cout << "state_index: " << index_ << std::endl;
-             
-      std::vector<lt::position<double>> new_pos;    
+    std::cout << "state_index: " << index_ << std::endl;
+    
+    std::cout << "RSSI: " << new_state_ << std::endl;
+    
+    std::vector<lt::position<double>> new_pos;    
 
-      std::vector<double> error;
+    std::vector<double> error;
        
-      new_pos.push_back(gzs->get_positions().leader);
-      new_pos.push_back(gzs->get_positions().f1);
-      new_pos.push_back(gzs->get_positions().f2);           
+    new_pos.push_back(gzs->get_positions().leader);
+    new_pos.push_back(gzs->get_positions().f1);
+    new_pos.push_back(gzs->get_positions().f2);           
 
-      std::cout << "New position l : " << new_pos.at(0) << std::endl;
-      std::cout << "New position f1: " << new_pos.at(1) << std::endl;
-      std::cout << "New position f2: " << new_pos.at(2) << std::endl;               	      
+    std::cout << "New position l : " << new_pos.at(0) << std::endl;
+    std::cout << "New position f1: " << new_pos.at(1) << std::endl;
+    std::cout << "New position f2: " << new_pos.at(2) << std::endl;               	      
 
           
-      lt::position<double> new_dist, new_dist2;
+    lt::position<double> new_dist, new_dist2;
 
-      std::vector<lt::position<double>> new_distance;
+    std::vector<lt::position<double>> new_distance;
        
-      new_dist.x =  new_pos.at(0).x - new_pos.at(1).x;
-      new_dist.y =  new_pos.at(0).y - new_pos.at(1).y;
-      new_dist.z =  new_pos.at(0).z - new_pos.at(1).z;
+    new_dist.x =  new_pos.at(0).x - new_pos.at(1).x;
+    new_dist.y =  new_pos.at(0).y - new_pos.at(1).y;
+    new_dist.z =  new_pos.at(0).z - new_pos.at(1).z;
        
-      new_distance.push_back(new_dist);
+    new_distance.push_back(new_dist);
        
-      new_dist2.x = new_pos.at(0).x - new_pos.at(2).x;
-      new_dist2.y = new_pos.at(0).y - new_pos.at(2).y;
-      new_dist2.z = new_pos.at(0).z - new_pos.at(2).z;
+    new_dist2.x = new_pos.at(0).x - new_pos.at(2).x;
+    new_dist2.y = new_pos.at(0).y - new_pos.at(2).y;
+    new_dist2.z = new_pos.at(0).z - new_pos.at(2).z;
               
-      new_distance.push_back(new_dist2);       
+    new_distance.push_back(new_dist2);       
        
-      error.push_back(std::sqrt(std::pow((distance.at(0).x - new_distance.at(0).x), 2)  +
-				std::pow((distance.at(0).y - new_distance.at(0).y), 2)));
+    error.push_back(std::sqrt(std::pow((distance.at(0).x - new_distance.at(0).x), 2)  +
+			      std::pow((distance.at(0).y - new_distance.at(0).y), 2)));
        
-      error.push_back(std::sqrt(std::pow((distance.at(1).x - new_distance.at(1).x), 2)  +
-				std::pow((distance.at(1).y - new_distance.at(1).y), 2)));
+    error.push_back(std::sqrt(std::pow((distance.at(1).x - new_distance.at(1).x), 2)  +
+			      std::pow((distance.at(1).y - new_distance.at(1).y), 2)));
        
       
-      /*  Recalculate the Error between quadcopters  */
-      std::cout << "Error :" << error << std::endl;
+    /*  Recalculate the Error between quadcopters  */
+    std::cout << "Error :" << error << std::endl;
 
-      double sum_of_error = 0;
+    double sum_of_error = 0;
       
-      for (auto& n : error)
-	sum_of_error += n; 
+    for (auto& n : error)
+      sum_of_error += n; 
        
-      double reward = 0.5 - error.at(0);
-      double reward2 = 0.5 - error.at(1);
+    double reward = 0.5 - error.at(0);
+    double reward2 = 0.5 - error.at(1);
               
-      e_reward = reward + reward2;
+    e_reward = reward + reward2;
        
-      std::cout << "reward: " << e_reward << std::endl;
+    std::cout << "reward: " << e_reward << std::endl;
        
-      qtable_(index_, action1) =
-      	(1 - learning_rate_) * qtable_(index_, action1) +
-      	learning_rate_ * (reward +  discount_rate_ * qtable_action(qtable_,
-      							        index_)); 
-      //reduce epsilon as we explore more each episode
-      epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode_); 
+    qtable_(index_, action1) =
+      (1 - learning_rate_) * qtable_(index_, action1) +
+      learning_rate_ * (reward +  discount_rate_ * qtable_action(qtable_,
+								 index_)); 
+    //reduce epsilon as we explore more each episode
+    epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode_); 
       
-      std::cout << "epsilon: " << epsilon_ << std::endl;
+    std::cout << "epsilon: " << epsilon_ << std::endl;
       
-      rewards_.push_back(e_reward);
+    rewards_.push_back(e_reward);
 
-      for (auto it: iris_x){
-	it->land();
-      }
-       
-      std::this_thread::sleep_for(std::chrono::seconds(5));
-
-      gzs->reset_models();      
-
-
-      /*BIAS accelerometer problem after resetting the models*/
-      
-      /*  The only possible solution was to change the upper limit
-       * value for the bias inside thee code of te firmware direclty.
-       * The solution can be found at this link:
-       * https://github.com/PX4/Firmware/issues/10833 Where they
-       * propose to increase the value of COM_ARM_EKF_AB. Note that,
-       * the default value is 0.00024 I have increased it to 0.00054
-       * which is very high to their standard. Because other wise
-       * there is no way to do the simulation. Remember, the reboot()
-       * function in the action class is not implemented at the time
-       * of writing this comment, and maybe it will never be
-       * implemented as it is quite complicated to reboot the px4
-       * software from the simulator.
-       * I understand this choice, we need to leave a big sleep_for 
-       * after resetting the quadcopters, that is going to helper
-       * resetting the accelerometer values without any problems!
-       */
-
-      /*  I have quite tested a lot of different solution, if I am going
-       * to find a better one, I will replace it directly. */
-      
-      data_set.write_csv_data_set_file(file, new_state_, action1, sum_of_error);
-      
-      std::this_thread::sleep_for(std::chrono::seconds(15));                  
-      //      BOOST_LOG_SEV(lg, Msg) << action1 ;
-      
-      
+    for (auto it: iris_x){
+      it->land();
     }
-    /* 
-     * Here I save the generated data set in a specifc file.
-     * We use boost log to do that.
-     * I am intended to use supervised learning in order to keep 
-     * the formation as it has been.
-     * Further, we need to look at perceptron in Python and in C++
-     * use python to get faster results. Then integrate the result 
-     * in the simulation
+       
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+
+    gzs->reset_models();      
+
+
+    /*BIAS accelerometer problem after resetting the models*/
+      
+    /*  The only possible solution was to change the upper limit
+     * value for the bias inside thee code of te firmware direclty.
+     * The solution can be found at this link:
+     * https://github.com/PX4/Firmware/issues/10833 Where they
+     * propose to increase the value of COM_ARM_EKF_AB. Note that,
+     * the default value is 0.00024 I have increased it to 0.00054
+     * which is very high to their standard. Because other wise
+     * there is no way to do the simulation. Remember, the reboot()
+     * function in the action class is not implemented at the time
+     * of writing this comment, and maybe it will never be
+     * implemented as it is quite complicated to reboot the px4
+     * software from the simulator.
+     * I understand this choice, we need to leave a big sleep_for 
+     * after resetting the quadcopters, that is going to helper
+     * resetting the accelerometer values without any problems!
      */
 
+    /*  I have quite tested a lot of different solution, if I am going
+     * to find a better one, I will replace it directly. */
       
+    data_set.write_csv_data_set_file(file, new_state_, action1, sum_of_error);
+      
+    std::this_thread::sleep_for(std::chrono::seconds(15));                  
+    //      BOOST_LOG_SEV(lg, Msg) << action1 ;
+    
     qtable_.save("qtable", arma::raw_ascii);
   }
+  /* 
+   * Here I save the generated data set in a specifc file.
+   * We use boost log to do that.
+   * I am intended to use supervised learning in order to keep 
+   * the formation as it has been.
+   * Further, we need to look at perceptron in Python and in C++
+   * use python to get faster results. Then integrate the result 
+   * in the simulation
+   */
+
+      
+
 }
+
   
 
