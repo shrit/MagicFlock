@@ -5,6 +5,7 @@
 
 build
 doc/build/*
+data_set/*
 paper/auto/*
 material/auto/*
 model_plugin/build/*
