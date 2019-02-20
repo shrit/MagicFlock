@@ -61,23 +61,34 @@ JoystickEvent event_handler(Joystick& joystick,
       
       if(joystick.ButtonAChanged(event)) {
 	iris_x.at(0)->arm();
+	iris_x.at(1)->arm();
+	iris_x.at(2)->arm();
+	
 	std::cout << "arming..." << std::endl;
 	std::this_thread::sleep_for(std::chrono::seconds(1));
       }
       else if(joystick.ButtonBChanged(event)) {
 	iris_x.at(0)->land();
+	iris_x.at(1)->land();
+	iris_x.at(2)->land();
 	std::cout << "landing..." << std::endl;			 
       }
       else if(joystick.ButtonXChanged(event)) {
 
 	iris_x.at(0)->takeoff();
+	iris_x.at(1)->takeoff();
+	iris_x.at(2)->takeoff();
 	std::cout << "taking off..." << std::endl;
 	std::this_thread::sleep_for(std::chrono::seconds(5));
       }
       else if(joystick.ButtonYChanged(event)) {
 	
 	iris_x.at(0)->init_speed();	
-	iris_x.at(0)->start_offboard_mode();	
+	iris_x.at(0)->start_offboard_mode();
+	iris_x.at(1)->init_speed();	
+	iris_x.at(1)->start_offboard_mode();
+	iris_x.at(2)->init_speed();	
+	iris_x.at(2)->start_offboard_mode();	
 	std::cout << "Start offoard mode..." << std::endl;
 	std::this_thread::sleep_for(std::chrono::seconds(1));          
 	
@@ -200,8 +211,6 @@ int main(int argc, char* argv[])
   
   Settings settings(argc, argv);
   
-  //  boost::asio::io_service	io_service;  
-
   /*  
    * The ns3 Command commented inside the code, A good way to remember it :)
    */
@@ -237,10 +246,13 @@ int main(int argc, char* argv[])
   
   std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(argc,argv);
   
-  gz->subscriber("/gazebo/default/pose/info");  
-  gz->subscriber("/gazebo/default/0/1");
-  gz->subscriber("/gazebo/default/0/2");
+  gz->subscriber("/gazebo/default/pose/info");
+
+  /*  verify the numbers to subscribe to  the good signal strength*/
+  
   gz->subscriber("/gazebo/default/1/2");
+  gz->subscriber("/gazebo/default/1/3");
+  gz->subscriber("/gazebo/default/2/3");
 
   gz->publisher("/gazebo/default/iris_1/model_reset");
   gz->publisher("/gazebo/default/iris_2/model_reset");
@@ -260,46 +272,38 @@ int main(int argc, char* argv[])
   // Pass the devices to the q learning algorithm
   if(settings.train()) {
     DataSet data_set;
-    Q_learning qlearning(iris_x, speed, gz, data_set);
-    
+    Q_learning qlearning(iris_x, speed, gz, data_set, settings.train());
+    return 0;
   }
+  
 
   arma::mat qtable;
+  DataSet data_set;
+  Q_learning qlearning(iris_x, speed, gz, data_set, false);    
+
+  qtable.load("qtable_good");
   
-  qtable.load("qtable_test");
-  
-  gz->rssi();
-
-  //  double  maxi = arma::max(qtable(state));        
-
-   
-  ////////////////
-  // Perceptron //
-  ////////////////
-
-    //  data_set.read_data_set_file("data_sample");      
-  
-  // gz->reset_models();
-
-  // iris_x.at(0)->reboot();
-  
-
 
   auto update_handler = [&](){			 
-
-			  /**Update signal strength here 
-			     other wise update it an other function 
-			     each unit of time
-			   */
-
-			  
-			  event_handler(joystick, event, iris_x, speed);
-			};
+    
+    /** Update signal strength here 
+	other wise update it an other function 
+	each unit of time    
+	* use cantor get the index
+	* move the quadcopters according to the action in the qtable */
+    std::cout << gz->rssi() << std::endl;
+    
+    arma::uword index = qlearning.qtable_state(gz);
+    qlearning.qtable_action(qtable, index);
+    
+    event_handler(joystick, event, iris_x, speed);
+    
+  };
   
   auto events =  std::async(std::launch::async, update_handler);
   
   
   events.get();
   
-                
+  
 }

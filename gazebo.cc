@@ -13,13 +13,13 @@ Gazebo::Gazebo(int argc, char* argv[])
 
 void Gazebo::subscriber(lt::topic_name name)
 {
-  if(name == "/gazebo/default/0/1" ) {
+  if(name == "/gazebo/default/1/2" ) {
   subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_rssi_msg_0, this));
   }
-  else if (name == "/gazebo/default/0/2") {
+  else if (name == "/gazebo/default/1/3") {
     subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_rssi_msg_1, this));
   }
-  else if(name == "/gazebo/default/1/2"){
+  else if(name == "/gazebo/default/2/3"){
     subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_rssi_msg_2, this));    
   }
   else if(name == "/gazebo/default/pose/info"){
