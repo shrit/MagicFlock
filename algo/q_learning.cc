@@ -3,7 +3,8 @@
 Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		       float speed,
 		       std::shared_ptr<Gazebo> gzs,
-		       DataSet data_set)
+		       DataSet data_set,
+		       bool train)
   :qtable_{10000, 5, arma::fill::ones},
    max_episode_(5000),
    max_step_(2),
@@ -15,7 +16,10 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
    distribution_(0.0, 1.0),
    distribution_int_(0, 3)
 {
-  run_episods(iris_x, speed, gzs, data_set);  
+
+  if(train == true){
+    run_episods(iris_x, speed, gzs, data_set);
+  }
 }
 
 

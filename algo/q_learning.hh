@@ -45,7 +45,8 @@ public:
   Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	     float speed,
 	     std::shared_ptr<Gazebo> gzs,
-	     DataSet data_set);
+	     DataSet data_set,
+	     bool train);
    
   int cantor_pairing(int x, int y);
   
