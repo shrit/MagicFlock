@@ -5,7 +5,7 @@ project(DeviceController)
 
 # Enable strict handling of warnings
 
-add_definitions(" -fPIC -O0 -g")
+add_definitions(" -fPIC -O0 -g -std=c++17")
 add_definitions("-DBOOST_LOG_DYN_LINK")
 
 
