@@ -19,6 +19,8 @@
 
 /*  local defined include */
 # include "global.hh"
+# include <unordered_map>
+
 
 namespace lt = local_types;
 
@@ -35,6 +37,12 @@ public:
   
   template <typename A, typename B, typename C>  
   void write_csv_data_set_file(std::ofstream& file, A a, B b, C c);
+  
+  template <typename A, typename B>  
+  void read_map_file(std::ofstream& file, std::unordered_map <A, B> map_);
+  
+  template <typename A, typename B>  
+  void write_map_file(std::string file_name, std::unordered_map <A, B> map_);
   
   std::vector<lt::rssi<double>>  rssi_vector() const;
   std::vector<int>  action_vector() const;

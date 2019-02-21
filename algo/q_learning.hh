@@ -52,7 +52,7 @@ public:
   
   double qtable_action(arma::mat qtable , arma::uword state);
 
-  int qtable_state(std::shared_ptr<Gazebo> gzs);
+  int qtable_state(std::shared_ptr<Gazebo> gzs, bool value);
   
   void move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		   float speed,

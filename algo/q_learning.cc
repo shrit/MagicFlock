@@ -14,14 +14,14 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
    learning_rate_(0.9),
    discount_rate_(0.95),
    distribution_(0.0, 1.0),
-   distribution_int_(0, 3)
+   distribution_int_(0, 3),
+   episode_(0)
 {
 
   if(train == true){
     run_episods(iris_x, speed, gzs, data_set);
   }
 }
-
 
 int Q_learning::cantor_pairing(int x, int y)
 {
@@ -36,25 +36,28 @@ double Q_learning::qtable_action(arma::mat q_table ,arma::uword state)
   return index;
 }
 
-int Q_learning::qtable_state(std::shared_ptr<Gazebo> gzs)
+int Q_learning::qtable_state(std::shared_ptr<Gazebo> gzs, bool value)
 {
   int unique = cantor_pairing((int)std::round(gzs->rssi().lf1()),
 			      (int)std::round(gzs->rssi().lf2()));
   
   unique = cantor_pairing(unique,
 			  (int)std::round(gzs->rssi().ff()));
-  
+
+  std::cout << "cantor unuqie" << unique <<std::endl;
   int index = 0;
   auto it = signal_map_.find(unique);
   if(it == signal_map_.end()){
     std::cout << "Signal is not yet aded to the table" << std::endl;
-    signal_map_.insert(it, std::pair<int, int>(unique, episode_));
-    index = episode_;
+    if( value == true){
+      signal_map_.insert(it, std::pair<int, int>(unique, episode_));
+      index = episode_;
+    }
   }
   else {
     index = it->second;      
   }
-
+  
   return index;
 }
 
@@ -92,6 +95,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
   
   std::ofstream file;
   file.open("data_sample");
+  
 
   /*
    * Needs to review the algorithm, we do not know if it is working yet.
@@ -221,7 +225,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
      *  move the down map into this function
      */
       
-    index_ = qtable_state(gzs);
+    index_ = qtable_state(gzs, false);
 
     /* Start exploitation instead of exploration, 
      * if the condition is valid
@@ -249,10 +253,9 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
     /*  Recalculate the RSSI after moving the quads */
     /*  get the new  state index*/
 
-
-    index_ = qtable_state(gzs);
+    index_ = qtable_state(gzs, true);
     new_state_ = gzs->rssi();
-      
+    
     std::cout << "state_index: " << index_ << std::endl;
     
     std::cout << "RSSI: " << new_state_ << std::endl;
@@ -351,7 +354,9 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
      * to find a better one, I will replace it directly. */
       
     data_set.write_csv_data_set_file(file, new_state_, action1, sum_of_error);
-      
+
+    data_set.write_map_file("map", signal_map_);
+    
     std::this_thread::sleep_for(std::chrono::seconds(15));                  
     //      BOOST_LOG_SEV(lg, Msg) << action1 ;
     
