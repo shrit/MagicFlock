@@ -38,7 +38,6 @@ using std::chrono::seconds;
  * TODO: No defautl values for settings every thing shiyld be entered manually
 */
 
-
 namespace lt = local_types;
 
 
@@ -49,7 +48,10 @@ namespace lt = local_types;
 JoystickEvent event_handler(Joystick& joystick,
 			    JoystickEvent event,
 			    std::vector<std::shared_ptr<Px4Device>> iris_x,
-			    float speed)
+			    float speed,
+			    Q_learning qlearning,
+			    arma::mat qtable,
+			    std::shared_ptr<Gazebo> gz)
 {
   
   while (true)
@@ -119,8 +121,7 @@ JoystickEvent event_handler(Joystick& joystick,
 	  /* Speed should be function of the value of joystick  */
 	  iris_x.at(0)->left(speed);
 	  std::cout << "Moving left... " << std::endl;
-	}
-	
+	}	
       }
       else if (joystick.RightAxisYChanged(event)) {        
 	
@@ -134,8 +135,7 @@ JoystickEvent event_handler(Joystick& joystick,
 	  /*  Speed should be fixed as the joystick does not move */
 	  iris_x.at(0)->forward(speed);	  
 	  std::cout << "Moving forward... " << std::endl;
-	}		
-		
+	}				
       }
       else if (joystick.LeftAxisXChanged(event)) {
 
@@ -147,23 +147,20 @@ JoystickEvent event_handler(Joystick& joystick,
 	else{
 	  iris_x.at(0)->turnToRight(speed);		    
 	  std::cout << "Turn to right... " <<std::endl;
-	}
-		
+	}		
       }
      else if (joystick.LeftAxisYChanged(event)) {
 
        if(joystick.LeftAxisYChanged(event) > 0 ){
 	 /* Speed should be function of the value of joystick  */
 	 iris_x.at(0)->down(speed);
-	 std::cout << "Moving down...: " <<std::endl;
-	 	
+	 std::cout << "Moving down...: " <<std::endl;	 	
        }
        else{
 	 /* Speed should be function of the value of joystick  */
 	 iris_x.at(0)->up(speed);	 
 	 std::cout << "Moving up...: " <<std::endl;
-       }
-	 
+       }	 
      }
      else if (joystick.AxisL2Changed(event)) {
 	std::cout << "L2: " << joystick.AxisL2Changed(event) << std::endl;
@@ -177,7 +174,22 @@ JoystickEvent event_handler(Joystick& joystick,
      else if (joystick.DpadYChanged(event)) {
        std::cout << "Dy: " << joystick.DpadYChanged(event) << std::endl;
      }      
-    }       
+    }
+    //Moving other quads to this area
+    
+    std::cout << gz->rssi() << std::endl;
+    arma::uword index =0;
+    index = qlearning.qtable_state(gz, false);
+    std::cout << "index: "<< index << std::endl;
+    
+    if (index > qtable.n_rows)
+      {
+	std::cout << "Move the leader around..."<< std::endl;
+      }
+    else {
+      qlearning.qtable_action(qtable, index);
+    }            
+    
   }
 }
 
@@ -281,9 +293,15 @@ int main(int argc, char* argv[])
   DataSet data_set;
   Q_learning qlearning(iris_x, speed, gz, data_set, false);    
 
-  qtable.load("qtable_good");
+  bool ok = qtable.load("qtable_good");
   
+  if(ok == false)
+    {
+      std::cout << "problem with loading the qtable" << std::endl;
+    }
 
+  /*  Add the keybord ncurses also cloe to the joystick */
+  
   auto update_handler = [&](){			 
     
     /** Update signal strength here 
@@ -291,12 +309,8 @@ int main(int argc, char* argv[])
 	each unit of time    
 	* use cantor get the index
 	* move the quadcopters according to the action in the qtable */
-    std::cout << gz->rssi() << std::endl;
-    
-    arma::uword index = qlearning.qtable_state(gz);
-    qlearning.qtable_action(qtable, index);
-    
-    event_handler(joystick, event, iris_x, speed);
+
+    event_handler(joystick, event, iris_x, speed, qlearning, qtable, gz);
     
   };
   
