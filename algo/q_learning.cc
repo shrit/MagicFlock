@@ -6,7 +6,7 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		       DataSet data_set,
 		       bool train)
   :qtable_{10000, 5, arma::fill::ones},
-   max_episode_(5000),
+   max_episode_(10000),
    max_step_(2),
    epsilon_(1.0),
    min_epsilon_(0.0),
@@ -36,7 +36,7 @@ double Q_learning::qtable_action(arma::mat q_table ,arma::uword state)
   return index;
 }
 
-int Q_learning::qtable_state(std::shared_ptr<Gazebo> gzs, bool value)
+arma::uword Q_learning::qtable_state(std::shared_ptr<Gazebo> gzs, bool value)
 {
   int unique = cantor_pairing((int)std::round(gzs->rssi().lf1()),
 			      (int)std::round(gzs->rssi().lf2()));
@@ -45,7 +45,7 @@ int Q_learning::qtable_state(std::shared_ptr<Gazebo> gzs, bool value)
 			  (int)std::round(gzs->rssi().ff()));
 
   std::cout << "cantor unuqie" << unique <<std::endl;
-  int index = 0;
+  arma::uword index = 0;
   auto it = signal_map_.find(unique);
   if(it == signal_map_.end()){
     std::cout << "Signal is not yet aded to the table" << std::endl;
@@ -56,6 +56,27 @@ int Q_learning::qtable_state(std::shared_ptr<Gazebo> gzs, bool value)
   }
   else {
     index = it->second;      
+  }
+  
+  return index;
+}
+
+arma::uword Q_learning::qtable_state_from_map(std::shared_ptr<Gazebo> gzs,
+				      std::unordered_map<int, int> map)
+{
+  int unique = cantor_pairing((int)std::round(gzs->rssi().lf1()),
+			      (int)std::round(gzs->rssi().lf2()));
+  
+  unique = cantor_pairing(unique,
+			  (int)std::round(gzs->rssi().ff()));
+  arma::uword index = 0;
+  std::cout << "cantor unuqie" << unique <<std::endl;
+  auto it = map.find(unique);
+  if(it == map.end()){
+    std::cout << "Signal is not yet aded to the table" << std::endl;
+  }
+  else {
+    arma::uword index = it->second;      
   }
   
   return index;
@@ -91,7 +112,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 			     DataSet data_set)
 {
 
-  boost::log::sources::severity_logger<level> lg;
+
   
   std::ofstream file;
   file.open("data_sample");
@@ -358,7 +379,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
     data_set.write_map_file("map", signal_map_);
     
     std::this_thread::sleep_for(std::chrono::seconds(15));                  
-    //      BOOST_LOG_SEV(lg, Msg) << action1 ;
+
     
     qtable_.save("qtable", arma::raw_ascii);
   }

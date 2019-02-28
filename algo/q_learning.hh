@@ -19,7 +19,6 @@
 # include "../px4_device.hh"
 # include "../global.hh"
 # include "../gazebo.hh"
-# include "../log.hh"
 # include "../data_set.h"
 
 
@@ -52,7 +51,11 @@ public:
   
   double qtable_action(arma::mat qtable , arma::uword state);
 
-  int qtable_state(std::shared_ptr<Gazebo> gzs, bool value);
+  arma::uword qtable_state(std::shared_ptr<Gazebo> gzs, bool value);
+
+  arma::uword qtable_state_from_map(std::shared_ptr<Gazebo> gzs,
+			    std::unordered_map<int, int> map);
+    
   
   void move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		   float speed,
