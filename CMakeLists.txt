@@ -6,7 +6,6 @@ project(DeviceController)
 # Enable strict handling of warnings
 
 add_definitions(" -fPIC -O0 -g -std=c++17")
-add_definitions("-DBOOST_LOG_DYN_LINK")
 
 
 # Set moc compilling for qt 
@@ -22,15 +21,14 @@ set ( SOURCES
   data_set.cc
   gazebo.cc
   joystick/joystick.cc
-  log.cc
   main.cc
   px4_device.cc
   settings.cc  
   
   )
 
-#set (BOOST_INCLUDE_DIRS "/meta/local/include/")
 
+set(BOOST_INCLUDE_DIRS "/meta/local/include/")
 
 # Specify include directories
 include_directories(
@@ -49,7 +47,6 @@ include_directories(
   )
 
 
-# Specify variable 'dronecode_sdk_lib' containing location of Dronecode_Sdk library.
 set(dronecode_sdk_lib "/usr/local/lib/libdronecode_sdk.so")
 set(dronecode_sdk_offboard_lib "/usr/local/lib/libdronecode_sdk_offboard.so")
 set(dronecode_sdk_telemetry_lib "/usr/local/lib/libdronecode_sdk_telemetry.so")
@@ -57,13 +54,10 @@ set(dronecode_sdk_action_lib "/usr/local/lib/libdronecode_sdk_action.so")
 set(dronecode_sdk_calibrattion_lib "/usr/local/lib/libdronecode_sdk_calibration.so")
 set(ncurses_lib "/usr/lib/libncurses.so")
 set(pthread_lib "/usr/lib/libpthread.so")
-set(atomic_lib "/usr/lib/libatomic.so")
 set(arma "/usr/lib/libarmadillo.so")
-set(boost_lib_log "/usr/lib/libboost_log.so")
-set(boost_lib_log_setup "/usr/lib/libboost_log_setup.so")
-set(boost_lib_system "/usr/lib/libboost_system.so")
-set(boost_lib_thread "/usr/lib/libboost_thread.so")
-set(boost_lib_program_options "/usr/lib/libboost_program_options.so")
+
+set(boost_lib_system "/meta/local/lib/libboost_system.so")
+set(boost_lib_program_options "/meta/local/lib/libboost_program_options.so.1.65.0")
 
 
 link_directories(${GAZEBO_LIBRARY_DIRS})
@@ -73,7 +67,7 @@ list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
 add_executable(DeviceController  
   
  ${SOURCES}  
-  # ... any other source files
+  
   )
 
 
@@ -86,7 +80,7 @@ target_link_libraries(DeviceController
   # Add  'dronecode_sdk_lib' variable defining
   #where the Dronecode_Sdk library can be found
   ${pthread_lib}
-  ${atomic_lib}
+
   ${arma}
   ${GAZEBO_LIBRARIES}
   ${dronecode_sdk_lib}
@@ -95,12 +89,10 @@ target_link_libraries(DeviceController
   ${dronecode_sdk_telemetry_lib}
   ${dronecode_sdk_calibrattion_lib}
   ${ncurses_lib}
-
-  ${boost_lib_log}
-  ${boost_lib_log_setup}
-  ${boost_lib_system}
-  ${boost_lib_thread}
+  
+  #  ${boost_lib_thread}
   ${boost_lib_program_options}
+  ${boost_lib_system}
   
   )
 
