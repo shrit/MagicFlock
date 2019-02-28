@@ -9,13 +9,12 @@ learning algorithm to maintain the formation of several quadcopters
 
 To compile the project:
 
-```
+```bash
 mkdir build && cd build
 
 cmake ../
 
 make 
-
 ```
 
 Please verify that you have installed the following dependecies on your
@@ -32,7 +31,7 @@ DronecodeSDK
 
 # License
 
-[GNU GPL v2.0][https://choosealicense.com/licenses/gpl-2.0/]
+[GNU GPL v2.0](https://choosealicense.com/licenses/gpl-2.0/)
 
 
 
