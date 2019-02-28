@@ -1,94 +1,39 @@
-# include "log.hh"
-# include "global.hh"
+#include "log.hh"
+#include "global_include.h"
 
 
-std::ostream& operator<< (std::ostream& os, level level)
+#define ANSI_COLOR_RED "\x1b[31m"
+#define ANSI_COLOR_GREEN "\x1b[32m"
+#define ANSI_COLOR_YELLOW "\x1b[33m"
+#define ANSI_COLOR_BLUE "\x1b[34m"
+#define ANSI_COLOR_GRAY "\x1b[37m"
+#define ANSI_COLOR_RESET "\x1b[0m"
+
+
+namespace dronecode_sdk {
+
+void set_color(Color color)
 {
-    static const char* strings[] =
-      {
-       "Msg",
-       "Dbg",
-       "Wrn",
-       "Err"                
-      };
-
-    if (static_cast< std::size_t >(level) < sizeof(strings) / sizeof(*strings))
-        os << strings[level];
-    else
-        os << static_cast< int >(level);
-
-    return os;
+  switch (color) {
+  case Color::RED:
+    std::cout << ANSI_COLOR_RED;
+    break;
+  case Color::GREEN:
+    std::cout << ANSI_COLOR_GREEN;
+    break;
+  case Color::YELLOW:
+    std::cout << ANSI_COLOR_YELLOW;
+    break;
+  case Color::BLUE:
+    std::cout << ANSI_COLOR_BLUE;
+    break;
+  case Color::GRAY:
+    std::cout << ANSI_COLOR_GRAY;
+    break;
+  case Color::RESET:
+    std::cout << ANSI_COLOR_RESET;
+    break;
+  }
 }
 
-template <typename T>
-boost::log::formatting_ostream& operator<< (
-					    boost::log::formatting_ostream& p,
-					    std::vector<T>& vector)
-{
-        p << "[ ";
-        for(auto i:vector){
-            p << " "<< i << " ,";
-        }
-        p<< "]";
-        return p;
-}
-
-
-template <typename T>
-boost::log::formatting_ostream& operator<<(
-					   boost::log::formatting_ostream& out,
-					   const local_types::rssi<T>& r)
-{
-  out << "[ "<< r.lf1 <<", " << r.lf2 <<", " << r.ff <<"]"<<"\n";
-  return out;
-}
-
-
-
-void init()
-{
-   logging::add_file_log
-    (
-        keywords::file_name = "Data_set_%N.log",
-        // This makes the sink to write log records that look like this:
-        // 1: [Msg] A normal severity message
-        // 2: [Err] An error severity message
-        keywords::format =
-        (
-	 expr::stream
-	 << "["
-	 << expr::format_date_time< boost::posix_time::ptime >("TimeStamp", "%H:%M:%S")
-	 << "]"
-	 << "["
-	 << expr::attr<level, severity_tag>("Severity")
-	 << "] " << expr::smessage
-	 ),
-	keywords::rotation_size = 10 * 1024 * 1024,    /*10 MB files*/                                 
-	keywords::time_based_rotation = sinks::file::rotation_at_time_point(12, 0, 0)  
-	  
-    );
-   
-}
-
-// int main(int, char*[])
-// {
-//   init();
-  
-//   logging::add_common_attributes();
-
-  
-//   boost::log::sources::severity_logger<level> lg;
-
-//   //  lg.add_attribute();
-    
-//   BOOST_LOG_SEV(lg, Msg) << "A trace severity message";
-//   BOOST_LOG_SEV(lg, Dbg) << "A debug severity message";
-//   BOOST_LOG_SEV(lg, Err) << "An informational severity message";
-//   BOOST_LOG(lg) << "An informational severity message";
-//   BOOST_LOG(lg) << "An informational severity message";
-//   BOOST_LOG(lg) << "A warning severity message";
-//   BOOST_LOG(lg) << "An error severity message";
-//   BOOST_LOG(lg) << "A fatal severity message";
-  
-//   return 0;
-// }
+} // namespace dronecode_sdk
