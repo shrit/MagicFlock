@@ -12,14 +12,14 @@
 # include <sstream>
 # include <string>
 # include <vector>
-
+# include <unordered_map>
 
 /*  Boost library include */
 # include <boost/algorithm/string.hpp>
 
 /*  local defined include */
 # include "global.hh"
-# include <unordered_map>
+
 
 
 namespace lt = local_types;
@@ -39,7 +39,7 @@ public:
   void write_csv_data_set_file(std::ofstream& file, A a, B b, C c);
   
   template <typename A, typename B>  
-  void read_map_file(std::ofstream& file, std::unordered_map <A, B> map_);
+  void read_map_file(std::string file_name, std::unordered_map <A, B>& map_);
   
   template <typename A, typename B>  
   void write_map_file(std::string file_name, std::unordered_map <A, B> map_);
@@ -49,6 +49,7 @@ public:
   std::vector<lt::error<double>> error_vector() const;
   
   std::vector<std::vector<double>> data_set() const;
+  
   
 private:
   
