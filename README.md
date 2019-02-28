@@ -14,8 +14,9 @@ mkdir build && cd build
 
 cmake ../
 
-make 
+make
 ```
+
 
 Please verify that you have installed the following dependecies on your
 machine:
