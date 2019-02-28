@@ -35,13 +35,23 @@ void DataSet::write_map_file(std::string file_name, std::unordered_map <A, B> ma
 }
 
 template <typename A, typename B>  
-void DataSet::read_map_file(std::ofstream& file, std::unordered_map <A, B> map_)
+void DataSet::read_map_file(std::string file_name, std::unordered_map<A, B>& map_)
 {
-
-  A key;
-  B value;
+  std::string line;
+  std::ifstream fs;
+  fs.open(file_name);
   
-  while (file >> key >> value)
-    map_[key] = value;
-
+  while (std::getline(fs, line)) {
+    
+    A key;
+    B value;
+    std::stringstream ss(line);
+    if (ss >> key){
+      if(ss >> value){	    
+	map_[key] = value;
+      }        
+    }
+  }
+  
+  fs.close();
 }
