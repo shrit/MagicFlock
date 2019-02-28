@@ -5,6 +5,9 @@
  * @authors Author: Omar Shrit <shrit@lri.fr>
  * 
  */
+extern "C" {
+# include <curses.h>
+}
 
 /*  C++ Standard library include */
 # include <chrono>
@@ -45,13 +48,14 @@ namespace lt = local_types;
  * Wait for Joystick input, non-blocking implementation using STL 
 */
 
-JoystickEvent event_handler(Joystick& joystick,
+JoystickEvent joystick_event_handler(Joystick& joystick,
 			    JoystickEvent event,
 			    std::vector<std::shared_ptr<Px4Device>> iris_x,
 			    float speed,
 			    Q_learning qlearning,
 			    arma::mat qtable,
-			    std::shared_ptr<Gazebo> gz)
+			    std::shared_ptr<Gazebo> gz,
+			    std::unordered_map<int, int> map)
 {
   
   while (true)
@@ -179,8 +183,9 @@ JoystickEvent event_handler(Joystick& joystick,
     
     std::cout << gz->rssi() << std::endl;
     arma::uword index =0;
-    index = qlearning.qtable_state(gz, false);
-    std::cout << "index: "<< index << std::endl;
+   
+    index = qlearning.qtable_state_from_map(gz, map);
+    std::cout << "index: "<< index << std::endl;    
     
     if (index > qtable.n_rows)
       {
@@ -193,6 +198,100 @@ JoystickEvent event_handler(Joystick& joystick,
   }
 }
 
+
+void keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
+			    float speed,
+			    Q_learning qlearning,
+			    arma::mat qtable,
+			    std::shared_ptr<Gazebo> gz,
+			    std::unordered_map<int, int> map)
+{
+  int ch;
+  
+  while (true)
+    {            
+      // Attempt to read an event from the joystick
+
+      ch = getch();
+      
+      switch (ch) {
+	
+      case 'a':
+	iris_x.at(0)->arm();
+	iris_x.at(1)->arm();
+	iris_x.at(2)->arm();	
+	std::cout << "arming..." << std::endl;
+
+      case 'l':
+	iris_x.at(0)->land();
+	iris_x.at(1)->land();
+	iris_x.at(2)->land();
+	std::cout << "landing..." << std::endl;
+	
+      case 't':
+	iris_x.at(0)->takeoff();
+	iris_x.at(1)->takeoff();
+	iris_x.at(2)->takeoff();
+	std::cout << "taking off..." << std::endl;
+	std::this_thread::sleep_for(std::chrono::seconds(5));
+
+      case 's':
+	iris_x.at(0)->init_speed();	
+	iris_x.at(0)->start_offboard_mode();
+	iris_x.at(1)->init_speed();	
+	iris_x.at(1)->start_offboard_mode();
+	iris_x.at(2)->init_speed();	
+	iris_x.at(2)->start_offboard_mode();	
+	std::cout << "Start offoard mode..." << std::endl;
+	std::this_thread::sleep_for(std::chrono::seconds(1));          
+
+      case KEY_RIGHT:	
+	iris_x.at(0)->right(speed);
+	std::cout << "Moving right... " << std::endl;
+
+      case KEY_LEFT:	
+	iris_x.at(0)->left(speed);
+	std::cout << "Moving left... " << std::endl;
+
+      case KEY_DOWN:	
+	iris_x.at(0)->backward(speed);
+	std::cout << "Moving backward... " << std::endl;	  	  
+	
+      case KEY_UP: 
+	/*  Speed should be fixed as the joystick does not move */
+	iris_x.at(0)->forward(speed);	  
+	std::cout << "Moving forward... " << std::endl;
+		
+      case 'd':
+	iris_x.at(0)->down(speed);
+	std::cout << "Moving down...: " <<std::endl;
+
+      case 'u': 	
+	iris_x.at(0)->up(speed);	 
+	std::cout << "Moving up...: " <<std::endl;
+      default:		    	
+	printw("key_NOT DEFINED: %c", ch);	
+	endwin();	
+      }	
+      	 
+    std::cout << gz->rssi() << std::endl;
+    arma::uword index =0;
+   
+    index = qlearning.qtable_state_from_map(gz, map);
+    std::cout << "index: "<< index << std::endl;    
+    
+    if (index > qtable.n_rows)
+      {
+	std::cout << "Move the leader around..."<< std::endl;
+      }
+    else {
+      qlearning.qtable_action(qtable, index);
+    }                
+  }
+}
+
+
+
 /*  Main file: Start one controller by quadcopters, 
  *  
  */
@@ -200,14 +299,6 @@ JoystickEvent event_handler(Joystick& joystick,
 int main(int argc, char* argv[])
 {
 
-  /*  Calling the init logging file */
-  /*  to be encapsulated in a classes */
-  
-  init();
-
-  logging::add_common_attributes();
-  
-  boost::log::sources::severity_logger<level> lg;
 
   Joystick joystick("/dev/input/js0");
   
@@ -293,31 +384,72 @@ int main(int argc, char* argv[])
   DataSet data_set;
   Q_learning qlearning(iris_x, speed, gz, data_set, false);    
 
-  bool ok = qtable.load("qtable_good");
+  std::unordered_map<int, int> map;
+  data_set.read_map_file("../data_set/map_6000", map);
+
+  for(auto elem : map){
+      std::cout << elem.first << " " << elem.second << "\n";
+    }
+
+  std::this_thread::sleep_for(std::chrono::seconds(5));  
   
-  if(ok == false)
-    {
+  bool ok = qtable.load("../data_set/qtable_6000");
+  
+  if(ok == false){
       std::cout << "problem with loading the qtable" << std::endl;
     }
 
+
+  //Ncurses
+  
+  setlocale(LC_ALL, "");
+  
+  initscr();
+  
+  halfdelay(3);
+  // Suppress automatic echoing
+  noecho();
+  // Do not translate the return key into newline
+  nonl();
+  // Capture special keystrokes (including the four arrow keys)
+  keypad(stdscr, TRUE);
+  
+  refresh();     
+  
+  
+  
   /*  Add the keybord ncurses also cloe to the joystick */
   
-  auto update_handler = [&](){			 
+  auto joystick_handler = [&](){			 
     
-    /** Update signal strength here 
-	other wise update it an other function 
-	each unit of time    
-	* use cantor get the index
-	* move the quadcopters according to the action in the qtable */
+			  /** Update signal strength here 
+			      other wise update it an other function 
+			      each unit of time    
+			      * use cantor get the index
+			      * move the quadcopters according to the action in the qtable */
+			  
+			  joystick_event_handler(joystick, event, iris_x, speed, qlearning, qtable, gz, map);
+    
+  };
 
-    event_handler(joystick, event, iris_x, speed, qlearning, qtable, gz);
+
+  
+  auto keyboard_handler = [&](){			 
+    
+			  /** Update signal strength here 
+			      other wise update it an other function 
+			      each unit of time    
+			      * use cantor get the index
+			      * move the quadcopters according to the action in the qtable */
+			  
+			  keyboard_event_handler(iris_x, speed, qlearning, qtable, gz, map);
     
   };
   
-  auto events =  std::async(std::launch::async, update_handler);
+  auto joystick_events =  std::async(std::launch::async, joystick_handler);
+  auto keyboard_events =  std::async(std::launch::async, keyboard_handler);  
   
-  
-  events.get();
-  
-  
+  joystick_events.get();
+  keyboard_events.get();
+    
 }
