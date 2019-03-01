@@ -353,17 +353,17 @@ int main(int argc, char* argv[])
   
   std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(argc,argv);
   
-  gz->subscriber("/gazebo/default/pose/info");
+  gz->subscriber(configs.positions());
 
-  /*  verify the numbers to subscribe to  the good signal strength*/
+  /*  verify the numbers to subscribe to the good signal strength*/
   
-  gz->subscriber("/gazebo/default/1/2");
-  gz->subscriber("/gazebo/default/1/3");
-  gz->subscriber("/gazebo/default/2/3");
+  gz->subscriber(configs.rssi_1_2());
+  gz->subscriber(configs.rssi_1_3());
+  gz->subscriber(configs.rssi_2_3());
 
-  gz->publisher("/gazebo/default/iris_1/model_reset");
-  gz->publisher("/gazebo/default/iris_2/model_reset");
-  gz->publisher("/gazebo/default/iris_3/model_reset");
+  gz->publisher(configs.reset_1());
+  gz->publisher(configs.reset_2());
+  gz->publisher(configs.reset_3());
 
   
   /* Wait for 10 seconds, Just to finish subscribe to

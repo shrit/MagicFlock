@@ -55,6 +55,20 @@ void Configs::parse_ini()
   qtable_file_name_ = ini_.get("algorithm").get("qtable");
   
   map_file_name_ = ini_.get("algorithm").get("map_qtable");
+
+  /* Parse subscribe topic section */
+
+  positions_ = ini_.get("subscribe_topics").get("positions");
+  
+  rssi_1_2_ = ini_.get("subscribe_topics").get("rssi_1_2");
+  rssi_1_3_ = ini_.get("subscribe_topics").get("rssi_1_3");
+  rssi_2_3_ = ini_.get("subscribe_topics").get("rssi_2_3"); 
+
+  /* Parse publish topic section */
+
+  reset_1_ = ini_.get("publish_topics").get("reset_1");
+  reset_2_ = ini_.get("publish_topics").get("reset_2");
+  reset_3_ = ini_.get("publish_topics").get("reset_3"); 
   
   
 }
@@ -79,6 +93,40 @@ std::string Configs::map_file_name() const
   return map_file_name_;
 }
 
+std::string Configs::positions() const
+{
+  return positions_;
+}
+
+std::string Configs::rssi_1_2() const
+{
+  return rssi_1_2_;
+}
+
+std::string Configs::rssi_1_3() const
+{
+  return rssi_1_3_;
+}
+
+std::string Configs::rssi_2_3() const
+{
+  return rssi_2_3_;
+}
+
+std::string Configs::reset_1() const
+{
+  return reset_1_;
+}
+
+std::string Configs::reset_2() const
+{
+  return reset_2_;
+}
+
+std::string Configs::reset_3() const
+{
+  return reset_3_;
+}
 
 float Configs::speed() const
 {

@@ -15,7 +15,16 @@ public:
   Configs();
   
   void parse_ini();
+  
+  std::string positions() const;
+  
+  std::string rssi_1_2() const;
+  std::string rssi_1_3() const;
+  std::string rssi_2_3() const;
 
+  std::string reset_1() const;
+  std::string reset_2() const;
+  std::string reset_3() const;
   
   std::string qtable_file_name() const;
   std::string map_file_name() const;
@@ -48,6 +57,16 @@ private:
   float speed_;
   
   bool train_, keyboard_, joystick_;
+
+  std::string positions_;
+  
+  std::string rssi_1_2_;
+  std::string rssi_1_3_;
+  std::string rssi_2_3_;
+
+  std::string reset_1_;
+  std::string reset_2_;
+  std::string reset_3_;
   
   
 };
