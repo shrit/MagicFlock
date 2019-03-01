@@ -28,4 +28,19 @@
   </quadcopter>
   
 
+  <algorithm>
+    <qlearning>train</qlearning>
+    
+  </algorithm>
+
+  <topics>
+    <publish>
+      
+    </publish>
+    <subscribe>
+      
+    </subscribe>
+  </topics>
+  
+
 </simulation>
