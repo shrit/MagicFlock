@@ -17,39 +17,44 @@ void Configs::parse_ini()
 
   /*Parse Simulation section*/
   
-  number_of_quads_ = std::stoi(ini.get("simulation").get("quad_number"));
+  number_of_quads_ = std::stoi(ini_.get("simulation").get("quad_number"));
 
-  std::string joystick = ini.get("simulation").get("use_joystick");
-  istringstream(joystick) >> std::boolalpha >> joystick_;
+  std::string joystick = ini_.get("simulation").get("use_joystick");
+  std::istringstream(joystick) >> std::boolalpha >> joystick_;
 
   
-  std::string keyboard = ini.get("simulation").get("use_keyboard");
-  istringstream(keyboard) >> std::boolalpha >> keybooard_;
+  std::string keyboard = ini_.get("simulation").get("use_keyboard");
+  std::istringstream(keyboard) >> std::boolalpha >> keyboard_;
     
-  speed_ = std::stoi(ini.get("simulation").get("speed"));
+  speed_ = std::stoi(ini_.get("simulation").get("speed"));
 
 
     /*Parse quadcopter section*/
   
-  quad_names_.push_back(ini.get("quadcopter_01").get("model_name"));
-  quad_names_.push_back(ini.get("quadcopter_02").get("model_name"));
-  quad_names_.push_back(ini.get("quadcopter_03").get("model_name"));
+  quad_names_.push_back(ini_.get("quadcopter_01").get("model_name"));
+  quad_names_.push_back(ini_.get("quadcopter_02").get("model_name"));
+  quad_names_.push_back(ini_.get("quadcopter_03").get("model_name"));
 
-  ports.push_back(); // verify convert to unsigned integer
-  ports.push_back(); // verify convert to unsigned integer
-  ports.push_back(); // verify convert to unsigned integer
+  ports_.push_back(static_cast<lt::port_type>
+		   (std::stoi(ini_.get("quadcopter_01").get("port"))));
+  
+  ports_.push_back(static_cast<lt::port_type>
+		   (std::stoi(ini_.get("quadcopter_02").get("port"))));
+  
+  ports_.push_back(static_cast<lt::port_type>
+		   (std::stoi(ini_.get("quadcopter_03").get("port")))); 
 
 
   /*Parse algorithm section*/
   
-  algo_name = ini.get("algorithm").get("name");
+  algo_name_ = ini_.get("algorithm").get("name");
 
-  std::string  train = ini.get("algorithm").get("train");
-  istringstream(train) >> std::boolalpha >> train_;
+  std::string  train = ini_.get("algorithm").get("train");
+  std::istringstream(train) >> std::boolalpha >> train_;
 
-  qtable_file_name_ = ini.get("algorithm").get("qtable");
+  qtable_file_name_ = ini_.get("algorithm").get("qtable");
   
-  map_file_name_ = ini.get("algorithm").get("map_qtable");
+  map_file_name_ = ini_.get("algorithm").get("map_qtable");
   
   
 }
@@ -84,12 +89,3 @@ bool Configs::train() const
 {
   return train_;
 }
-
-
-
-
-
- std::cout << number << std::endl;
- 
- std::string name = ini.get("quadcopter_01").get("model_name");
- std::cout << name << std::endl;

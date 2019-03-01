@@ -17,7 +17,8 @@ find_package(gazebo REQUIRED)
 # Specfiy a list of source files .
 
 set ( SOURCES 
-  algo/q_learning.cc  
+  algo/q_learning.cc
+  config_ini.cc
   data_set.cc
   gazebo.cc
   joystick/joystick.cc

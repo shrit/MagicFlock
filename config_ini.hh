@@ -5,6 +5,7 @@
 # include "ini.hh"
 # include "global.hh"
 
+namespace lt = local_types;
 
 class Configs
 {
@@ -12,8 +13,10 @@ class Configs
 public:
 
   Configs();
+  
+  void parse_ini();
 
-
+  
   std::string qtable_file_name() const;
   std::string map_file_name() const;
   
@@ -26,7 +29,6 @@ public:
   bool train() const;
   
 
-
 private:
 
   mINI::INIStructure ini_;
@@ -35,15 +37,17 @@ private:
   
   lt::port_type	port_;
 
-
   std::string qtable_file_name_;
   std::string map_file_name_;
+
+  std::string algo_name_;
   
   std::vector<lt::port_type> ports_;
+  std::vector<std::string> quad_names_;
   
   float speed_;
   
-  bool train_;
+  bool train_, keyboard_, joystick_;
   
   
 };
