@@ -17,6 +17,8 @@ void usage(std::ostream& out)
      << " key down  : to go backward" << std::endl
      << " + : to turn clock wise" << std::endl
      << " - : to turn counter clock wise" << std::endl;
+
+  
 }
 
 /*  Constructor for program options */
@@ -58,7 +60,7 @@ Settings::Settings(int argc, char* argv[])
   }
     
   if(vm.count("version")){
-    std::cout << "0.2v ";
+    std::cout << "0.9v ";
     exit(0);        
   }
 
@@ -66,30 +68,4 @@ Settings::Settings(int argc, char* argv[])
     train_ = true;    
   }
 
-}
-
-std::string Settings::get_file_name() const
-{
-  return file_name_;
-}
-
-int Settings::quad_number() const
-{
-  return number_of_quads_;
-}
-
-std::vector<lt::port_type> Settings::quads_ports() const
-{
-  return ports_;
-}
-
-
-float Settings::speed() const
-{
-  return speed_;
-}
-
-bool Settings::train() const
-{
-  return train_;
 }
