@@ -35,23 +35,12 @@ Settings::Settings(int argc, char* argv[])
     ("help,h", "Print this help message and exit" )				
     ("version,v", "Print the current version")
     ("Versbose,V", "Be more verbose")
-    ("read-from-file,r", po::value<std::string>(&file_name_),"Read program option from a file")
-    ("speed,s", po::value<float>(&speed_), "Enter the speed of the quad")
-    ("number,n", po::value<int>(&number_of_quads_),
-	 "Number of quadcopters to create")
-    ("Port, p", po::value<lt::port_type>(&port_), "Enter the port number for the Leader")
-    ("connection-type,c", po::value<std::string>(&socket_),
-     "Enter the connection type: udp or tcp")
-    ("ports-for-followers, P", po::value< std::vector<lt::port_type> >(&ports_)->multitoken(),
-     "Insert a vector of  ports of followers")
-    ("train,t", "Train the quadcopter using Qlearning");
-  
+    ("ini-file,r", po::value<std::string>(&ini_file_),"Specify the name of the ini file");
+    
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, option), vm);
   po::notify(vm);
-
-  //if(vm.count())
-
+  
   
   if(vm.count("help")){
     usage(std::cout);
@@ -63,7 +52,11 @@ Settings::Settings(int argc, char* argv[])
     std::cout << "0.9v ";
     exit(0);        
   }
-
+      
+  if(vm.count("Verbose")){
+    std::cout << "Debug level increased ";
+  }
+    
   if(vm.count("train")){
     train_ = true;    
   }
