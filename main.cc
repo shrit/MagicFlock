@@ -20,6 +20,7 @@ extern "C" {
 /*  locale defined include */
 
 # include "algo/q_learning.hh"
+# include "config_ini.hh"
 # include "data_set.h"
 # include "dronecode_sdk/logging.h"
 # include "gazebo.hh"
@@ -310,9 +311,10 @@ int main(int argc, char* argv[])
     }
   
   JoystickEvent event;
-  
-  
+    
   Settings settings(argc, argv);
+
+  Configs configs;
   
   /*  
    * The ns3 Command commented inside the code, A good way to remember it :)
@@ -320,16 +322,18 @@ int main(int argc, char* argv[])
   //  /meta/ns-allinone-3.29/ns-3.29/ && /meta/ns-allinone-3.29/ns-3.29/waf --run  \"triangolo --fMode=4 --workDir=/meta/ns-allinone-3.29/ns-3.29 --xmlFilename=/meta/Spider-pig/gazebo/ns3/ns3.world --radioRange=300 --numusers=3\"
   
     
-  int size = settings.quad_number() ;
+  int size = configs.quad_number() ;
 
-  float speed = settings.speed();
+  float speed = configs.speed();
   
-  std::vector<lt::port_type> ports  =  settings.quads_ports();
+  std::vector<lt::port_type> ports  =  configs.quads_ports();
   
   /* Create a vector of controllers. Each controller connect to one
    * quadcopters at a time
    */
-  
+
+
+  //chagnge iris into a string and capture from ini file
   std::vector<std::shared_ptr<Px4Device>> iris_x;  
   
   for(auto& it : ports){					       
@@ -373,27 +377,28 @@ int main(int argc, char* argv[])
   
   
   // Pass the devices to the q learning algorithm
-  if(settings.train()) {
+  if(configs.train()) {
     DataSet data_set;
-    Q_learning qlearning(iris_x, speed, gz, data_set, settings.train());
+    Q_learning qlearning(iris_x, speed, gz, data_set, configs.train());
     return 0;
   }
   
-
   arma::mat qtable;
   DataSet data_set;
   Q_learning qlearning(iris_x, speed, gz, data_set, false);    
 
   std::unordered_map<int, int> map;
-  data_set.read_map_file("../data_set/map_6000", map);
+  data_set.read_map_file(configs.map_file_name(), map);
 
   for(auto elem : map){
       std::cout << elem.first << " " << elem.second << "\n";
     }
 
   std::this_thread::sleep_for(std::chrono::seconds(5));  
+
+  //"/data_set/qtable_6000"
   
-  bool ok = qtable.load("../data_set/qtable_6000");
+  bool ok = qtable.load(configs.qtable_file_name());
   
   if(ok == false){
       std::cout << "problem with loading the qtable" << std::endl;
@@ -428,7 +433,10 @@ int main(int argc, char* argv[])
 			      * use cantor get the index
 			      * move the quadcopters according to the action in the qtable */
 			  
-			  joystick_event_handler(joystick, event, iris_x, speed, qlearning, qtable, gz, map);
+			  joystick_event_handler(joystick, event,
+						 iris_x, speed,
+						 qlearning, qtable,
+						 gz, map);
     
   };
 
