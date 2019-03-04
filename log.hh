@@ -95,8 +95,8 @@ public:
         std::cout << std::endl;
     }
 
-    LogDetailed(const dronecode_sdk::LogDetailed &) = delete;
-    void operator=(const dronecode_sdk::LogDetailed &) = delete;
+    LogDetailed(const LogDetailed &) = delete;
+    void operator=(const LogDetailed &) = delete;
 
 protected:
     enum LogLevel { Debug, Info, Warn, Err } _log_level = LogLevel::Debug;
