@@ -60,6 +60,7 @@ set(pthread_lib "/usr/lib/libpthread.so")
 set(arma "/usr/lib/libarmadillo.so")
 
 set(boost_lib_system "/meta/local/lib/libboost_system.so")
+set(boost_lib_time "/meta/local/lib/libboost_date_time.so")
 set(boost_lib_program_options "/meta/local/lib/libboost_program_options.so.1.65.0")
 
 
@@ -67,7 +68,7 @@ link_directories(${GAZEBO_LIBRARY_DIRS})
 
 list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
 
-add_executable(DeviceController  
+add_executable(QCopter  
   
  ${SOURCES}  
   
@@ -95,6 +96,7 @@ target_link_libraries(QCopter
   
   ${boost_lib_program_options}
   ${boost_lib_system}
+  ${boost_lib_time}
   
   )
 
