@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.1.0)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 ## Specify your project's name
-project(DeviceController)
+project(QCopter)
 
 # Enable strict handling of warnings
 
@@ -78,7 +78,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
 
 
 # Specify your app's executable name and a list of linked libraries
-target_link_libraries(DeviceController
+target_link_libraries(QCopter
   
   # Add  'dronecode_sdk_lib' variable defining
   #where the Dronecode_Sdk library can be found
@@ -93,7 +93,6 @@ target_link_libraries(DeviceController
   ${dronecode_sdk_calibrattion_lib}
   ${ncurses_lib}
   
-  #  ${boost_lib_thread}
   ${boost_lib_program_options}
   ${boost_lib_system}
   
