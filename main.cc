@@ -22,7 +22,7 @@ extern "C" {
 # include "algo/q_learning.hh"
 # include "config_ini.hh"
 # include "data_set.h"
-# include "dronecode_sdk/logging.h"
+# include "log.hh"
 # include "gazebo.hh"
 # include "global.hh"
 # include "joystick/joystick.hh"
@@ -71,21 +71,22 @@ JoystickEvent joystick_event_handler(Joystick& joystick,
 	iris_x.at(1)->arm();
 	iris_x.at(2)->arm();
 	
-	std::cout << "arming..." << std::endl;
+        LogInfo() << "arming...";
+	
 	std::this_thread::sleep_for(std::chrono::seconds(1));
       }
       else if(joystick.ButtonBChanged(event)) {
 	iris_x.at(0)->land();
 	iris_x.at(1)->land();
 	iris_x.at(2)->land();
-	std::cout << "landing..." << std::endl;			 
+	LogInfo() << "landing..." ;			 
       }
       else if(joystick.ButtonXChanged(event)) {
 
 	iris_x.at(0)->takeoff();
 	iris_x.at(1)->takeoff();
 	iris_x.at(2)->takeoff();
-	std::cout << "taking off..." << std::endl;
+	LogInfo() << "taking off..." ;
 	std::this_thread::sleep_for(std::chrono::seconds(5));
       }
       else if(joystick.ButtonYChanged(event)) {
@@ -96,36 +97,36 @@ JoystickEvent joystick_event_handler(Joystick& joystick,
 	iris_x.at(1)->start_offboard_mode();
 	iris_x.at(2)->init_speed();	
 	iris_x.at(2)->start_offboard_mode();	
-	std::cout << "Start offoard mode..." << std::endl;
+	LogInfo() << "Start offoard mode..." ;
 	std::this_thread::sleep_for(std::chrono::seconds(1));          
 	
       }
       else if(joystick.ButtonL1Changed(event)) {
-	std::cout << "L1" << std::endl;			 
+	LogInfo() << "L1" ;			 
       }
       else if(joystick.ButtonR1Changed(event)) {
-	std::cout << "R1" << std::endl;			 
+	LogInfo() << "R1" ;			 
       }
       else if(joystick.ButtonSelectChanged(event)) {
-	std::cout << "Select" << std::endl;			 
+	LogInfo() << "Select" ;			 
       }
       else if(joystick.ButtonStartChanged(event)) {
-	std::cout << "Start" << std::endl;			 
+	LogInfo() << "Start" ;			 
       }     
       else if(joystick.ButtonGuideChanged(event)) {
-	std::cout << "Guide" << std::endl;			 
+	LogInfo() << "Guide" ;			 
       }
       else if(joystick.RightAxisXChanged(event)) {
 	
 	if(joystick.RightAxisXChanged(event) > 0 ){
 	  /* Speed should be function of the value of joystick  */
 	  iris_x.at(0)->right(speed);
-	  std::cout << "Moving right... " << std::endl;
+	  LogInfo() << "Moving right... " ;
 	}
 	else{
 	  /* Speed should be function of the value of joystick  */
 	  iris_x.at(0)->left(speed);
-	  std::cout << "Moving left... " << std::endl;
+	  LogInfo() << "Moving left... " ;
 	}	
       }
       else if (joystick.RightAxisYChanged(event)) {        
@@ -133,13 +134,13 @@ JoystickEvent joystick_event_handler(Joystick& joystick,
 	if(joystick.RightAxisYChanged(event) > 0 ){
 	  /* Speed should be function of the value of joystick  */
 	  iris_x.at(0)->backward(speed);
-	  std::cout << "Moving backward... " << std::endl;	  	  
+	  LogInfo() << "Moving backward... " ;	  	  
 	}
 	else{
 	  /* Speed should be function of the value of joystick  */
 	  /*  Speed should be fixed as the joystick does not move */
 	  iris_x.at(0)->forward(speed);	  
-	  std::cout << "Moving forward... " << std::endl;
+	  LogInfo() << "Moving forward... " ;
 	}				
       }
       else if (joystick.LeftAxisXChanged(event)) {
@@ -147,11 +148,11 @@ JoystickEvent joystick_event_handler(Joystick& joystick,
 	if(joystick.LeftAxisXChanged(event) > 0 ){
 
 	  iris_x.at(0)->turnToLeft(speed);		    
-	  std::cout << "Turn to left... " <<std::endl;	  
+	  LogInfo() << "Turn to left... " ;	  
 	}
 	else{
 	  iris_x.at(0)->turnToRight(speed);		    
-	  std::cout << "Turn to right... " <<std::endl;
+	  LogInfo() << "Turn to right... " ;
 	}		
       }
      else if (joystick.LeftAxisYChanged(event)) {
@@ -159,38 +160,38 @@ JoystickEvent joystick_event_handler(Joystick& joystick,
        if(joystick.LeftAxisYChanged(event) > 0 ){
 	 /* Speed should be function of the value of joystick  */
 	 iris_x.at(0)->down(speed);
-	 std::cout << "Moving down...: " <<std::endl;	 	
+	 LogInfo() << "Moving down...: " ;	 	
        }
        else{
 	 /* Speed should be function of the value of joystick  */
 	 iris_x.at(0)->up(speed);	 
-	 std::cout << "Moving up...: " <<std::endl;
+	 LogInfo() << "Moving up...: " ;
        }	 
      }
      else if (joystick.AxisL2Changed(event)) {
-	std::cout << "L2: " << joystick.AxisL2Changed(event) << std::endl;
+	LogInfo() << "L2: " << joystick.AxisL2Changed(event) ;
      }
      else if (joystick.AxisR2Changed(event)) {
-       std::cout << "R2: " << joystick.AxisR2Changed(event) << std::endl;
+       LogInfo() << "R2: " << joystick.AxisR2Changed(event) ;
      }
      else if (joystick.DpadXChanged(event)) {
-       std::cout << "Dx: " << joystick.DpadXChanged(event) << std::endl;
+       LogInfo() << "Dx: " << joystick.DpadXChanged(event) ;
      }
      else if (joystick.DpadYChanged(event)) {
-       std::cout << "Dy: " << joystick.DpadYChanged(event) << std::endl;
+       LogInfo() << "Dy: " << joystick.DpadYChanged(event) ;
      }      
     }
     //Moving other quads to this area
     
-    std::cout << gz->rssi() << std::endl;
+    LogInfo() << gz->rssi() ;
     arma::uword index =0;
    
     index = qlearning.qtable_state_from_map(gz, map);
-    std::cout << "index: "<< index << std::endl;    
+    LogInfo() << "index: "<< index ;    
     
     if (index > qtable.n_rows)
       {
-	std::cout << "Move the leader around..."<< std::endl;
+	LogInfo() << "Move the leader around...";
       }
     else {
       qlearning.qtable_action(qtable, index);
@@ -221,19 +222,19 @@ void keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	iris_x.at(0)->arm();
 	iris_x.at(1)->arm();
 	iris_x.at(2)->arm();	
-	std::cout << "arming..." << std::endl;
+	LogInfo() << "arming..." ;
 
       case 'l':
 	iris_x.at(0)->land();
 	iris_x.at(1)->land();
 	iris_x.at(2)->land();
-	std::cout << "landing..." << std::endl;
+	LogInfo() << "landing..." ;
 	
       case 't':
 	iris_x.at(0)->takeoff();
 	iris_x.at(1)->takeoff();
 	iris_x.at(2)->takeoff();
-	std::cout << "taking off..." << std::endl;
+	LogInfo() << "taking off..." ;
 	std::this_thread::sleep_for(std::chrono::seconds(5));
 
       case 's':
@@ -243,47 +244,47 @@ void keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	iris_x.at(1)->start_offboard_mode();
 	iris_x.at(2)->init_speed();	
 	iris_x.at(2)->start_offboard_mode();	
-	std::cout << "Start offoard mode..." << std::endl;
+	LogInfo() << "Start offoard mode..." ;
 	std::this_thread::sleep_for(std::chrono::seconds(1));          
 
       case KEY_RIGHT:	
 	iris_x.at(0)->right(speed);
-	std::cout << "Moving right... " << std::endl;
+	LogInfo() << "Moving right... " ;
 
       case KEY_LEFT:	
 	iris_x.at(0)->left(speed);
-	std::cout << "Moving left... " << std::endl;
+	LogInfo() << "Moving left... " ;
 
       case KEY_DOWN:	
 	iris_x.at(0)->backward(speed);
-	std::cout << "Moving backward... " << std::endl;	  	  
+	LogInfo() << "Moving backward... " ;	  	  
 	
       case KEY_UP: 
 	/*  Speed should be fixed as the joystick does not move */
 	iris_x.at(0)->forward(speed);	  
-	std::cout << "Moving forward... " << std::endl;
+	LogInfo() << "Moving forward... " ;
 		
       case 'd':
 	iris_x.at(0)->down(speed);
-	std::cout << "Moving down...: " <<std::endl;
+	LogInfo() << "Moving down...: " ;
 
       case 'u': 	
 	iris_x.at(0)->up(speed);	 
-	std::cout << "Moving up...: " <<std::endl;
+	LogInfo() << "Moving up...: " ;
       default:		    	
 	printw("key_NOT DEFINED: %c", ch);	
 	endwin();	
       }	
       	 
-    std::cout << gz->rssi() << std::endl;
+    LogInfo() << gz->rssi() ;
     arma::uword index =0;
    
     index = qlearning.qtable_state_from_map(gz, map);
-    std::cout << "index: "<< index << std::endl;    
+    LogInfo() << "index: "<< index ;    
     
     if (index > qtable.n_rows)
       {
-	std::cout << "Move the leader around..."<< std::endl;
+	LogInfo() << "Move the leader around...";
       }
     else {
       qlearning.qtable_action(qtable, index);
@@ -306,7 +307,7 @@ int main(int argc, char* argv[])
   // Ensure that it was found and that we can use it
   if (!joystick.isFound())
     {
-      std::cout << "No device found, please connect a joystick" << std::endl;
+      LogInfo() << "No device found, please connect a joystick" ;
       exit(1);
     }
   
@@ -339,10 +340,10 @@ int main(int argc, char* argv[])
   for(auto& it : ports){					       
     								      
     iris_x.push_back(std::make_shared<Px4Device>("udp", it)); 
-    std::cout  << "create an iris device" << std::endl;	       
+    LogInfo()  << "create an iris device" ;	       
   }								      
 
-  std::cout<< ports << std::endl;
+  LogInfo()<< ports ;
 
   
   ////////////
@@ -391,7 +392,7 @@ int main(int argc, char* argv[])
   data_set.read_map_file(configs.map_file_name(), map);
 
   for(auto elem : map){
-      std::cout << elem.first << " " << elem.second << "\n";
+      LogInfo() << elem.first << " " << elem.second << "\n";
     }
 
   std::this_thread::sleep_for(std::chrono::seconds(5));  
@@ -401,7 +402,7 @@ int main(int argc, char* argv[])
   bool ok = qtable.load(configs.qtable_file_name());
   
   if(ok == false){
-      std::cout << "problem with loading the qtable" << std::endl;
+      LogWarn() << "problem with loading the qtable";
     }
 
 

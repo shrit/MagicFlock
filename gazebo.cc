@@ -52,7 +52,7 @@ void Gazebo::reset_models()
     it->Publish(msg);
     }
     else{
-      std::cout << "NO Connection from the subscriber to reset the model" << std::endl;
+      LogDebug() << "NO Connection from the subscriber to reset the model";
     }
   }
 

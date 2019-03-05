@@ -6,8 +6,10 @@
 # include <gazebo/gazebo_client.hh>
 # include <gazebo/msgs/msgs.hh>
 # include <gazebo/msgs/pose.pb.h>
+
 # include "ema_filter.hh"
 # include "global.hh"
+# include "log.hh"
 
 namespace lt = local_types;
 

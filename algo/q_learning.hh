@@ -20,7 +20,7 @@
 # include "../global.hh"
 # include "../gazebo.hh"
 # include "../data_set.h"
-
+# include "../log.hh"
 
 
 template <typename T>

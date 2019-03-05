@@ -44,11 +44,12 @@ arma::uword Q_learning::qtable_state(std::shared_ptr<Gazebo> gzs, bool value)
   unique = cantor_pairing(unique,
 			  (int)std::round(gzs->rssi().ff()));
 
-  std::cout << "cantor unuqie" << unique <<std::endl;
+  LogDebug() << "cantor unuqie number" << unique ;
+  
   arma::uword index = 0;
   auto it = signal_map_.find(unique);
   if(it == signal_map_.end()){
-    std::cout << "Signal is not yet aded to the table" << std::endl;
+    LogDebug() << "Signal is not yet aded to the table" ;
     if( value == true){
       signal_map_.insert(it, std::pair<int, int>(unique, episode_));
       index = episode_;
@@ -70,10 +71,10 @@ arma::uword Q_learning::qtable_state_from_map(std::shared_ptr<Gazebo> gzs,
   unique = cantor_pairing(unique,
 			  (int)std::round(gzs->rssi().ff()));
   arma::uword index = 0;
-  std::cout << "cantor unuqie" << unique <<std::endl;
+  LogDebug() << "cantor unuqie" << unique ;
   auto it = map.find(unique);
   if(it == map.end()){
-    std::cout << "Signal is not yet aded to the table" << std::endl;
+    LogDebug() << "Signal is not yet aded to the table" ;
   }
   else {
     arma::uword index = it->second;      
@@ -126,7 +127,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
   //to be overloaded
 
 
-  std::cout << qtable_ << std::endl;
+  LogDebug() << qtable_ ;
   
   for (episode_ = 0; episode_ < max_episode_; episode_++){
 
@@ -225,13 +226,15 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
     std::this_thread::sleep_for(std::chrono::seconds(1));          
 
     double random =  distribution_(generator_);
-    std::cout << random << std::endl;
+    
+    LogInfo() <<"Random number chosen: " << random ;
 
-    int action = distribution_int_(generator_);
-    std::cout << action << std::endl;
+    int action_leader = distribution_int_(generator_);
+    
+    LogInfo() <<"Random action chosen: " << action_leader ;
             
     for (int i = 0; i < 10; i++){
-      move_action(iris_x, speed, action, 0) ; // move the leader 100 CM
+      move_action(iris_x, speed, action_leader, 0) ; // move the leader 100 CM
       std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
     // get the new signal of strength difference            
@@ -239,33 +242,24 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
     // random number between 0 and 1 TODO::
       
 
-    int action1 = 0 ;
+    int action_follower = 0 ;
 
-    /*  Create a function that recover the state index 
-     *  from the know signal stregnth
-     *  move the down map into this function
-     */
-      
     index_ = qtable_state(gzs, false);
-
-    /* Start exploitation instead of exploration, 
-     * if the condition is valid
-     * Look inside the Q_tables to find the best action
-     */
             
     if(random > epsilon_){			           
-	
-      action1 = qtable_action(qtable_, index_);
-      std::cout << "action " << action1 << std::endl;
+      /*  get the action from the qtable. Exploit */
+      action_follower = qtable_action(qtable_, index_);
+      LogInfo() << "Action From Qtable " << action_follower ;
     }						           
     else  {
-      action1 = distribution_int_(generator_);
+      /*  get a random action. Explore */
+      action_follower = distribution_int_(generator_);
     }
 
     /*  moving the followers randomly */
     for (int i = 0; i < 10; i++){
-      move_action(iris_x, speed, action1, 1);
-      move_action(iris_x, speed, action1, 2);
+      move_action(iris_x, speed, action_follower, 1);
+      move_action(iris_x, speed, action_follower, 2);
       std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
       
@@ -330,16 +324,16 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
               
     e_reward = reward + reward2;
        
-    std::cout << "reward: " << e_reward << std::endl;
+    LogInfo() << "reward: " << e_reward ;
        
-    qtable_(index_, action1) =
-      (1 - learning_rate_) * qtable_(index_, action1) +
+    qtable_(index_, action_follower) =
+      (1 - learning_rate_) * qtable_(index_, action_follower) +
       learning_rate_ * (reward +  discount_rate_ * qtable_action(qtable_,
 								 index_)); 
     //reduce epsilon as we explore more each episode
     epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode_); 
       
-    std::cout << "epsilon: " << epsilon_ << std::endl;
+    LogInfo() << "Epsilon: " << epsilon_ ;
       
     rewards_.push_back(e_reward);
 
@@ -374,7 +368,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
     /*  I have quite tested a lot of different solution, if I am going
      * to find a better one, I will replace it directly. */
       
-    data_set.write_csv_data_set_file(file, new_state_, action1, sum_of_error);
+    data_set.write_csv_data_set_file(file, new_state_, action_follower, sum_of_error);
 
     data_set.write_map_file("map", signal_map_);
     
