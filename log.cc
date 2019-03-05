@@ -1,5 +1,5 @@
 #include "log.hh"
-#include "global_include.h"
+
 
 
 #define ANSI_COLOR_RED "\x1b[31m"
@@ -9,8 +9,6 @@
 #define ANSI_COLOR_GRAY "\x1b[37m"
 #define ANSI_COLOR_RESET "\x1b[0m"
 
-
-namespace dronecode_sdk {
 
 void set_color(Color color)
 {
@@ -36,4 +34,4 @@ void set_color(Color color)
   }
 }
 
-} // namespace dronecode_sdk
+

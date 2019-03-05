@@ -1,10 +1,11 @@
 #pragma once
 
-#include <sstream>
-#include <iostream>
-#include <ctime>
+# include <iostream>
+# include <sstream>
 
-#define __FILENAME__ __FILE__
+# include <boost/filesystem.hpp>
+# include <boost/date_time/posix_time/posix_time.hpp>
+
 
 // For release builds, don't show debug printfs, and just discard it into the NullStream.
 class NullStream {
@@ -17,123 +18,124 @@ public:
     }
 };
 
-#if DEBUG
-#define LogDebug() LogDebugDetailed(__FILENAME__, __LINE__)
-#else
-#define LogDebug() NullStream()
-#endif
-
-#define LogInfo() LogInfoDetailed(__FILENAME__, __LINE__)
-#define LogWarn() LogWarnDetailed(__FILENAME__, __LINE__)
-#define LogErr() LogErrDetailed(__FILENAME__, __LINE__)
-
-
 enum class Color { RED, GREEN, YELLOW, BLUE, GRAY, RESET };
 
 void set_color(Color color);
 
-class LogDetailed {
+class Log {
+  
 public:
-    LogDetailed(const char *filename, int filenumber) :
-        _s(),
-        _caller_filename(filename),
-        _caller_filenumber(filenumber)
-    {}
-
-    template<typename T> LogDetailed &operator<<(const T &x)
-    {
-        _s << x;
-        return *this;
+  Log() :
+    s_()
+  {
+    
+    boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
+    
+    std::stringstream date_stream, time_stream; 
+    
+    date_stream << now.date();
+    time_stream << now.time_of_day();
+    
+    boost::filesystem::create_directory("../log/" + date_stream.str());
+    file_.open("../log/" + date_stream.str() + "/" + time_stream.str(),
+		 boost::filesystem::ofstream::app|boost::filesystem::ofstream::out);
+    
+  }
+  
+  template<typename T> Log &operator<<(const T &x)
+  {
+    /*  Print to the standard output */
+    s_ << x;
+    
+    /*  Also make a copy of the standard output to a file */
+    
+    file_ << x;
+    file_.flush();
+    
+    return *this;
     }
-
-    virtual ~LogDetailed()
+  
+    virtual ~Log()
     {
-        switch (_log_level) {
-            case LogLevel::Debug:
-                set_color(Color::GREEN);
-                break;
-            case LogLevel::Info:
-                set_color(Color::BLUE);
-                break;
-            case LogLevel::Warn:
-                set_color(Color::YELLOW);
-                break;
-            case LogLevel::Err:
-                set_color(Color::RED);
-                break;
-        }
-
-        // Time output taken from:
-        // https://stackoverflow.com/questions/16357999#answer-16358264
-        time_t rawtime;
-        time(&rawtime);
-        struct tm *timeinfo = localtime(&rawtime);
-        char time_buffer[10]{}; // We need 8 characters + \0
-        strftime(time_buffer, sizeof(time_buffer), "%I:%M:%S", timeinfo);
-        std::cout << "[" << time_buffer;
+      switch (_log_level) {
+      case LogLevel::Debug:
+	set_color(Color::GREEN);
+	break;
+      case LogLevel::Info:
+	set_color(Color::BLUE);
+	break;
+      case LogLevel::Warn:
+	set_color(Color::YELLOW);
+	break;
+      case LogLevel::Err:
+	set_color(Color::RED);
+	break;
+      }
+      
+      boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
+      
+      std::cout << "[" << now.time_of_day();
 
         switch (_log_level) {
-            case LogLevel::Debug:
-                std::cout << "|Debug] ";
-                break;
-            case LogLevel::Info:
-                std::cout << "|Info ] ";
-                break;
-            case LogLevel::Warn:
-                std::cout << "|Warn ] ";
-                break;
-            case LogLevel::Err:
-                std::cout << "|Error] ";
-                break;
+	case LogLevel::Debug:
+	  std::cout << "|Debug] ";
+	  break;
+	case LogLevel::Info:
+	  std::cout << "|Info ] ";
+	  break;
+	case LogLevel::Warn:
+	  std::cout << "|Warn ] ";
+	  break;
+	case LogLevel::Err:
+	  std::cout << "|Error] ";
+	  break;
         }
-
+	
         set_color(Color::RESET);
-
-        std::cout << _s.str();
-        std::cout << " (" << _caller_filename << ":" << _caller_filenumber << ")";
-
-        std::cout << std::endl;
+	
+        std::cout << s_.str() << std::endl;
+	file_.close();
     }
 
-    LogDetailed(const LogDetailed &) = delete;
-    void operator=(const LogDetailed &) = delete;
+    Log(const Log &) = delete;
+    void operator=(const Log &) = delete;
 
 protected:
     enum LogLevel { Debug, Info, Warn, Err } _log_level = LogLevel::Debug;
 
 private:
-    std::stringstream _s;
-    const char *_caller_filename;
-    int _caller_filenumber;
+  boost::filesystem::ofstream file_;
+  std::stringstream s_;
+  
 };
 
-class LogDebugDetailed : public LogDetailed {
+class LogDebug : public Log {
 public:
-    LogDebugDetailed(const char *filename, int filenumber) : LogDetailed(filename, filenumber)
+    LogDebug() : Log()
     {
         _log_level = LogLevel::Debug;
     }
 };
 
-class LogInfoDetailed : public LogDetailed {
+class LogInfo : public Log {
 public:
-    LogInfoDetailed(const char *filename, int filenumber) : LogDetailed(filename, filenumber)
+    LogInfo() : Log()
     {
         _log_level = LogLevel::Info;
     }
 };
 
-class LogWarnDetailed : public LogDetailed {
+class LogWarn : public Log {
 public:
-    LogWarnDetailed(const char *filename, int filenumber) : LogDetailed(filename, filenumber)
+    LogWarn() : Log()
     {
         _log_level = LogLevel::Warn;
     }
 };
 
-class LogErrDetailed : public LogDetailed {
+class LogErr : public Log {
 public:
-    LogErrDetailed(const char *filename, int filenumber) : LogDetailed(filename, filenumber)
+    LogErr() : Log()
     {
         _log_level = LogLevel::Err;
     }
