@@ -46,3 +46,34 @@ void DataSet::read_data_set_file(std::string file_name)
 
 std::vector<std::vector<double>>  DataSet::data_set() const
 {  return data_set_; }
+
+
+void DataSet::init_dataset_directory()
+{
+  boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
+  
+  std::stringstream date_stream, time_stream; 
+  
+  date_stream << now.date();
+  time_stream << now.time_of_day();
+  
+  boost::filesystem::create_directory("../dataset/" + date_stream.str());  
+
+  dataset_file_name_=
+    "../dataset/" + date_stream.str() + "/" + time_stream.str();
+  
+  map_file_name_=
+    "../dataset/" + date_stream.str() + "/map" + time_stream.str();
+
+  qtable_file_name_=
+    "../dataset/" + date_stream.str() + "/qtable" + time_stream.str();
+
+}
+
+void DataSet::save_qtable(arma::mat qtable)
+{
+
+  qtable.save(qtable_file_name_, arma::raw_ascii);
+  
+}
+

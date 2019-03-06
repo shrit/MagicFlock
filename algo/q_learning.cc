@@ -113,19 +113,11 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 			     DataSet data_set)
 {
 
-
-  
-  std::ofstream file;
-  file.open("data_sample");
-  
-
   /*
    * Needs to review the algorithm, we do not know if it is working yet.
    * This code is complete for the q learning part. However, drone part needs to
    * be tested.
    */
-  //to be overloaded
-
 
   LogDebug() << qtable_ ;
   
@@ -195,156 +187,165 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
     
     /* put the take off functions inside the steps */
     
-    //for(int steps = 0; steps < max_step_; steps++){
-
-    /*  Arming the Quads */
-    for (auto it : iris_x){
-      it->arm();
-    }
+    for(int steps = 0; steps < max_step_; steps++){
+      
+      /*  Arming the Quads */
+      for (auto it : iris_x){
+	it->arm();
+      }
           
-    std::this_thread::sleep_for(std::chrono::seconds(2));
+      std::this_thread::sleep_for(std::chrono::seconds(2));
       
-    /*  Taking off the quad */
-    for (auto it : iris_x){
-      it->takeoff();	
-    }
+      /*  Taking off the quad */
+      for (auto it : iris_x){
+	it->takeoff();	
+      }
       
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-    /*  Setting up speed important to switch the mode */
-    for (auto it : iris_x){
-      it->init_speed();
-    }
+      std::this_thread::sleep_for(std::chrono::seconds(3));
+      /*  Setting up speed important to switch the mode */
+      for (auto it : iris_x){
+	it->init_speed();
+      }
 
-    /*  Switch to offboard mode, Allow the control */
-    for(auto it : iris_x){
-      it->start_offboard_mode();
-    }
+      /*  Switch to offboard mode, Allow the control */
+      for(auto it : iris_x){
+	it->start_offboard_mode();
+      }
             
-    /*  intilization of position of the quads */
+      /*  intilization of position of the quads */
     
 
-    std::this_thread::sleep_for(std::chrono::seconds(1));          
+      std::this_thread::sleep_for(std::chrono::seconds(1));          
 
-    double random =  distribution_(generator_);
+      double random =  distribution_(generator_);
     
-    LogInfo() <<"Random number chosen: " << random ;
+      LogInfo() <<"Random number chosen: " << random ;
 
-    int action_leader = distribution_int_(generator_);
+      int action_leader = distribution_int_(generator_);
     
-    LogInfo() <<"Random action chosen: " << action_leader ;
+      LogInfo() <<"Random action chosen: " << action_leader ;
             
-    for (int i = 0; i < 10; i++){
-      move_action(iris_x, speed, action_leader, 0) ; // move the leader 100 CM
-      std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    }
-    // get the new signal of strength difference            
+      for (int i = 0; i < 10; i++){
+	move_action(iris_x, speed, action_leader, 0) ; // move the leader 100 CM
+	std::this_thread::sleep_for(std::chrono::milliseconds(50));
+      }
+      // get the new signal of strength difference            
            
-    // random number between 0 and 1 TODO::
+      // random number between 0 and 1 TODO::
       
 
-    int action_follower = 0 ;
+      int action_follower = 0 ;
 
-    index_ = qtable_state(gzs, false);
+      index_ = qtable_state(gzs, false);
             
-    if(random > epsilon_){			           
-      /*  get the action from the qtable. Exploit */
-      action_follower = qtable_action(qtable_, index_);
-      LogInfo() << "Action From Qtable " << action_follower ;
-    }						           
-    else  {
-      /*  get a random action. Explore */
-      action_follower = distribution_int_(generator_);
-    }
+      if(random > epsilon_){			           
+	/*  get the action from the qtable. Exploit */
+	action_follower = qtable_action(qtable_, index_);
+	LogInfo() << "Action From Qtable " << action_follower ;
+      }						           
+      else  {
+	/*  get a random action. Explore */
+	action_follower = distribution_int_(generator_);
+      }
 
-    /*  moving the followers randomly */
-    for (int i = 0; i < 10; i++){
-      move_action(iris_x, speed, action_follower, 1);
-      move_action(iris_x, speed, action_follower, 2);
-      std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    }
+      /*  moving the followers randomly */
+      for (int i = 0; i < 10; i++){
+	move_action(iris_x, speed, action_follower, 1);
+	move_action(iris_x, speed, action_follower, 2);
+	std::this_thread::sleep_for(std::chrono::milliseconds(50));
+      }
       
-    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+      std::this_thread::sleep_for(std::chrono::milliseconds(300));
        
-    /*  Recalculate the RSSI after moving the quads */
-    /*  get the new  state index*/
+      /*  Recalculate the RSSI after moving the quads */
+      /*  get the new  state index*/
 
-    index_ = qtable_state(gzs, true);
-    new_state_ = gzs->rssi();
+      index_ = qtable_state(gzs, true);
+      new_state_ = gzs->rssi();
     
-    std::cout << "state_index: " << index_ << std::endl;
+      LogInfo() << "state_index: " << index_ ;
     
-    std::cout << "RSSI: " << new_state_ << std::endl;
+      LogInfo() << "RSSI: " << new_state_  ;
     
-    std::vector<lt::position<double>> new_pos;    
+      std::vector<lt::position<double>> new_pos;    
 
-    std::vector<double> error;
+      std::vector<double> error;
        
-    new_pos.push_back(gzs->get_positions().leader);
-    new_pos.push_back(gzs->get_positions().f1);
-    new_pos.push_back(gzs->get_positions().f2);           
+      new_pos.push_back(gzs->get_positions().leader);
+      new_pos.push_back(gzs->get_positions().f1);
+      new_pos.push_back(gzs->get_positions().f2);           
 
-    std::cout << "New position l : " << new_pos.at(0) << std::endl;
-    std::cout << "New position f1: " << new_pos.at(1) << std::endl;
-    std::cout << "New position f2: " << new_pos.at(2) << std::endl;               	      
+      std::cout << "New position l : " << new_pos.at(0) << std::endl;
+      std::cout << "New position f1: " << new_pos.at(1) << std::endl;
+      std::cout << "New position f2: " << new_pos.at(2) << std::endl;               	      
 
           
-    lt::position<double> new_dist, new_dist2;
+      lt::position<double> new_dist, new_dist2;
 
-    std::vector<lt::position<double>> new_distance;
+      std::vector<lt::position<double>> new_distance;
        
-    new_dist.x =  new_pos.at(0).x - new_pos.at(1).x;
-    new_dist.y =  new_pos.at(0).y - new_pos.at(1).y;
-    new_dist.z =  new_pos.at(0).z - new_pos.at(1).z;
+      new_dist.x =  new_pos.at(0).x - new_pos.at(1).x;
+      new_dist.y =  new_pos.at(0).y - new_pos.at(1).y;
+      new_dist.z =  new_pos.at(0).z - new_pos.at(1).z;
        
-    new_distance.push_back(new_dist);
+      new_distance.push_back(new_dist);
        
-    new_dist2.x = new_pos.at(0).x - new_pos.at(2).x;
-    new_dist2.y = new_pos.at(0).y - new_pos.at(2).y;
-    new_dist2.z = new_pos.at(0).z - new_pos.at(2).z;
+      new_dist2.x = new_pos.at(0).x - new_pos.at(2).x;
+      new_dist2.y = new_pos.at(0).y - new_pos.at(2).y;
+      new_dist2.z = new_pos.at(0).z - new_pos.at(2).z;
               
-    new_distance.push_back(new_dist2);       
+      new_distance.push_back(new_dist2);       
        
-    error.push_back(std::sqrt(std::pow((distance.at(0).x - new_distance.at(0).x), 2)  +
-			      std::pow((distance.at(0).y - new_distance.at(0).y), 2)));
+      error.push_back(std::sqrt(std::pow((distance.at(0).x - new_distance.at(0).x), 2)  +
+				std::pow((distance.at(0).y - new_distance.at(0).y), 2)));
        
-    error.push_back(std::sqrt(std::pow((distance.at(1).x - new_distance.at(1).x), 2)  +
-			      std::pow((distance.at(1).y - new_distance.at(1).y), 2)));
+      error.push_back(std::sqrt(std::pow((distance.at(1).x - new_distance.at(1).x), 2)  +
+				std::pow((distance.at(1).y - new_distance.at(1).y), 2)));
        
       
-    /*  Recalculate the Error between quadcopters  */
-    std::cout << "Error :" << error << std::endl;
+      /*  Recalculate the Error between quadcopters  */
+      std::cout << "Error :" << error << std::endl;
 
-    double sum_of_error = 0;
+      double sum_of_error = 0;
       
-    for (auto& n : error)
-      sum_of_error += n; 
+      for (auto& n : error)
+	sum_of_error += n; 
        
-    double reward = 0.5 - error.at(0);
-    double reward2 = 0.5 - error.at(1);
+      double reward = 0.5 - error.at(0);
+      double reward2 = 0.5 - error.at(1);
               
-    e_reward = reward + reward2;
+      e_reward = reward + reward2;
        
-    LogInfo() << "reward: " << e_reward ;
+      LogInfo() << "reward: " << e_reward ;
        
-    qtable_(index_, action_follower) =
-      (1 - learning_rate_) * qtable_(index_, action_follower) +
-      learning_rate_ * (reward +  discount_rate_ * qtable_action(qtable_,
-								 index_)); 
-    //reduce epsilon as we explore more each episode
-    epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode_); 
+      qtable_(index_, action_follower) =
+	(1 - learning_rate_) * qtable_(index_, action_follower) +
+	learning_rate_ * (reward +  discount_rate_ * qtable_action(qtable_,
+								   index_)); 
+      //reduce epsilon as we explore more each episode
+      epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode_); 
       
-    LogInfo() << "Epsilon: " << epsilon_ ;
+      LogInfo() << "Epsilon: " << epsilon_ ;
       
-    rewards_.push_back(e_reward);
+      rewards_.push_back(e_reward);
 
-    for (auto it: iris_x){
-      it->land();
-    }
-       
+      for (auto it: iris_x){
+	it->land();
+      }
+
+      /*  Save the data set after each step iteration */
+          
+    data_set.save_csv_data_set(new_state_, action_follower, sum_of_error);
+
+    data_set.write_map_file(signal_map_);
+    
+    data_set.save_qtable(qtable_);
+      
+    } 
+    
     std::this_thread::sleep_for(std::chrono::seconds(5));
 
-    gzs->reset_models();      
-
+    gzs->reset_models();
 
     /*BIAS accelerometer problem after resetting the models*/
       
@@ -367,27 +368,11 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 
     /*  I have quite tested a lot of different solution, if I am going
      * to find a better one, I will replace it directly. */
-      
-    data_set.write_csv_data_set_file(file, new_state_, action_follower, sum_of_error);
-
-    data_set.write_map_file("map", signal_map_);
     
-    std::this_thread::sleep_for(std::chrono::seconds(15));                  
-
     
-    qtable_.save("qtable", arma::raw_ascii);
+    std::this_thread::sleep_for(std::chrono::seconds(15));                        
+  
   }
-  /* 
-   * Here I save the generated data set in a specifc file.
-   * We use boost log to do that.
-   * I am intended to use supervised learning in order to keep 
-   * the formation as it has been.
-   * Further, we need to look at perceptron in Python and in C++
-   * use python to get faster results. Then integrate the result 
-   * in the simulation
-   */
-
-      
 
 }
 

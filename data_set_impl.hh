@@ -14,24 +14,30 @@ void DataSet::write_data_set_file(std::ofstream& file, A a, B b, C c)
 
 
 template <typename A, typename B, typename C>  
-void DataSet::write_csv_data_set_file(std::ofstream& file, A a, B b, C c)
+void DataSet::save_csv_data_set(A a, B b, C c)
 {
+  
+  std::ofstream file;
+  file.open(dataset_file_name_,
+	    std::ios::out | std::ios::app);
+    
   file << a <<","<< b <<","<< c << "\n";
-  file.flush();    
+  file.flush();
+  
+  file.close();
 }
 
 
 template <typename A, typename B>  
-void DataSet::write_map_file(std::string file_name, std::unordered_map <A, B> map_)
+void DataSet::write_map_file(std::unordered_map <A, B> map_)
 {
   std::ofstream file;
-  file.open(file_name);
+  file.open(map_file_name_);
   
   for(auto [key, value] : map_)
     file << key <<" "<< value <<"\n";
   file.flush();
-  file.close();
-  
+  file.close();  
 }
 
 template <typename A, typename B>  
