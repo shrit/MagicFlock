@@ -21,7 +21,7 @@ private:
   std::string ini_file_;
   std::string connection_url_;
   lt::connection_type socket_;
-  
+  std::string outputfile_;
   
 };
 

@@ -113,7 +113,4 @@ std::ostream& operator<< (std::ostream& out, const local_types::rssi<T>& r)
   return out;
 }
 
-
-
-
 #endif 

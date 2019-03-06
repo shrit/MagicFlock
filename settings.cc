@@ -43,7 +43,8 @@ Settings::Settings(int argc, char* argv[])
     ("help,h", "Print this help message and exit" )				
     ("version,v", "Print the current version")
     ("Versbose,V", "Be more verbose")
-    ("ini-file,n", po::value<std::string>(&ini_file_),"Specify the name of the ini file");
+    ("ini-file,n", po::value<std::string>(&ini_file_),"Specify the name of the ini file")
+    ("output-file,o", po::value<std::string>(&outputfile_),"Specify the file name to be used to logging");
     
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, option), vm);
