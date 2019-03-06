@@ -76,6 +76,14 @@ namespace local_types {
     T lf2_;
     T ff_;
   };
+
+  template<typename T>
+  struct triangle 
+  {
+    T a;
+    T b;
+    T c;      
+  };
     
   template <typename T> 
   struct error {

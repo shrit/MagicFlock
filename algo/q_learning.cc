@@ -7,7 +7,7 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		       bool train)
   :qtable_{10000, 5, arma::fill::ones},
    max_episode_(10000),
-   max_step_(2),
+   max_step_(1000),
    epsilon_(1.0),
    min_epsilon_(0.0),
    decay_rate_(0.01),
@@ -107,20 +107,56 @@ void Q_learning::move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
   }  
 }
 
+
+lt::triangle<double> Q_learning::triangle_side(std::vector<lt::position<double>> pos)
+{
+    lt::position<double> dist, dist2, dist3;
+
+    /*  change the distance position to struct
+	calculate the distance on the 3 access
+     */  
+    
+    dist.x =  pos.at(0).x - pos.at(1).x;
+    dist.y =  pos.at(0).y - pos.at(1).y;
+    dist.z =  pos.at(0).z - pos.at(1).z;
+    
+    dist2.x = pos.at(0).x - pos.at(2).x;
+    dist2.y = pos.at(0).y - pos.at(2).y;
+    dist2.z = pos.at(0).z - pos.at(2).z;
+    
+    dist3.x = pos.at(1).x - pos.at(2).x;
+    dist3.y = pos.at(1).y - pos.at(2).y;
+    dist3.z = pos.at(1).z - pos.at(2).z;
+
+
+    lt::triangle<double> t;
+
+    t.a = std::sqrt(std::pow((dist.x), 2) +
+		    std::pow((dist.y), 2));
+    
+    t.b = std::sqrt(std::pow((dist2.x), 2)+
+		    std::pow((dist2.y), 2));
+    
+    t.c = std::sqrt(std::pow((dist3.x), 2)+
+		    std::pow((dist3.y), 2));
+
+    LogInfo() << "A = " << t.a << "B = " << t.b << "C = " << t.c ;
+    LogInfo() << "Sum of triangle " << t.a + t.b + t.c ;
+
+    return t;
+  
+}
+
 void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 			     float speed,
 			     std::shared_ptr<Gazebo> gzs,
 			     DataSet data_set)
 {
 
-  /*
-   * Needs to review the algorithm, we do not know if it is working yet.
-   * This code is complete for the q learning part. However, drone part needs to
-   * be tested.
-   */
-
   LogDebug() << qtable_ ;
-  
+
+    
+    
   for (episode_ = 0; episode_ < max_episode_; episode_++){
 
     /* Intilization phase, in each episode we should reset the
@@ -137,17 +173,14 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
      * the code functions
      */
 
-    std::cout << "Episode : " << episode_ << std::endl;            
+    LogInfo() << "Episode : " << episode_ ;            
     
-    
-    /* Need to investigate in Reset Model method, it will allow to
-     * gain alot of simulation time instead of waiting until the quads
-     * return to the home using RTL function.
-     * To be tested using integration test. 
-     */
-
-    /*  Reset model method descibed in gazebo source code */
-        
+    /*  will be destroied after each iteration. 
+     However, For multistep cases we need to rethink
+     about it*/
+    /*  use assert C++ 11 here and move this vector to above 
+	the epsides  */
+    /*  need to verify for error  */
     std::vector<lt::position<double>> pos;    
     std::vector<lt::position<double>> distance;
     
@@ -158,26 +191,14 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
     std::cout << "position l : " << pos.at(0) << std::endl;
     std::cout << "position f1: " << pos.at(1) << std::endl;
     std::cout << "position f2: " << pos.at(2) << std::endl;
-   
-    lt::position<double> dist, dist2;
-
-    dist.x =  pos.at(0).x - pos.at(1).x;
-    dist.y =  pos.at(0).y - pos.at(1).y;
-    dist.z =  pos.at(0).z - pos.at(1).z;
     
-    distance.push_back(dist);
-
-    dist2.x = pos.at(0).x - pos.at(2).x;
-    dist2.y = pos.at(0).y - pos.at(2).y;
-    dist2.z = pos.at(0).z - pos.at(2).z;
-
-
-    distance.push_back(dist2);
+    
+    
     
     /* TODO: Calculate the distance between each quadcopter */
 
     //defin episode reward here
-    double e_reward;
+    double e_reward = 0;
     
     /* 
      * Step phase, where we update the q table each step
@@ -226,7 +247,8 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       LogInfo() <<"Random action chosen: " << action_leader ;
             
       for (int i = 0; i < 10; i++){
-	move_action(iris_x, speed, action_leader, 0) ; // move the leader 100 CM
+	move_action(iris_x, speed, action_leader, 0) ;
+	move_action(iris_x, speed, action_leader, 1);// move the leader 100 CM
 	std::this_thread::sleep_for(std::chrono::milliseconds(50));
       }
       // get the new signal of strength difference            
@@ -250,7 +272,6 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 
       /*  moving the followers randomly */
       for (int i = 0; i < 10; i++){
-	move_action(iris_x, speed, action_follower, 1);
 	move_action(iris_x, speed, action_follower, 2);
 	std::this_thread::sleep_for(std::chrono::milliseconds(50));
       }
@@ -304,19 +325,27 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
        
       
       /*  Recalculate the Error between quadcopters  */
-      std::cout << "Error :" << error << std::endl;
+      LogInfo() << "Error :" << error;
 
       double sum_of_error = 0;
       
       for (auto& n : error)
 	sum_of_error += n; 
        
-      double reward = 0.5 - error.at(0);
-      double reward2 = 0.5 - error.at(1);
+      /*  Reward as a function of the triangle */
+
+      /*  if error in the follower is big and the traingle is dead
+	  reward is 0, reset the state */
+      
+      
+      
+      int  reward = 0;
+
+	//	error.at(1);
               
-      e_reward = reward + reward2;
+
        
-      LogInfo() << "reward: " << e_reward ;
+      LogInfo() << "reward: " << reward ;
        
       qtable_(index_, action_follower) =
 	(1 - learning_rate_) * qtable_(index_, action_follower) +
@@ -327,7 +356,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       
       LogInfo() << "Epsilon: " << epsilon_ ;
       
-      rewards_.push_back(e_reward);
+      rewards_.push_back(reward);
 
       for (auto it: iris_x){
 	it->land();
@@ -340,11 +369,14 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
     data_set.write_map_file(signal_map_);
     
     data_set.save_qtable(qtable_);
-      
+    
+    std::this_thread::sleep_for(std::chrono::seconds(6));
+
+    if (reward == 0)
+      break;
+
     } 
     
-    std::this_thread::sleep_for(std::chrono::seconds(5));
-
     gzs->reset_models();
 
     /*BIAS accelerometer problem after resetting the models*/
@@ -370,10 +402,8 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
      * to find a better one, I will replace it directly. */
     
     
-    std::this_thread::sleep_for(std::chrono::seconds(15));                        
-  
+    std::this_thread::sleep_for(std::chrono::seconds(15));  
   }
-
 }
 
   

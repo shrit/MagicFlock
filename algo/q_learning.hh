@@ -62,6 +62,8 @@ public:
 		   int action,
 		   int quad_number);  
   
+  lt::triangle<double> triangle_side(std::vector<lt::position<double>> pos);
+    
   void run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		   float speed,
 		   std::shared_ptr<Gazebo> gzs,
