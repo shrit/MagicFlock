@@ -26,9 +26,11 @@ class Log {
   
 public:
   Log() :
-    s_()
+    s_() {}
+
+  void init ()
   {
-    
+    // need to intialize in the main function.
     boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
     
     std::stringstream date_stream, time_stream; 
@@ -38,7 +40,7 @@ public:
     
     boost::filesystem::create_directory("../log/" + date_stream.str());
     file_.open("../log/" + date_stream.str() + "/" + time_stream.str(),
-		 boost::filesystem::ofstream::app|boost::filesystem::ofstream::out);
+	       boost::filesystem::ofstream::app|boost::filesystem::ofstream::out);    
     
   }
   
