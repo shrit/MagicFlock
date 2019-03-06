@@ -2,7 +2,9 @@
 
 build
 doc/build/*
+dataset/*
 data_set/*
+log/*
 paper/auto/*
 material/auto/*
 model_plugin/build/*
