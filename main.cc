@@ -316,6 +316,11 @@ int main(int argc, char* argv[])
   Settings settings(argc, argv);
 
   Configs configs;
+
+  /*  Init logging system */
+  Log log;
+  
+  log.init();
   
   /*  
    * The ns3 Command commented inside the code, A good way to remember it :)
@@ -380,6 +385,7 @@ int main(int argc, char* argv[])
   // Pass the devices to the q learning algorithm
   if(configs.train()) {
     DataSet data_set;
+    data_set.init_dataset_directory();
     Q_learning qlearning(iris_x, speed, gz, data_set, configs.train());
     return 0;
   }

@@ -38,7 +38,8 @@ public:
     date_stream << now.date();
     time_stream << now.time_of_day();
     
-    boost::filesystem::create_directory("../log/" + date_stream.str());
+    boost::filesystem::create_directory("/meta/DeviceController/log");
+    boost::filesystem::create_directory("/meta/DeviceController/log/" + date_stream.str());
     file_.open("../log/" + date_stream.str() + "/" + time_stream.str(),
 	       boost::filesystem::ofstream::app|boost::filesystem::ofstream::out);    
     
@@ -48,12 +49,7 @@ public:
   {
     /*  Print to the standard output */
     s_ << x;
-    
-    /*  Also make a copy of the standard output to a file */
-    
-    file_ << x;
-    file_.flush();
-    
+        
     return *this;
     }
   
@@ -95,7 +91,13 @@ public:
 	
         set_color(Color::RESET);
 	
-        std::cout << s_.str() << std::endl;
+	std::cout << s_.str() << std::endl;
+
+	/*  Also make a copy of the standard output to a file */   
+	file_ << s_.str();
+	
+	file_.flush();
+    
 	file_.close();
     }
 
