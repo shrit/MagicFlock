@@ -362,15 +362,12 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 
       /*  if error in the follower is big and the traingle is dead
 	  reward is 0, reset the state */
-      
-      
-      
       int  reward = 0;
 
-	//	error.at(1);
-              
-
-       
+      if (is_triangle(t) == true ) {
+	reward = 1 ;	
+      }
+                                 
       LogInfo() << "reward: " << reward ;
        
       qtable_(index_, action_follower) =
