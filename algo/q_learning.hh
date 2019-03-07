@@ -21,7 +21,7 @@
 # include "../gazebo.hh"
 # include "../data_set.h"
 # include "../log.hh"
-
+# include "../global_include.h"
 
 template <typename T>
 std::ostream& operator<< (std::ostream& out,
@@ -63,7 +63,11 @@ public:
 		   int quad_number);  
   
   lt::triangle<double> triangle_side(std::vector<lt::position<double>> pos);
-    
+
+  bool is_triangle(lt::triangle<double> t);
+  
+  double deformation_error(std::vector<lt::position<double>> pos);
+  
   void run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		   float speed,
 		   std::shared_ptr<Gazebo> gzs,
@@ -87,13 +91,16 @@ private:
   
   int max_episode_ ;
   int episode_ ;
-  int max_step_ ;
+  int max_step_ ;  
   arma::uword index_;
   float epsilon_ ;        
   float min_epsilon_ ;    
   float decay_rate_ ;   
   float learning_rate_ ;
   float discount_rate_ ;
+  std::vector<float> upper_threshold_;
+  std::vector<float> lower_threshold_;
+  
      
 };
 

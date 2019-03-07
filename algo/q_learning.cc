@@ -15,7 +15,9 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
    discount_rate_(0.95),
    distribution_(0.0, 1.0),
    distribution_int_(0, 3),
-   episode_(0)
+   episode_(0),
+   upper_threshold_{11, 10, 10},
+   lower_threshold_{4.8, 5, 5}
 {
 
   if(train == true){
@@ -147,6 +149,60 @@ lt::triangle<double> Q_learning::triangle_side(std::vector<lt::position<double>>
   
 }
 
+double Q_learning::deformation_error(std::vector<lt::position<double>> pos)
+{
+
+  lt::position<double> dist, dist2;
+  
+  std::vector<lt::position<double>> distance;
+  
+  std::vector<double> error;
+        
+  dist.x =  pos.at(0).x - pos.at(1).x;
+  dist.y =  pos.at(0).y - pos.at(1).y;
+  dist.z =  pos.at(0).z - pos.at(1).z;
+  
+  distance.push_back(dist);
+  
+  dist2.x = pos.at(0).x - pos.at(2).x;
+  dist2.y = pos.at(0).y - pos.at(2).y;
+  dist2.z = pos.at(0).z - pos.at(2).z;
+  
+  distance.push_back(dist2);       
+  
+  error.push_back(std::sqrt(std::pow((distance.at(0).x - distance.at(0).x), 2)  +
+			    std::pow((distance.at(0).y - distance.at(0).y), 2)));
+  
+  error.push_back(std::sqrt(std::pow((distance.at(1).x - distance.at(1).x), 2)  +
+			    std::pow((distance.at(1).y - distance.at(1).y), 2)));
+  
+  
+  /*  Recalculate the Error between quadcopters  */
+  LogInfo() << "Error :" << error;
+  
+  double sum_of_error = 0;
+  
+  for (auto& n : error)
+    sum_of_error += n; 
+  
+  
+  return sum_of_error;
+   
+}
+
+bool Q_learning::is_triangle(lt::triangle<double> t)
+{
+  bool value = false;
+  if((t.a + t.b >  lower_threshold_.at(0))  && (t.a + t.b <  upper_threshold_.at(0))) {
+    if ((t.a + t.c >  lower_threshold_.at(1))  && (t.a + t.c <  upper_threshold_.at(1))) {
+      if ((t.b + t.c >  lower_threshold_.at(2))  && (t.b + t.c <  upper_threshold_.at(2)))
+	value = true;
+    }
+  }
+  return value; 
+  
+}
+
 void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 			     float speed,
 			     std::shared_ptr<Gazebo> gzs,
@@ -154,11 +210,21 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 {
 
   LogDebug() << qtable_ ;
-
     
+  
+  std::vector<lt::position<double>> pos;    
+  std::vector<lt::position<double>> distance;
+  
+  pos.push_back(gzs->get_positions().leader);
+  pos.push_back(gzs->get_positions().f1);
+  pos.push_back(gzs->get_positions().f2);
+   
+  LogInfo() << "Starting position l : " << pos.at(0) ;
+  LogInfo() << "Starting position f1: " << pos.at(1) ;
+  LogInfo() << "Starting position f2: " << pos.at(2) ;         
     
   for (episode_ = 0; episode_ < max_episode_; episode_++){
-
+    
     /* Intilization phase, in each episode we should reset the
      * position of each quadcopter to the initial position. Thus,
      * advertise a gazebo topic that allow to control the world. From
@@ -175,28 +241,17 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 
     LogInfo() << "Episode : " << episode_ ;            
     
-    /*  will be destroied after each iteration. 
-     However, For multistep cases we need to rethink
-     about it*/
-    /*  use assert C++ 11 here and move this vector to above 
-	the epsides  */
-    /*  need to verify for error  */
-    std::vector<lt::position<double>> pos;    
-    std::vector<lt::position<double>> distance;
     
-    pos.push_back(gzs->get_positions().leader);
-    pos.push_back(gzs->get_positions().f1);
-    pos.push_back(gzs->get_positions().f2);
-   
-    std::cout << "position l : " << pos.at(0) << std::endl;
-    std::cout << "position f1: " << pos.at(1) << std::endl;
-    std::cout << "position f2: " << pos.at(2) << std::endl;
+  /*  use assert C++ 11 here and move this vector to above 
+      the epsides  */
+  /*  need to verify for error  */
+    /*  NEED SOLUTION HERE */
+    
+    // lt::assert_equal(pos.at(0), gzs->get_positions().leader);    
+    // lt::assert_equal(pos.at(1), gzs->get_positions().f1);
+    // lt::assert_equal(pos.at(2), gzs->get_positions().f2);
     
     
-    
-    
-    /* TODO: Calculate the distance between each quadcopter */
-
     //defin episode reward here
     double e_reward = 0;
     
@@ -289,48 +344,19 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       LogInfo() << "RSSI: " << new_state_  ;
     
       std::vector<lt::position<double>> new_pos;    
-
-      std::vector<double> error;
+      
        
       new_pos.push_back(gzs->get_positions().leader);
       new_pos.push_back(gzs->get_positions().f1);
       new_pos.push_back(gzs->get_positions().f2);           
 
-      std::cout << "New position l : " << new_pos.at(0) << std::endl;
-      std::cout << "New position f1: " << new_pos.at(1) << std::endl;
-      std::cout << "New position f2: " << new_pos.at(2) << std::endl;               	      
+      LogInfo() << "New position l : " << new_pos.at(0) ;
+      LogInfo() << "New position f1: " << new_pos.at(1) ;
+      LogInfo() << "New position f2: " << new_pos.at(2) ;               	      
 
-          
-      lt::position<double> new_dist, new_dist2;
 
-      std::vector<lt::position<double>> new_distance;
-       
-      new_dist.x =  new_pos.at(0).x - new_pos.at(1).x;
-      new_dist.y =  new_pos.at(0).y - new_pos.at(1).y;
-      new_dist.z =  new_pos.at(0).z - new_pos.at(1).z;
-       
-      new_distance.push_back(new_dist);
-       
-      new_dist2.x = new_pos.at(0).x - new_pos.at(2).x;
-      new_dist2.y = new_pos.at(0).y - new_pos.at(2).y;
-      new_dist2.z = new_pos.at(0).z - new_pos.at(2).z;
-              
-      new_distance.push_back(new_dist2);       
-       
-      error.push_back(std::sqrt(std::pow((distance.at(0).x - new_distance.at(0).x), 2)  +
-				std::pow((distance.at(0).y - new_distance.at(0).y), 2)));
-       
-      error.push_back(std::sqrt(std::pow((distance.at(1).x - new_distance.at(1).x), 2)  +
-				std::pow((distance.at(1).y - new_distance.at(1).y), 2)));
-       
-      
-      /*  Recalculate the Error between quadcopters  */
-      LogInfo() << "Error :" << error;
+      lt::triangle<double> t = triangle_side(new_pos);
 
-      double sum_of_error = 0;
-      
-      for (auto& n : error)
-	sum_of_error += n; 
        
       /*  Reward as a function of the triangle */
 
@@ -363,18 +389,18 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       }
 
       /*  Save the data set after each step iteration */
-          
-    data_set.save_csv_data_set(new_state_, action_follower, sum_of_error);
-
-    data_set.write_map_file(signal_map_);
-    
-    data_set.save_qtable(qtable_);
-    
-    std::this_thread::sleep_for(std::chrono::seconds(6));
-
-    if (reward == 0)
-      break;
-
+      
+      data_set.save_csv_data_set(new_state_, action_follower, reward);
+      
+      data_set.write_map_file(signal_map_);
+      
+      data_set.save_qtable(qtable_);
+      
+      std::this_thread::sleep_for(std::chrono::seconds(6));
+      
+      if (reward == 0)
+	break;
+      
     } 
     
     gzs->reset_models();
@@ -405,6 +431,3 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
     std::this_thread::sleep_for(std::chrono::seconds(15));  
   }
 }
-
-  
-
