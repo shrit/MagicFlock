@@ -146,9 +146,3 @@ float to_deg_from_rad(float rad)
     return rad / M_PI_F * 180.0f;
 }
 
-template <class T>
-bool are_equal(T one, T two)
-{
-    return (std::fabs(one - two) < std::numeric_limits<T>::epsilon());
-}
-

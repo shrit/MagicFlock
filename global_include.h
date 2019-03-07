@@ -63,8 +63,4 @@ float to_rad_from_deg(float deg);
 float to_deg_from_rad(float rad);
 
 
-template <class T>
-bool are_equal(T one, T two);
-
-
 

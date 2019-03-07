@@ -16,7 +16,7 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
    distribution_(0.0, 1.0),
    distribution_int_(0, 3),
    episode_(0),
-   upper_threshold_{11, 10, 10},
+   upper_threshold_{11, 9, 9},
    lower_threshold_{4.8, 5, 5}
 {
 
@@ -143,7 +143,6 @@ lt::triangle<double> Q_learning::triangle_side(std::vector<lt::position<double>>
 		    std::pow((dist3.y), 2));
 
     LogInfo() << "A = " << t.a << "B = " << t.b << "C = " << t.c ;
-    LogInfo() << "Sum of triangle " << t.a + t.b + t.c ;
 
     return t;
   
@@ -251,43 +250,42 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
     // lt::assert_equal(pos.at(1), gzs->get_positions().f1);
     // lt::assert_equal(pos.at(2), gzs->get_positions().f2);
     
-    
-    //defin episode reward here
-    double e_reward = 0;
-    
+       
     /* 
      * Step phase, where we update the q table each step
      * Each episode has a fixed step number.
      * Note: at the end of each episode, we re-intilize everything   
      */
     
+    /*  Arming the Quads */
+    for (auto it : iris_x){
+      it->arm();
+    }
+    
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    
+    /*  Taking off the quad */
+    for (auto it : iris_x){
+      it->takeoff();	
+    }
+    
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    /*  Setting up speed important to switch the mode */
+    for (auto it : iris_x){
+      it->init_speed();
+    }
+    
+    /*  Switch to offboard mode, Allow the control */
+    for(auto it : iris_x){
+      it->start_offboard_mode();
+    }
+    
+    
     /* put the take off functions inside the steps */
     
     for(int steps = 0; steps < max_step_; steps++){
       
-      /*  Arming the Quads */
-      for (auto it : iris_x){
-	it->arm();
-      }
-          
-      std::this_thread::sleep_for(std::chrono::seconds(2));
       
-      /*  Taking off the quad */
-      for (auto it : iris_x){
-	it->takeoff();	
-      }
-      
-      std::this_thread::sleep_for(std::chrono::seconds(3));
-      /*  Setting up speed important to switch the mode */
-      for (auto it : iris_x){
-	it->init_speed();
-      }
-
-      /*  Switch to offboard mode, Allow the control */
-      for(auto it : iris_x){
-	it->start_offboard_mode();
-      }
-            
       /*  intilization of position of the quads */
     
 
@@ -301,7 +299,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
     
       LogInfo() <<"Random action chosen: " << action_leader ;
             
-      for (int i = 0; i < 10; i++){
+      for (int i = 0; i < 5; i++){
 	move_action(iris_x, speed, action_leader, 0) ;
 	move_action(iris_x, speed, action_leader, 1);// move the leader 100 CM
 	std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -326,7 +324,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       }
 
       /*  moving the followers randomly */
-      for (int i = 0; i < 10; i++){
+      for (int i = 0; i < 5; i++){
 	move_action(iris_x, speed, action_follower, 2);
 	std::this_thread::sleep_for(std::chrono::milliseconds(50));
       }
@@ -381,10 +379,6 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       
       rewards_.push_back(reward);
 
-      for (auto it: iris_x){
-	it->land();
-      }
-
       /*  Save the data set after each step iteration */
       
       data_set.save_csv_data_set(new_state_, action_follower, reward);
@@ -393,12 +387,18 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       
       data_set.save_qtable(qtable_);
       
-      std::this_thread::sleep_for(std::chrono::seconds(6));
+      std::this_thread::sleep_for(std::chrono::seconds(1));
       
       if (reward == 0)
 	break;
       
     } 
+    
+      for (auto it: iris_x){
+	it->land();
+      }
+          
+    std::this_thread::sleep_for(std::chrono::seconds(6));
     
     gzs->reset_models();
 

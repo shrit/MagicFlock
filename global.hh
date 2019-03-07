@@ -6,7 +6,7 @@
 # include <vector>
 # include <iterator>
 
-
+# include "log.hh"
 
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const std::vector<T>& v) {
@@ -91,6 +91,16 @@ namespace local_types {
     T y;
   };
 
+  // bool assert_equal(double one, double two)
+  // {
+  //   bool ok = (std::fabs(one - two) < std::numeric_limits<double>::epsilon());
+  //   if(ok != true){
+  //     LogErr() << "Err: Can not assert values";
+  //     exit(0);
+  //   }
+  //   return ok;
+  // }
+  
   /// Type of a drone's IP
   using ip_type   = std::string;
   /// Type of a drone's port
