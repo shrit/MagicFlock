@@ -55,7 +55,8 @@ public:
 
   arma::uword qtable_state_from_map(std::shared_ptr<Gazebo> gzs,
 			    std::unordered_map<int, int> map);
-    
+
+  bool is_signal_in_limits(std::shared_ptr<Gazebo> gzs);
   
   void move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		   float speed,
@@ -67,12 +68,14 @@ public:
   bool is_triangle(lt::triangle<double> t);
   
   double deformation_error(std::vector<lt::position<double>> pos);
+
+  void explore_actions(std::vector<std::shared_ptr<Px4Device>> iris_x,
+		       float speed);  
   
   void run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		   float speed,
 		   std::shared_ptr<Gazebo> gzs,
 		   DataSet data_set);
-
 
 private:
     
@@ -100,6 +103,8 @@ private:
   float discount_rate_ ;
   std::vector<float> upper_threshold_;
   std::vector<float> lower_threshold_;
+  float rssi_upper_threshold_;
+  float rssi_lower_threshold_;
   
      
 };

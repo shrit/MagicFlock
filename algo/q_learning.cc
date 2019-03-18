@@ -17,7 +17,10 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
    distribution_int_(0, 3),
    episode_(0),
    upper_threshold_{11, 9, 9},
-   lower_threshold_{4.8, 5, 5}
+   lower_threshold_{4.8, 5, 5},
+   rssi_upper_threshold_(0.94),
+   rssi_lower_threshold_(1.1)
+   
 {
 
   if(train == true){
@@ -84,6 +87,25 @@ arma::uword Q_learning::qtable_state_from_map(std::shared_ptr<Gazebo> gzs,
   
   return index;
 }
+
+
+bool Q_learning::is_signal_in_limits(std::shared_ptr<Gazebo> gzs)
+{
+  bool ok = false;
+  
+  float sum_of_neigh_signal = gzs->rssi().lf1() + gzs->rssi().ff() ;
+  
+  if ( sum_of_neigh_signal < sum_of_neigh_signal* rssi_upper_threshold_ ) {
+    else if ( sum_of_neigh_signal > sum_of_neigh_signal* rssi_lower_threshold_) {
+      
+      ok = true;
+      
+    }    
+  }
+  
+  return ok;  
+}
+
 
 void Q_learning::move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
 			     float speed,
@@ -202,6 +224,38 @@ bool Q_learning::is_triangle(lt::triangle<double> t)
   
 }
 
+void Q_learning::explore_actions(std::vector<std::shared_ptr<Px4Device>> iris_x,
+				  float speed)
+{
+  
+  if (action_follower == 0 ){
+  action_folower = 2 ; /*  random between 0 and 1 */
+    }
+  else if (action_follower == 1){
+    
+  }
+  else if (action_follower == 2){
+    
+  }
+  else if (action_follower == 3){
+    
+  }
+      
+  for (int i = 0; i < 3; i++){
+    move_action(iris_x, speed, action_follower, 2);
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  }
+  
+  std::this_thread::sleep_for(std::chrono::milliseconds(300));
+  
+  if(is_signal_in_limits() == true) {
+       explore_actions(iris_x, speed);
+   }
+ 
+  
+}
+
+
 void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 			     float speed,
 			     std::shared_ptr<Gazebo> gzs,
@@ -249,8 +303,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
     // lt::assert_equal(pos.at(0), gzs->get_positions().leader);    
     // lt::assert_equal(pos.at(1), gzs->get_positions().f1);
     // lt::assert_equal(pos.at(2), gzs->get_positions().f2);
-    
-       
+           
     /* 
      * Step phase, where we update the q table each step
      * Each episode has a fixed step number.
@@ -312,6 +365,12 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       int action_follower = 0 ;
 
       index_ = qtable_state(gzs, false);
+
+      /*  create a signal strength limits functions that tests whether
+       the choosen action is good or not*/
+      /*  according to this action we can define if it is good or not
+	  by surveying the singal strength, then we define the rewards according 
+	  to this scenario */
             
       if(random > epsilon_){			           
 	/*  get the action from the qtable. Exploit */
@@ -324,7 +383,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       }
 
       /*  moving the followers randomly */
-      for (int i = 0; i < 5; i++){
+      for (int i = 0; i < 3; i++){
 	move_action(iris_x, speed, action_follower, 2);
 	std::this_thread::sleep_for(std::chrono::milliseconds(50));
       }
@@ -342,8 +401,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       LogInfo() << "RSSI: " << new_state_  ;
     
       std::vector<lt::position<double>> new_pos;    
-      
-       
+             
       new_pos.push_back(gzs->get_positions().leader);
       new_pos.push_back(gzs->get_positions().f1);
       new_pos.push_back(gzs->get_positions().f2);           
@@ -362,10 +420,21 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	  reward is 0, reset the state */
       int  reward = 0;
 
-      if (is_triangle(t) == true ) {
-	reward = 1 ;	
+      /*  if the follower is has executed a good action
+       we need to rediscover the other action in this loop 
+      until we get a 0 reward, the ather actions are related to exploration 
+      and exploitation note that  */
+
+      
+      if (is_signal_in_limits(gz) == true ) {
+	
+	reward = 1 ;
+	explore_actions();	
       }
-                                 
+      
+      
+      
+            
       LogInfo() << "reward: " << reward ;
        
       qtable_(index_, action_follower) =
@@ -389,7 +458,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       
       std::this_thread::sleep_for(std::chrono::seconds(1));
       
-      if (reward == 0)
+      if (is_triangle(t) == false)
 	break;
       
     } 
