@@ -19,7 +19,8 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
    upper_threshold_{11, 9, 9},
    lower_threshold_{4.8, 5, 5},
    rssi_upper_threshold_(0.94),
-   rssi_lower_threshold_(1.1)
+   rssi_lower_threshold_(1.1),
+   action_follower_(0)
    
 {
 
@@ -109,26 +110,22 @@ bool Q_learning::is_signal_in_limits(std::shared_ptr<Gazebo> gzs)
 
 void Q_learning::move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
 			     float speed,
-			     int action,
+			     lt::action action,
 			     int quad_number)
 {
-  switch(action){
-
-  case 0:
+  if(action.left == true){
     iris_x.at(quad_number)->left(speed);
-    break;
-  case 1:
+  }
+  else if(action.right == true){ 
     iris_x.at(quad_number)->right(speed);
-    break;
-  case 2:
+  }
+  else if(action.forward == true){ 
     iris_x.at(quad_number)->forward(speed); 
-    break;
-  case 3:
+  }
+  else if(action.backward == true){ 
     iris_x.at(quad_number)->backward(speed);
-    break;
-  default:
-    break;
-  }  
+  }
+  
 }
 
 
@@ -227,22 +224,12 @@ bool Q_learning::is_triangle(lt::triangle<double> t)
 void Q_learning::explore_actions(std::vector<std::shared_ptr<Px4Device>> iris_x,
 				  float speed)
 {
+
+  action_follower_ = distribution_int_(generator_);
   
-  if (action_follower == 0 ){
-  action_folower = 2 ; /*  random between 0 and 1 */
-    }
-  else if (action_follower == 1){
-    
-  }
-  else if (action_follower == 2){
-    
-  }
-  else if (action_follower == 3){
-    
-  }
-      
+  
   for (int i = 0; i < 3; i++){
-    move_action(iris_x, speed, action_follower, 2);
+    move_action(iris_x, speed, action_follower_, 2);
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
   }
   
@@ -254,6 +241,101 @@ void Q_learning::explore_actions(std::vector<std::shared_ptr<Px4Device>> iris_x,
  
   
 }
+
+lt::action Q_learning::randomize_action()
+{
+  lt::action action= {false, false, false, false};
+
+  if(distribution_int_(generator_) == 0){
+    action.forward = true;
+  }
+  else if(distribution_int_(generator_) == 1){
+    action.backward = true;
+  }    
+  else if(distribution_int_(generator_) == 2){
+        action.left = true;	
+  }
+  else if (distribution_int_(generator_) == 3){
+        action.right = true;
+  }        
+
+}
+
+void Q_learning::phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
+			   float speed,
+			   std::shared_ptr<Gazebo> gzs,
+			   DataSet data_set,
+			   bool random_leader_action)
+{
+  
+  if ( random_leader_action == true){
+    lt::action action_leader = randomize_action()
+    saved_leader_action_ = action_leader;
+    LogInfo() <<"Random action chosen: " << action_leader ;
+  }
+  else{
+    lt::action action_leader = saved_leader_action_;    
+  }
+  
+  for (int i = 0; i < 5; i++){
+    move_action(iris_x, speed, action_leader, 0) ;
+    move_action(iris_x, speed, action_leader, 1);// move the leader 100 CM
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  }
+
+  /* Get the state (signal strength) at time t  */
+  states_vector.push_back(gzs->rssi());
+  
+
+  /*  Get the random action for follower at time t */
+  action_follower_.push_back(randomized_action());
+  
+  
+  for (int i = 0; i < 3; i++){
+    move_action(iris_x, speed, action_follower_.back(), 2);
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  }
+  
+  std::this_thread::sleep_for(std::chrono::milliseconds(300));
+
+  /* Get the state (signal strength) at time t + 1  */
+  states_vector.push_back(gzs->rssi());
+
+
+  /*  Save the generated dataset HERE */
+  if (action_follower_.size() == 1 ){
+    /*  The first case scenario */
+    /*  Do not save any thing Yet */
+  }
+  else{
+    auto it_state = states_vector.rbegin();
+    auto it_action = action_follower_vector.rbegin();
+    
+    data_set.save_csv_data_set(*(it_state--),
+			       *(it_action--),
+			       state_vector.back(),
+			       action_follower_vector.back()
+			       );
+        
+  }
+    
+  /*  Test if the signal is good, if yes continue with the same action
+      for leader */
+  if(is_signal_in_limits() == true) {
+    
+    for (count_ = 0; count_ < 3;  count++) {
+      phase_one(iris_x, speed, gzs, false);
+      
+    }
+    
+  }
+  else{
+    count_ = 0;
+    return ; 
+  }
+  
+}
+
 
 
 void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
@@ -283,7 +365,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
      * advertise a gazebo topic that allow to control the world. From
      * here we can start automatically the quads: 
      * Arm + takeoff + offboard mode + moving + land 
-     * Then: repeat eah episode.
+     * Then: repeat each episode.
      */
 
     /* This function in enormous, we need to recut it into Several
@@ -293,16 +375,6 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
      */
 
     LogInfo() << "Episode : " << episode_ ;            
-    
-    
-  /*  use assert C++ 11 here and move this vector to above 
-      the epsides  */
-  /*  need to verify for error  */
-    /*  NEED SOLUTION HERE */
-    
-    // lt::assert_equal(pos.at(0), gzs->get_positions().leader);    
-    // lt::assert_equal(pos.at(1), gzs->get_positions().f1);
-    // lt::assert_equal(pos.at(2), gzs->get_positions().f2);
            
     /* 
      * Step phase, where we update the q table each step
@@ -333,36 +405,14 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       it->start_offboard_mode();
     }
     
-    
+    std::this_thread::sleep_for(std::chrono::seconds(1));  
     /* put the take off functions inside the steps */
     
     for(int steps = 0; steps < max_step_; steps++){
       
-      
-      /*  intilization of position of the quads */
-    
-
-      std::this_thread::sleep_for(std::chrono::seconds(1));          
-
-      double random =  distribution_(generator_);
-    
-      LogInfo() <<"Random number chosen: " << random ;
-
-      int action_leader = distribution_int_(generator_);
-    
-      LogInfo() <<"Random action chosen: " << action_leader ;
             
-      for (int i = 0; i < 5; i++){
-	move_action(iris_x, speed, action_leader, 0) ;
-	move_action(iris_x, speed, action_leader, 1);// move the leader 100 CM
-	std::this_thread::sleep_for(std::chrono::milliseconds(50));
-      }
-      // get the new signal of strength difference            
-           
-      // random number between 0 and 1 TODO::
-      
-
-      int action_follower = 0 ;
+      /*  Start the First phase*/
+          
 
       index_ = qtable_state(gzs, false);
 
@@ -371,15 +421,20 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       /*  according to this action we can define if it is good or not
 	  by surveying the singal strength, then we define the rewards according 
 	  to this scenario */
-            
+      
+      double random =  distribution_(generator_);
+      
+      LogInfo() <<"Random number chosen: " << random ;
+      
+      /*  Epsilon greedy */      
       if(random > epsilon_){			           
-	/*  get the action from the qtable. Exploit */
+	/*  Get the action from the qtable. Exploit */
 	action_follower = qtable_action(qtable_, index_);
 	LogInfo() << "Action From Qtable " << action_follower ;
       }						           
       else  {
-	/*  get a random action. Explore */
-	action_follower = distribution_int_(generator_);
+	/*  Get a random action. Explore */
+	action_follower = randomize_action()
       }
 
       /*  moving the followers randomly */

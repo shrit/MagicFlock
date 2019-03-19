@@ -57,10 +57,12 @@ public:
 			    std::unordered_map<int, int> map);
 
   bool is_signal_in_limits(std::shared_ptr<Gazebo> gzs);
+
+  lt::action randomize_action();
   
   void move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		   float speed,
-		   int action,
+		   lt::action action,
 		   int quad_number);  
   
   lt::triangle<double> triangle_side(std::vector<lt::position<double>> pos);
@@ -71,6 +73,11 @@ public:
 
   void explore_actions(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		       float speed);  
+
+  void phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
+		 float speed,
+		 std::shared_ptr<Gazebo> gzs,
+		 DataSet data_set);
   
   void run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		   float speed,
@@ -81,7 +88,7 @@ private:
     
   arma::mat  qtable_;
     
-  lt::rssi<double>   new_state_;
+  std::vector<lt::rssi<double>>   states_vector, new_state_;
     
   std::vector<double> rewards_;
   
@@ -105,8 +112,10 @@ private:
   std::vector<float> lower_threshold_;
   float rssi_upper_threshold_;
   float rssi_lower_threshold_;
-  
-     
+
+  int count_ = 0;
+  std::vector<lt::action> action_follower_ ;
+  lt::action saved_leader_action_;
 };
 
   //}
