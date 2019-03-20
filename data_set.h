@@ -38,11 +38,12 @@ public:
   DataSet();
     
   void read_data_set_file(std::string file_name);
+  
   template <typename A, typename B, typename C>  
   void write_data_set_file(std::ofstream& file, A a, B b, C c);
   
-  template <typename A, typename B, typename C>  
-  void save_csv_data_set(A a, B b, C c);
+  template <typename Arg, typename... Args>  
+  void save_csv_data_set(Arg&& arg, Args&&... );
   
   template <typename A, typename B>  
   void read_map_file(std::string file_name, std::unordered_map <A, B>& map_);
