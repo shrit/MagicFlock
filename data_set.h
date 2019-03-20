@@ -13,6 +13,7 @@
 # include <string>
 # include <vector>
 # include <unordered_map>
+# include <utility>
 
 /*  Boost library include */
 # include <boost/algorithm/string.hpp>

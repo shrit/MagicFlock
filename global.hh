@@ -46,6 +46,16 @@ namespace local_types {
     T z;
     
   };
+
+
+  struct action{
+
+    bool forward;
+    bool backward;
+    bool left;
+    bool right;    
+    
+  };
   
   template <typename T> 
   class rssi {
@@ -119,6 +129,14 @@ template <typename T>
 std::ostream& operator<< (std::ostream& out, const local_types::position<T>& p)
 {
   out << "["<< p.x <<", " << p.y <<", " << p.z <<"]";
+  return out;
+}
+
+
+template <typename T>
+std::ostream& operator<< (std::ostream& out, const local_types::action& a)
+{
+  out << a.forward <<"," << a.backward <<"," << a.left <<","<< a.right ;
   return out;
 }
 

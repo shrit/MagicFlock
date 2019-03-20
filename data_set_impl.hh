@@ -13,15 +13,17 @@ void DataSet::write_data_set_file(std::ofstream& file, A a, B b, C c)
 }
 
 
-template <typename A, typename B, typename C, typename D>  
-void DataSet::save_csv_data_set(A a, B b, C c, D d)
+template <typename Arg, typename... Args>  
+void DataSet::save_csv_data_set(Arg&& arg, Args&&... )
 {
   
   std::ofstream file;
   file.open(dataset_file_name_,
 	    std::ios::out | std::ios::app);
-    
-  file << a <<","<< b <<","<< c <<"," << d <<"\n";
+  
+  file << std::forward<Arg>(arg);
+  ((file <<","<< std::forward(Args)(args), ...))
+  
   file.flush();
   
   file.close();
