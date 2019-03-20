@@ -1,8 +1,9 @@
-# Quadcopter DeviceController
+# QCopter
 
-This project is intended to control quadcopters in Gazebosim, it has
-the capacity to control several quads at the same time. It use machine
-learning algorithm to maintain the formation of several quadcopters
+QCopters is a software used to control a swarm of quadcopters in
+Gazebosim, it has the capacity to control several quads at the same
+time. It uses machine learning algorithms to maintain the intial
+formation of quadcopters
 
 
 # Installation:
@@ -11,28 +12,27 @@ To compile the project:
 
 ```bash
 mkdir build && cd build
-
+```
+```bash
 cmake ../
-
+```
+```bash
 make
 ```
-
 
 Please verify that you have installed the following dependecies on your
 machine:
 
 # Dependencies:
 
-Boost program option
-ncurses
-tinyxml
-Gazebo API
-DronecodeSDK
-
+[Boost libraries](https://www.boost.org/)  
+[ncurses](https://www.gnu.org/software/ncurses/)  
+[Gazebo and Gazebo API](http://gazebosim.org/)  
+[DronecodeSDK](https://github.com/Dronecode/DronecodeSDK)  
 
 # License
 
-[GNU GPL v2.0](https://choosealicense.com/licenses/gpl-2.0/)
+This project is licensed under GPL license [GNU GPL v2.0](https://choosealicense.com/licenses/gpl-2.0/)
 
 
 
