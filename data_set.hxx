@@ -20,7 +20,7 @@ void DataSet::write_data_set_file(std::ofstream& file, A a, B b, C c)
 
 
 template <typename Arg, typename... Args>  
-void DataSet::save_csv_data_set(Arg&& arg, Args&&... )
+void DataSet::save_csv_data_set(Arg&& arg, Args&&... args)
 {
   
   std::ofstream file;
@@ -28,7 +28,7 @@ void DataSet::save_csv_data_set(Arg&& arg, Args&&... )
 	    std::ios::out | std::ios::app);
   
   file << std::forward<Arg>(arg);
-  ((file <<","<< std::forward(Args)(args), ...))
+  ((file <<","<< std::forward<Args>(args)), ...);
   
   file.flush();
   

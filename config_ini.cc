@@ -37,11 +37,11 @@ void Configs::parse_ini()
   ports_.push_back(static_cast<lt::port_type>
 		   (std::stoi(ini_.get("quadcopter_01").get("port"))));
   
-  ports_.push_back(static_cast<lt::port_type>
-		   (std::stoi(ini_.get("quadcopter_02").get("port"))));
+  // ports_.push_back(static_cast<lt::port_type>
+  // 		   (std::stoi(ini_.get("quadcopter_02").get("port"))));
   
-  ports_.push_back(static_cast<lt::port_type>
-		   (std::stoi(ini_.get("quadcopter_03").get("port")))); 
+  // ports_.push_back(static_cast<lt::port_type>
+  // 		   (std::stoi(ini_.get("quadcopter_03").get("port")))); 
 
 
   /*Parse algorithm section*/

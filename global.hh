@@ -5,31 +5,11 @@
 # include <fstream>
 # include <vector>
 # include <iterator>
+# include <dronecode_sdk/telemetry.h>
 
 # include "log.hh"
 
-template <typename T>
-std::ostream& operator<< (std::ostream& out, const std::vector<T>& v) {
-  if ( !v.empty() ) {
-    //    out << '[';
-    std::copy (v.begin(), v.end(), std::ostream_iterator<T>(out, ","));
-    // out << "\b\b]";
-  }
-  return out;
-}
-
-
-template <typename T>
-std::ostream& operator<< (std::ostream& out, const std::vector<std::vector<T>>& v) {
-  if ( !v.empty() ) {
-    out << '[';
-    for (int i=0; i < v.size(); i++ )
-      std::copy (v.at(i).begin(), v.at(i).end(), std::ostream_iterator<T>(out, ","));
-    out << "\b\b]";
-  }
-  return out;
-}
-
+using namespace dronecode_sdk;
 
 /*  Global name space for the simulation
     It contain a namespace with several 
@@ -125,6 +105,9 @@ namespace local_types {
   using quads_rssi               = std::vector<double>;  
 }
 
+/*  Overloading the << operator to print local structs, vectors and classes */
+
+
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const local_types::position<T>& p)
 {
@@ -132,21 +115,52 @@ std::ostream& operator<< (std::ostream& out, const local_types::position<T>& p)
   return out;
 }
 
-
-template <typename T>
 std::ostream& operator<< (std::ostream& out, const local_types::action& a)
 {
   out << a.forward <<"," << a.backward <<"," << a.left <<","<< a.right ;
   return out;
 }
 
+std::ostream& operator<< (std::ostream& out,
+			  const Telemetry::PositionVelocityNED& p)
+{					   
+  out << "[ "
+      << p.position.north_m <<", "
+      << p.position.east_m <<", "
+      << p.position.down_m <<
+    "]"<<"\n";
+  return out;
+}
 
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const local_types::rssi<T>& r)
 {
-  //  out << "["<< r.lf1 <<", " << r.lf2 <<", " << r.ff <<"]";
+
   out << r.lf1() <<"," << r.lf2() <<"," << r.ff();
   return out;
 }
+
+template <typename T>
+std::ostream& operator<< (std::ostream& out, const std::vector<T>& v) {
+  if ( !v.empty() ) {
+    //    out << '[';
+    std::copy (v.begin(), v.end(), std::ostream_iterator<T>(out, ","));
+    // out << "\b\b]";
+  }
+  return out;
+}
+
+template <typename T>
+std::ostream& operator<< (std::ostream& out, const std::vector<std::vector<T>>& v) {
+  if ( !v.empty() ) {
+    out << '[';
+    for (int i=0; i < v.size(); i++ )
+      std::copy (v.at(i).begin(), v.at(i).end(), std::ostream_iterator<T>(out, ","));
+    out << "\b\b]";
+  }
+  return out;
+}
+
+
 
 #endif 

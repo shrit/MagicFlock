@@ -21,7 +21,7 @@ extern "C" {
 
 # include "algo/q_learning.hh"
 # include "config_ini.hh"
-# include "data_set.h"
+# include "data_set.hh"
 # include "log.hh"
 # include "gazebo.hh"
 # include "global.hh"

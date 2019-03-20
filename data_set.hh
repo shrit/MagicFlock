@@ -73,6 +73,6 @@ private:
     
 };
 
-# include "data_set_impl.hh"
+# include "data_set.hxx"
 
 #endif

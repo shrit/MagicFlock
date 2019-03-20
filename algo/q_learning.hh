@@ -19,28 +19,15 @@
 # include "../px4_device.hh"
 # include "../global.hh"
 # include "../gazebo.hh"
-# include "../data_set.h"
+# include "../data_set.hh"
 # include "../log.hh"
 # include "../global_include.h"
 
-template <typename T>
-std::ostream& operator<< (std::ostream& out,
-			  const Telemetry::PositionVelocityNED& p)
-{					   
-  out << "[ "
-      << p.position.north_m <<", "
-      << p.position.east_m <<", "
-      << p.position.down_m <<
-    "]"<<"\n";
-  return out;
-}
-  
-        
 class Q_learning
 {
-    
+  
 public:
-
+  
   Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	     float speed,
 	     std::shared_ptr<Gazebo> gzs,
@@ -61,9 +48,9 @@ public:
   lt::action randomize_action();
   
   void move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
+		   std::string label,
 		   float speed,
-		   lt::action action,
-		   int quad_number);  
+		   lt::action action);  
   
   lt::triangle<double> triangle_side(std::vector<lt::position<double>> pos);
 
@@ -71,13 +58,11 @@ public:
   
   double deformation_error(std::vector<lt::position<double>> pos);
 
-  void explore_actions(std::vector<std::shared_ptr<Px4Device>> iris_x,
-		       float speed);  
-
   void phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		 float speed,
 		 std::shared_ptr<Gazebo> gzs,
-		 DataSet data_set);
+		 DataSet data_set,
+		 bool random_leader_action);
   
   void run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		   float speed,
@@ -88,7 +73,7 @@ private:
     
   arma::mat  qtable_;
     
-  std::vector<lt::rssi<double>>   states_vector, new_state_;
+  std::vector<lt::rssi<double>>   states_, new_state_;
     
   std::vector<double> rewards_;
   

@@ -1,4 +1,4 @@
-OBcmake_minimum_required(VERSION 3.1.0)
+cmake_minimum_required(VERSION 3.1.0)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 ## Specify your project's name
 project(QCopter)
