@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1.0)
+OBcmake_minimum_required(VERSION 3.1.0)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 ## Specify your project's name
 project(QCopter)
@@ -19,7 +19,6 @@ find_package(gazebo REQUIRED)
 set ( SOURCES 
   algo/q_learning.cc
   config_ini.cc
-  data_set.cc
   gazebo.cc
   global_include.cc
   joystick/joystick.cc
