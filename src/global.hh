@@ -15,7 +15,6 @@ using namespace dronecode_sdk;
     It contain a namespace with several 
     defintion used in all files 
 */
-
 namespace local_types {
   
   template <typename T> 
@@ -27,13 +26,13 @@ namespace local_types {
     
   };
 
-
+  template <typename T> 
   struct action{
 
-    bool forward;
-    bool backward;
-    bool left;
-    bool right;    
+    T forward;
+    T backward;
+    T left;
+    T right;    
     
   };
   
@@ -80,16 +79,6 @@ namespace local_types {
     T x;
     T y;
   };
-
-  // bool assert_equal(double one, double two)
-  // {
-  //   bool ok = (std::fabs(one - two) < std::numeric_limits<double>::epsilon());
-  //   if(ok != true){
-  //     LogErr() << "Err: Can not assert values";
-  //     exit(0);
-  //   }
-  //   return ok;
-  // }
   
   /// Type of a drone's IP
   using ip_type   = std::string;
@@ -106,8 +95,6 @@ namespace local_types {
 }
 
 /*  Overloading the << operator to print local structs, vectors and classes */
-
-
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const local_types::position<T>& p)
 {
@@ -115,27 +102,16 @@ std::ostream& operator<< (std::ostream& out, const local_types::position<T>& p)
   return out;
 }
 
-std::ostream& operator<< (std::ostream& out, const local_types::action& a)
+template <typename T>
+std::ostream& operator<< (std::ostream& out, const local_types::action<T>& a)
 {
   out << a.forward <<"," << a.backward <<"," << a.left <<","<< a.right ;
-  return out;
-}
-
-std::ostream& operator<< (std::ostream& out,
-			  const Telemetry::PositionVelocityNED& p)
-{					   
-  out << "[ "
-      << p.position.north_m <<", "
-      << p.position.east_m <<", "
-      << p.position.down_m <<
-    "]"<<"\n";
   return out;
 }
 
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const local_types::rssi<T>& r)
 {
-
   out << r.lf1() <<"," << r.lf2() <<"," << r.ff();
   return out;
 }
@@ -143,9 +119,7 @@ std::ostream& operator<< (std::ostream& out, const local_types::rssi<T>& r)
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const std::vector<T>& v) {
   if ( !v.empty() ) {
-    //    out << '[';
-    std::copy (v.begin(), v.end(), std::ostream_iterator<T>(out, ","));
-    // out << "\b\b]";
+    std::copy (v.begin(), v.end(), std::ostream_iterator<T>(out, ",")); 
   }
   return out;
 }
@@ -160,7 +134,5 @@ std::ostream& operator<< (std::ostream& out, const std::vector<std::vector<T>>& 
   }
   return out;
 }
-
-
 
 #endif 
