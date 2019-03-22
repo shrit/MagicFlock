@@ -1,11 +1,6 @@
 # QCopter
 
-[![Build Status](https://travis-ci.com/shrit/QCopters.svg?token=ERsskMDsU2icrkrWzj6i&branch=master)](https://travis-ci.com/shrit/QCopters)
-
-[![Build Status: develop](https://travis-ci.com/shrit/QCopters.svg?token=ERsskMDsU2icrkrWzj6i&branch=develop)](https://travis-ci.com/shrit/QCopters)
-
-[![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
-
+[![Build Status](https://travis-ci.com/shrit/QCopters.svg?token=ERsskMDsU2icrkrWzj6i&branch=master)](https://travis-ci.com/shrit/QCopters) [![Build Status: develop](https://travis-ci.com/shrit/QCopters.svg?token=ERsskMDsU2icrkrWzj6i&branch=develop)](https://travis-ci.com/shrit/QCopters) [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 
 QCopters is a software used to control a swarm of quadcopters in
 Gazebosim, it has the capacity to control several quads at the same
