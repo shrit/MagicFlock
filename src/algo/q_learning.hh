@@ -20,7 +20,6 @@
 # include "../gazebo.hh"
 # include "../data_set.hh"
 # include "../log.hh"
-# include "../global_include.h"
 
 class Q_learning
 {

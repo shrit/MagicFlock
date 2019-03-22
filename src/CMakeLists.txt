@@ -4,7 +4,6 @@ set ( SOURCES
   config_ini.cc
   data_set.cc
   gazebo.cc
-  global_include.cc
   joystick/joystick.cc
   log.cc  
   main.cc
