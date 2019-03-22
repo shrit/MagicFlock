@@ -1,3 +1,6 @@
+#ifndef CONFIG_INI_HH_
+#define CONFIG_INI_HH_
+
 # include <iostream>
 # include <string>
 
@@ -30,6 +33,7 @@ public:
   std::string map_file_name() const;
   
   int quad_number() const;
+  std::vector<std::string> quad_names() const;
 
   std::vector<lt::port_type> quads_ports() const;
   
@@ -71,3 +75,4 @@ private:
   
 };
 
+#endif

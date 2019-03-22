@@ -10,6 +10,7 @@
 # include "ema_filter.hh"
 # include "global.hh"
 # include "log.hh"
+# include "config_ini.hh"
 
 namespace lt = local_types;
 
@@ -20,10 +21,18 @@ struct positions {
   lt::position<double> f2;
 };
 
+struct orientations {
+  lt::orientation<double> leader;
+  lt::orientation<double> f1;
+  lt::orientation<double> f2;  
+};
+
+class configs;
 
 class Gazebo
 {
 
+  
 public:
 
   using SubPtr                   = gazebo::transport::SubscriberPtr;
@@ -66,9 +75,13 @@ private:
   
   positions positions_;
 
+  orientations orientations_;
+
   EWMAFilter<double> ema_filter_;
   
-  lt::rssi<double> signal_;   
+  lt::rssi<double> signal_;
+
+  Configs config_;
      
 };
 

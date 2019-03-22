@@ -37,11 +37,11 @@ void Configs::parse_ini()
   ports_.push_back(static_cast<lt::port_type>
 		   (std::stoi(ini_.get("quadcopter_01").get("port"))));
   
-  // ports_.push_back(static_cast<lt::port_type>
-  // 		   (std::stoi(ini_.get("quadcopter_02").get("port"))));
+  ports_.push_back(static_cast<lt::port_type>
+  		   (std::stoi(ini_.get("quadcopter_02").get("port"))));
   
-  // ports_.push_back(static_cast<lt::port_type>
-  // 		   (std::stoi(ini_.get("quadcopter_03").get("port")))); 
+  ports_.push_back(static_cast<lt::port_type>
+  		   (std::stoi(ini_.get("quadcopter_03").get("port")))); 
 
 
   /*Parse algorithm section*/
@@ -75,6 +75,11 @@ void Configs::parse_ini()
 int Configs::quad_number() const
 {
   return number_of_quads_;
+}
+
+std::vector<std::string> Configs::quad_names() const
+{
+  return quad_names_;
 }
 
 std::vector<lt::port_type> Configs::quads_ports() const

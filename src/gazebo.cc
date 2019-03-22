@@ -80,12 +80,13 @@ void Gazebo::Parse_rssi_msg_2(ConstVector2dPtr& msg)
 /*  positin msg received from gazebo */
 void Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
 {
-
+  /*  Get the model name from the config ini file */
+  
   for (int i =0; i < posesStamped->pose_size(); ++i)
     {
       const ::gazebo::msgs::Pose &pose = posesStamped->pose(i);
       std::string name = pose.name();
-      if (name == std::string("iris_1"))
+      if (name == std::string(config_.quad_names().at(0)))
         {
           const ::gazebo::msgs::Vector3d& position = pose.position();
 	  
@@ -93,27 +94,43 @@ void Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
           positions_.leader.y = position.y();
           positions_.leader.z = position.z();
 
-	  //	  std::cout << "pos" << positions_.leader << std::endl;
+	  const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
+
+	  orientations_.leader.x = orientation.x();
+	  orientations_.leader.y = orientation.y();
+	  orientations_.leader.z = orientation.z();
+	  orientations_.leader.w = orientation.w();
 	  
 	}
-      else if (name == std::string("iris_2")){
+      else if (name == std::string(config_.quad_names().at(1))){
 	const ::gazebo::msgs::Vector3d& position = pose.position();
 	
 	positions_.f1.x = position.x();
 	positions_.f1.y = position.y();
 	positions_.f1.z = position.z();
+
 	
-	//	std::cout << "pos1" << positions_.f1 << std::endl;
+	const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
 	
+	orientations_.f1.x = orientation.x();
+	orientations_.f1.y = orientation.y();
+	orientations_.f1.z = orientation.z();
+	orientations_.f1.w = orientation.w();		
+	 
       }
-      else if (name == std::string("iris_3")){
+      else if (name == std::string(config_.quad_names().at(2))){
 	const ::gazebo::msgs::Vector3d& position = pose.position();
 	
 	positions_.f2.x = position.x();
 	positions_.f2.y = position.y();
 	positions_.f2.z = position.z();
+
+	const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
 	
-	//std::cout << "pos2" << positions_.f2 << std::endl;
+	orientations_.f2.x = orientation.x();
+	orientations_.f2.y = orientation.y();
+	orientations_.f2.z = orientation.z();
+	orientations_.f2.w = orientation.w();	
 	
       }
     }

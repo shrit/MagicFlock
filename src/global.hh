@@ -27,6 +27,16 @@ namespace local_types {
   };
 
   template <typename T> 
+  struct orientation {
+    
+    T x;
+    T y;
+    T z;
+    T w;
+    
+  };
+
+  template <typename T> 
   struct action{
 
     T forward;
