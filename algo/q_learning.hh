@@ -1,7 +1,6 @@
 # ifndef Q_LEARNING_HH_
 # define Q_LEARNING_HH_
 
-
 /*  Standard C++ includes  */
 # include <algorithm>
 # include <chrono>
@@ -45,12 +44,12 @@ public:
 
   bool is_signal_in_limits(std::shared_ptr<Gazebo> gzs);
 
-  lt::action randomize_action();
+  lt::action<bool> randomize_action();
   
   void move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		   std::string label,
 		   float speed,
-		   lt::action action);  
+		   lt::action<bool> action);  
   
   lt::triangle<double> triangle_side(std::vector<lt::position<double>> pos);
 
@@ -63,6 +62,8 @@ public:
 		 std::shared_ptr<Gazebo> gzs,
 		 DataSet data_set,
 		 bool random_leader_action);
+
+  //  void phase_two();
   
   void run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		   float speed,
@@ -99,10 +100,10 @@ private:
   float rssi_lower_threshold_;
 
   int count_ = 0;
-  std::vector<lt::action> action_follower_ ;
-  lt::action saved_leader_action_;
+  std::vector<lt::action<bool>> action_follower_ ;
+  lt::action<bool> saved_leader_action_;
+  
 };
-
-  //}
+  
 
 #endif
