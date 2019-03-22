@@ -25,12 +25,8 @@
 # include <dronecode_sdk/action.h>
 # include <dronecode_sdk/calibration.h>
 # include <dronecode_sdk/dronecode_sdk.h>
-# include <dronecode_sdk/log_files.h>
 # include <dronecode_sdk/offboard.h>
 # include <dronecode_sdk/telemetry.h>
-
-
-
 
 /*  local includes */
 
@@ -51,10 +47,7 @@ namespace lt = local_types;
 /*  TODO list: 
     /*
     * Add error management 
-    * Put the code inside the examples of the api 
-    * send a pull request with your modification
-    * Open source this part of your code
-    *
+    * Put the code inside the examples of the api
     */
 
 
@@ -100,10 +93,7 @@ public:
     
   void quad_health();
   Telemetry::Result set_rate_result();
-
-  LogFiles::Result download_log_files_from_px4(unsigned id, const std::string& file_path);
   
-
   /*  Handles plugin results. */
   
   inline void action_error_exit(Action::Result result, const std::string &message);
@@ -113,16 +103,13 @@ public:
 private:
   
   DronecodeSDK dc_;
-  //  std::atomic<Telemetry::PositionVelocityNED> position_ned_ ;
-
   
   //  mutable std::mutex _position_ned_mutex{};
   Telemetry::PositionVelocityNED _position_ned{{0, 0, 0}, {0, 0, 0}};
   std::shared_ptr<dronecode_sdk::Telemetry> telemetry_;
   std::shared_ptr<dronecode_sdk::Action> action_;
   std::shared_ptr<dronecode_sdk::Offboard> offboard_;
-  std::shared_ptr<dronecode_sdk::Calibration> calibration_;
-  //  std::shared_ptr<dronecode_sdk::LogFiles> log_files_;
+  std::shared_ptr<dronecode_sdk::Calibration> calibration_;  
   
 };
 

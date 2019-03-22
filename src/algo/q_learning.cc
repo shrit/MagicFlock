@@ -245,7 +245,9 @@ lt::action<bool> Q_learning::randomize_action()
   }
   else if (distribution_int_(generator_) == 3){
         action.right = true;
-  }        
+  }
+
+  return action;
 
 }
 
@@ -295,11 +297,11 @@ void Q_learning::phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
   
 }
 
-// void Q_learning::phase_two()
-// {
+void Q_learning::phase_two()
+{
 
   
-// }
+}
 
 void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 			     float speed,

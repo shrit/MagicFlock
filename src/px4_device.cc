@@ -280,11 +280,9 @@ Telemetry::PositionVelocityNED Px4Device::position() const
   return _position_ned;    
 }
 
-
 void Px4Device::position_ned()
 {
   telemetry_->position_velocity_ned_async([this](Telemetry::PositionVelocityNED pvn){
-					    //std::lock_guard<std::mutex> unlock(_position_ned_mutex);
 					    
 					    this->_position_ned = pvn ;
 					    					    
@@ -360,22 +358,6 @@ Telemetry::Result Px4Device::set_rate_result()
       
 }
 
-LogFiles::Result Px4Device::download_log_files_from_px4(unsigned id, const std::string& file_path)
-{
-
-  // LogFiles::Result result =   log_files_->download_log_file(id, file_path);
-  
-  // if (result != LogFiles::Result::SUCCESS) {
-  //       LogInfo() << "Downloading log files failed: "
-  // 	      << LogFiles::result_str(result)
-  // 	      ;
-  // 	return result;    
-	
-  // }
-  // return result;    
-  
-}
-
 // Handles Action result
 inline void Px4Device::action_error_exit(Action::Result result, const std::string &msg)
 {
@@ -405,7 +387,3 @@ inline void Px4Device::connection_error_exit(ConnectionResult result, const std:
         exit(EXIT_FAILURE);
     }
 }
-
-
-
-

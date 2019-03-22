@@ -62,7 +62,7 @@ public:
 		 DataSet data_set,
 		 bool random_leader_action);
 
-  //  void phase_two();
+  void phase_two();
   
   void run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		   float speed,
