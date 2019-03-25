@@ -20,7 +20,7 @@ Px4Device::Px4Device(lt::connection_type socket,
   
   set_rate_result();
   position_ned();
-  quad_health();      
+  //  quad_health();      
   
 }
 
