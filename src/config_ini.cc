@@ -10,7 +10,6 @@ Configs::Configs()
   
 }
 
-
 void Configs::parse_ini()
 {
 
@@ -27,6 +26,8 @@ void Configs::parse_ini()
     
   speed_ = std::stoi(ini_.get("simulation").get("speed"));
 
+  std::string just_fly = ini_.get("simulation").get("just_fly");
+  std::istringstream(keyboard) >> std::boolalpha >> just_fly_;
 
     /*Parse quadcopter section*/
   
@@ -68,8 +69,12 @@ void Configs::parse_ini()
   reset_1_ = ini_.get("publish_topics").get("reset_1");
   reset_2_ = ini_.get("publish_topics").get("reset_2");
   reset_3_ = ini_.get("publish_topics").get("reset_3"); 
-  
-  
+}
+
+
+bool Configs::just_fly() const
+{
+  return just_fly_;
 }
 
 int Configs::quad_number() const

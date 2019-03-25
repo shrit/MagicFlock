@@ -40,6 +40,8 @@ public:
   float speed() const;
 
   bool train() const;
+
+  bool just_fly() const;
   
 
 private:
@@ -60,7 +62,7 @@ private:
   
   float speed_;
   
-  bool train_, keyboard_, joystick_;
+  bool train_, keyboard_, joystick_, just_fly_;
 
   std::string positions_;
   
