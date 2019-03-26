@@ -49,8 +49,7 @@ namespace lt = local_types;
  * Wait for Joystick input, non-blocking implementation using STL 
 */
 
-JoystickEvent joystick_event_handler(Joystick& joystick,
-				     JoystickEvent event,
+JoystickEvent joystick_event_handler(Joystick& joystick,				  
 				     std::vector<std::shared_ptr<Px4Device>> iris_x,
 				     float speed,
 				     Q_learning qlearning,
@@ -228,102 +227,103 @@ void keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
   while (true) {            
       // Attempt to read an event from the joystick
 
-      ch = getch();
+    ch = getch();
+    
+    switch (ch) {
       
-      switch (ch) {
-	
-      case 'a':
-	if (!just_fly) {
-	  for (auto it : iris_x) {
-	    it->arm();
-	  }
-	} else {
-	  iris_x.at(0)->arm();
-	}       
-	LogInfo() << "arming..." ;
-	
-      case 'l':
-	if (!just_fly) {  
-	  for (auto it : iris_x) {
-	    it->land();	
-	  }       
-	} else {
-	  iris_x.at(0)->land();
-	}	
-	
-	LogInfo() << "landing..." ;
-	
-      case 't':
-	if (!just_fly) {
-	  for (auto it : iris_x) {
-	    it->takeoff();	
-	  }
-	} else {
-	  iris_x.at(0)->takeoff();
-	}
-	
-	LogInfo() << "taking off..." ;
-	std::this_thread::sleep_for(std::chrono::seconds(5));
-
-      case 's':
-	if (!just_fly) {
-	  for (auto it : iris_x) {
-	    it->init_speed();
-	  }
-	  for (auto it : iris_x) {
-	    it->start_offboard_mode();
-	  }
-	} else {
-	  iris_x.at(0)->init_speed();	
-	  iris_x.at(0)->start_offboard_mode();	  	  
-	}
-	
-	LogInfo() << "Start offoard mode..." ;
-	std::this_thread::sleep_for(std::chrono::seconds(1));          
-
-      case KEY_RIGHT:	
-	iris_x.at(0)->right(speed);
-	LogInfo() << "Moving right... " ;
-
-      case KEY_LEFT:	
-	iris_x.at(0)->left(speed);
-	LogInfo() << "Moving left... " ;
-
-      case KEY_DOWN:	
-	iris_x.at(0)->backward(speed);
-	LogInfo() << "Moving backward... " ;	  	  
-	
-      case KEY_UP: 
-	/*  Speed should be fixed as the joystick does not move */
-	iris_x.at(0)->forward(speed);	  
-	LogInfo() << "Moving forward... " ;
-		
-      case 'd':
-	iris_x.at(0)->down(speed);
-	LogInfo() << "Moving down...: " ;
-
-      case 'u': 	
-	iris_x.at(0)->up(speed);	 
-	LogInfo() << "Moving up...: " ;
-	
-      default:		    	
-	printw("key_NOT DEFINED: %c", ch);	
-	endwin();	
-      }
-      
+    case 'a':
       if (!just_fly) {
-	LogInfo() << gz->rssi() ;
-	arma::uword index =0;
-	
-	index = qlearning.qtable_state_from_map(gz, map);
-	LogInfo() << "index: "<< index ;    
-	
-	if (index > qtable.n_rows) {
-	  LogInfo() << "Move the leader around...";
-	} else {
-	  qlearning.qtable_action(qtable, index);
+	for (auto it : iris_x) {
+	  it->arm();
 	}
+      } else {
+	iris_x.at(0)->arm();
+      }       
+      LogInfo() << "arming..." ;
+      break;
+    case 'l':
+      if (!just_fly) {  
+	for (auto it : iris_x) {
+	  it->land();	
+	}       
+      } else {
+	iris_x.at(0)->land();
+      }	
+	
+      LogInfo() << "landing..." ;
+      break;
+    case 't':
+      if (!just_fly) {
+	for (auto it : iris_x) {
+	  it->takeoff();	
+	}
+      } else {
+	iris_x.at(0)->takeoff();
       }
+	
+      LogInfo() << "taking off..." ;
+      std::this_thread::sleep_for(std::chrono::seconds(5));
+      break;
+    case 's':
+      if (!just_fly) {
+	for (auto it : iris_x) {
+	  it->init_speed();
+	}
+	for (auto it : iris_x) {
+	  it->start_offboard_mode();
+	}
+      } else {
+	iris_x.at(0)->init_speed();	
+	iris_x.at(0)->start_offboard_mode();	  	  
+      }
+	
+      LogInfo() << "Start offoard mode..." ;
+      std::this_thread::sleep_for(std::chrono::seconds(1));          
+      break;
+    case KEY_RIGHT:	
+      iris_x.at(0)->right(speed);
+      LogInfo() << "Moving right... " ;
+      break;
+    case KEY_LEFT:	
+      iris_x.at(0)->left(speed);
+      LogInfo() << "Moving left... " ;
+      break;
+    case KEY_DOWN:	
+      iris_x.at(0)->backward(speed);
+      LogInfo() << "Moving backward... " ;	  	  
+      break;
+    case KEY_UP: 
+      /*  Speed should be fixed as the joystick does not move */
+      iris_x.at(0)->forward(speed);	  
+      LogInfo() << "Moving forward... " ;
+      break;	
+    case 'd':
+      iris_x.at(0)->down(speed);
+      LogInfo() << "Moving down...: " ;
+      break;
+    case 'u': 	
+      iris_x.at(0)->up(speed);	 
+      LogInfo() << "Moving up...: " ;
+      break;
+    default:		    	
+      printw("key_NOT DEFINED: %c", ch);	
+      endwin();
+      break;
+    }
+      
+    if (!just_fly) {
+      LogInfo() << gz->rssi() ;
+      arma::uword index =0;
+	
+      index = qlearning.qtable_state_from_map(gz, map);
+      LogInfo() << "index: "<< index ;    
+	
+      if (index > qtable.n_rows) {
+	LogInfo() << "Move the leader around...";
+      } else {
+	qlearning.qtable_action(qtable, index);
+      }
+    }
   }
 }
 
@@ -343,9 +343,7 @@ int main(int argc, char* argv[])
       LogInfo() << "No device found, please connect a joystick" ;
       exit(1);
     }
-  
-  JoystickEvent event;
-    
+        
   Settings settings(argc, argv);
 
   Configs configs;
@@ -359,10 +357,7 @@ int main(int argc, char* argv[])
    * The ns3 Command commented inside the code, A good way to remember it :)
    */
   //  /meta/ns-allinone-3.29/ns-3.29/ && /meta/ns-allinone-3.29/ns-3.29/waf --run  \"triangolo --fMode=4 --workDir=/meta/ns-allinone-3.29/ns-3.29 --xmlFilename=/meta/Spider-pig/gazebo/ns3/ns3.world --radioRange=300 --numusers=3\"
-  
-    
-  int size = configs.quad_number() ;
-
+     
   float speed = configs.speed();
   
   std::vector<lt::port_type> ports  =  configs.quads_ports();
@@ -389,12 +384,12 @@ int main(int argc, char* argv[])
   ///////////
    
   /*  gazebo local test */
-  
-  std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(argc,argv);
+  //  Gazebo gz(argc, argv);
+  std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(); //argc,argv);
   
   gz->subscriber(configs.positions());
 
-  /*  verify the numbers to subscribe to the good signal strength*/
+   //verify the numbers to subscribe to the good signal strength
   
   gz->subscriber(configs.rssi_1_2());
   gz->subscriber(configs.rssi_1_3());
@@ -403,7 +398,7 @@ int main(int argc, char* argv[])
   gz->publisher(configs.reset_1());
   gz->publisher(configs.reset_2());
   gz->publisher(configs.reset_3());
-
+ 
   
   /* Wait for 10 seconds, Just to finish subscribe to
   * gazebo topics before Starting Q learning*/
@@ -430,9 +425,9 @@ int main(int argc, char* argv[])
   std::unordered_map<int, int> map;
   data_set.read_map_file(configs.map_file_name(), map);
 
-  for(auto elem : map){
-      LogInfo() << elem.first << " " << elem.second << "\n";
-    }
+  for (auto elem : map) {
+    LogInfo() << elem.first << " " << elem.second << "\n";
+  }
 
   std::this_thread::sleep_for(std::chrono::seconds(5));  
 
@@ -442,7 +437,7 @@ int main(int argc, char* argv[])
   
   if (ok == false) {
     LogWarn() << "problem with loading the qtable";
-    }
+  }
 
 
   // fly mode
@@ -468,34 +463,34 @@ int main(int argc, char* argv[])
         
   auto joystick_handler = [&](){			 
     
-			  /** Update signal strength here 
-			      other wise update it an other function 
-			      each unit of time    
-			      * use cantor get the index
-			      * move the quadcopters according to the action in the qtable */
+  			  /** Update signal strength here 
+  			      other wise update it an other function 
+  			      each unit of time    
+  			      * use cantor get the index
+  			      * move the quadcopters according to the action in the qtable */
 			  
-			  joystick_event_handler(joystick, event,
-						 iris_x, speed,
-						 qlearning, qtable,
-						 gz, map,
-						 just_fly);
+  			  joystick_event_handler(joystick,
+  						 iris_x, speed,
+  						 qlearning, qtable,
+  						 gz, map,
+  						 just_fly);
     
   };
   
   auto keyboard_handler = [&](){			 
     
-			  /** Update signal strength here 
-			      other wise update it an other function 
-			      each unit of time    
-			      * use cantor get the index
-			      * move the quadcopters according to the action in the qtable */
+  			  /** Update signal strength here 
+  			      other wise update it an other function 
+  			      each unit of time    
+  			      * use cantor get the index
+  			      * move the quadcopters according to the action in the qtable */
 			  
-			    keyboard_event_handler(iris_x,
-						   speed,
-						   qlearning,
-						   qtable,
-						   gz, map,
-						   just_fly);
+  			    keyboard_event_handler(iris_x,
+  						   speed,
+  						   qlearning,
+  						   qtable,
+  						   gz, map,
+  						   just_fly);
     
   };
   

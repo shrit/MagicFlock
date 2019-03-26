@@ -59,7 +59,6 @@ public:
   void phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		 float speed,
 		 std::shared_ptr<Gazebo> gzs,
-		 DataSet data_set,
 		 bool random_leader_action);
 
   void phase_two();
@@ -70,36 +69,37 @@ public:
 		   DataSet data_set);
 
 private:
-    
+
+  int count_;
+  float decay_rate_ ;   
+  float discount_rate_ ;
+  std::uniform_real_distribution<> distribution_;
+  std::uniform_int_distribution<> distribution_int_;
+  int episode_ ;
+  float epsilon_ ;
+  float learning_rate_ ;
+  std::vector<float> lower_threshold_;
+  int max_episode_ ;  
+  int max_step_ ;
+  float min_epsilon_ ;  
   arma::mat  qtable_;
-    
+  float rssi_lower_threshold_;
+  float rssi_upper_threshold_;
+  std::vector<float> upper_threshold_;
+
+  
   std::vector<lt::rssi<double>>   states_, new_state_;
     
   std::vector<double> rewards_;
   
   std::default_random_engine generator_;
-  std::uniform_real_distribution<> distribution_;
   
-  std::uniform_int_distribution<> distribution_int_;
-
   std::unordered_map<int, int> signal_map_;
-  
-  int max_episode_ ;
-  int episode_ ;
-  int max_step_ ;  
+    
   arma::uword index_;
-  float epsilon_ ;        
-  float min_epsilon_ ;    
-  float decay_rate_ ;   
-  float learning_rate_ ;
-  float discount_rate_ ;
-  std::vector<float> upper_threshold_;
-  std::vector<float> lower_threshold_;
-  float rssi_upper_threshold_;
-  float rssi_lower_threshold_;
-
-  int count_ = 0;
+      
   std::vector<lt::action<bool>> action_follower_ ;
+  
   lt::action<bool> saved_leader_action_;
   
 };

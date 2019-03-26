@@ -29,7 +29,7 @@ struct orientations {
 
 class configs;
 
-class Gazebo
+class Gazebo 
 {
 
   
@@ -39,7 +39,7 @@ public:
   using PubPtr                   = gazebo::transport::PublisherPtr;
   using NodePtr                  = gazebo::transport::NodePtr;
   
-  Gazebo(int argc, char* argv[]);
+  Gazebo();//int argc, char* argv[]);
 
   /*  This function subscribe to any topic and handle 
    the message */
@@ -66,7 +66,7 @@ private:
   //  signal_type parse_msg;
   /*  node process that connecte to gazebo topic */
   double rssi_;
-
+  //  gazebo::client c_;
   std::vector<SubPtr> subs_;
   
   std::vector<PubPtr> pubs_;

@@ -44,11 +44,10 @@ using std::chrono::seconds;
 
 namespace lt = local_types;
 
-/*  TODO list: 
-    /*
-    * Add error management 
-    * Put the code inside the examples of the api
-    */
+/*  TODO list:     
+ * Add error management 
+ * Put the code inside the examples of the api
+ */
 
 
 class Px4Device 

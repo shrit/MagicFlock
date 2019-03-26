@@ -5,21 +5,22 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		       std::shared_ptr<Gazebo> gzs,
 		       DataSet data_set,
 		       bool train)
-  :qtable_{10000, 5, arma::fill::ones},
-   max_episode_(10000),
-   max_step_(1000),
-   epsilon_(1.0),
-   min_epsilon_(0.0),
+  :count_(0),
    decay_rate_(0.01),
-   learning_rate_(0.9),
    discount_rate_(0.95),
    distribution_(0.0, 1.0),
    distribution_int_(0, 3),
    episode_(0),
-   upper_threshold_{11, 9, 9},
+   epsilon_(1.0),
+   learning_rate_(0.9),
    lower_threshold_{4.8, 5, 5},
+   max_episode_(10000),
+   max_step_(1000),
+   min_epsilon_(0.0),
+   qtable_{10000, 5, arma::fill::ones},
+   rssi_lower_threshold_(1.1),
    rssi_upper_threshold_(0.94),
-   rssi_lower_threshold_(1.1)
+   upper_threshold_{11, 9, 9}
 {
 
   if(train == true){
@@ -81,7 +82,7 @@ arma::uword Q_learning::qtable_state_from_map(std::shared_ptr<Gazebo> gzs,
     LogDebug() << "Signal is not yet aded to the table" ;
   }
   else {
-    arma::uword index = it->second;      
+    index = it->second;      
   }
   
   return index;
@@ -254,7 +255,6 @@ lt::action<bool> Q_learning::randomize_action()
 void Q_learning::phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
 			   float speed,
 			   std::shared_ptr<Gazebo> gzs,
-			   DataSet data_set,
 			   bool random_leader_action)
 {
   lt::action<bool> action_leader = {false, false, false, false};
@@ -433,7 +433,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       /*  Test if the signal is good, if yes continue with the same action
       for leader */
 
-      phase_one(iris_x, speed, gzs, data_set, true);      
+      phase_one(iris_x, speed, gzs, true);      
       
       if(is_signal_in_limits(gzs) == true) {
       	reward = 1;
@@ -451,8 +451,8 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	auto it_state = states_.rbegin();
 	auto it_action = action_follower_.rbegin();
     
-	data_set.save_csv_data_set(*(it_state--),
-				   *(it_action--),
+	data_set.save_csv_data_set(*(it_state++),
+				   *(it_action++),
 				   states_.back(),
 				   action_follower_.back(),
 				   reward
@@ -460,8 +460,9 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
         
        }                    
              
-      for (count_ < 3; ++count_ ;) {
-      	phase_one(iris_x, speed, gzs, data_set, false);      
+      while (count_ < 3)  {
+      	phase_one(iris_x, speed, gzs, false);
+	++count_;
       }    
             
       LogInfo() << "reward: " << reward ;

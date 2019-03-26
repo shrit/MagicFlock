@@ -26,7 +26,6 @@ void DataSet::read_data_set_file(std::string file_name)
       
       line = line.substr(11);
       std::vector<std::string> values;
-      std::string::size_type sz;
       std::replace_if(line.begin(), line.end(), boost::is_any_of(",[]") , ' ');
       boost::split(values, line, boost::is_any_of(" "), boost::token_compress_on);
       
@@ -57,17 +56,17 @@ void DataSet::init_dataset_directory()
   date_stream << now.date();
   time_stream << now.time_of_day();
 
-  boost::filesystem::create_directory("/meta/DeviceController/dataset");  
-  boost::filesystem::create_directory("/meta/DeviceController/dataset/" + date_stream.str());  
+  boost::filesystem::create_directory("../../dataset");  
+  boost::filesystem::create_directory("../../dataset/" + date_stream.str());  
 
   dataset_file_name_=
-    "/meta/DeviceController/dataset/" + date_stream.str() + "/" + time_stream.str();
+    "../../dataset/" + date_stream.str() + "/" + time_stream.str();
   
   map_file_name_=
-    "/meta/DeviceController/dataset/" + date_stream.str() + "/map" + time_stream.str();
+    "../../dataset/" + date_stream.str() + "/map" + time_stream.str();
 
   qtable_file_name_=
-    "../dataset/" + date_stream.str() + "/qtable" + time_stream.str();
+    "../../dataset/" + date_stream.str() + "/qtable" + time_stream.str();
 
 }
 

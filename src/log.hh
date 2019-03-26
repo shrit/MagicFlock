@@ -38,9 +38,9 @@ public:
     date_stream << now.date();
     time_stream << now.time_of_day();
     
-    boost::filesystem::create_directory("/meta/DeviceController/log");
-    boost::filesystem::create_directory("/meta/DeviceController/log/" + date_stream.str());
-    file_.open("../log/" + date_stream.str() + "/" + time_stream.str(),
+    boost::filesystem::create_directory("../../log");
+    boost::filesystem::create_directory("../../log/" + date_stream.str());
+    file_.open("../../log/" + date_stream.str() + "/" + time_stream.str(),
 	       boost::filesystem::ofstream::app|boost::filesystem::ofstream::out);    
     
   }
