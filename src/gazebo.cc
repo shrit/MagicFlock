@@ -1,13 +1,10 @@
 # include "gazebo.hh"
 
-Gazebo::Gazebo()//int argc, char* argv[])
+Gazebo::Gazebo(int argc, char* argv[])
   :  node_(new gazebo::transport::Node()),
      ema_filter_{0.9, 42}
-
 {
-
-  //gazebo::client::setup(argc, argv);
-  
+  gazebo::client::setup(argc, argv);  
   node_->Init();  
 }
 

@@ -56,17 +56,17 @@ void DataSet::init_dataset_directory()
   date_stream << now.date();
   time_stream << now.time_of_day();
 
-  boost::filesystem::create_directory("../../dataset");  
-  boost::filesystem::create_directory("../../dataset/" + date_stream.str());  
+  boost::filesystem::create_directory("../dataset");  
+  boost::filesystem::create_directory("../dataset/" + date_stream.str());  
 
   dataset_file_name_=
-    "../../dataset/" + date_stream.str() + "/" + time_stream.str();
+    "../dataset/" + date_stream.str() + "/" + time_stream.str();
   
   map_file_name_=
-    "../../dataset/" + date_stream.str() + "/map" + time_stream.str();
+    "../dataset/" + date_stream.str() + "/map" + time_stream.str();
 
   qtable_file_name_=
-    "../../dataset/" + date_stream.str() + "/qtable" + time_stream.str();
+    "../dataset/" + date_stream.str() + "/qtable" + time_stream.str();
 
 }
 

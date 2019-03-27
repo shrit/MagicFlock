@@ -3,7 +3,7 @@
 Configs::Configs()
 {
   
-  mINI::INIFile file("../../quad.ini");  
+  mINI::INIFile file("../quad.ini");  
   file.read(ini_);
   
   parse_ini();

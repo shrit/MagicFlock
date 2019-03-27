@@ -39,7 +39,7 @@ public:
   using PubPtr                   = gazebo::transport::PublisherPtr;
   using NodePtr                  = gazebo::transport::NodePtr;
   
-  Gazebo();//int argc, char* argv[]);
+  Gazebo(int argc, char* argv[]);
 
   /*  This function subscribe to any topic and handle 
    the message */
