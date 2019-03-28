@@ -38,7 +38,7 @@ namespace gazebo
     {
       // Apply a small linear velocity to the model.
       if (_msg->x() == 1){
-	this->model->ResetPhyiscsStates();	
+	this->model->ResetPhysicsStates();	
       }
     }
 
