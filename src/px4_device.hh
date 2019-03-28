@@ -72,8 +72,8 @@ public:
   void left(float speed);
   void forward(float speed);
   void backward(float speed);
-  void turnToLeft(float speed);
-  void turnToRight(float speed);
+  void turnToLeft();
+  void turnToRight();
 
   void init_speed();
   Offboard::Result start_offboard_mode();

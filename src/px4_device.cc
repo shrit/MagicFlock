@@ -184,12 +184,14 @@ Offboard::Result Px4Device::start_offboard_mode()
   return offboard_result; 
 }
 
+/*  Speed in m/s */
 void Px4Device::forward(float speed)
 {
   LogInfo() << " forward !" ;
 
   //set velocity function is ing to make the quad   all the time
   // we need to set it to zero after each keyboard touch
+  
   
   offboard_->set_velocity_body({speed, 0.0f, 0.0f, 0.0f});
   sleep_for(milliseconds(50));
@@ -206,20 +208,20 @@ void Px4Device::backward(float speed)
 
 
 }
-
-void Px4Device::turnToLeft(float speed)
+// add later the angular yaw speed
+void Px4Device::turnToLeft()
 {
   LogInfo() << " ... left rotate !" ;
-  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, -speed});
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 270.0f});
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
     
 }
-
-void Px4Device::turnToRight(float speed)
+// add later the angular yaw speed
+void Px4Device::turnToRight()
 {
   LogInfo() << " ... right rotate" ;
-  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, speed});
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 90.0f});
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
     
@@ -234,10 +236,8 @@ Action::Result Px4Device::arm()
 	      ;
     return arm_result;
     
-  }
-  
-  return arm_result;            
-  
+  }  
+  return arm_result;              
 }
 
 Action::Result Px4Device::reboot()
@@ -283,9 +283,8 @@ Telemetry::PositionVelocityNED Px4Device::position() const
 void Px4Device::position_ned()
 {
   telemetry_->position_velocity_ned_async([this](Telemetry::PositionVelocityNED pvn){
-					    
 					    this->_position_ned = pvn ;
-					    					    
+					    
 					  });   
 }
 
@@ -312,8 +311,7 @@ Px4Device::create_calibration_callback(std::promise<void> &calibration_promise)
                 calibration_promise.set_value();
                 break;
 	   }
-	 };
-  
+	 };  
 }
 
 void Px4Device::calibrate_accelerometer()
@@ -330,8 +328,6 @@ void Px4Device::calibrate_accelerometer()
   calibration_future.wait();
 }
 
-
-
 void Px4Device::quad_health()
 {
 
@@ -341,7 +337,6 @@ void Px4Device::quad_health()
   }
     
 }
-
 
 Telemetry::Result Px4Device::set_rate_result()
 {

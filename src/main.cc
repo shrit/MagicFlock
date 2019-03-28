@@ -155,11 +155,11 @@ JoystickEvent joystick_event_handler(Joystick& joystick,
 
 	if (joystick.LeftAxisXChanged(event) > 0 ) {
 
-	  iris_x.at(0)->turnToLeft(speed);		    
+	  iris_x.at(0)->turnToLeft();		    
 	  LogInfo() << "Turn to left... " ;	  
 	}
 	else {
-	  iris_x.at(0)->turnToRight(speed);		    
+	  iris_x.at(0)->turnToRight();		    
 	  LogInfo() << "Turn to right... " ;
 	}		
       }
@@ -329,9 +329,6 @@ int main(int argc, char* argv[])
 
   Joystick joystick("/dev/input/js0");
   
-
-  
-  std::cout << "test" << std::endl;
   // Ensure that it was found and that we can use it
   if (!joystick.isFound()) {
     /*  remove the exit of the joystick and replace it with jpystick mode disable */
@@ -364,7 +361,7 @@ int main(int argc, char* argv[])
   //chagnge iris into a string and capture from ini file
   std::vector<std::shared_ptr<Px4Device>> iris_x;  
   
-  for(auto& it : ports){					       
+  for (auto& it : ports) {					       
     								      
     iris_x.push_back(std::make_shared<Px4Device>("udp", it)); 
     LogInfo()  << "create an iris device" ;	       
