@@ -9,16 +9,13 @@ add_definitions("-Wall -Werror -Wextra -O -Wno-parentheses -march=native -g3")
 
 find_package(gazebo REQUIRED)
 
-#set(BOOST_INCLUDE_DIRS "/meta/local/include/")
-
 include_directories(
 
- ${BOOST_INCLUDE_DIRS}
  ${GAZEBO_INCLUDE_DIRS}
  
-  /usr/local/include/dronecode_sdk
-
-  /usr/include/  
+ /usr/local/include/dronecode_sdk 
+ /usr/include/
+ 
   )
 
 
@@ -28,16 +25,17 @@ set(dronecode_sdk_offboard_lib "/usr/local/lib/libdronecode_sdk_offboard.so")
 set(dronecode_sdk_telemetry_lib "/usr/local/lib/libdronecode_sdk_telemetry.so")
 set(dronecode_sdk_action_lib "/usr/local/lib/libdronecode_sdk_action.so")
 set(dronecode_sdk_calibrattion_lib "/usr/local/lib/libdronecode_sdk_calibration.so")
+set(file_system "/usr/lib/libstdc++fs.a")
 set(ncurses_lib "/usr/lib/libncurses.so")
 set(pthread_lib "/usr/lib/libpthread.so")
 set(arma "/usr/lib/libarmadillo.so")
 
-set(boost_lib_system "/meta/local/lib/libboost_system.so")
-set(boost_lib_time "/meta/local/lib/libboost_date_time.so")
-set(boost_lib_program_options "/meta/local/lib/libboost_program_options.so.1.65.0")
+set(boost_lib_program_options "/usr/lib/libboost_program_options.so")
+set(boost_lib_time "/usr/lib/libboost_date_time.so")
 
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
-#list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
+
+
+
 
 link_directories(${GAZEBO_LIBRARY_DIRS})
 
@@ -64,11 +62,11 @@ target_link_libraries(QCopter
   ${dronecode_sdk_action_lib}
   ${dronecode_sdk_telemetry_lib}
   ${dronecode_sdk_calibrattion_lib}
+
+  ${file_system}
   # ${ncurses_lib}
-  ${BOOST_LIBRARIES}
-  # ${boost_lib_program_options}
-  # ${boost_lib_system}
-  # ${boost_lib_time}  
+  ${boost_lib_program_options}  
+  ${boost_lib_time}  
   )
 
 
