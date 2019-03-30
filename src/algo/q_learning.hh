@@ -86,7 +86,6 @@ private:
   float rssi_lower_threshold_;
   float rssi_upper_threshold_;
   std::vector<float> upper_threshold_;
-
   
   std::vector<lt::rssi<double>>   states_, new_state_;
     

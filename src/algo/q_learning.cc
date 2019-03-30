@@ -270,7 +270,7 @@ void Q_learning::phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
   
   for (int i = 0; i < 5; i++){
     move_action(iris_x, "l" ,speed, action_leader) ;
-    move_action(iris_x, "f1",speed, action_leader);// move the leader 100 CM
+    move_action(iris_x, "f1",speed, action_leader) ;
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
   }
 
@@ -312,16 +312,16 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
   LogDebug() << qtable_ ;
   
   
-//   std::vector<lt::position<double>> pos;    
-//   std::vector<lt::position<double>> distance;
+  std::vector<lt::position<double>> pos;    
+  std::vector<lt::position<double>> distance;
   
-//   pos.push_back(gzs->get_positions().leader);
-//   pos.push_back(gzs->get_positions().f1);
-//   pos.push_back(gzs->get_positions().f2);
+  pos.push_back(gzs->get_positions().leader);
+  pos.push_back(gzs->get_positions().f1);
+  pos.push_back(gzs->get_positions().f2);
    
-//   LogInfo() << "Starting position l : " << pos.at(0) ;
-//   LogInfo() << "Starting position f1: " << pos.at(1) ;
-//   LogInfo() << "Starting position f2: " << pos.at(2) ;         
+  LogInfo() << "Starting position l : " << pos.at(0) ;
+  LogInfo() << "Starting position f1: " << pos.at(1) ;
+  LogInfo() << "Starting position f2: " << pos.at(2) ;         
     
   for (episode_ = 0; episode_ < max_episode_; episode_++){
     
@@ -373,125 +373,100 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
     std::this_thread::sleep_for(std::chrono::seconds(1));  
     /* put the take off functions inside the steps */
     
-    for(int steps = 0; steps < max_step_; steps++){
+    // for(int steps = 0; steps < max_step_; steps++){
                   
       /*  Start the First phase*/
           
-
-      //index_ = qtable_state(gzs, false);
-
-      /*  create a signal strength limits functions that tests whether
-       the choosen action is good or not*/
-      /*  according to this action we can define if it is good or not
-	  by surveying the singal strength, then we define the rewards according 
-	  to this scenario */
-      
-      // double random =  distribution_(generator_);
-      
-      // LogInfo() <<"Random number chosen: " << random ;
-      
-      // /*  Epsilon greedy */      
-      // if(random > epsilon_){			           
-
-      // }						           
-      // else  {
-
-      // }      
-                   
-      /*  Recalculate the RSSI after moving the quads */
-      /*  get the new  state index*/
-
-      // index_ = qtable_state(gzs, true);
-
-    
-      // LogInfo() << "state_index: " << index_ ;
-        
-      // std::vector<lt::position<double>> new_pos;    
-             
-      // new_pos.push_back(gzs->get_positions().leader);
-      // new_pos.push_back(gzs->get_positions().f1);
-      // new_pos.push_back(gzs->get_positions().f2);           
-
-      // LogInfo() << "New position l : " << new_pos.at(0) ;
-      // LogInfo() << "New position f1: " << new_pos.at(1) ;
-      // LogInfo() << "New position f2: " << new_pos.at(2) ;               	      
-
-
-      // lt::triangle<double> t = triangle_side(new_pos);
-
        
       /*  Reward as a function of the triangle */
 
       /*  if error in the follower is big and the traingle is dead
 	  reward is 0, reset the state */
-      int  reward = 0;
-      count_ = 0 ; 
-      /*  if the follower is has executed a good action
-       we need to rediscover the other action in this loop 
-      until we get a 0 reward, the ather actions are related to exploration 
-      and exploitation note that  */
-      /*  Test if the signal is good, if yes continue with the same action
-      for leader */
+      count_ = 0 ;
+      
+      while (count_ < 3) {
 
-      phase_one(iris_x, speed, gzs, true);      
+	int  reward = 0;
+	
+	/*  if the follower is has executed a good action
+	    we need to re-discover the other action in this loop 
+	    until we get a 0 reward, the other actions are related to exploration 
+	    and exploitation note that  */
+	/*  Test if the signal is good, if yes continue with the same action
+	    for leader */
+	if (count_ == 0 ){
+	  phase_one(iris_x, speed, gzs, true);	  
+	} else {
+	  phase_one(iris_x, speed, gzs, false);      
+	}
+	
+	std::vector<lt::position<double>> new_pos;    
       
-      if(is_signal_in_limits(gzs) == true) {
-      	reward = 1;
-      }
-      else{
-      	count_ = 4;
-      }
-      
-      // Save the generated dataset HERE
-      if (action_follower_.size() == 1 ){
-	/*  The first case scenario */
-	/*  Do not save any thing Yet */
-      }
-      else{
-	auto it_state = states_.rbegin();
-	auto it_action = action_follower_.rbegin();
-    
-	data_set.save_csv_data_set(*(it_state++),
-				   *(it_action++),
+	new_pos.push_back(gzs->get_positions().leader);
+	new_pos.push_back(gzs->get_positions().f1);
+	new_pos.push_back(gzs->get_positions().f2);           
+	
+	LogInfo() << "New position l : " << new_pos.at(0) ;
+	LogInfo() << "New position f1: " << new_pos.at(1) ;
+	LogInfo() << "New position f2: " << new_pos.at(2) ;               	      
+	
+
+	lt::triangle<double> t = triangle_side(new_pos);
+	
+	if (is_triangle(t) == true) {
+	  reward = 1;
+	}
+	
+	// if (is_signal_in_limits(gzs) == true) {
+	// 	reward = 1;
+	// }
+	else{
+	  break;
+	}
+	
+	// Save the generated dataset HERE
+	if (action_follower_.size() == 1 ){
+	  /*  The first case scenario */
+	  /*  Do not save any thing Yet */
+	}
+	else{
+	  auto it_state = states_.rbegin();
+	  auto it_action = action_follower_.rbegin();
+	  
+	  data_set.save_csv_data_set(*(it_state++),
+				     *(it_action++),
 				   states_.back(),
-				   action_follower_.back(),
-				   reward
-				   );
-        
-       }                    
-             
-      while (count_ < 3)  {
-      	phase_one(iris_x, speed, gzs, false);
+				     action_follower_.back(),
+				     reward
+				     );        
+	}                    
+			                
+	LogInfo() << "reward: " << reward ;
+	
+	// qtable_(index_, action_follower) =
+	// 	(1 - learning_rate_) * qtable_(index_, action_follower) +
+	// 	learning_rate_ * (reward +  discount_rate_ * qtable_action(qtable_,
+	// 								   index_));  
+	//reduce epsilon as we explore more each episode
+	epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode_); 
+	
+	LogInfo() << "Epsilon: " << epsilon_ ;
+	
+	rewards_.push_back(reward);
+	
+	/*  Save the data set after each step iteration */
+	
+	//      data_set.save_csv_data_set(new_state_, action_follower, reward);
+	
+	data_set.write_map_file(signal_map_);
+	
+	data_set.save_qtable(qtable_);
+	
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+	        
 	++count_;
-      }    
-            
-      LogInfo() << "reward: " << reward ;
-       
-      // qtable_(index_, action_follower) =
-      // 	(1 - learning_rate_) * qtable_(index_, action_follower) +
-      // 	learning_rate_ * (reward +  discount_rate_ * qtable_action(qtable_,
-      // 								   index_));  
-      //reduce epsilon as we explore more each episode
-      epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode_); 
-      
-      LogInfo() << "Epsilon: " << epsilon_ ;
-      
-      rewards_.push_back(reward);
-
-      /*  Save the data set after each step iteration */
-      
-      //      data_set.save_csv_data_set(new_state_, action_follower, reward);
-      
-      data_set.write_map_file(signal_map_);
-      
-      data_set.save_qtable(qtable_);
-      
-      std::this_thread::sleep_for(std::chrono::seconds(1));
-      
-      //      if (is_triangle(t) == false)
-      //	break;
-     
-    }
+      }       
+      // }
     
     for (auto it: iris_x)
       it->land();
