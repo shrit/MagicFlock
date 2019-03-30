@@ -26,13 +26,13 @@ void Gazebo::subscriber(lt::topic_name name)
 
 void Gazebo::publisher(lt::topic_name name)
 {
-  if (name == "/gazebo/default/iris_opt_flow_1/model_reset"){    
+  if (name == "/gazebo/default/iris_1/model_reset"){    
     pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));
   }
-  else if (name == "/gazebo/default/iris_opt_flow_2/model_reset"){    
+  else if (name == "/gazebo/default/iris_2/model_reset"){    
     pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));
   }
-  else if (name == "/gazebo/default/iris_opt_flow_3/model_reset"){    
+  else if (name == "/gazebo/default/iris_3/model_reset"){    
     pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));
   }  
 }
