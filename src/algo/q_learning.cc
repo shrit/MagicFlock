@@ -235,19 +235,25 @@ lt::action<bool> Q_learning::randomize_action()
 {
   lt::action<bool> action= {false, false, false, false};
 
-  if(distribution_int_(generator_) == 0){
+  int random = distribution_int_(generator_);
+
+  LogInfo() << "Random:  " << random ;
+  
+  if( random == 0){
     action.forward = true;
   }
-  else if(distribution_int_(generator_) == 1){
+  else if(random  == 1){
     action.backward = true;
   }    
-  else if(distribution_int_(generator_) == 2){
+  else if(random  == 2){
         action.left = true;	
   }
-  else if (distribution_int_(generator_) == 3){
+  else if (random == 3){
         action.right = true;
   }
-
+  
+  LogInfo() << "Action: " << action ;
+  
   return action;
 
 }
@@ -373,7 +379,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
     std::this_thread::sleep_for(std::chrono::seconds(1));  
     /* put the take off functions inside the steps */
     
-    // for(int steps = 0; steps < max_step_; steps++){
+    // for(int steps = 0; steps < max_step_; steps++) {
                   
       /*  Start the First phase*/
           
@@ -394,7 +400,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	    and exploitation note that  */
 	/*  Test if the signal is good, if yes continue with the same action
 	    for leader */
-	if (count_ == 0 ){
+	if (count_ == 0 ) {
 	  phase_one(iris_x, speed, gzs, true);	  
 	} else {
 	  phase_one(iris_x, speed, gzs, false);      
@@ -420,7 +426,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	// if (is_signal_in_limits(gzs) == true) {
 	// 	reward = 1;
 	// }
-	else{
+	else { 
 	  break;
 	}
 	
@@ -429,7 +435,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	  /*  The first case scenario */
 	  /*  Do not save any thing Yet */
 	}
-	else{
+	else {
 	  auto it_state = states_.rbegin();
 	  auto it_action = action_follower_.rbegin();
 	  
@@ -442,7 +448,10 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	}                    
 			                
 	LogInfo() << "reward: " << reward ;
-	
+
+
+	/*  ERROR IN THE QTABLE NEED TO UPDATE WITH THE NEW STATE INDEX */
+	/* TO RESOLVE WHEN USING THE QTABLE */
 	// qtable_(index_, action_follower) =
 	// 	(1 - learning_rate_) * qtable_(index_, action_follower) +
 	// 	learning_rate_ * (reward +  discount_rate_ * qtable_action(qtable_,
@@ -460,7 +469,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	
 	data_set.write_map_file(signal_map_);
 	
-	data_set.save_qtable(qtable_);
+	data_set.save_qtable(qtable_); 
 	
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	        
