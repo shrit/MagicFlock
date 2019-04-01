@@ -23,6 +23,8 @@ void DataSet::save_csv_data_set(Arg&& arg, Args&&... args)
   file << std::forward<Arg>(arg);
   ((file <<","<< std::forward<Args>(args)), ...);
   
+  file << "\n";
+    
   file.flush();
   
   file.close();
