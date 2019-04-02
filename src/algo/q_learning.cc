@@ -88,6 +88,12 @@ arma::uword Q_learning::qtable_state_from_map(std::shared_ptr<Gazebo> gzs,
   return index;
 }
 
+double Q_learning::qtable_value(arma::mat q_table, arma::uword state)
+{
+  double qvalue = q_table.row(state).max();
+  return qvalue;
+}
+
 
 bool Q_learning::is_signal_in_limits(std::shared_ptr<Gazebo> gzs)
 {
@@ -103,6 +109,8 @@ bool Q_learning::is_signal_in_limits(std::shared_ptr<Gazebo> gzs)
   
   return ok;  
 }
+
+
 
 
 void Q_learning::move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
@@ -172,49 +180,25 @@ lt::triangle<double> Q_learning::triangle_side(std::vector<lt::position<double>>
 
     LogInfo() << "A = " << t.a << "B = " << t.b << "C = " << t.c ;
 
+    /*  it return the traingle side */
     return t;
   
 }
 
-double Q_learning::deformation_error(std::vector<lt::position<double>> pos)
+double Q_learning::deformation_error(lt::triangle<double> old_dist,
+				     lt::triangle<double> new_dist)
 {
-
-  lt::position<double> dist, dist2;
   
-  std::vector<lt::position<double>> distance;
+  double error;  
   
-  std::vector<double> error;
-        
-  dist.x =  pos.at(0).x - pos.at(1).x;
-  dist.y =  pos.at(0).y - pos.at(1).y;
-  dist.z =  pos.at(0).z - pos.at(1).z;
-  
-  distance.push_back(dist);
-  
-  dist2.x = pos.at(0).x - pos.at(2).x;
-  dist2.y = pos.at(0).y - pos.at(2).y;
-  dist2.z = pos.at(0).z - pos.at(2).z;
-  
-  distance.push_back(dist2);       
-  
-  error.push_back(std::sqrt(std::pow((distance.at(0).x - distance.at(0).x), 2)  +
-			    std::pow((distance.at(0).y - distance.at(0).y), 2)));
-  
-  error.push_back(std::sqrt(std::pow((distance.at(1).x - distance.at(1).x), 2)  +
-			    std::pow((distance.at(1).y - distance.at(1).y), 2)));
-  
+  error = std::sqrt(std::pow((old_dist.a - new_dist.a), 2)  +
+		    std::pow((old_dist.b - new_dist.b), 2)  +
+		    std::pow((old_dist.c - new_dist.c), 2));
   
   /*  Recalculate the Error between quadcopters  */
-  LogInfo() << "Error :" << error;
+
   
-  double sum_of_error = 0;
-  
-  for (auto& n : error)
-    sum_of_error += n; 
-  
-  
-  return sum_of_error;
-   
+  return error;   
 }
 
 bool Q_learning::is_triangle(lt::triangle<double> t)
@@ -229,7 +213,6 @@ bool Q_learning::is_triangle(lt::triangle<double> t)
   return value; 
   
 }
-
 
 lt::action<bool> Q_learning::randomize_action()
 {
@@ -274,7 +257,7 @@ void Q_learning::phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
      action_leader = saved_leader_action_;    
   }
   
-  for (int i = 0; i < 5; i++){
+  for (int i = 0; i < 4; i++){
     move_action(iris_x, "l" ,speed, action_leader) ;
     move_action(iris_x, "f1",speed, action_leader) ;
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -288,7 +271,7 @@ void Q_learning::phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
   action_follower_.push_back(randomize_action());
   
   
-  for (int i = 0; i < 3; i++){
+  for (int i = 0; i < 4; i++){
     move_action(iris_x, "f2" ,speed, action_follower_.back());
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
   } 
@@ -328,7 +311,10 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
   LogInfo() << "Starting position l : " << pos.at(0) ;
   LogInfo() << "Starting position f1: " << pos.at(1) ;
   LogInfo() << "Starting position f2: " << pos.at(2) ;         
-    
+  
+
+  lt::triangle<double> old_triangle = triangle_side(pos);
+  
   for (episode_ = 0; episode_ < max_episode_; episode_++){
     
     /* Intilization phase, in each episode we should reset the
@@ -346,7 +332,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
      */
 
     LogInfo() << "Episode : " << episode_ ;            
-           
+
     /* 
      * Step phase, where we update the q table each step
      * Each episode has a fixed step number.
@@ -393,6 +379,8 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       while (count_ < 3) {
 
 	int  reward = 0;
+
+
 	
 	/*  if the follower is has executed a good action
 	    we need to re-discover the other action in this loop 
@@ -417,19 +405,24 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	LogInfo() << "New position f2: " << new_pos.at(2) ;               	      
 	
 
-	lt::triangle<double> t = triangle_side(new_pos);
+	lt::triangle<double> new_triangle = triangle_side(new_pos);
+
+	double error = deformation_error(old_triangle, new_triangle);
 	
-	if (is_triangle(t) == true) {
+	LogInfo() << "Error :" << error;  
+	
+	if (error > 1)
+	  reward = 0;
+	else {
 	  reward = 1;
 	}
-	
-	// if (is_signal_in_limits(gzs) == true) {
-	// 	reward = 1;
-	// }
-	else { 
+
+	/*  move it outside of the while loop */
+	if (is_triangle(new_triangle) == false) {
 	  break;
+
 	}
-	
+		
 	// Save the generated dataset HERE
 	if (action_follower_.size() == 1 ){
 	  /*  The first case scenario */
@@ -441,7 +434,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	  
 	  data_set.save_csv_data_set(*(it_state++),
 				     *(it_action++),
-				   states_.back(),
+				     states_.back(),
 				     action_follower_.back(),
 				     reward
 				     );        
@@ -451,7 +444,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 
 
 	/*  ERROR IN THE QTABLE NEED TO UPDATE WITH THE NEW STATE INDEX */
-	/* TO RESOLVE WHEN USING THE QTABLE */
+	/* TO RESOLVE WHEN USING THE QTABLE , ALSO GET THE VALUE AT THE END*/
 	// qtable_(index_, action_follower) =
 	// 	(1 - learning_rate_) * qtable_(index_, action_follower) +
 	// 	learning_rate_ * (reward +  discount_rate_ * qtable_action(qtable_,

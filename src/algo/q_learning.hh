@@ -21,6 +21,7 @@
 # include "../data_set.hh"
 # include "../log.hh"
 
+
 class Q_learning
 {
   
@@ -36,6 +37,8 @@ public:
   
   double qtable_action(arma::mat qtable , arma::uword state);
 
+  double qtable_value(arma::mat q_table ,arma::uword state);
+  
   arma::uword qtable_state(std::shared_ptr<Gazebo> gzs, bool value);
 
   arma::uword qtable_state_from_map(std::shared_ptr<Gazebo> gzs,
@@ -54,7 +57,8 @@ public:
 
   bool is_triangle(lt::triangle<double> t);
   
-  double deformation_error(std::vector<lt::position<double>> pos);
+  double deformation_error(lt::triangle<double>  old_dist,
+			   lt::triangle<double>  new_dist);
 
   void phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		 float speed,
