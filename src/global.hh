@@ -16,6 +16,15 @@ using namespace dronecode_sdk;
     defintion used in all files 
 */
 namespace local_types {
+
+  template <typename T> 
+  struct quad_distance
+  {
+    T lf1;
+    T lf2;
+    T ff;
+  };
+  
   
   template <typename T> 
   struct position {
