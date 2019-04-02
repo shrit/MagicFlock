@@ -247,14 +247,12 @@ Action::Result Px4Device::reboot()
   Action::Result reboot_result = action_->reboot();
   if(reboot_result != Action::Result::SUCCESS){
     LogInfo() << "Rebooting failed: "
-	      << Action::result_str(reboot_result)
-	      ;
+	      << Action::result_str(reboot_result) ;
     return reboot_result;
     
   }
   
-  return reboot_result;            
-  
+  return reboot_result;              
 }
 
 void Px4Device::print_position()
@@ -270,21 +268,35 @@ void Px4Device::print_position()
 					 << "Longtitude"
 					 << position.longitude_deg <<" deg"
 					 ;
-
 			     });
-  
 }
 
 Telemetry::PositionVelocityNED Px4Device::position() const
-{  
+{
+  //  std::cout << _position_ned.position << std::endl;
   return _position_ned;    
+}
+
+double Px4Device::DistanceFrom(std::shared_ptr<Px4Device> a)
+{  
+  Telemetry::PositionVelocityNED a_position = a->position();
+  Telemetry::PositionVelocityNED my_position = position();
+  return CalculateDistance (my_position, a_position);  
+}
+
+double Px4Device::CalculateDistance (Telemetry::PositionVelocityNED& a,
+				     Telemetry::PositionVelocityNED& b)
+{
+  return std::sqrt( std::pow ((a.position.north_m - b.position.north_m), 2) + 
+		    std::pow ((a.position.east_m - b.position.east_m), 2) +
+		    std::pow ((a.position.down_m - b.position.down_m), 2)  	    
+		    );
 }
 
 void Px4Device::position_ned()
 {
   telemetry_->position_velocity_ned_async([this](Telemetry::PositionVelocityNED pvn){
 					    this->_position_ned = pvn ;
-					    
 					  });   
 }
 

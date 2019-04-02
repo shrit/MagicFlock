@@ -89,7 +89,9 @@ public:
 
   void calibrate_accelerometer();
   Telemetry::PositionVelocityNED position() const;
-    
+
+  double DistanceFrom(std::shared_ptr<Px4Device> a);
+  
   void quad_health();
   Telemetry::Result set_rate_result();
   
@@ -100,10 +102,12 @@ public:
   inline void connection_error_exit(ConnectionResult result, const std::string &message);
   
 private:
+
+  double CalculateDistance (Telemetry::PositionVelocityNED& a,
+			    Telemetry::PositionVelocityNED& b);
   
   DronecodeSDK dc_;
   
-  //  mutable std::mutex _position_ned_mutex{};
   Telemetry::PositionVelocityNED _position_ned{{0, 0, 0}, {0, 0, 0}};
   std::shared_ptr<dronecode_sdk::Telemetry> telemetry_;
   std::shared_ptr<dronecode_sdk::Action> action_;
