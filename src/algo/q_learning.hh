@@ -33,8 +33,8 @@ public:
 	     DataSet data_set,
 	     bool train);
 
-  double action_evaluator(lt::positions<double> old_pos,
-			  lt::positions<double> new_pos);
+  bool action_evaluator(lt::triangle<double> old_dist,
+  			lt::triangle<double> new_dist);
   
   int cantor_pairing(int x, int y);
   
@@ -57,16 +57,14 @@ public:
   
   void phase_two();
 
-  double qtable_action(arma::mat qtable , arma::uword state);
+  double qtable_action(arma::mat qtable, arma::uword state);
 
-  double qtable_value(arma::mat q_table ,arma::uword state);
+  double qtable_value(arma::mat q_table, arma::uword state);
   
   arma::uword qtable_state(std::shared_ptr<Gazebo> gzs, bool value);
 
   arma::uword qtable_state_from_map(std::shared_ptr<Gazebo> gzs,
 			    std::unordered_map<int, int> map);
-
-
 
   lt::action<bool> randomize_action();
   
@@ -75,7 +73,7 @@ public:
 		   std::shared_ptr<Gazebo> gzs,
 		   DataSet data_set);
       
-  lt::triangle<double> triangle_side(std::vector<lt::position<double>> pos);
+  lt::triangle<double> triangle_side(lt::positions<double> pos);
   
 private:
 

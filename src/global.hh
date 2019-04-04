@@ -17,6 +17,23 @@ using namespace dronecode_sdk;
 */
 namespace local_types {
 
+  template <typename T> 
+  struct position {    
+    T x;
+    T y;
+    T z;
+    
+  };
+ 
+  template <typename T> 
+  struct orientation {    
+    T x;
+    T y;
+    T z;
+    T w;
+    
+  };
+ 
   template <typename T>  
   struct positions {
     position<T> leader;
@@ -31,23 +48,7 @@ namespace local_types {
     orientation<T> f2;  
   };
     
-  template <typename T> 
-  struct position {    
-    T x;
-    T y;
-    T z;
-    
-  };
-
-  template <typename T> 
-  struct orientation {    
-    T x;
-    T y;
-    T z;
-    T w;
-    
-  };
-
+ 
   template <typename T> 
   struct action {
 

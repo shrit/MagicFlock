@@ -142,5 +142,5 @@ lt::rssi<double> Gazebo::filtered_rssi()
   return signal_;
 }
 
-positions Gazebo::get_positions() const
+lt::positions<double> Gazebo::get_positions() const
 {return positions_;}
