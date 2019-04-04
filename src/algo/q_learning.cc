@@ -28,10 +28,150 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
   }
 }
 
+double Q_learning::action_evaluator(lt::positions<double> old_pos, lt::positions<double> new_pos)
+{
+
+  
+}
+
 int Q_learning::cantor_pairing(int x, int y)
 {
   int unique = 0.5*(x + y)*(x + y + 1) + y;
   return unique;  
+}
+
+double Q_learning::deformation_error(lt::triangle<double> old_dist,
+				     lt::triangle<double> new_dist)
+{
+  double error;  
+  
+  error = std::sqrt(std::pow((old_dist.a - new_dist.a), 2)  +
+		    std::pow((old_dist.b - new_dist.b), 2)  +
+		    std::pow((old_dist.c - new_dist.c), 2));
+    /*  Recalculate the Error between quadcopters  */
+  
+  return error;   
+}
+
+lt::positions<double> get_positions(std::shared_ptr<Gazebo> gzs)
+{
+  
+  lt::positions<double> pos;
+  pos.leader = gzs->get_positions().leader;
+  pos.f1 = gzs->get_positions().f1;
+  pos.f2 = gzs->get_positions().f2;
+
+  return pos;
+ 
+}
+
+bool Q_learning::is_signal_in_limits(std::shared_ptr<Gazebo> gzs)
+{
+  bool ok = false;
+  
+  float sum_of_neigh_signal = gzs->rssi().lf1() + gzs->rssi().ff() ;
+  
+  if ( sum_of_neigh_signal < sum_of_neigh_signal* rssi_upper_threshold_ ) {
+    if ( sum_of_neigh_signal > sum_of_neigh_signal* rssi_lower_threshold_) {      
+      ok = true;      
+    }    
+  }
+  
+  return ok;  
+}
+
+bool Q_learning::is_triangle(lt::triangle<double> t)
+{
+  bool value = false;
+  if((t.a + t.b >  lower_threshold_.at(0))  && (t.a + t.b <  upper_threshold_.at(0))) {
+    if ((t.a + t.c >  lower_threshold_.at(1))  && (t.a + t.c <  upper_threshold_.at(1))) {
+      if ((t.b + t.c >  lower_threshold_.at(2))  && (t.b + t.c <  upper_threshold_.at(2)))
+	value = true;
+    }
+  }
+  return value; 
+  
+}
+
+void Q_learning::move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
+			     std::string label,
+			     float speed,
+			     lt::action<bool> action)
+{
+  int quad_number = 0;
+  
+  if (label == "l"){
+    quad_number = 0;
+  }
+  else if (label == "f1"){
+    quad_number = 1;
+  }
+  else if (label == "f2"){
+    quad_number = 2;
+  }
+        
+  if(action.left == true){
+    iris_x.at(quad_number)->left(speed);
+  }
+  else if(action.right == true){ 
+    iris_x.at(quad_number)->right(speed);
+  }
+  else if(action.forward == true){ 
+    iris_x.at(quad_number)->forward(speed); 
+  }
+  else if(action.backward == true){ 
+    iris_x.at(quad_number)->backward(speed);
+  }
+  
+}
+
+void Q_learning::phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
+			   float speed,
+			   std::shared_ptr<Gazebo> gzs,
+			   bool random_leader_action)
+{
+  lt::action<bool> action_leader = {false, false, false, false};
+  
+  if ( random_leader_action == true){
+
+    action_leader = randomize_action() ;
+    saved_leader_action_ = action_leader;
+    LogInfo() << "Random action chosen: " << action_leader ;
+
+  } else {
+     action_leader = saved_leader_action_;    
+  }
+  
+  for (int i = 0; i < 4; i++){
+    move_action(iris_x, "l" ,speed, action_leader) ;
+    move_action(iris_x, "f1",speed, action_leader) ;
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  }
+
+  /* Get the state (signal strength) at time t  */
+  states_.push_back(gzs->rssi());
+  
+  /*  Get the random action for follower at time t */
+  action_follower_.push_back(randomize_action());
+    
+  for (int i = 0; i < 4; i++){
+    move_action(iris_x, "f2" ,speed, action_follower_.back());
+    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  } 
+  
+  std::this_thread::sleep_for(std::chrono::milliseconds(300));
+
+  /* Get the state (signal strength) at time t + 1  */
+  states_.push_back(gzs->rssi());
+    
+  return ;
+  
+}
+
+void Q_learning::phase_two()
+{
+
+  
 }
 
 double Q_learning::qtable_action(arma::mat q_table ,arma::uword state)   
@@ -94,124 +234,39 @@ double Q_learning::qtable_value(arma::mat q_table, arma::uword state)
   return qvalue;
 }
 
-
-bool Q_learning::is_signal_in_limits(std::shared_ptr<Gazebo> gzs)
-{
-  bool ok = false;
-  
-  float sum_of_neigh_signal = gzs->rssi().lf1() + gzs->rssi().ff() ;
-  
-  if ( sum_of_neigh_signal < sum_of_neigh_signal* rssi_upper_threshold_ ) {
-    if ( sum_of_neigh_signal > sum_of_neigh_signal* rssi_lower_threshold_) {      
-      ok = true;      
-    }    
-  }
-  
-  return ok;  
-}
-
-
-
-
-void Q_learning::move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
-			     std::string label,
-			     float speed,
-			     lt::action<bool> action)
-{
-  int quad_number = 0;
-  
-  if (label == "l"){
-    quad_number = 0;
-  }
-  else if (label == "f1"){
-    quad_number = 1;
-  }
-  else if (label == "f2"){
-    quad_number = 2;
-  }
-        
-  if(action.left == true){
-    iris_x.at(quad_number)->left(speed);
-  }
-  else if(action.right == true){ 
-    iris_x.at(quad_number)->right(speed);
-  }
-  else if(action.forward == true){ 
-    iris_x.at(quad_number)->forward(speed); 
-  }
-  else if(action.backward == true){ 
-    iris_x.at(quad_number)->backward(speed);
-  }
-  
-}
-
-
-lt::triangle<double> Q_learning::triangle_side(std::vector<lt::position<double>> pos)
+lt::triangle<double> Q_learning::triangle_side(lt::positions<double> pos)
 {
     lt::position<double> dist, dist2, dist3;
-
-    /*  change the distance position to struct
-	calculate the distance on the 3 access
-     */  
     
-    dist.x =  pos.at(0).x - pos.at(1).x;
-    dist.y =  pos.at(0).y - pos.at(1).y;
-    dist.z =  pos.at(0).z - pos.at(1).z;
+    dist.x =  pos.leader.x - pos.f1.x;
+    dist.y =  pos.leader.y - pos.f1.y;
+    dist.z =  pos.leader.z - pos.f1.z;
     
-    dist2.x = pos.at(0).x - pos.at(2).x;
-    dist2.y = pos.at(0).y - pos.at(2).y;
-    dist2.z = pos.at(0).z - pos.at(2).z;
+    dist2.x = pos.leader.x - pos.f2.x;
+    dist2.y = pos.leader.y - pos.f2.y;
+    dist2.z = pos.leader.z - pos.f2.z;
     
-    dist3.x = pos.at(1).x - pos.at(2).x;
-    dist3.y = pos.at(1).y - pos.at(2).y;
-    dist3.z = pos.at(1).z - pos.at(2).z;
+    dist3.x = pos.f1.x - pos.f2.x;
+    dist3.y = pos.f1.y - pos.f2.y;
+    dist3.z = pos.f1.z - pos.f2.z;
 
 
     lt::triangle<double> t;
 
-    t.a = std::sqrt(std::pow((dist.x), 2) +
+    t.f1 = std::sqrt(std::pow((dist.x), 2) +
 		    std::pow((dist.y), 2));
     
-    t.b = std::sqrt(std::pow((dist2.x), 2)+
+    t.f2 = std::sqrt(std::pow((dist2.x), 2)+
 		    std::pow((dist2.y), 2));
     
-    t.c = std::sqrt(std::pow((dist3.x), 2)+
+    t.f3 = std::sqrt(std::pow((dist3.x), 2)+
 		    std::pow((dist3.y), 2));
-
-    LogInfo() << "A = " << t.a << "B = " << t.b << "C = " << t.c ;
+    
+    /*  verify the F1 F2 F3 */
+    LogInfo() << "F1 = " << t.a << " F2 = " << t.b << " F3 = " << t.c ;
 
     /*  it return the traingle side */
     return t;
-  
-}
-
-double Q_learning::deformation_error(lt::triangle<double> old_dist,
-				     lt::triangle<double> new_dist)
-{
-  
-  double error;  
-  
-  error = std::sqrt(std::pow((old_dist.a - new_dist.a), 2)  +
-		    std::pow((old_dist.b - new_dist.b), 2)  +
-		    std::pow((old_dist.c - new_dist.c), 2));
-  
-  /*  Recalculate the Error between quadcopters  */
-
-  
-  return error;   
-}
-
-bool Q_learning::is_triangle(lt::triangle<double> t)
-{
-  bool value = false;
-  if((t.a + t.b >  lower_threshold_.at(0))  && (t.a + t.b <  upper_threshold_.at(0))) {
-    if ((t.a + t.c >  lower_threshold_.at(1))  && (t.a + t.c <  upper_threshold_.at(1))) {
-      if ((t.b + t.c >  lower_threshold_.at(2))  && (t.b + t.c <  upper_threshold_.at(2)))
-	value = true;
-    }
-  }
-  return value; 
-  
 }
 
 lt::action<bool> Q_learning::randomize_action()
@@ -241,57 +296,6 @@ lt::action<bool> Q_learning::randomize_action()
 
 }
 
-void Q_learning::phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
-			   float speed,
-			   std::shared_ptr<Gazebo> gzs,
-			   bool random_leader_action)
-{
-  lt::action<bool> action_leader = {false, false, false, false};
-  
-  if ( random_leader_action == true){
-    action_leader = randomize_action() ;
-    saved_leader_action_ = action_leader;
-    LogInfo() << "Random action chosen: " << action_leader ;
-  }
-  else{
-     action_leader = saved_leader_action_;    
-  }
-  
-  for (int i = 0; i < 4; i++){
-    move_action(iris_x, "l" ,speed, action_leader) ;
-    move_action(iris_x, "f1",speed, action_leader) ;
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-  }
-
-  /* Get the state (signal strength) at time t  */
-  states_.push_back(gzs->rssi());
-  
-
-  /*  Get the random action for follower at time t */
-  action_follower_.push_back(randomize_action());
-  
-  
-  for (int i = 0; i < 4; i++){
-    move_action(iris_x, "f2" ,speed, action_follower_.back());
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-  } 
-  
-  std::this_thread::sleep_for(std::chrono::milliseconds(300));
-
-  /* Get the state (signal strength) at time t + 1  */
-  states_.push_back(gzs->rssi());
-  
-  
-  return ;
-  
-}
-
-void Q_learning::phase_two()
-{
-
-  
-}
-
 void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 			     float speed,
 			     std::shared_ptr<Gazebo> gzs,
@@ -299,21 +303,14 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 {
 
   LogDebug() << qtable_ ;
-  
-  
-  std::vector<lt::position<double>> pos;    
+      
   std::vector<lt::position<double>> distance;
-  
-  pos.push_back(gzs->get_positions().leader);
-  pos.push_back(gzs->get_positions().f1);
-  pos.push_back(gzs->get_positions().f2);
-   
-  LogInfo() << "Starting position l : " << pos.at(0) ;
-  LogInfo() << "Starting position f1: " << pos.at(1) ;
-  LogInfo() << "Starting position f2: " << pos.at(2) ;         
-  
 
-  lt::triangle<double> old_triangle = triangle_side(pos);
+  lt::positions<double> original_positions = get_position(gzs);
+   
+  LogInfo() << "Starting positions : " << original_positions ;
+  
+  lt::triangle<double> original_triangle = triangle_side(original_positions);
   
   for (episode_ = 0; episode_ < max_episode_; episode_++){
     
@@ -379,39 +376,44 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       while (count_ < 3) {
 
 	int  reward = 0;
-
-
-	
+       
 	/*  if the follower is has executed a good action
 	    we need to re-discover the other action in this loop 
 	    until we get a 0 reward, the other actions are related to exploration 
 	    and exploitation note that  */
 	/*  Test if the signal is good, if yes continue with the same action
 	    for leader */
+	
 	if (count_ == 0 ) {
 	  phase_one(iris_x, speed, gzs, true);	  
 	} else {
 	  phase_one(iris_x, speed, gzs, false);      
 	}
 	
-	std::vector<lt::position<double>> new_pos;    
-      
-	new_pos.push_back(gzs->get_positions().leader);
-	new_pos.push_back(gzs->get_positions().f1);
-	new_pos.push_back(gzs->get_positions().f2);           
+	lt::positions<double> new_positions = get_position(gzs);
 	
-	LogInfo() << "New position l : " << new_pos.at(0) ;
-	LogInfo() << "New position f1: " << new_pos.at(1) ;
-	LogInfo() << "New position f2: " << new_pos.at(2) ;               	      
+	LogInfo() << "New positions : " << original_positions ;
+  	
+	/*  Get the distance between the TL TF, and FF TF  at time t*/
+	std::vector<lt::triangle<double>> new_triangle.push_back(triangle_side());      
+
+	/* Compare with the original at start */
 	
+	/* Calculate the error compare to the starting point */
+	if (count_ == 0 ) {
 
-	lt::triangle<double> new_triangle = triangle_side(new_pos);
+	  
+	} else if (count_ ==1 ) {
+	  
+	} else if (count_ == 2 ) {
 
-	double error = deformation_error(old_triangle, new_triangle);
+	  
+	}
+	  
 	
 	LogInfo() << "Error :" << error;  
 	
-	if (error > 1)
+	if (error )
 	  reward = 0;
 	else {
 	  reward = 1;
@@ -442,13 +444,6 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 			                
 	LogInfo() << "reward: " << reward ;
 
-
-	/*  ERROR IN THE QTABLE NEED TO UPDATE WITH THE NEW STATE INDEX */
-	/* TO RESOLVE WHEN USING THE QTABLE , ALSO GET THE VALUE AT THE END*/
-	// qtable_(index_, action_follower) =
-	// 	(1 - learning_rate_) * qtable_(index_, action_follower) +
-	// 	learning_rate_ * (reward +  discount_rate_ * qtable_action(qtable_,
-	// 								   index_));  
 	//reduce epsilon as we explore more each episode
 	epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode_); 
 	

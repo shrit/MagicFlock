@@ -17,18 +17,22 @@ using namespace dronecode_sdk;
 */
 namespace local_types {
 
-  template <typename T> 
-  struct quad_distance
-  {
-    T lf1;
-    T lf2;
-    T ff;
+  template <typename T>  
+  struct positions {
+    position<T> leader;
+    position<T> f2;
+    position<T> f1;
   };
   
-  
-  template <typename T> 
-  struct position {
+  template <typename T>  
+  struct orientations {
+    orientation<T> leader;
+    orientation<T> f1;
+    orientation<T> f2;  
+  };
     
+  template <typename T> 
+  struct position {    
     T x;
     T y;
     T z;
@@ -36,8 +40,7 @@ namespace local_types {
   };
 
   template <typename T> 
-  struct orientation {
-    
+  struct orientation {    
     T x;
     T y;
     T z;
@@ -46,7 +49,7 @@ namespace local_types {
   };
 
   template <typename T> 
-  struct action{
+  struct action {
 
     T forward;
     T backward;
@@ -54,15 +57,28 @@ namespace local_types {
     T right;    
     
   };
+
+  template<typename T>
+  struct triangle 
+  {
+    T f1; /* Distance between the leader and the true follower */
+    T f2; /* Distance between the true follower and the fake follower */
+    T f3; /* Distance between the leader and the fake follower  */     
+  };
   
+  template <typename T> 
+  struct error {
+    T x;
+    T y;
+  };
+    
   template <typename T> 
   class rssi {
     
   public:
     
     rssi<T>(){}
-	    
-    
+	        
     const T lf1() const
     { return lf1_;}
     const T lf2() const
@@ -76,41 +92,21 @@ namespace local_types {
     {  lf2_ = value;}
     void ff(T value) 
     { ff_ = value;}      
-    
-    
+        
   private:
     
     T lf1_;
     T lf2_;
     T ff_;
   };
-
-  template<typename T>
-  struct triangle 
-  {
-    T a;
-    T b;
-    T c;      
-  };
-    
-  template <typename T> 
-  struct error {
-    T x;
-    T y;
-  };
   
-  /// Type of a drone's IP
-  using ip_type   = std::string;
   /// Type of a drone's port
   using port_type = uint16_t;
   //Type of drone's conncetion socket
   using connection_type = std::string;
 
   using topic_name               = std::string;
-
-  using quads_positions          = std::vector<position<double>>;
-
-  using quads_rssi               = std::vector<double>;  
+  
 }
 
 /*  Overloading the << operator to print local structs, vectors and classes */
@@ -118,6 +114,13 @@ template <typename T>
 std::ostream& operator<< (std::ostream& out, const local_types::position<T>& p)
 {
   out << "["<< p.x <<", " << p.y <<", " << p.z <<"]";
+  return out;
+}
+
+template <typename T>
+std::ostream& operator<< (std::ostream& out, const local_types::positions<T>& p)
+{
+  out << "[ Leader: "<< p.leader <<",\n F1:  " << p.f1 <<",\n F2: " << p.f2 <<"]";
   return out;
 }
 

@@ -15,18 +15,6 @@
 namespace lt = local_types;
 
 
-struct positions {
-  lt::position<double> leader;
-  lt::position<double> f1;
-  lt::position<double> f2;
-};
-
-struct orientations {
-  lt::orientation<double> leader;
-  lt::orientation<double> f1;
-  lt::orientation<double> f2;  
-};
-
 class configs;
 
 class Gazebo 
@@ -73,9 +61,9 @@ private:
   
   NodePtr node_;
   
-  positions positions_;
+  lt::positions<double> positions_;
 
-  orientations orientations_;
+  lt::orientations<double> orientations_;
 
   EWMAFilter<double> ema_filter_;
   

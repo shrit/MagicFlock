@@ -32,9 +32,31 @@ public:
 	     std::shared_ptr<Gazebo> gzs,
 	     DataSet data_set,
 	     bool train);
-   
+
+  double action_evaluator(lt::positions<double> old_pos,
+			  lt::positions<double> new_pos);
+  
   int cantor_pairing(int x, int y);
   
+  double deformation_error(lt::triangle<double>  old_dist,
+			   lt::triangle<double>  new_dist);
+
+  bool is_signal_in_limits(std::shared_ptr<Gazebo> gzs);  
+
+  bool is_triangle(lt::triangle<double> t);
+
+  void move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
+		   std::string label,
+		   float speed,
+		   lt::action<bool> action);  
+  
+  void phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
+		 float speed,
+		 std::shared_ptr<Gazebo> gzs,
+		 bool random_leader_action);
+  
+  void phase_two();
+
   double qtable_action(arma::mat qtable , arma::uword state);
 
   double qtable_value(arma::mat q_table ,arma::uword state);
@@ -44,34 +66,17 @@ public:
   arma::uword qtable_state_from_map(std::shared_ptr<Gazebo> gzs,
 			    std::unordered_map<int, int> map);
 
-  bool is_signal_in_limits(std::shared_ptr<Gazebo> gzs);
+
 
   lt::action<bool> randomize_action();
-  
-  void move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
-		   std::string label,
-		   float speed,
-		   lt::action<bool> action);  
-  
-  lt::triangle<double> triangle_side(std::vector<lt::position<double>> pos);
-
-  bool is_triangle(lt::triangle<double> t);
-  
-  double deformation_error(lt::triangle<double>  old_dist,
-			   lt::triangle<double>  new_dist);
-
-  void phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
-		 float speed,
-		 std::shared_ptr<Gazebo> gzs,
-		 bool random_leader_action);
-
-  void phase_two();
   
   void run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		   float speed,
 		   std::shared_ptr<Gazebo> gzs,
 		   DataSet data_set);
-
+      
+  lt::triangle<double> triangle_side(std::vector<lt::position<double>> pos);
+  
 private:
 
   int count_;
