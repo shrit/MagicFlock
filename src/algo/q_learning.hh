@@ -6,6 +6,7 @@
 # include <chrono>
 # include <cmath>
 # include <iostream>
+# include <numeric>
 # include <random>
 # include <thread>
 # include <vector>
@@ -40,7 +41,10 @@ public:
   
   double deformation_error(lt::triangle<double>  old_dist,
 			   lt::triangle<double>  new_dist);
-
+  double gaussian_noise(std::vector<lt::triangle<double>> ideal_dist);
+  
+  lt::positions<double> get_positions(std::shared_ptr<Gazebo> gzs);
+    
   bool is_signal_in_limits(std::shared_ptr<Gazebo> gzs);  
 
   bool is_triangle(lt::triangle<double> t);

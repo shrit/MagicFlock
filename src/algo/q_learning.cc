@@ -31,9 +31,11 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
 bool Q_learning::action_evaluator(lt::triangle<double> old_dist,
 				  lt::triangle<double> new_dist)
 {
+  LogInfo() << "F1 differences: " << std::fabs(old_dist.f1 - new_dist.f1);
+  LogInfo() << "F2 differences: " << std::fabs(old_dist.f2 - new_dist.f2);
   
-  if( std::fabs(old_dist.f1 - new_dist.f1) > 0.5 and
-      std::fabs(old_dist.f2 - new_dist.f2) > 0.5 ) {
+  if( std::fabs(old_dist.f1 - new_dist.f1 ) > 0.3 or
+      std::fabs(old_dist.f2 - new_dist.f2) > 0.3 ) {
     return  false;    
   } else {
     return true;
@@ -60,7 +62,23 @@ double Q_learning::deformation_error(lt::triangle<double> old_dist,
   return error;   
 }
 
-lt::positions<double> get_positions(std::shared_ptr<Gazebo> gzs)
+double Q_learning::gaussian_noise(std::vector<lt::triangle<double>> distances)
+{
+  std::vector<double> ideal_f3;
+  std::vector<double> result; // size need to be defined
+  
+  std::transform(distances.begin(), distances.end(), std::back_inserter(ideal_f3),
+		 [](lt::triangle<double> const& t) { return t.f3; });
+  
+  std::adjacent_difference(ideal_f3.begin(), ideal_f3.end(), std::back_inserter(result));
+  
+  double noise_average = std::accumulate(result.begin(),
+				   result.end(), 0)/result.size();
+  return noise_average;
+
+}
+
+lt::positions<double> Q_learning::get_positions(std::shared_ptr<Gazebo> gzs)
 {  
   lt::positions<double> pos;
   pos.leader = gzs->get_positions().leader;
@@ -242,28 +260,30 @@ lt::triangle<double> Q_learning::triangle_side(lt::positions<double> pos)
 {
     lt::position<double> dist, dist2, dist3;
     
+    /*  Distance between leader and FF */
     dist.x =  pos.leader.x - pos.f1.x;
     dist.y =  pos.leader.y - pos.f1.y;
     dist.z =  pos.leader.z - pos.f1.z;
-    
+
+    /* Distance between leader and TF */
     dist2.x = pos.leader.x - pos.f2.x;
     dist2.y = pos.leader.y - pos.f2.y;
     dist2.z = pos.leader.z - pos.f2.z;
-    
+
+    /* Distance between TF and FF */
     dist3.x = pos.f1.x - pos.f2.x;
     dist3.y = pos.f1.y - pos.f2.y;
     dist3.z = pos.f1.z - pos.f2.z;
 
-
     lt::triangle<double> t;
 
-    t.f1 = std::sqrt(std::pow((dist.x), 2) +
+    t.f3 = std::sqrt(std::pow((dist.x), 2) +
 		    std::pow((dist.y), 2));
     
-    t.f2 = std::sqrt(std::pow((dist2.x), 2)+
+    t.f1 = std::sqrt(std::pow((dist2.x), 2)+
 		    std::pow((dist2.y), 2));
     
-    t.f3 = std::sqrt(std::pow((dist3.x), 2)+
+    t.f2 = std::sqrt(std::pow((dist3.x), 2)+
 		    std::pow((dist3.y), 2));
     
     /*  verify the F1 F2 F3 */
