@@ -121,7 +121,7 @@ std::ostream& operator<< (std::ostream& out, const local_types::position<T>& p)
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const local_types::positions<T>& p)
 {
-  out << "[ Leader: "<< p.leader <<",\n F1:  " << p.f1 <<",\n F2: " << p.f2 <<"]";
+  out << "[ Leader: "<< p.leader <<",\n Fake F:  " << p.f1 <<",\n True F: " << p.f2 <<"]";
   return out;
 }
 
