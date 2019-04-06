@@ -464,9 +464,12 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 
 	  auto it_state = states_.rbegin();
 	  auto it_action = action_follower_.rbegin();
+
+	  it_state = std::next(it_state, 1);
+	  it_action = std::next(it_action, 1);
 	  
-	  data_set.save_csv_data_set(*(it_state++),
-				     *(it_action++),
+	  data_set.save_csv_data_set(*it_state,
+				     *it_action,
 				     states_.back(),
 				     action_follower_.back(),
 				     reward
