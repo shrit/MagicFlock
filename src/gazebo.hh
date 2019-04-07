@@ -7,6 +7,8 @@
 # include <gazebo/msgs/msgs.hh>
 # include <gazebo/msgs/pose.pb.h>
 
+# include <mutex>
+
 # include "ema_filter.hh"
 # include "global.hh"
 # include "log.hh"
@@ -48,30 +50,31 @@ public:
   lt::rssi<double> rssi() const;
   lt::rssi<double> filtered_rssi();
   lt::positions<double> get_positions() const;
+  lt::orientations<double> get_orientations() const;
   
 private:
-
-  //  signal_type parse_msg;
-  /*  node process that connecte to gazebo topic */
+  
   double rssi_;
-  //  gazebo::client c_;
+  
   std::vector<SubPtr> subs_;
   
   std::vector<PubPtr> pubs_;
   
   NodePtr node_;
-  
-  lt::positions<double> positions_;
 
-  lt::orientations<double> orientations_;
+  mutable std::mutex _positions_mutex{};
+  lt::positions<double> _positions;
+
+  mutable std::mutex _orientations_mutex{};
+  lt::orientations<double> _orientations;
 
   EWMAFilter<double> ema_filter_;
-  
-  lt::rssi<double> signal_;
+
+  mutable std::mutex _signal_mutex{};
+  lt::rssi<double> _signal;
 
   Configs config_;
      
 };
-
 
 #endif 

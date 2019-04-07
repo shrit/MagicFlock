@@ -54,19 +54,19 @@ void Gazebo::reset_models()
 void Gazebo::Parse_rssi_msg_0(ConstVector2dPtr& msg)
 {
   /*  Parsing the RSSI send by NS3 */
-  signal_.lf1(msg->x());
+  _signal.lf1(msg->x());
 }
 
 void Gazebo::Parse_rssi_msg_1(ConstVector2dPtr& msg)
 {
   /*  Parsing the RSSI send by NS3 */
-  signal_.lf2 (msg->x());
+  _signal.lf2 (msg->x());
 }
 
 void Gazebo::Parse_rssi_msg_2(ConstVector2dPtr& msg)
 {
   /*  Parsing the RSSI send by NS3 */
-  signal_.ff (msg->x());
+  _signal.ff (msg->x());
 }
 
 /*  positin msg received from gazebo */
@@ -80,67 +80,80 @@ void Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
     if (name == std::string(config_.quad_names().at(0))) {
       const ::gazebo::msgs::Vector3d& position = pose.position();
       
-      positions_.leader.x = position.x();
-      positions_.leader.y = position.y();
-      positions_.leader.z = position.z();
+      _positions.leader.x = position.x();
+      _positions.leader.y = position.y();
+      _positions.leader.z = position.z();
       
       const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
       
-      orientations_.leader.x = orientation.x();
-      orientations_.leader.y = orientation.y();
-      orientations_.leader.z = orientation.z();
-      orientations_.leader.w = orientation.w();
+      _orientations.leader.x = orientation.x();
+      _orientations.leader.y = orientation.y();
+      _orientations.leader.z = orientation.z();
+      _orientations.leader.w = orientation.w();
       
     } else if (name == std::string(config_.quad_names().at(1))){
       const ::gazebo::msgs::Vector3d& position = pose.position();
       
-      positions_.f1.x = position.x();
-      positions_.f1.y = position.y();
-      positions_.f1.z = position.z();
+      _positions.f1.x = position.x();
+      _positions.f1.y = position.y();
+      _positions.f1.z = position.z();
       
       
       const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
 	
-      orientations_.f1.x = orientation.x();
-      orientations_.f1.y = orientation.y();
-      orientations_.f1.z = orientation.z();
-      orientations_.f1.w = orientation.w();		
+      _orientations.f1.x = orientation.x();
+      _orientations.f1.y = orientation.y();
+      _orientations.f1.z = orientation.z();
+      _orientations.f1.w = orientation.w();		
       
     } else if (name == std::string(config_.quad_names().at(2))) {
       const ::gazebo::msgs::Vector3d& position = pose.position();
       
-      positions_.f2.x = position.x();
-      positions_.f2.y = position.y();
-      positions_.f2.z = position.z();
+      _positions.f2.x = position.x();
+      _positions.f2.y = position.y();
+      _positions.f2.z = position.z();
       
       const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
       
-      orientations_.f2.x = orientation.x();
-      orientations_.f2.y = orientation.y();
-      orientations_.f2.z = orientation.z();
-      orientations_.f2.w = orientation.w();	
+      _orientations.f2.x = orientation.x();
+      _orientations.f2.y = orientation.y();
+      _orientations.f2.z = orientation.z();
+      _orientations.f2.w = orientation.w();	
       
     }
   }
 }
 
 lt::rssi<double> Gazebo::rssi() const
-{return signal_;}
+{
+  std::lock_guard<std::mutex> lock(_signal_mutex);
+  return _signal;
+}
 
 lt::rssi<double> Gazebo::filtered_rssi() 
 {
+  std::lock_guard<std::mutex> lock(_signal_mutex);
 
-  ema_filter_.input(signal_.lf1());
-  signal_.lf1(ema_filter_.output());
+  ema_filter_.input(_signal.lf1());
+  _signal.lf1(ema_filter_.output());
   
-  ema_filter_.input(signal_.lf2());
-  signal_.lf2(ema_filter_.output());
+  ema_filter_.input(_signal.lf2());
+  _signal.lf2(ema_filter_.output());
     
-  ema_filter_.input(signal_.ff());
-  signal_.ff(ema_filter_.output());
+  ema_filter_.input(_signal.ff());
+  _signal.ff(ema_filter_.output());
   
-  return signal_;
+  return _signal;
 }
 
 lt::positions<double> Gazebo::get_positions() const
-{return positions_;}
+{
+  std::lock_guard<std::mutex> lock(_positions_mutex);
+  return _positions;
+}
+
+lt::orientations<double> Gazebo::get_orientations() const
+{
+  std::lock_guard<std::mutex> lock(_orientations_mutex);
+  return _orientations;
+}
