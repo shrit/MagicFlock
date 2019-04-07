@@ -462,6 +462,9 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	  /*  Do not save any thing Yet */
 	} else {
 
+	  /*  1- problem logging the actions the next action is not
+	      registered before being logged */
+	  
 	  auto it_state = states_.rbegin();
 	  auto it_action = action_follower_.rbegin();
 
@@ -469,9 +472,8 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	  it_action = std::next(it_action, 1);
 	  
 	  data_set.save_csv_data_set(*it_state,
-				     *it_action,
-				     states_.back(),
 				     action_follower_.back(),
+				     states_.back(),
 				     reward
 				     );        
 	}                    
