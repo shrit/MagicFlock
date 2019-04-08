@@ -134,8 +134,8 @@ std::ostream& operator<< (std::ostream& out, const local_types::action<T>& a)
 
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const local_types::rssi<T>& r)
-{
-  out << r.lf1() <<"," << r.lf2() <<"," << r.ff();
+{/*  Print in order  f1, f2 ,f3, according to TF FF TL */
+  out << r.lf2() <<"," << r.ff() <<"," << r.lf1() ;
   return out;
 }
 
