@@ -364,10 +364,10 @@ int main(int argc, char* argv[])
   for (auto& it : ports) {					       
     								      
     iris_x.push_back(std::make_shared<Px4Device>("udp", it)); 
-    LogInfo()  << "create an iris device" ;	       
+    LogInfo()  << "Add an iris QCopter! " ;	       
   }								      
 
-  LogInfo()<< ports ;
+  LogInfo()<< "Ports number: "<<ports ;
 
   
   ////////////
