@@ -156,6 +156,8 @@ void Q_learning::phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
 {
   lt::action<bool> action_leader = {false, false, false, false};
   
+  LogInfo() << "RSSI before flying: " << gzs->rssi();
+  
   if ( random_leader_action == true){
 
     action_leader = randomize_action() ;
@@ -166,25 +168,27 @@ void Q_learning::phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
      action_leader = saved_leader_action_;    
   }
   
-  for (int i = 0; i < 4; i++){
-    move_action(iris_x, "l" ,speed, action_leader) ;
-    move_action(iris_x, "f1",speed, action_leader) ;
+  for (int i = 0; i < 8; i++){
+    move_action(iris_x, "l" , speed, action_leader) ;
+    move_action(iris_x, "f1", speed, action_leader) ;
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
   }
 
+  LogInfo() << "RSSI on Leader action: " << gzs->rssi() ;
   /* Get the state (signal strength) at time t  */
   states_.push_back(gzs->rssi());
   
   /*  Get the random action for follower at time t */
   action_follower_.push_back(randomize_action());
     
-  for (int i = 0; i < 4; i++){
-    move_action(iris_x, "f2" ,speed, action_follower_.back());
+  for (int i = 0; i < 8; i++){
+    move_action(iris_x, "f2", speed, action_follower_.back());
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
   } 
   
   std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
+  LogInfo() << "RSSI on T follower action: " << gzs->rssi() ;
   /* Get the state (signal strength) at time t + 1  */
   states_.push_back(gzs->rssi());
     
@@ -455,28 +459,21 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	  }
 	  	  
 	}
-	  			
-	// Save the generated dataset HERE
-	if (action_follower_.size() == 1 ){
-	  /*  The first case scenario */
-	  /*  Do not save any thing Yet */
-	} else {
-
-	  /*  1- problem logging the actions the next action is not
-	      registered before being logged */
-	  
-	  auto it_state = states_.rbegin();
-	  auto it_action = action_follower_.rbegin();
-
-	  it_state = std::next(it_state, 1);
-	  it_action = std::next(it_action, 1);
-	  
-	  data_set.save_csv_data_set(*it_state,
-				     action_follower_.back(),
-				     states_.back(),
-				     reward
-				     );        
-	}                    
+	
+	/*  1- problem logging the actions the next action is not
+	    registered before being logged */
+	
+	auto it_state = states_.rbegin();
+	auto it_action = action_follower_.rbegin();
+	
+	it_state = std::next(it_state, 1);
+	it_action = std::next(it_action, 1);
+	
+	data_set.save_csv_data_set(*it_state,
+				   action_follower_.back(),
+				   states_.back(),
+				   reward
+				   );
 			                
 	LogInfo() << "reward: " << reward ;
 
