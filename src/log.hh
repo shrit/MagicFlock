@@ -2,8 +2,9 @@
 
 # include <iostream>
 # include <sstream>
+# include <fstream>
+# include <experimental/filesystem>
 
-# include <boost/filesystem.hpp>
 # include <boost/date_time/posix_time/posix_time.hpp>
 
 
@@ -26,30 +27,15 @@ class Log {
   
 public:
   Log() :
-    s_() {}
-
-  void init ()
-  {
-    // need to intialize in the main function.
-    boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
-    
-    std::stringstream date_stream, time_stream; 
-    
-    date_stream << now.date();
-    time_stream << now.time_of_day();
-    
-    boost::filesystem::create_directory("../log");
-    boost::filesystem::create_directory("../log/" + date_stream.str());
-    file_.open("../log/" + date_stream.str() + "/" + time_stream.str(),
-	       boost::filesystem::ofstream::app|boost::filesystem::ofstream::out);    
-    
-  }
+    s_()
+  {}
+  
+  void init ();
   
   template<typename T> Log &operator<<(const T &x)
   {
     /*  Print to the standard output */
-    s_ << x;
-        
+    s_ << x;    
     return *this;
     }
   
@@ -92,24 +78,26 @@ public:
         set_color(Color::RESET);
 	
 	std::cout << s_.str() << std::endl;
-
-	/*  Also make a copy of the standard output to a file */   
-	file_ << s_.str();
 	
+	/*  Also make a copy of the standard output to a file */
+	
+	file_.open(file_name_,  std::ios::out | std::ios::app );
+	file_ << s_.rdbuf();
 	file_.flush();
-    
-	file_.close();
+	file_.close();	
+
     }
 
     Log(const Log &) = delete;
     void operator=(const Log &) = delete;
 
 protected:
-    enum LogLevel { Debug, Info, Warn, Err } _log_level = LogLevel::Debug;
-
+    enum LogLevel { Debug, Info, Warn, Err } _log_level = LogLevel::Debug;  
 private:
-  boost::filesystem::ofstream file_;
+  std::ofstream file_;
+  std::string file_name_;
   std::stringstream s_;
+  std::stringstream date_stream_, time_stream_; 
   
 };
 
@@ -118,6 +106,7 @@ public:
     LogDebug() : Log()
     {
         _log_level = LogLevel::Debug;
+
     }
 };
 
@@ -144,4 +133,3 @@ public:
         _log_level = LogLevel::Err;
     }
 };
-

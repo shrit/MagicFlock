@@ -10,6 +10,20 @@
 #define ANSI_COLOR_RESET "\x1b[0m"
 
 
+void Log::init()
+{
+  //Intialize in the main function.
+    boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
+            
+    date_stream_ << now.date();
+    time_stream_ << now.time_of_day();
+
+    std::experimental::filesystem::create_directory("../log");
+    std::experimental::filesystem::create_directory("../log/" + date_stream_.str());
+    file_name_ = "../log/" + date_stream_.str() + "/" + time_stream_.str();      
+}
+
+
 void set_color(Color color)
 {
   switch (color) {
