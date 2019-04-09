@@ -18,7 +18,6 @@
 
 /*  Boost library include */
 # include <boost/algorithm/string.hpp>
-# include <boost/filesystem.hpp>
 # include <boost/date_time/posix_time/posix_time.hpp>
 
 
@@ -26,7 +25,8 @@
 
 /*  local defined include */
 # include "global.hh"
-
+/*  Use it as a library */
+//# include "../third_party/matplotlib/matplotlib.hh"
 
 
 namespace lt = local_types;
@@ -40,25 +40,29 @@ public:
     
   void read_data_set_file(std::string file_name);
   
-  template <typename A, typename B, typename C>  
-  void write_data_set_file(std::ofstream& file, A a, B b, C c);
+  template <typename Arg, typename... Args>
+  void write_data_set_file(std::ofstream& file, Arg&& arg, Args&&... args);
   
   template <typename Arg, typename... Args>  
-  void save_csv_data_set(Arg&& arg, Args&&... );
+  void save_csv_data_set(Arg&& arg, Args&&... args);
   
   template <typename A, typename B>  
   void read_map_file(std::string file_name, std::unordered_map <A, B>& map_);
   
   template <typename A, typename B>  
   void write_map_file(std::unordered_map <A, B> map_);
+
   
+  template <typename Arg, typename... Args>
+  void plot(std::string filename, std::string title,
+	    Arg arg, Arg argv, Args... args);
+    
   void save_qtable(arma::mat  qtable);
   void init_dataset_directory();
   
   std::vector<lt::rssi<double>>  rssi_vector() const;
   std::vector<int>  action_vector() const;
-  std::vector<lt::error<double>> error_vector() const;
-  
+  std::vector<lt::error<double>> error_vector() const;  
   std::vector<std::vector<double>> data_set() const;
   
   
