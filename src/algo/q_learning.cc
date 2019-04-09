@@ -13,14 +13,14 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
    episode_(0),
    epsilon_(1.0),
    learning_rate_(0.9),
-   lower_threshold_{4.8, 5, 5},
+   lower_threshold_{4, 4, 4},
    max_episode_(10000),
    max_step_(1000),
    min_epsilon_(0.0),
    qtable_{10000, 5, arma::fill::ones},
    rssi_lower_threshold_(1.1),
    rssi_upper_threshold_(0.94),
-   upper_threshold_{11, 9, 9}
+   upper_threshold_{9, 9, 9}
 {
 
   if(train == true){
@@ -168,7 +168,7 @@ void Q_learning::phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
      action_leader = saved_leader_action_;    
   }
   
-  for (int i = 0; i < 8; i++){
+  for (int i = 0; i < 4; i++){
     move_action(iris_x, "l" , speed, action_leader) ;
     move_action(iris_x, "f1", speed, action_leader) ;
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -181,7 +181,7 @@ void Q_learning::phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
   /*  Get the random action for follower at time t */
   action_follower_.push_back(randomize_action());
     
-  for (int i = 0; i < 8; i++){
+  for (int i = 0; i < 4; i++){
     move_action(iris_x, "f2", speed, action_follower_.back());
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
   } 
@@ -372,11 +372,18 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
     
     std::this_thread::sleep_for(std::chrono::seconds(2));
     
-    /*  Taking off the quad */
+    /* Stop the episode if one of the quad has fallen to takoff */
+    /*  Replace it by a template function  */
+    bool takeoff;
+    bool stop_episode = false;    
     for (auto it : iris_x){
-      it->takeoff();	
+      takeoff = it->takeoff();
+      if(!takeoff)
+	stop_episode = true;
     }
-    
+    if(stop_episode)
+      break;
+        
     std::this_thread::sleep_for(std::chrono::seconds(3));
     /*  Setting up speed important to switch the mode */
     for (auto it : iris_x){
@@ -456,8 +463,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	  /*  move it outside of the while loop */
 	  if (is_triangle(new_triangle.at(1)) == false) {
 	    break;
-	  }
-	  	  
+	  }	  	  
 	}
 	
 	/*  1- problem logging the actions the next action is not

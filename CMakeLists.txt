@@ -32,10 +32,6 @@ set(arma "/usr/lib/libarmadillo.so")
 set(boost_lib_program_options "/usr/lib/libboost_program_options.so")
 set(boost_lib_time "/usr/lib/libboost_date_time.so")
 
-
-
-
-
 link_directories(${GAZEBO_LIBRARY_DIRS})
 
 add_executable(QCopter    
