@@ -24,7 +24,7 @@
 # include "data_set.hh"
 # include "gazebo.hh"
 # include "global.hh"
-# include "joystick/joystick.hh"
+# include "../third_party/joystick/joystick.hh"
 # include "log.hh"
 # include "px4_device.hh"
 # include "settings.hh"

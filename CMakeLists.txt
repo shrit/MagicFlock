@@ -11,11 +11,9 @@ find_package(gazebo REQUIRED)
 
 include_directories(
 
- ${GAZEBO_INCLUDE_DIRS}
- 
+  ${GAZEBO_INCLUDE_DIRS}
  /usr/local/include/dronecode_sdk 
  /usr/include/
- 
   )
 
 
@@ -29,6 +27,7 @@ set(file_system "/usr/lib/libstdc++fs.a")
 set(ncurses_lib "/usr/lib/libncurses.so")
 set(pthread_lib "/usr/lib/libpthread.so")
 set(arma "/usr/lib/libarmadillo.so")
+
 
 set(boost_lib_program_options "/usr/lib/libboost_program_options.so")
 set(boost_lib_time "/usr/lib/libboost_date_time.so")
@@ -46,7 +45,7 @@ add_executable(QCopter
   src/config_ini.cc
   src/data_set.cc
   src/gazebo.cc
-  src/joystick/joystick.cc
+  third_party/joystick/joystick.cc
   src/log.cc  
   src/main.cc
   src/px4_device.cc
