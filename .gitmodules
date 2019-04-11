@@ -1,3 +1,0 @@
-[submodule "third_party/matplotlib-cpp"]
-	path = third_party/matplotlib-cpp
-	url = https://github.com/lava/matplotlib-cpp.git
