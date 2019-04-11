@@ -68,6 +68,8 @@ void DataSet::init_dataset_directory()
   qtable_file_name_=
     "../dataset/" + date_stream.str() + "/qtable" + time_stream.str();
 
+  result_file_name_ =
+    "../dataset/" + date_stream.str() + "/figure" + time_stream.str();
 }
 
 void DataSet::save_qtable(arma::mat qtable)

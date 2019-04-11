@@ -25,9 +25,8 @@
 
 /*  local defined include */
 # include "global.hh"
-/*  Use it as a library */
-//# include "../third_party/matplotlib/matplotlib.hh"
 
+#include "plot.h"
 
 namespace lt = local_types;
 
@@ -52,11 +51,12 @@ public:
   template <typename A, typename B>  
   void write_map_file(std::unordered_map <A, B> map_);
 
-  
   template <typename Arg, typename... Args>
-  void plot(std::string filename, std::string title,
-	    Arg arg, Arg argv, Args... args);
-    
+  void DataSet::plot(std::string title,
+		     std::string xlabel,
+		     std::string ylabel,		   
+		     Arg arg, Arg argv, Args... args);
+  
   void save_qtable(arma::mat  qtable);
   void init_dataset_directory();
   
@@ -64,8 +64,7 @@ public:
   std::vector<int>  action_vector() const;
   std::vector<lt::error<double>> error_vector() const;  
   std::vector<std::vector<double>> data_set() const;
-  
-  
+    
 private:
   
   int line_number_;
@@ -73,6 +72,7 @@ private:
   std::string dataset_file_name_;
   std::string map_file_name_;
   std::string qtable_file_name_;
+  std::string result_file_name_;
   
   std::vector<std::vector<double>> data_set_;  
     

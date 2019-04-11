@@ -65,18 +65,28 @@ void DataSet::read_map_file(std::string file_name, std::unordered_map<A, B>& map
 }
 
 template <typename Arg, typename... Args>
-void DataSet::plot(std::string filename, std::string title,
+void DataSet::plot(std::string title,
+		   std::string xlabel,
+		   std::string ylabel,		   
 		   Arg arg, Arg argv, Args... args)
 {
-  // namespace plt = matplotlibcpp;
-  // plt::figure_size(1200, 780);
-  
-  // plt::plot(arg, argv);
 
-  // plt::title(title);
- 
-  // plt::legend();
-  // plt::save(filename);
+  /*  define here if the args are equal to the std vector 
+   Use variadic template for  x, y */
+
+  /*  Gnuplot Config */
+  plotcpp::Plot plt;
+  plt.SetTerminal("svg");
+  plt.SetOutput(result_file_name_);
+  plt.SetTitle(title);
+  plt.SetXLabel(xlabel);
+  plt.SetYLabel(ylabel);
+  plt.SetAutoscale();
+  
+  plt.Draw2D(Points(arg.begin(), arg.end(), argv.begin(), "Reward"),
+	     Points(x_zero.begin(), x_zero.end(), y_zero.begin(), "No reward"));
+
+  plt.Flush();
       
 }
 
