@@ -185,7 +185,7 @@ void Q_learning::phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
   LogInfo() << "RSSI on Leader action: " << gzs->rssi() ;
   /* Get the state (signal strength) at time t  */
   states_.push_back(gzs->rssi());
-  
+  index_ = qtable_state(gzs, true);
   /*  Get the random action for follower at time t */
   action_follower_.push_back(randomize_action());
     
@@ -199,7 +199,7 @@ void Q_learning::phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
   LogInfo() << "RSSI on T follower action: " << gzs->rssi() ;
   /* Get the state (signal strength) at time t + 1  */
   states_.push_back(gzs->rssi());
-    
+  new_index_ = qtable_state(gzs, true); 
   return ;  
 }
 
@@ -303,20 +303,20 @@ lt::action<bool> Q_learning::randomize_action()
 {
   lt::action<bool> action= {false, false, false, false};
 
-  int random = distribution_int_(generator_);
+  random_action_follower_ = distribution_int_(generator_);
 
-  LogInfo() << "Random:  " << random ;
+  LogInfo() << "Random:  " << random_action_follower_ ;
   
-  if( random == 0){
+  if( random_action_follower_ == 0){
     action.forward = true;
   }
-  else if(random  == 1){
+  else if(random_action_follower_ == 1){
     action.backward = true;
   }    
-  else if(random  == 2){
+  else if(random_action_follower_ == 2){
         action.left = true;	
   }
-  else if (random == 3){
+  else if (random_action_follower_ == 3){
         action.right = true;
   }
   
@@ -336,8 +336,14 @@ double Q_learning::variance(double mean)
 			 [&mean, &sz](double accumulator, const double& val) {		      
 			   return accumulator +
 			     ((val - mean)*(val - mean) / (sz - 1));
-			 } );
-  
+			 } );  
+}
+
+void Q_learning::update_qtable(int reward)
+{  
+  qtable_(index_, random_action_follower_) =
+    (1 - learning_rate_) * qtable_(index_, random_action_follower_) +
+    learning_rate_ * (reward +  discount_rate_ * qtable_value(qtable_, new_index_));
 }
 
 void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
@@ -500,6 +506,8 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 			                
 	LogInfo() << "reward: " << reward ;
 
+	/* Update Q value function */
+	update_qtable(reward);
 	//reduce epsilon as we explore more each episode
 	epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode_); 
 	

@@ -80,6 +80,7 @@ public:
       
   lt::triangle<double> triangle_side(lt::positions<double> pos);
   double variance(double mean);
+  void update_qtable(int reward);
   
 private:
 
@@ -108,16 +109,16 @@ private:
   
   std::unordered_map<int, int> signal_map_;
     
-  arma::uword index_;
+  arma::uword index_, new_index_;
       
   std::vector<lt::action<bool>> action_follower_ ;
   
   lt::action<bool> saved_leader_action_;
 
   std::vector<lt::triangle<double>> f3_side_;
-  std::vector<double> diff_f3_; 
+  std::vector<double> diff_f3_;
+  int random_action_follower_;
   
 };
   
-
 #endif
