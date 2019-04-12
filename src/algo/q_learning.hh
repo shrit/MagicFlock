@@ -79,6 +79,7 @@ public:
 		   DataSet data_set);
       
   lt::triangle<double> triangle_side(lt::positions<double> pos);
+  double variance(double mean);
   
 private:
 
@@ -114,6 +115,7 @@ private:
   lt::action<bool> saved_leader_action_;
 
   std::vector<lt::triangle<double>> f3_side_;
+  std::vector<double> diff_f3_; 
   
 };
   

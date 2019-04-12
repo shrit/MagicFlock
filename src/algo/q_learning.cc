@@ -66,23 +66,23 @@ double Q_learning::deformation_error(lt::triangle<double> old_dist,
 double Q_learning::gaussian_noise(std::vector<lt::triangle<double>> distances)
 {
   std::vector<double> ideal_f3;
-  std::vector<double> result; 
   
   std::transform(distances.begin(), distances.end(), std::back_inserter(ideal_f3),
 		 [](lt::triangle<double> const& t) { return t.f3; });
   
-  std::adjacent_difference(ideal_f3.begin(), ideal_f3.end(), std::back_inserter(result));
+  std::adjacent_difference(ideal_f3.begin(), ideal_f3.end(), std::back_inserter(diff_f3_));
 
   /* The difference in distances needs to be in absolute value */
+  /*  This has a tremendous cost since we need to re */
   double (*fabs)(double) = &std::fabs;
-  std::transform(result.begin(), result.end(), result.begin(), fabs);
+  std::transform(diff_f3_.begin(), diff_f3_.end(), diff_f3_.begin(), fabs);
   
-  //  LogInfo() << "difference f3: " << result;
+  //  LogInfo() << "difference f3: " << diff_f3_;
   
   // adding one here to remove the first element of adjacent difference
-  double noise_average = std::accumulate(result.begin() + 1, 
-				   result.end(), 0.0)/result.size();
-  return noise_average;
+  double noise_mean = std::accumulate(diff_f3_.begin() + 1, 
+				   diff_f3_.end(), 0.0)/diff_f3_.size();
+  return noise_mean;
 
 }
 
@@ -204,9 +204,7 @@ void Q_learning::phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
 }
 
 void Q_learning::phase_two()
-{
-  
-}
+{/* To be implemented*/}
 
 double Q_learning::qtable_action(arma::mat q_table, arma::uword state)   
 {  
@@ -326,6 +324,20 @@ lt::action<bool> Q_learning::randomize_action()
   
   return action;
 
+}
+
+double Q_learning::variance(double mean)
+{  
+  size_t sz = diff_f3_.size();
+  if (sz == 1)
+    return 0.0;
+  
+  return std::accumulate(diff_f3_.begin(), diff_f3_.end(), 0.0, 
+			 [&mean, &sz](double accumulator, const double& val) {		      
+			   return accumulator +
+			     ((val - mean)*(val - mean) / (sz - 1));
+			 } );
+  
 }
 
 void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
