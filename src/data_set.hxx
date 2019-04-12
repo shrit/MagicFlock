@@ -82,9 +82,10 @@ void DataSet::plot(std::string title,
   plt.SetXLabel(xlabel);
   plt.SetYLabel(ylabel);
   plt.SetAutoscale();
-  
-  plt.Draw2D(Points(arg.begin(), arg.end(), argv.begin(), "Reward"),
-	     Points(x_zero.begin(), x_zero.end(), y_zero.begin(), "No reward"));
+
+  /*  Need to look into it... */
+  // plt.Draw2D(Points(arg.begin(), arg.end(), argv.begin(), "Reward"),
+  // 	     Points(x_zero.begin(), x_zero.end(), y_zero.begin(), "No reward"));
 
   plt.Flush();
       

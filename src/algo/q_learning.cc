@@ -29,13 +29,14 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
 }
 
 bool Q_learning::action_evaluator(lt::triangle<double> old_dist,
-				  lt::triangle<double> new_dist)
+				  lt::triangle<double> new_dist,
+				  double noise)
 {
   LogInfo() << "F1 differences: " << std::fabs(old_dist.f1 - new_dist.f1);
   LogInfo() << "F2 differences: " << std::fabs(old_dist.f2 - new_dist.f2);
   
-  if( std::fabs(old_dist.f1 - new_dist.f1 ) > 0.3 or
-      std::fabs(old_dist.f2 - new_dist.f2) > 0.3 ) {
+  if( std::fabs(old_dist.f1 - new_dist.f1 ) > noise or
+      std::fabs(old_dist.f2 - new_dist.f2) > noise ) {
     return  false;    
   } else {
     return true;
@@ -65,15 +66,22 @@ double Q_learning::deformation_error(lt::triangle<double> old_dist,
 double Q_learning::gaussian_noise(std::vector<lt::triangle<double>> distances)
 {
   std::vector<double> ideal_f3;
-  std::vector<double> result; // size need to be defined
+  std::vector<double> result; 
   
   std::transform(distances.begin(), distances.end(), std::back_inserter(ideal_f3),
 		 [](lt::triangle<double> const& t) { return t.f3; });
   
   std::adjacent_difference(ideal_f3.begin(), ideal_f3.end(), std::back_inserter(result));
+
+  /* The difference in distances needs to be in absolute value */
+  double (*fabs)(double) = &std::fabs;
+  std::transform(result.begin(), result.end(), result.begin(), fabs);
   
-  double noise_average = std::accumulate(result.begin(),
-				   result.end(), 0)/result.size();
+  //  LogInfo() << "difference f3: " << result;
+  
+  // adding one here to remove the first element of adjacent difference
+  double noise_average = std::accumulate(result.begin() + 1, 
+				   result.end(), 0.0)/result.size();
   return noise_average;
 
 }
@@ -289,11 +297,6 @@ lt::triangle<double> Q_learning::triangle_side(lt::positions<double> pos)
     
     t.f2 = std::sqrt(std::pow((dist3.x), 2)+
 		    std::pow((dist3.y), 2));
-    
-    /*  verify the F1 F2 F3 */
-    LogInfo() << "F1 = " << t.f1 << " F2 = "
-	      << t.f2 << " F3 = " << t.f3 ;
-
     /*  it return the traingle side */
     return t;
 }
@@ -331,30 +334,25 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 			     DataSet data_set)
 {
 
-  LogDebug() << qtable_ ;
+  //  LogDebug() << qtable_ ;
       
   std::vector<lt::position<double>> distance;
-
+  
   lt::positions<double> original_positions = get_positions(gzs);
-   
+  
   LogInfo() << "Starting positions : " << original_positions ;
   
   lt::triangle<double> original_triangle = triangle_side(original_positions);
+
+  f3_side_.push_back( original_triangle);
   
   for (episode_ = 0; episode_ < max_episode_; episode_++){
     
     /* Intilization phase, in each episode we should reset the
-     * position of each quadcopter to the initial position. Thus,
-     * advertise a gazebo topic that allow to control the world. From
-     * here we can start automatically the quads: 
+     * position of each quadcopter to the initial position.
+     * From here we can start automatically the quads: 
      * Arm + takeoff + offboard mode + moving + land 
      * Then: repeat each episode.
-     */
-
-    /* This function in enormous, we need to recut it into Several
-     * local function. Try to create several files for q_learning
-     * instead of only this file. Do better encapsulation and comments
-     * the code functions
      */
 
     LogInfo() << "Episode : " << episode_ ;            
@@ -381,12 +379,10 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
       if(!takeoff)
 	stop_episode = true;
     }
-    if(stop_episode)
-      break;
-        
+                
     std::this_thread::sleep_for(std::chrono::seconds(3));
     /*  Setting up speed important to switch the mode */
-    for (auto it : iris_x){
+   for (auto it : iris_x){
       it->init_speed();
     }
     
@@ -401,14 +397,11 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
     // for(int steps = 0; steps < max_step_; steps++) {
                   
       /*  Start the First phase*/
-          
-       
-      /*  Reward as a function of the triangle */
-
-      /*  if error in the follower is big and the traingle is dead
-	  reward is 0, reset the state */
+             
+    if (!stop_episode) {
+      
       count_ = 0 ;
-
+      
       std::vector<lt::triangle<double>> new_triangle;
       
       while (count_ < 3) {
@@ -430,17 +423,27 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	
 	lt::positions<double> new_positions = get_positions(gzs);
 	
-	LogInfo() << "New positions : " << original_positions ;
+	LogInfo() << "New positions : " << new_positions ;
   	
 	/*  Get the distance between the TL TF, and FF TF  at time t*/
-	new_triangle.push_back(triangle_side(new_positions));      
+	new_triangle.push_back(triangle_side(new_positions));
 
-	/* Compare with the original at start */
+	/*  Keep a copy of the new distance between all of them */
+	f3_side_.push_back(triangle_side(new_positions));
+
+	/*Calculate the noise over the entire trainning session
+	  This will allow to refine exactly the good action */	
+
+	double noise = gaussian_noise(f3_side_);
+
+	LogInfo() << "Noise: " << noise ;
 	
 	/* Calculate the error compare to the starting point */
+	/* Compare with the original at start */
 	if (count_ == 0 ) {
 	  reward = action_evaluator(original_triangle,
-				    new_triangle.at(0));
+				    new_triangle.at(0),
+				    noise);
 	  
 	  /*  move it outside of the while loop */
 	  if (is_triangle(new_triangle.at(0)) == false) {
@@ -449,7 +452,8 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	  
 	} else if (count_ == 1 ) {
 	  reward = action_evaluator(new_triangle.at(0),
-				    new_triangle.at(1));
+				    new_triangle.at(1),
+				    noise);
 	  
 	  /*  move it outside of the while loop */
 	  if (is_triangle(new_triangle.at(1)) == false) {
@@ -458,7 +462,8 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	  	  
 	} else if (count_ == 2 ) {
 	  reward = action_evaluator(new_triangle.at(1),
-				    new_triangle.at(2));
+				    new_triangle.at(2),
+				    noise);
 	  
 	  /*  move it outside of the while loop */
 	  if (is_triangle(new_triangle.at(1)) == false) {
@@ -490,46 +495,43 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	
 	rewards_.push_back(reward);
 	
-	/*  Save the data set after each step iteration */
-	
-	//      data_set.save_csv_data_set(new_state_, action_follower, reward);
+	/*  Save the data set after each step iteration */		
 	
 	data_set.write_map_file(signal_map_);
 	
 	data_set.save_qtable(qtable_); 
 	
 	std::this_thread::sleep_for(std::chrono::seconds(1));
-	        
+	
 	++count_;
-      }       
-      // }
-    
+      }
+    }
+        
     for (auto it: iris_x)
       it->land();
-      
+    
     std::this_thread::sleep_for(std::chrono::seconds(6));
     
     gzs->reset_models();
-
+    
     std::this_thread::sleep_for(std::chrono::seconds(15));
     
     /*BIAS accelerometer problem after resetting the models*/
       
-    /*  The only possible solution was to change the upper limit
-     * value for the bias inside thee code of te firmware direclty.
-     * The solution can be found at this link:
-     * https://github.com/PX4/Firmware/issues/10833 Where they
-     * propose to increase the value of COM_ARM_EKF_AB. Note that,
-     * the default value is 0.00024 I have increased it to 0.00054
-     * which is very high to their stadard. Because other wise
-     * there is no way to do the simulation. Remember, the reboot()
-     * function in the action class is not implemented at the time
-     * of writing this comment, and maybe it will never be
-     * implemented as it is quite complicated to reboot the px4
-     * software from the simulator.
-     * I understand this choice, we need to leave a big sleep_for 
-     * after resetting the quadcopters, that is going to helper
-     * resetting the accelerometer values without any problems!
+    /*  The only possible solution was to change the upper limit value
+     * for the bias inside thee code of te firmware direclty. The
+     * solution can be found at this link:
+     * https://github.com/PX4/Firmware/issues/10833 Where they propose
+     * to increase the value of COM_ARM_EKF_AB. Note that, the default
+     * value is 0.00024 I have increased it to 0.00054 which is very
+     * high to the usual stadard. Other wise there is no way to do the
+     * simulation. Remember, the reboot() function in the action class
+     * is not implemented at the time of writing this comment, and
+     * maybe it will never be implemented as it is quite complicated
+     * to reboot the px4 software from the simulator. I understand
+     * this choice, we need to leave a big sleep_for after resetting
+     * the quadcopters, that is going to helpe resetting the
+     * accelerometer values without any problems!
      */
 
     /*  I have quite tested a lot of different solution, if I am going

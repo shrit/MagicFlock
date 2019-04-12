@@ -25,8 +25,7 @@
 
 /*  local defined include */
 # include "global.hh"
-
-#include "plot.h"
+#include "../third_party/gnuplot/plot.h"
 
 namespace lt = local_types;
 
@@ -52,10 +51,10 @@ public:
   void write_map_file(std::unordered_map <A, B> map_);
 
   template <typename Arg, typename... Args>
-  void DataSet::plot(std::string title,
-		     std::string xlabel,
-		     std::string ylabel,		   
-		     Arg arg, Arg argv, Args... args);
+  void plot(std::string title,
+	    std::string xlabel,
+	    std::string ylabel,		   
+	    Arg arg, Arg argv, Args... args);
   
   void save_qtable(arma::mat  qtable);
   void init_dataset_directory();

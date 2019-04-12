@@ -35,7 +35,8 @@ public:
 	     bool train);
 
   bool action_evaluator(lt::triangle<double> old_dist,
-  			lt::triangle<double> new_dist);
+  			lt::triangle<double> new_dist,
+			double noise);
   
   int cantor_pairing(int x, int y);
   
@@ -111,6 +112,8 @@ private:
   std::vector<lt::action<bool>> action_follower_ ;
   
   lt::action<bool> saved_leader_action_;
+
+  std::vector<lt::triangle<double>> f3_side_;
   
 };
   
