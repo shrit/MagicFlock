@@ -240,7 +240,7 @@ arma::uword Q_learning::qtable_state(std::shared_ptr<Gazebo> gzs, bool value)
   /*  Increase precision by multiply double by 100, 
       and then around to int */
   
-  int unique = cantor_pairing((int)std::round(gzs->rssi().lf1()*100),
+  long long int unique = cantor_pairing((int)std::round(gzs->rssi().lf1()*100),
 			      (int)std::round(gzs->rssi().lf2()*100));
   
   unique = cantor_pairing(unique,
