@@ -22,7 +22,6 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
    rssi_upper_threshold_(0.94),
    upper_threshold_{9, 9, 9}
 {
-
   if(train == true){
     run_episods(iris_x, speed, gzs, data_set);
   }
@@ -40,8 +39,7 @@ bool Q_learning::action_evaluator(lt::triangle<double> old_dist,
     return  false;    
   } else {
     return true;
-  }
-  
+  }  
 }
 
 int Q_learning::cantor_pairing(int x, int y)
@@ -54,12 +52,11 @@ double Q_learning::deformation_error(lt::triangle<double> old_dist,
 				     lt::triangle<double> new_dist)
 {
   double error;  
-  
   error = std::sqrt(std::pow((old_dist.f1 - new_dist.f1), 2)  +
 		    std::pow((old_dist.f2 - new_dist.f2), 2)  +
 		    std::pow((old_dist.f3 - new_dist.f3), 2));
-    /*  Recalculate the Error between quadcopters  */
   
+  /*  Recalculate the Error between quadcopters  */  
   return error;   
 }
 
@@ -83,7 +80,6 @@ double Q_learning::gaussian_noise(std::vector<lt::triangle<double>> distances)
   double noise_mean = std::accumulate(diff_f3_.begin() + 1, 
 				   diff_f3_.end(), 0.0)/diff_f3_.size();
   return noise_mean;
-
 }
 
 lt::positions<double> Q_learning::get_positions(std::shared_ptr<Gazebo> gzs)
@@ -106,8 +102,7 @@ bool Q_learning::is_signal_in_limits(std::shared_ptr<Gazebo> gzs)
     if ( sum_of_neigh_signal > sum_of_neigh_signal* rssi_lower_threshold_) {      
       ok = true;      
     }    
-  }
-  
+  }  
   return ok;  
 }
 
@@ -186,9 +181,16 @@ void Q_learning::phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
   /* Get the state (signal strength) at time t  */
   states_.push_back(gzs->rssi());
   index_ = qtable_state(gzs, true);
+
   /*  Get the random action for follower at time t */
-  action_follower_.push_back(randomize_action());
-    
+  double random = distribution_(generator_);
+
+  if (random > epsilon_) {
+    action_follower_.push_back(qtable_action_binary(qtable_, index_));  	
+  } else {
+    action_follower_.push_back(randomize_action());	
+  }	
+        
   for (int i = 0; i < 4; i++){
     move_action(iris_x, "f2", speed, action_follower_.back());
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -206,20 +208,43 @@ void Q_learning::phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
 void Q_learning::phase_two()
 {/* To be implemented*/}
 
-double Q_learning::qtable_action(arma::mat q_table, arma::uword state)   
+arma::uword Q_learning::qtable_action(arma::mat q_table, arma::uword state)   
 {  
   arma::uword index;
   index = arma::index_max(q_table.row(state));        
   return index;
 }
 
+lt::action<bool> Q_learning::qtable_action_binary(arma::mat q_table, arma::uword state)   
+{    
+  lt::action<bool> action= {false, false, false, false};  
+  arma::uword index = arma::index_max(q_table.row(state));  
+  
+  if(index == 0){
+    action.forward = true;
+  }
+  else if(index == 1){
+    action.backward = true;
+  }    
+  else if(index == 2){
+    action.left = true;	
+  }
+  else if (index == 3){
+    action.right = true;
+  }      
+  return action;  
+}
+
 arma::uword Q_learning::qtable_state(std::shared_ptr<Gazebo> gzs, bool value)
 {
-  int unique = cantor_pairing((int)std::round(gzs->rssi().lf1()),
-			      (int)std::round(gzs->rssi().lf2()));
+  /*  Increase precision by multiply double by 100, 
+      and then around to int */
+  
+  int unique = cantor_pairing((int)std::round(gzs->rssi().lf1()*100),
+			      (int)std::round(gzs->rssi().lf2()*100));
   
   unique = cantor_pairing(unique,
-			  (int)std::round(gzs->rssi().ff()));
+			  (int)std::round(gzs->rssi().ff()*100));
 
   LogDebug() << "cantor unuqie number" << unique ;
   
@@ -323,7 +348,6 @@ lt::action<bool> Q_learning::randomize_action()
   LogInfo() << "Action: " << action ;
   
   return action;
-
 }
 
 double Q_learning::variance(double mean)
@@ -498,16 +522,19 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	it_state = std::next(it_state, 1);
 	it_action = std::next(it_action, 1);
 	
+	/* Update Q value function */
+	update_qtable(reward);
+	
 	data_set.save_csv_data_set(*it_state,
 				   action_follower_.back(),
 				   states_.back(),
-				   reward
+				   reward,
+				   qtable_(index_,
+					   random_action_follower_)
 				   );
 			                
 	LogInfo() << "reward: " << reward ;
-
-	/* Update Q value function */
-	update_qtable(reward);
+	
 	//reduce epsilon as we explore more each episode
 	epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode_); 
 	

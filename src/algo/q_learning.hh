@@ -62,7 +62,8 @@ public:
   
   void phase_two();
 
-  double qtable_action(arma::mat qtable, arma::uword state);
+  arma::uword qtable_action(arma::mat qtable, arma::uword state);
+  lt::action<bool> qtable_action_binary(arma::mat qtable, arma::uword state);
 
   double qtable_value(arma::mat q_table, arma::uword state);
   
