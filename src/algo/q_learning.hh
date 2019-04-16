@@ -95,7 +95,6 @@ private:
   float learning_rate_ ;
   std::vector<float> lower_threshold_;
   int max_episode_ ;  
-  int max_step_ ;
   float min_epsilon_ ;  
   arma::mat  qtable_;
   float rssi_lower_threshold_;

@@ -14,8 +14,7 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
    epsilon_(1.0),
    learning_rate_(0.3),
    lower_threshold_{4, 4, 4},
-   max_episode_(10000),
-   max_step_(1000),
+   max_episode_(10000),  
    min_epsilon_(0.0),
    qtable_{10000, 5, arma::fill::ones},
    rssi_lower_threshold_(1.1),
@@ -157,48 +156,37 @@ void Q_learning::phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
 			   std::shared_ptr<Gazebo> gzs,
 			   bool random_leader_action)
 {
+  /*  Phase One: Construct the dataset */
+  
   lt::action<bool> action_leader = {false, false, false, false};
   
-  LogInfo() << "RSSI before flying: " << gzs->rssi();
-  
-  if ( random_leader_action == true){
-
-    action_leader = randomize_action() ;
-    saved_leader_action_ = action_leader;
-    LogInfo() << "Random action chosen: " << action_leader ;
-
-  } else {
-     action_leader = saved_leader_action_;    
-  }
-  
-  for (int i = 0; i < 4; i++){
-    move_action(iris_x, "l" , speed, action_leader) ;
-    move_action(iris_x, "f1", speed, action_leader) ;
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-  }
-
-  LogInfo() << "RSSI on Leader action: " << gzs->rssi() ;
   /* Get the state (signal strength) at time t  */
+  LogInfo() << "RSSI on Leader action: " << gzs->rssi() ;
   states_.push_back(gzs->rssi());
   index_ = qtable_state(gzs, true);
-
-  /*  Get the random action for follower at time t */
-  double random = distribution_(generator_);
-
-  if (random > epsilon_) {
-    action_follower_.push_back(qtable_action_binary(qtable_, index_));  	
+  
+  if ( random_leader_action == true){
+    
+    action_leader = randomize_action() ;
+    saved_leader_action_ = action_leader;
+    LogInfo() << "Random action chosen: " << action_leader ;    
   } else {
-    action_follower_.push_back(randomize_action());	
-  }	
-        
+    action_leader = saved_leader_action_;    
+  }
+  
+  action_follower_.push_back(randomize_action());
+  
   for (int i = 0; i < 4; i++){
+    move_action(iris_x, "l" , speed, action_leader);
+    move_action(iris_x, "f1", speed, action_leader);
     move_action(iris_x, "f2", speed, action_follower_.back());
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
-  } 
-  
+  }
+  /* We need to wait until the quadcopters finish their actions */  
   std::this_thread::sleep_for(std::chrono::milliseconds(300));
-
+  
   LogInfo() << "RSSI on T follower action: " << gzs->rssi() ;
+  
   /* Get the state (signal strength) at time t + 1  */
   states_.push_back(gzs->rssi());
   new_index_ = qtable_state(gzs, true); 
@@ -259,8 +247,7 @@ arma::uword Q_learning::qtable_state(std::shared_ptr<Gazebo> gzs, bool value)
   }
   else {
     index = it->second;      
-  }
-  
+  }  
   return index;
 }
 
@@ -432,13 +419,10 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
     for(auto it : iris_x){
       it->start_offboard_mode();
     }
-    
+    /*  Wait to complete the take off process */
     std::this_thread::sleep_for(std::chrono::seconds(1));  
-    /* put the take off functions inside the steps */
     
-    // for(int steps = 0; steps < max_step_; steps++) {
-                  
-      /*  Start the First phase*/
+      /*  Start the First phase, in 3 Steps */
              
     if (!stop_episode) {
       
@@ -469,15 +453,15 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
   	
 	/*  Get the distance between the TL TF, and FF TF  at time t*/
 	new_triangle.push_back(triangle_side(new_positions));
-
+	
 	/*  Keep a copy of the new distance between all of them */
 	f3_side_.push_back(triangle_side(new_positions));
-
+	
 	/*Calculate the noise over the entire trainning session
 	  This will allow to refine exactly the good action */	
-
+	
 	double noise = gaussian_noise(f3_side_);
-
+	
 	LogInfo() << "Noise: " << noise ;
 	
 	/* Calculate the error compare to the starting point */
@@ -521,16 +505,11 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	
 	it_state = std::next(it_state, 1);
 	it_action = std::next(it_action, 1);
-	
-	/* Update Q value function */
-	update_qtable(reward);
-	
+		
 	data_set.save_csv_data_set(*it_state,
 				   action_follower_.back(),
 				   states_.back(),
-				   reward,
-				   qtable_(index_,
-					   random_action_follower_)
+				   reward				   
 				   );
 			                
 	LogInfo() << "reward: " << reward ;
@@ -553,7 +532,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	++count_;
       }
     }
-        
+
     for (auto it: iris_x)
       it->land();
     
