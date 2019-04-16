@@ -160,6 +160,8 @@ void Q_learning::phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
   
   lt::action<bool> action_leader = {false, false, false, false};
   
+  std::vector<std::thread> threads;
+    
   /* Get the state (signal strength) at time t  */
   LogInfo() << "RSSI on Leader action: " << gzs->rssi() ;
   states_.push_back(gzs->rssi());
@@ -175,14 +177,33 @@ void Q_learning::phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
   }
   
   action_follower_.push_back(randomize_action());
+
+  /*  Threading QuadCopter */
+    
+  threads.push_back(std::thread([&](){
+				  for (int i = 0; i < 4; ++i){
+				    move_action(iris_x, "l" , speed, action_leader);
+				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
+				  }				  
+				}));
+  threads.push_back(std::thread([&](){
+				  for (int i = 0; i < 4; ++i){
+				    move_action(iris_x, "f1" , speed, action_leader);
+				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
+				  }				  
+				}));
+  threads.push_back(std::thread([&](){
+				  for (int i = 0; i < 4; ++i){
+				    move_action(iris_x, "f2", speed, action_follower_.back());
+				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
+				  }				  
+				}));
   
-  for (int i = 0; i < 4; i++){
-    move_action(iris_x, "l" , speed, action_leader);
-    move_action(iris_x, "f1", speed, action_leader);
-    move_action(iris_x, "f2", speed, action_follower_.back());
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+  for(auto& thread : threads){
+    thread.join();
   }
-  /* We need to wait until the quadcopters finish their actions */  
+  
+  // /* We need to wait until the quadcopters finish their actions */  
   std::this_thread::sleep_for(std::chrono::milliseconds(300));
   
   LogInfo() << "RSSI on T follower action: " << gzs->rssi() ;
@@ -361,10 +382,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 			     float speed,
 			     std::shared_ptr<Gazebo> gzs,
 			     DataSet data_set)
-{
-
-  //  LogDebug() << qtable_ ;
-      
+{      
   std::vector<lt::position<double>> distance;
   
   lt::positions<double> original_positions = get_positions(gzs);
@@ -392,6 +410,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
      * Note: at the end of each episode, we re-intilize everything   
      */
     
+    /*  Think How we can use threads here */
     /*  Arming the Quads */
     for (auto it : iris_x){
       it->arm();
@@ -411,7 +430,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
                 
     std::this_thread::sleep_for(std::chrono::seconds(3));
     /*  Setting up speed important to switch the mode */
-   for (auto it : iris_x){
+    for (auto it : iris_x){
       it->init_speed();
     }
     
@@ -422,7 +441,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
     /*  Wait to complete the take off process */
     std::this_thread::sleep_for(std::chrono::seconds(1));  
     
-      /*  Start the First phase, in 3 Steps */
+    /*  Start the First phase, in 3 Steps */
              
     if (!stop_episode) {
       
@@ -508,8 +527,7 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
 		
 	data_set.save_csv_data_set(*it_state,
 				   action_follower_.back(),
-				   states_.back(),
-				   reward				   
+				   states_.back()			
 				   );
 			                
 	LogInfo() << "reward: " << reward ;
@@ -559,8 +577,8 @@ void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
      * the quadcopters, that is going to helpe resetting the
      * accelerometer values without any problems!
      */
-
+    
     /*  I have quite tested a lot of different solution, if I am going
      * to find a better one, I will replace it directly. */      
-   }
- }
+  }
+}
