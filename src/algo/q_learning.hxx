@@ -14,13 +14,11 @@ Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
    episode_(0),
    epsilon_(1.0),
    learning_rate_(0.3),
-   lower_threshold_{4, 4, 4},
    max_episode_(10000),  
    min_epsilon_(0.0),
    qtable_{10000, 5, arma::fill::ones},
    rssi_lower_threshold_(1.1),
-   rssi_upper_threshold_(0.94),
-   upper_threshold_{9, 9, 9}
+   rssi_upper_threshold_(0.94)
 {
   if(train == true){
     run_episods(iris_x, speed, gzs, data_set);
@@ -222,11 +220,9 @@ qtable_state(std::shared_ptr<Gazebo> gzs, bool value)
   /*  Increase precision by multiply double by 100, 
       and then around to int */
   
-  long long int unique = cantor_pairing((int)std::round(gzs->rssi().lf1()*100),
-					(int)std::round(gzs->rssi().lf2()*100));
-  
-  unique = cantor_pairing(unique,
-			  (int)std::round(gzs->rssi().ff()*100));
+  long long int unique = mtools_.cantor_pairing((int)std::round(gzs->rssi().lf1()*100),
+						(int)std::round(gzs->rssi().lf2()*100),
+						(int)std::round(gzs->rssi().ff()*100));
   
   LogDebug() << "cantor unuqie number" << unique ;
   
@@ -250,11 +246,10 @@ arma::uword Q_learning<flight_controller_t>::
 qtable_state_from_map(std::shared_ptr<Gazebo> gzs,
 		      std::unordered_map<int, int> map)
 {
-  int unique = cantor_pairing((int)std::round(gzs->rssi().lf1()),
-			       (int)std::round(gzs->rssi().lf2()));
+  int unique = mtools_.cantor_pairing((int)std::round(gzs->rssi().lf1()),
+			      (int)std::round(gzs->rssi().lf2()),
+			      (int)std::round(gzs->rssi().ff()));
   
-  unique = cantor_pairing(unique,
-			  (int)std::round(gzs->rssi().ff()));
   arma::uword index = 0;
   LogDebug() << "cantor unuqie" << unique ;
   auto it = map.find(unique);
@@ -263,8 +258,7 @@ qtable_state_from_map(std::shared_ptr<Gazebo> gzs,
   }
   else {
     index = it->second;      
-  }
-  
+  }  
   return index;
 }
 
@@ -326,7 +320,7 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   
   LogInfo() << "Starting positions : " << original_positions ;
   
-  lt::triangle<double> original_triangle = triangle_side(original_positions);
+  lt::triangle<double> original_triangle = mtools_.triangle_side(original_positions);
 
   f3_side_.push_back( original_triangle);
   
@@ -408,15 +402,15 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	LogInfo() << "New positions : " << new_positions ;
   	
 	/*  Get the distance between the TL TF, and FF TF  at time t*/
-	new_triangle.push_back(triangle_side(new_positions));
+	new_triangle.push_back(mtools_.triangle_side(new_positions));
 	
 	/*  Keep a copy of the new distance between all of them */
-	f3_side_.push_back(triangle_side(new_positions));
+	f3_side_.push_back(mtools_.triangle_side(new_positions));
 	
 	/*Calculate the noise over the entire trainning session
 	  This will allow to refine exactly the good action */	
 	
-	double noise = gaussian_noise(f3_side_);
+	double noise = mtools_.gaussian_noise(f3_side_);
 	
 	LogInfo() << "Noise: " << noise ;
 	
@@ -428,7 +422,7 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 				    noise);
 	  
 	  /*  move it outside of the while loop */
-	  if (is_triangle(new_triangle.at(0)) == false) {
+	  if (mtools_.is_triangle(new_triangle.at(0)) == false) {
 	    break;
 	  }
 	  
@@ -438,7 +432,7 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 				    noise);
 	  
 	  /*  move it outside of the while loop */
-	  if (is_triangle(new_triangle.at(1)) == false) {
+	  if (mtools_.is_triangle(new_triangle.at(1)) == false) {
 	    break;
 	  }
 	  	  
@@ -448,7 +442,7 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 				    noise);
 	  
 	  /*  move it outside of the while loop */
-	  if (is_triangle(new_triangle.at(1)) == false) {
+	  if (mtools_.is_triangle(new_triangle.at(1)) == false) {
 	    break;
 	  }	  	  
 	}

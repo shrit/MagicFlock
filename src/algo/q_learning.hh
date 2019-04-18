@@ -15,10 +15,11 @@
 # include <armadillo>
 
 /* local includes  */
+# include "../data_set.hh"
 # include "../global.hh"
 # include "../gazebo.hh"
-# include "../data_set.hh"
 # include "../log.hh"
+# include "../math_tools.hh"
 
 template<class flight_controller_t>
 class Q_learning
@@ -84,17 +85,17 @@ private:
   int episode_ ;
   float epsilon_ ;
   float learning_rate_ ;
-  std::vector<float> lower_threshold_;
   int max_episode_ ;  
   float min_epsilon_ ;  
   arma::mat  qtable_;
   float rssi_lower_threshold_;
   float rssi_upper_threshold_;
-  std::vector<float> upper_threshold_;
   
   std::vector<lt::rssi<double>>   states_, new_state_;
     
   std::vector<double> rewards_;
+
+  Math_tools mtools_;
   
   std::default_random_engine generator_;
   
