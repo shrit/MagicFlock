@@ -45,7 +45,7 @@ namespace lt = local_types;
 JoystickEvent joystick_event_handler(Joystick& joystick,				  
 				     std::vector<std::shared_ptr<Px4Device>> iris_x,
 				     float speed,
-				     Q_learning qlearning,
+				     Q_learning<Px4Device> qlearning,
 				     arma::mat qtable,
 				     std::shared_ptr<Gazebo> gz,
 				     std::unordered_map<int, int> map,
@@ -405,13 +405,13 @@ int main(int argc, char* argv[])
   if (configs.train()) {
     DataSet data_set;
     data_set.init_dataset_directory();
-    Q_learning qlearning(iris_x, speed, gz, data_set, configs.train());
+    Q_learning<Px4Device> qlearning(iris_x, speed, gz, data_set, configs.train());
     return 0;
   }
   
   arma::mat qtable;
   DataSet data_set;
-  Q_learning qlearning(iris_x, speed, gz, data_set, false);    
+  Q_learning<Px4Device> qlearning(iris_x, speed, gz, data_set, false);    
 
   std::unordered_map<int, int> map;
   data_set.read_map_file(configs.map_file_name(), map);

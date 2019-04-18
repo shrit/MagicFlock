@@ -1,10 +1,11 @@
 # include "q_learning.hh"
-
-Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
-		       float speed,
-		       std::shared_ptr<Gazebo> gzs,
-		       DataSet data_set,
-		       bool train)
+template <class flight_controller_t>
+Q_learning<flight_controller_t>::
+Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
+	   float speed,
+	   std::shared_ptr<Gazebo> gzs,
+	   DataSet data_set,
+	   bool train)
   :count_(0),
    decay_rate_(0.01),
    discount_rate_(0.95),
@@ -25,10 +26,11 @@ Q_learning::Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
     run_episods(iris_x, speed, gzs, data_set);
   }
 }
-
-bool Q_learning::action_evaluator(lt::triangle<double> old_dist,
-				  lt::triangle<double> new_dist,
-				  double noise)
+template <class flight_controller_t>
+bool Q_learning<flight_controller_t>::
+action_evaluator(lt::triangle<double> old_dist,
+		 lt::triangle<double> new_dist,
+		 double noise)
 {
   LogInfo() << "F1 differences: " << std::fabs(old_dist.f1 - new_dist.f1);
   LogInfo() << "F2 differences: " << std::fabs(old_dist.f2 - new_dist.f2);
@@ -41,13 +43,15 @@ bool Q_learning::action_evaluator(lt::triangle<double> old_dist,
   }  
 }
 
-int Q_learning::cantor_pairing(int x, int y)
+template <class flight_controller_t>
+int Q_learning<flight_controller_t>::cantor_pairing(int x, int y)
 {
   int unique = 0.5*(x + y)*(x + y + 1) + y;
   return unique;  
 }
 
-double Q_learning::deformation_error(lt::triangle<double> old_dist,
+template <class flight_controller_t>
+double Q_learning<flight_controller_t>::deformation_error(lt::triangle<double> old_dist,
 				     lt::triangle<double> new_dist)
 {
   double error;  
@@ -59,7 +63,8 @@ double Q_learning::deformation_error(lt::triangle<double> old_dist,
   return error;   
 }
 
-double Q_learning::gaussian_noise(std::vector<lt::triangle<double>> distances)
+template <class flight_controller_t>
+double Q_learning<flight_controller_t>::gaussian_noise(std::vector<lt::triangle<double>> distances)
 {
   std::vector<double> ideal_f3;
   
@@ -81,7 +86,9 @@ double Q_learning::gaussian_noise(std::vector<lt::triangle<double>> distances)
   return noise_mean;
 }
 
-lt::positions<double> Q_learning::get_positions(std::shared_ptr<Gazebo> gzs)
+template <class flight_controller_t>
+lt::positions<double> Q_learning<flight_controller_t>::
+get_positions(std::shared_ptr<Gazebo> gzs)
 {  
   lt::positions<double> pos;
   pos.leader = gzs->get_positions().leader;
@@ -91,7 +98,9 @@ lt::positions<double> Q_learning::get_positions(std::shared_ptr<Gazebo> gzs)
   return pos; 
 }
 
-bool Q_learning::is_signal_in_limits(std::shared_ptr<Gazebo> gzs)
+template <class flight_controller_t>
+bool Q_learning<flight_controller_t>::
+is_signal_in_limits(std::shared_ptr<Gazebo> gzs)
 {
   bool ok = false;
   
@@ -105,7 +114,9 @@ bool Q_learning::is_signal_in_limits(std::shared_ptr<Gazebo> gzs)
   return ok;  
 }
 
-bool Q_learning::is_triangle(lt::triangle<double> t)
+template <class flight_controller_t>
+bool Q_learning<flight_controller_t>::
+is_triangle(lt::triangle<double> t)
 {
   bool value = false;
   if((t.f1 + t.f2 >  lower_threshold_.at(0))  and
@@ -120,7 +131,9 @@ bool Q_learning::is_triangle(lt::triangle<double> t)
   return value;   
 }
 
-void Q_learning::move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
+template <class flight_controller_t>
+void Q_learning<flight_controller_t>::
+move_action(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 			     std::string label,
 			     float speed,
 			     lt::action<bool> action)
@@ -151,13 +164,14 @@ void Q_learning::move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
   }  
 }
 
-void Q_learning::phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
-			   float speed,
-			   std::shared_ptr<Gazebo> gzs,
-			   bool random_leader_action)
+template <class flight_controller_t>
+void Q_learning<flight_controller_t>::
+phase_one(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
+	  float speed,
+	  std::shared_ptr<Gazebo> gzs,
+	  bool random_leader_action)
 {
-  /*  Phase One: Construct the dataset */
-  
+  /*  Phase One: Construct the dataset */  
   lt::action<bool> action_leader = {false, false, false, false};
   
   std::vector<std::thread> threads;
@@ -177,9 +191,8 @@ void Q_learning::phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
   }
   
   action_follower_.push_back(randomize_action());
-
-  /*  Threading QuadCopter */
-    
+  
+  /*  Threading QuadCopter */    
   threads.push_back(std::thread([&](){
 				  for (int i = 0; i < 4; ++i){
 				    move_action(iris_x, "l" , speed, action_leader);
@@ -203,7 +216,7 @@ void Q_learning::phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
     thread.join();
   }
   
-  // /* We need to wait until the quadcopters finish their actions */  
+  /* We need to wait until the quadcopters finish their actions */  
   std::this_thread::sleep_for(std::chrono::milliseconds(300));
   
   LogInfo() << "RSSI on T follower action: " << gzs->rssi() ;
@@ -214,17 +227,22 @@ void Q_learning::phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
   return ;  
 }
 
-void Q_learning::phase_two()
+template <class flight_controller_t>
+void Q_learning<flight_controller_t>::phase_two()
 {/* To be implemented*/}
 
-arma::uword Q_learning::qtable_action(arma::mat q_table, arma::uword state)   
+template <class flight_controller_t>
+arma::uword Q_learning<flight_controller_t>::
+qtable_action(arma::mat q_table, arma::uword state)   
 {  
   arma::uword index;
   index = arma::index_max(q_table.row(state));        
   return index;
 }
 
-lt::action<bool> Q_learning::qtable_action_binary(arma::mat q_table, arma::uword state)   
+template <class flight_controller_t>
+lt::action<bool> Q_learning<flight_controller_t>::
+qtable_action_binary(arma::mat q_table, arma::uword state)   
 {    
   lt::action<bool> action= {false, false, false, false};  
   arma::uword index = arma::index_max(q_table.row(state));  
@@ -244,17 +262,19 @@ lt::action<bool> Q_learning::qtable_action_binary(arma::mat q_table, arma::uword
   return action;  
 }
 
-arma::uword Q_learning::qtable_state(std::shared_ptr<Gazebo> gzs, bool value)
+template <class flight_controller_t>
+arma::uword Q_learning<flight_controller_t>::
+qtable_state(std::shared_ptr<Gazebo> gzs, bool value)
 {
   /*  Increase precision by multiply double by 100, 
       and then around to int */
   
   long long int unique = cantor_pairing((int)std::round(gzs->rssi().lf1()*100),
-			      (int)std::round(gzs->rssi().lf2()*100));
+					(int)std::round(gzs->rssi().lf2()*100));
   
   unique = cantor_pairing(unique,
 			  (int)std::round(gzs->rssi().ff()*100));
-
+  
   LogDebug() << "cantor unuqie number" << unique ;
   
   arma::uword index = 0;
@@ -272,11 +292,13 @@ arma::uword Q_learning::qtable_state(std::shared_ptr<Gazebo> gzs, bool value)
   return index;
 }
 
-arma::uword Q_learning::qtable_state_from_map(std::shared_ptr<Gazebo> gzs,
-				      std::unordered_map<int, int> map)
+template <class flight_controller_t>
+arma::uword Q_learning<flight_controller_t>::
+qtable_state_from_map(std::shared_ptr<Gazebo> gzs,
+		      std::unordered_map<int, int> map)
 {
   int unique = cantor_pairing((int)std::round(gzs->rssi().lf1()),
-			      (int)std::round(gzs->rssi().lf2()));
+			       (int)std::round(gzs->rssi().lf2()));
   
   unique = cantor_pairing(unique,
 			  (int)std::round(gzs->rssi().ff()));
@@ -293,13 +315,17 @@ arma::uword Q_learning::qtable_state_from_map(std::shared_ptr<Gazebo> gzs,
   return index;
 }
 
-double Q_learning::qtable_value(arma::mat q_table, arma::uword state)
+template <class flight_controller_t>
+double Q_learning<flight_controller_t>::
+qtable_value(arma::mat q_table, arma::uword state)
 {
   double qvalue = q_table.row(state).max();
   return qvalue;
 }
 
-lt::triangle<double> Q_learning::triangle_side(lt::positions<double> pos)
+template <class flight_controller_t>
+lt::triangle<double> Q_learning<flight_controller_t>::
+triangle_side(lt::positions<double> pos)
 {
     lt::position<double> dist, dist2, dist3;
     
@@ -332,12 +358,14 @@ lt::triangle<double> Q_learning::triangle_side(lt::positions<double> pos)
     return t;
 }
 
-lt::action<bool> Q_learning::randomize_action()
+template <class flight_controller_t>
+lt::action<bool> Q_learning<flight_controller_t>::
+randomize_action()
 {
   lt::action<bool> action= {false, false, false, false};
-
+  
   random_action_follower_ = distribution_int_(generator_);
-
+  
   LogInfo() << "Random:  " << random_action_follower_ ;
   
   if( random_action_follower_ == 0){
@@ -358,7 +386,9 @@ lt::action<bool> Q_learning::randomize_action()
   return action;
 }
 
-double Q_learning::variance(double mean)
+template <class flight_controller_t>
+double Q_learning<flight_controller_t>::
+variance(double mean)
 {  
   size_t sz = diff_f3_.size();
   if (sz == 1)
@@ -371,17 +401,21 @@ double Q_learning::variance(double mean)
 			 } );  
 }
 
-void Q_learning::update_qtable(int reward)
+template <class flight_controller_t>
+void Q_learning<flight_controller_t>::
+update_qtable(int reward)
 {  
   qtable_(index_, random_action_follower_) =
     (1 - learning_rate_) * qtable_(index_, random_action_follower_) +
     learning_rate_ * (reward +  discount_rate_ * qtable_value(qtable_, new_index_));
 }
 
-void Q_learning::run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
-			     float speed,
-			     std::shared_ptr<Gazebo> gzs,
-			     DataSet data_set)
+template <class flight_controller_t>
+void Q_learning<flight_controller_t>::
+run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
+	    float speed,
+	    std::shared_ptr<Gazebo> gzs,
+	    DataSet data_set)
 {      
   std::vector<lt::position<double>> distance;
   

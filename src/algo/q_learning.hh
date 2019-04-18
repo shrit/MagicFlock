@@ -16,19 +16,19 @@
 # include <armadillo>
 
 /* Quadcopter controller includes  */
-# include "../px4_device.hh"
+//# include "../px4_device.hh"
 # include "../global.hh"
 # include "../gazebo.hh"
 # include "../data_set.hh"
 # include "../log.hh"
 
-
+template<class flight_controller_t>
 class Q_learning
 {
   
 public:
   
-  Q_learning(std::vector<std::shared_ptr<Px4Device>> iris_x,
+  Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	     float speed,
 	     std::shared_ptr<Gazebo> gzs,
 	     DataSet data_set,
@@ -50,12 +50,12 @@ public:
 
   bool is_triangle(lt::triangle<double> t);
 
-  void move_action(std::vector<std::shared_ptr<Px4Device>> iris_x,
+  void move_action(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 		   std::string label,
 		   float speed,
 		   lt::action<bool> action);  
   
-  void phase_one(std::vector<std::shared_ptr<Px4Device>> iris_x,
+  void phase_one(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 		 float speed,
 		 std::shared_ptr<Gazebo> gzs,
 		 bool random_leader_action);
@@ -74,7 +74,7 @@ public:
 
   lt::action<bool> randomize_action();
   
-  void run_episods(std::vector<std::shared_ptr<Px4Device>> iris_x,
+  void run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 		   float speed,
 		   std::shared_ptr<Gazebo> gzs,
 		   DataSet data_set);
@@ -120,5 +120,7 @@ private:
   int random_action_follower_;
   
 };
-  
+
+# include "q_learning.hxx"
+
 #endif
