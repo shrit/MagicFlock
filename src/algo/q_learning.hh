@@ -5,7 +5,6 @@
 # include <algorithm>
 # include <chrono>
 # include <cmath>
-# include <iostream>
 # include <numeric>
 # include <random>
 # include <thread>
@@ -15,8 +14,7 @@
 /*  Armadillo includes  */
 # include <armadillo>
 
-/* Quadcopter controller includes  */
-//# include "../px4_device.hh"
+/* local includes  */
 # include "../global.hh"
 # include "../gazebo.hh"
 # include "../data_set.hh"
@@ -37,18 +35,13 @@ public:
   bool action_evaluator(lt::triangle<double> old_dist,
   			lt::triangle<double> new_dist,
 			double noise);
-  
-  int cantor_pairing(int x, int y);
-  
+    
   double deformation_error(lt::triangle<double>  old_dist,
 			   lt::triangle<double>  new_dist);
-  double gaussian_noise(std::vector<lt::triangle<double>> ideal_dist);
   
   lt::positions<double> get_positions(std::shared_ptr<Gazebo> gzs);
     
   bool is_signal_in_limits(std::shared_ptr<Gazebo> gzs);  
-
-  bool is_triangle(lt::triangle<double> t);
 
   void move_action(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 		   std::string label,
@@ -79,8 +72,6 @@ public:
 		   std::shared_ptr<Gazebo> gzs,
 		   DataSet data_set);
       
-  lt::triangle<double> triangle_side(lt::positions<double> pos);
-  double variance(double mean);
   void update_qtable(int reward);
   
 private:
