@@ -25,7 +25,7 @@ Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   }
 }
 template <class flight_controller_t>
-bool Q_learning<flight_controller_t>::
+double Q_learning<flight_controller_t>::
 action_evaluator(lt::triangle<double> old_dist,
 		 lt::triangle<double> new_dist,
 		 double noise)
@@ -33,12 +33,28 @@ action_evaluator(lt::triangle<double> old_dist,
   LogInfo() << "F1 differences: " << std::fabs(old_dist.f1 - new_dist.f1);
   LogInfo() << "F2 differences: " << std::fabs(old_dist.f2 - new_dist.f2);
   
-  if( std::fabs(old_dist.f1 - new_dist.f1 ) > noise or
-      std::fabs(old_dist.f2 - new_dist.f2) > noise ) {
-    return  false;    
-  } else {
-    return true;
+  double diff_f1 = std::fabs(old_dist.f1 - new_dist.f1);
+  double diff_f2 = std::fabs(old_dist.f2 - new_dist.f2);
+  
+  double reward = 0.0;
+  
+  if (diff_f1 + diff_f2  < noise ) {
+    reward = 4 + diff_f1 + diff_f2 ;
+    
+  } else if ( 0.5  > diff_f1 + diff_f2 and
+	       diff_f1 + diff_f2  > noise ) {
+    reward = 2 + diff_f1 + diff_f2 ;
+  } else if ( 1.0  > diff_f1 + diff_f2 and
+	      diff_f1 + diff_f2  > 0.5 ) {
+    reward = 0 - (diff_f1 + diff_f2) ;
+  } else if ( 1.5  > diff_f1 + diff_f2 and
+	      diff_f1 + diff_f2  > 1.0 ) {
+    reward = -2 - (diff_f1 + diff_f2) ;
+  } else if ( 2.0  > diff_f1 + diff_f2 and
+	      diff_f1 + diff_f2  > 1.5 ) {
+    reward = -4 - (diff_f1 + diff_f2) ;
   }  
+      return reward;
 }
 
 template <class flight_controller_t>
@@ -382,12 +398,12 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 
 	int  reward = 0;
        
-	/*  if the follower is has executed a good action
-	    we need to re-discover the other action in this loop 
-	    until we get a 0 reward, the other actions are related to exploration 
-	    and exploitation note that  */
-	/*  Test if the signal is good, if yes continue with the same action
-	    for leader */
+	/*  if the follower is has executed a good action we need to
+	    re-discover the other action in this loop until we get a 0
+	    reward, the other actions are related to exploration and
+	    exploitation note that */
+	/*  Test if the signal is good, if yes continue with the same
+	    action for leader */
 	
 	if (count_ == 0 ) {
 	  phase_one(iris_x, speed, gzs, true);	  

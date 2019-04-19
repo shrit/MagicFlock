@@ -33,7 +33,7 @@ public:
 	     DataSet data_set,
 	     bool train);
 
-  bool action_evaluator(lt::triangle<double> old_dist,
+  double action_evaluator(lt::triangle<double> old_dist,
   			lt::triangle<double> new_dist,
 			double noise);
     
