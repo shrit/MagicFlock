@@ -1,37 +1,45 @@
 # include "math_tools.hh"
 
+
+Math_tools::Math_tools()
+  :   lower_threshold_{4, 4, 4},
+      upper_threshold_{9, 9, 9}
+{}
+
 template <typename Arg, typename... Args>
-Arg Math_tools::cantor_pairing(Arg&& arg, Args&&... args)
+Arg Math_tools::cantor_pairing(Arg arg, Args... args)
 {  
-  Arg unique = 0.5*(arg + std::forward<Args> args)*(arg + std::forward<Args> args + 1) +
-    std::forward<Args> args;
+  Arg unique = 0.5*(arg + (std::forward<Args>(args), ...) )
+    * (arg + (std::forward<Args>(args), ... ) + 1) +
+    (std::forward<Args>(args), ...);
   
-  return (cantor_pairing(unique, ... ));     
+  return (cantor_pairing(unique, std::forward<Args>(args)), ...);     
 }
 
-double ::gaussian_noise(std::vector<lt::triangle<double>> distances)
+double Math_tools::gaussian_noise(std::vector<lt::triangle<double>> distances,
+				  std::vector<double> drift_f3)
 {
   std::vector<double> ideal_f3;
   
   std::transform(distances.begin(), distances.end(), std::back_inserter(ideal_f3),
 		 [](lt::triangle<double> const& t) { return t.f3; });
   
-  std::adjacent_difference(ideal_f3.begin(), ideal_f3.end(), std::back_inserter(diff_f3_));
+  std::adjacent_difference(ideal_f3.begin(), ideal_f3.end(), std::back_inserter(drift_f3));
 
   /* The difference in distances needs to be in absolute value */
   /*  This has a tremendous cost since we need to re */
   double (*fabs)(double) = &std::fabs;
-  std::transform(diff_f3_.begin(), diff_f3_.end(), diff_f3_.begin(), fabs);
+  std::transform(drift_f3.begin(), drift_f3.end(), drift_f3.begin(), fabs);
   
-  //  LogInfo() << "difference f3: " << diff_f3_;
+  //  LogInfo() << "difference f3: " << drift_f3;
   
   // adding one here to remove the first element of adjacent difference
-  double noise_mean = std::accumulate(diff_f3_.begin() + 1, 
-				   diff_f3_.end(), 0.0)/diff_f3_.size();
+  double noise_mean = std::accumulate(drift_f3.begin() + 1, 
+				   drift_f3.end(), 0.0)/drift_f3.size();
   return noise_mean;
 }
 
-bool ::
+bool Math_tools::
 is_triangle(lt::triangle<double> t)
 {
   bool value = false;
@@ -47,7 +55,7 @@ is_triangle(lt::triangle<double> t)
   return value;   
 }
 
-lt::triangle<double>::
+lt::triangle<double> Math_tools::
 triangle_side(lt::positions<double> pos)
 {
     lt::position<double> dist, dist2, dist3;
@@ -81,18 +89,21 @@ triangle_side(lt::positions<double> pos)
     return t;
 }
 
-double ::
-variance(double mean)
-{  
-  size_t sz = diff_f3_.size();
+template <typename Arg>
+Arg Math_tools::variance(std::vector<Arg> vec)
+{
+  /*  note that diff_f3_ was used here */
+  size_t sz = vec.size();
   if (sz == 1)
     return 0.0;
+
+  /*  Do not take the first value */
+  Arg mean = std::accumulate(vec.begin() + 1, 
+			     vec.end(), 0.0)/vec.size();
   
-  return std::accumulate(diff_f3_.begin(), diff_f3_.end(), 0.0, 
+  return std::accumulate(vec.begin(), vec.end(), 0.0, 
 			 [&mean, &sz](double accumulator, const double& val) {		      
 			   return accumulator +
 			     ((val - mean)*(val - mean) / (sz - 1));
 			 } );  
 }
-
-
