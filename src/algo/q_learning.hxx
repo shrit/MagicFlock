@@ -217,12 +217,10 @@ template <class flight_controller_t>
 arma::uword Q_learning<flight_controller_t>::
 qtable_state(std::shared_ptr<Gazebo> gzs, bool value)
 {
-  /*  Increase precision by multiply double by 100, 
-      and then around to int */
-  
-  long long int unique = mtools_.cantor_pairing((int)std::round(gzs->rssi().lf1()*100),
-						(int)std::round(gzs->rssi().lf2()*100),
-						(int)std::round(gzs->rssi().ff()*100));
+    
+  int unique = mtools_.cantor_pairing((int)std::round(gzs->rssi().lf1()*10),
+				       (int)std::round(gzs->rssi().lf2()*10),
+				       (int)std::round(gzs->rssi().ff()*10));
   
   LogDebug() << "cantor unuqie number" << unique ;
   
@@ -410,7 +408,8 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	/*Calculate the noise over the entire trainning session
 	  This will allow to refine exactly the good action */	
 	
-	double noise = mtools_.gaussian_noise(f3_side_);
+	double noise = mtools_.gaussian_noise(f3_side_,
+					      drift_f3_);
 	
 	LogInfo() << "Noise: " << noise ;
 	

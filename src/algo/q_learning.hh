@@ -108,7 +108,8 @@ private:
   lt::action<bool> saved_leader_action_;
 
   std::vector<lt::triangle<double>> f3_side_;
-  std::vector<double> diff_f3_;
+  
+  std::vector<double> drift_f3_;
   int random_action_follower_;
   
 };
