@@ -100,9 +100,9 @@ is_signal_in_limits(std::shared_ptr<Gazebo> gzs)
 template <class flight_controller_t>
 void Q_learning<flight_controller_t>::
 move_action(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
-			     std::string label,
-			     float speed,
-			     lt::action<bool> action)
+	    std::string label,
+	    float speed,
+	    Quadcopter::Action action)
 {
   int quad_number = 0;
   
@@ -116,16 +116,16 @@ move_action(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
     quad_number = 2;
   }
         
-  if(action.left == true){
+  if(action == left){
     iris_x.at(quad_number)->left(speed);
   }
-  else if(action.right == true){ 
+  else if(action == right){ 
     iris_x.at(quad_number)->right(speed);
   }
-  else if(action.forward == true){ 
+  else if(action == forward){ 
     iris_x.at(quad_number)->forward(speed); 
   }
-  else if(action.backward == true){ 
+  else if(action == backward){ 
     iris_x.at(quad_number)->backward(speed);
   }  
 }
@@ -138,7 +138,7 @@ phase_one(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	  bool random_leader_action)
 {
   /*  Phase One: Construct the dataset */  
-  lt::action<bool> action_leader = {false, false, false, false};
+  Quadcopter::Action action_leader ;
   
   std::vector<std::thread> threads;
     
@@ -200,24 +200,24 @@ void Q_learning<flight_controller_t>::phase_two()
 template <class flight_controller_t>
 lt::action<bool> Q_learning<flight_controller_t>::
 randomize_action()
-{
-  lt::action<bool> action= {false, false, false, false};
+{  
+  random_action = distribution_int_(generator_);
   
-  random_action_follower_ = distribution_int_(generator_);
+  LogInfo() << "Random: " << random_action ;
+
+  Quadcopter::Action action; 
   
-  LogInfo() << "Random:  " << random_action_follower_ ;
-  
-  if( random_action_follower_ == 0){
-    action.forward = true;
+  if( random_action == 0){
+    action = forward ;
   }
-  else if(random_action_follower_ == 1){
-    action.backward = true;
+  else if(random_action == 1){
+    action = backward ;
   }    
-  else if(random_action_follower_ == 2){
-        action.left = true;	
+  else if(random_action == 2){
+    action = left ;	
   }
-  else if (random_action_follower_ == 3){
-        action.right = true;
+  else if (random_action == 3){
+    action = right ;
   }
   
   LogInfo() << "Action: " << action ;

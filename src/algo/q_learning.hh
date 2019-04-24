@@ -48,7 +48,7 @@ public:
   void move_action(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 		   std::string label,
 		   float speed,
-		   lt::action<bool> action);  
+		   Quadcopter::Action action);  
   
   void phase_one(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 		 float speed,
@@ -89,14 +89,13 @@ private:
   
   std::unordered_map<int, int> signal_map_;
       
-  std::vector<lt::action<bool>> action_follower_ ;
+  std::vector<Quadcopter::Action> action_follower_ ;
   
-  lt::action<bool> saved_leader_action_;
+  Quadcopter::Action saved_leader_action_;
 
   std::vector<lt::triangle<double>> f3_side_;
   
   std::vector<double> drift_f3_;
-  int random_action_follower_;
   
 };
 
