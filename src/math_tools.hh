@@ -1,16 +1,18 @@
-#ifndef MATH_TOOLS_HH
-#define MATH_TOOLS_HH
+#pragma once
 
 # include <algorithm>
 # include <cmath>
 # include <numeric>
+# include <type_traits>
 # include <vector>
 # include <utility>
 
 # include "log.hh"
+# include "global.hh"
+
+namespace lt = local_types;
 
 class Math_tools {
-
 
 public:
 
@@ -22,6 +24,10 @@ public:
   bool is_triangle(lt::triangle<double> t);
   
   lt::triangle<double> triangle_side(lt::positions<double> pos);
+
+  template <typename Arg, typename Arg2>
+  std::vector<bool> to_one_hot_encoding(Arg arg,
+			  Arg2 number_of_class);
   
   template <typename Arg>
   Arg variance(std::vector<Arg> vec);
@@ -34,5 +40,3 @@ private:
 };
 
 # include "math_tools.hxx"
-
-#endif

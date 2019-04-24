@@ -77,6 +77,23 @@ triangle_side(lt::positions<double> pos)
     return t;
 }
 
+template <typename Arg, typename Arg2>
+std::vector<bool> Math_tools::to_one_hot_encoding(Arg arg, Arg2 number_of_class)
+{
+  std::vector<bool> one_hot;
+  // to check 
+  //  if constexpr (std::is_same<Arg, enum>::value) {
+  
+  if (static_cast<int>(arg) == 0 )
+    one_hot.push_back(1);
+  for (int i =0 ; i< number_of_class-1 ; ++i)
+      one_hot.push_back(0);
+    
+    /*  To be continued in a recursive way */
+    // }  
+  return one_hot;  
+}
+
 template <typename Arg>
 Arg Math_tools::variance(std::vector<Arg> vec)
 {
@@ -95,3 +112,5 @@ Arg Math_tools::variance(std::vector<Arg> vec)
 			     ((val - mean)*(val - mean) / (sz - 1));
 			 } );  
 }
+
+
