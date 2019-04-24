@@ -6,10 +6,14 @@
  *
 */
 
-#ifndef QUADCOPTER_HH_
-#define	QUADCOPTER_HH_
+#pragma once
 
+# include <utility>
+
+# include "../math_tools.hh"
 # include "../global.hh"
+
+namespace lt = local_types;
 
 template <class simulator_t>
 class Quadcopter {
@@ -17,42 +21,35 @@ class Quadcopter {
 public:
 
   class State {
-    
-    
+        
   public:
     
-    State();
-
+    State(std::shared_ptr<simulator_t> sim_interface);
     
-    double height (std::shared_ptr<simulator_t> gzs) const;
-    lt::rssi<double> signal_strength (std::shared_ptr<simulator_t> gzs) const;
-    double distances () const;
+    double height () const;
+    lt::rssi<double> signal_strength () const;
+    lt::triangle<double> distances () const;
     double orientation () const;
 
   private:
-
     
+    Math_tools mtools_;
     
+    /*  Create a shared pointer to a simulator interface The interface
+     need to have all the required data about the quadcopter*/
+    std::shared_ptr<simulator_t> sim_interface_;
   };
   
     
-  enum Action
+  enum class Action
     {
      forward,
-     bacward,
+     backward,
      left,
      right,          
     };
-  
-  
-
-  
+      
   
 };
 
-
-
-
 # include "quadcopter.hxx"
-
-#endif
