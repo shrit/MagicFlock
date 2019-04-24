@@ -5,6 +5,7 @@
  * @authors Author: Omar Shrit <shrit@lri.fr>
  * 
  */
+
 // extern "C" {
 // # include <curses.h>
 // }
@@ -45,10 +46,6 @@ namespace lt = local_types;
 JoystickEvent joystick_event_handler(Joystick& joystick,				  
 				     std::vector<std::shared_ptr<Px4Device>> iris_x,
 				     float speed,
-				     Q_learning<Px4Device> qlearning,
-				     arma::mat qtable,
-				     std::shared_ptr<Gazebo> gz,
-				     std::unordered_map<int, int> map,
 				     bool just_fly)
 {
   
@@ -188,20 +185,6 @@ JoystickEvent joystick_event_handler(Joystick& joystick,
      else if (joystick.DpadYChanged(event)) {
        LogInfo() << "Dy: " << joystick.DpadYChanged(event) ;
      }      
-    }
-    //Moving other quads to this area
-    if (!just_fly) {
-      LogInfo() << gz->rssi() ;
-      arma::uword index =0;
-      
-      index = qlearning.qtable_state_from_map(gz, map);
-      LogInfo() << "index: "<< index ;    
-      
-      if (index > qtable.n_rows) {
-	LogInfo() << "Move the leader around...";
-      } else {
-	qlearning.qtable_action(qtable, index);
-      }
     }
   }
 }
@@ -408,11 +391,10 @@ int main(int argc, char* argv[])
     Q_learning<Px4Device> qlearning(iris_x, speed, gz, data_set, configs.train());
     return 0;
   }
-  
-  arma::mat qtable;
+ 
   DataSet data_set;
   Q_learning<Px4Device> qlearning(iris_x, speed, gz, data_set, false);    
-
+  
   std::unordered_map<int, int> map;
   data_set.read_map_file(configs.map_file_name(), map);
 
@@ -421,15 +403,6 @@ int main(int argc, char* argv[])
   }
 
   std::this_thread::sleep_for(std::chrono::seconds(5));  
-
-  //"/data_set/qtable_6000"
-  
-  bool ok = qtable.load(configs.qtable_file_name());
-  
-  if (ok == false) {
-    LogWarn() << "problem with loading the qtable";
-  }
-
 
   // fly mode
   /*  This fly mode is intended to test only one drone usually 
@@ -452,30 +425,17 @@ int main(int argc, char* argv[])
   
   // refresh();     
         
-  auto joystick_handler = [&](){			 
-    
-  			  /** Update signal strength here 
-  			      other wise update it an other function 
-  			      each unit of time    
-  			      * use cantor get the index
-  			      * move the quadcopters according to the action in the qtable */
-			  
+  auto joystick_handler = [&](){			   			  
   			  joystick_event_handler(joystick,
-  						 iris_x, speed,
-  						 qlearning, qtable,
-  						 gz, map,
-  						 just_fly);
+  						 iris_x,
+						 speed,
+						 just_fly);
     
   };
   
   // auto keyboard_handler = [&](){			 
     
-  // 			  /** Update signal strength here 
-  // 			      other wise update it an other function 
-  // 			      each unit of time    
-  // 			      * use cantor get the index
-  // 			      * move the quadcopters according to the action in the qtable */
-			  
+
   // 			    keyboard_event_handler(iris_x,
   // 						   speed,
   // 						   qlearning,

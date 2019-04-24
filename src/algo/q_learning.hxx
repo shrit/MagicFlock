@@ -16,7 +16,6 @@ Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
    learning_rate_(0.3),
    max_episode_(10000),  
    min_epsilon_(0.0),
-   qtable_{10000, 5, arma::fill::ones},
    rssi_lower_threshold_(1.1),
    rssi_upper_threshold_(0.94)
 {
@@ -75,9 +74,9 @@ lt::positions<double> Q_learning<flight_controller_t>::
 get_positions(std::shared_ptr<Gazebo> gzs)
 {  
   lt::positions<double> pos;
-  pos.leader = gzs->get_positions().leader;
-  pos.f1 = gzs->get_positions().f1;
-  pos.f2 = gzs->get_positions().f2;
+  pos.leader = gzs->positions().leader;
+  pos.f1 = gzs->positions().f1;
+  pos.f2 = gzs->positions().f2;
 
   return pos; 
 }
@@ -146,7 +145,6 @@ phase_one(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   /* Get the state (signal strength) at time t  */
   LogInfo() << "RSSI on Leader action: " << gzs->rssi() ;
   states_.push_back(gzs->rssi());
-  index_ = qtable_state(gzs, true);
   
   if ( random_leader_action == true){
     
@@ -190,7 +188,7 @@ phase_one(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   
   /* Get the state (signal strength) at time t + 1  */
   states_.push_back(gzs->rssi());
-  new_index_ = qtable_state(gzs, true); 
+
   return ;  
 }
 
@@ -198,92 +196,7 @@ template <class flight_controller_t>
 void Q_learning<flight_controller_t>::phase_two()
 {/* To be implemented*/}
 
-template <class flight_controller_t>
-arma::uword Q_learning<flight_controller_t>::
-qtable_action(arma::mat q_table, arma::uword state)   
-{  
-  arma::uword index;
-  index = arma::index_max(q_table.row(state));        
-  return index;
-}
-
-template <class flight_controller_t>
-lt::action<bool> Q_learning<flight_controller_t>::
-qtable_action_binary(arma::mat q_table, arma::uword state)   
-{    
-  lt::action<bool> action= {false, false, false, false};  
-  arma::uword index = arma::index_max(q_table.row(state));  
-  
-  if(index == 0){
-    action.forward = true;
-  }
-  else if(index == 1){
-    action.backward = true;
-  }    
-  else if(index == 2){
-    action.left = true;	
-  }
-  else if (index == 3){
-    action.right = true;
-  }      
-  return action;  
-}
-
-template <class flight_controller_t>
-arma::uword Q_learning<flight_controller_t>::
-qtable_state(std::shared_ptr<Gazebo> gzs, bool value)
-{
-    
-  int unique = mtools_.cantor_pairing((int)std::round(gzs->rssi().lf1()*10),
-				       (int)std::round(gzs->rssi().lf2()*10),
-				       (int)std::round(gzs->rssi().ff()*10));
-  
-  LogDebug() << "cantor unuqie number" << unique ;
-  
-  arma::uword index = 0;
-  auto it = signal_map_.find(unique);
-  if(it == signal_map_.end()){
-    LogDebug() << "Signal is not yet aded to the table" ;
-    if( value == true){
-      signal_map_.insert(it, std::pair<int, int>(unique, episode_));
-      index = episode_;
-    }
-  }
-  else {
-    index = it->second;      
-  }  
-  return index;
-}
-
-template <class flight_controller_t>
-arma::uword Q_learning<flight_controller_t>::
-qtable_state_from_map(std::shared_ptr<Gazebo> gzs,
-		      std::unordered_map<int, int> map)
-{
-  int unique = mtools_.cantor_pairing((int)std::round(gzs->rssi().lf1()),
-			      (int)std::round(gzs->rssi().lf2()),
-			      (int)std::round(gzs->rssi().ff()));
-  
-  arma::uword index = 0;
-  LogDebug() << "cantor unuqie" << unique ;
-  auto it = map.find(unique);
-  if(it == map.end()){
-    LogDebug() << "Signal is not yet aded to the table" ;
-  }
-  else {
-    index = it->second;      
-  }  
-  return index;
-}
-
-template <class flight_controller_t>
-double Q_learning<flight_controller_t>::
-qtable_value(arma::mat q_table, arma::uword state)
-{
-  double qvalue = q_table.row(state).max();
-  return qvalue;
-}
-
+/* Change action to enum in quadcopter */
 template <class flight_controller_t>
 lt::action<bool> Q_learning<flight_controller_t>::
 randomize_action()
@@ -310,15 +223,6 @@ randomize_action()
   LogInfo() << "Action: " << action ;
   
   return action;
-}
-
-template <class flight_controller_t>
-void Q_learning<flight_controller_t>::
-update_qtable(int reward)
-{  
-  qtable_(index_, random_action_follower_) =
-    (1 - learning_rate_) * qtable_(index_, random_action_follower_) +
-    learning_rate_ * (reward +  discount_rate_ * qtable_value(qtable_, new_index_));
 }
 
 template <class flight_controller_t>
@@ -396,7 +300,7 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
       
       while (count_ < 3) {
 
-	int  reward = 0;
+        double  reward = 0;
        
 	/*  if the follower is has executed a good action we need to
 	    re-discover the other action in this loop until we get a 0
@@ -473,7 +377,8 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 		
 	data_set.save_csv_data_set(*it_state,
 				   action_follower_.back(),
-				   states_.back()			
+				   states_.back(),
+				   reward
 				   );
 			                
 	LogInfo() << "reward: " << reward ;
@@ -483,13 +388,7 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	
 	LogInfo() << "Epsilon: " << epsilon_ ;
 	
-	rewards_.push_back(reward);
-	
-	/*  Save the data set after each step iteration */		
-	
-	data_set.write_map_file(signal_map_);
-	
-	data_set.save_qtable(qtable_); 
+	rewards_.push_back(reward);			
 	
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	
