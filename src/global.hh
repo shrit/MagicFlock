@@ -5,11 +5,9 @@
 # include <fstream>
 # include <vector>
 # include <iterator>
-# include <dronecode_sdk/telemetry.h>
 
 # include "log.hh"
 
-using namespace dronecode_sdk;
 
 /*  Global name space for the simulation
     It contain a namespace with several 
@@ -151,7 +149,7 @@ template <typename T>
 std::ostream& operator<< (std::ostream& out, const std::vector<std::vector<T>>& v) {
   if ( !v.empty() ) {
     out << '[';
-    for (int i=0; i < v.size(); i++ )
+    for (int i = 0; i < v.size(); i++ )
       std::copy (v.at(i).begin(), v.at(i).end(), std::ostream_iterator<T>(out, ","));
     out << "\b\b]";
   }
