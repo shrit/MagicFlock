@@ -6,16 +6,6 @@ Math_tools::Math_tools()
       upper_threshold_{9, 9, 9}
 {}
 
-template <typename Arg, typename... Args>
-Arg Math_tools::cantor_pairing(Arg arg, Args... args)
-{  
-  Arg unique = 0.5*(arg + (std::forward<Args>(args), ...) )
-    * (arg + (std::forward<Args>(args), ... ) + 1) +
-    (std::forward<Args>(args), ...);
-  
-  return (cantor_pairing(unique, std::forward<Args>(args)), ...);     
-}
-
 double Math_tools::gaussian_noise(std::vector<lt::triangle<double>> distances,
 				  std::vector<double> drift_f3)
 {
@@ -30,9 +20,7 @@ double Math_tools::gaussian_noise(std::vector<lt::triangle<double>> distances,
   /*  This has a tremendous cost since we need to re */
   double (*fabs)(double) = &std::fabs;
   std::transform(drift_f3.begin(), drift_f3.end(), drift_f3.begin(), fabs);
-  
-  //  LogInfo() << "difference f3: " << drift_f3;
-  
+    
   // adding one here to remove the first element of adjacent difference
   double noise_mean = std::accumulate(drift_f3.begin() + 1, 
 				   drift_f3.end(), 0.0)/drift_f3.size();

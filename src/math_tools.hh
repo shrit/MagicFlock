@@ -15,10 +15,7 @@ class Math_tools {
 public:
 
   Math_tools();
-
-  template <typename Arg, typename... Args>
-  Arg cantor_pairing(Arg arg, Args... args);
-
+  
   double gaussian_noise(std::vector<lt::triangle<double>> ideal_dist,
 			std::vector<double> drift_f3);
   
