@@ -49,8 +49,8 @@ public:
   
   lt::rssi<double> rssi() const;
   lt::rssi<double> filtered_rssi();
-  lt::positions<double> get_positions() const;
-  lt::orientations<double> get_orientations() const;
+  lt::positions<double> positions() const;
+  lt::orientations<double> orientations() const;
   
 private:
   

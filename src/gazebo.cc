@@ -146,13 +146,13 @@ lt::rssi<double> Gazebo::filtered_rssi()
   return _signal;
 }
 
-lt::positions<double> Gazebo::get_positions() const
+lt::positions<double> Gazebo::positions() const
 {
   std::lock_guard<std::mutex> lock(_positions_mutex);
   return _positions;
 }
 
-lt::orientations<double> Gazebo::get_orientations() const
+lt::orientations<double> Gazebo::orientations() const
 {
   std::lock_guard<std::mutex> lock(_orientations_mutex);
   return _orientations;
