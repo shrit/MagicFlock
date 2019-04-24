@@ -76,21 +76,20 @@ triangle_side(lt::positions<double> pos)
     /*  it return the traingle side */
     return t;
 }
-
+/*  Simple implementation, need more logical one */
 template <typename Arg, typename Arg2>
 std::vector<bool> Math_tools::to_one_hot_encoding(Arg arg, Arg2 number_of_class)
 {
-  std::vector<bool> one_hot;
-  // to check 
-  //  if constexpr (std::is_same<Arg, enum>::value) {
+  std::vector<bool> one_hot (number_of_class, 0);
+  // // to check 
+  // if constexpr (std::is_same<Arg,
+  // 		typename std::underlying_type<Quadcopter<Arg>::Action>::type>::value) {
+  if( number_of_class > static_cast<int>(arg)) {
+    one_hot.at(static_cast<int>(arg)) = 1 ;
+  } else {
+    LogErr() << "Can not convert to one hot, please add more classes..." ;
+  }
   
-  if (static_cast<int>(arg) == 0 )
-    one_hot.push_back(1);
-  for (int i =0 ; i< number_of_class-1 ; ++i)
-      one_hot.push_back(0);
-    
-    /*  To be continued in a recursive way */
-    // }  
   return one_hot;  
 }
 

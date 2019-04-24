@@ -39,8 +39,8 @@ public:
      need to have all the required data about the quadcopter*/
     std::shared_ptr<simulator_t> sim_interface_;
   };
+
   
-    
   enum class Action
     {
      forward,
