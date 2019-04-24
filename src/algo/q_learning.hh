@@ -1,6 +1,4 @@
-# ifndef Q_LEARNING_HH_
-# define Q_LEARNING_HH_
-
+#pragma once
 /*  Standard C++ includes  */
 # include <algorithm>
 # include <chrono>
@@ -20,7 +18,10 @@
 # include "../gazebo.hh"
 # include "../log.hh"
 # include "../math_tools.hh"
+
 #include "quadcopter.hh"
+
+namespace lt = local_types;
 
 template<class flight_controller_t>
 class Q_learning
@@ -48,7 +49,7 @@ public:
   void move_action(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 		   std::string label,
 		   float speed,
-		   Quadcopter::Action action);  
+		   Quadcopter<Gazebo>::Action action);  
   
   void phase_one(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 		 float speed,
@@ -57,7 +58,7 @@ public:
   
   void phase_two();
 
-  lt::action<bool> randomize_action();
+  Quadcopter<Gazebo>::Action randomize_action();
   
   void run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 		   float speed,
@@ -89,9 +90,9 @@ private:
   
   std::unordered_map<int, int> signal_map_;
       
-  std::vector<Quadcopter::Action> action_follower_ ;
+  std::vector<Quadcopter<Gazebo>::Action> action_follower_ ;
   
-  Quadcopter::Action saved_leader_action_;
+  Quadcopter<Gazebo>::Action saved_leader_action_;
 
   std::vector<lt::triangle<double>> f3_side_;
   
@@ -100,5 +101,3 @@ private:
 };
 
 # include "q_learning.hxx"
-
-#endif

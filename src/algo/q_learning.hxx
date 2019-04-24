@@ -102,7 +102,7 @@ void Q_learning<flight_controller_t>::
 move_action(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	    std::string label,
 	    float speed,
-	    Quadcopter::Action action)
+	    Quadcopter<Gazebo>::Action action)
 {
   int quad_number = 0;
   
@@ -116,16 +116,16 @@ move_action(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
     quad_number = 2;
   }
         
-  if(action == left){
+  if(action == Quadcopter<Gazebo>::Action::left){
     iris_x.at(quad_number)->left(speed);
   }
-  else if(action == right){ 
+  else if(action == Quadcopter<Gazebo>::Action::right){ 
     iris_x.at(quad_number)->right(speed);
   }
-  else if(action == forward){ 
+  else if(action == Quadcopter<Gazebo>::Action::forward){ 
     iris_x.at(quad_number)->forward(speed); 
   }
-  else if(action == backward){ 
+  else if(action == Quadcopter<Gazebo>::Action::backward){ 
     iris_x.at(quad_number)->backward(speed);
   }  
 }
@@ -138,7 +138,7 @@ phase_one(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	  bool random_leader_action)
 {
   /*  Phase One: Construct the dataset */  
-  Quadcopter::Action action_leader ;
+  Quadcopter<Gazebo>::Action action_leader ;
   
   std::vector<std::thread> threads;
     
@@ -150,7 +150,7 @@ phase_one(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
     
     action_leader = randomize_action() ;
     saved_leader_action_ = action_leader;
-    LogInfo() << "Random action chosen: " << action_leader ;    
+    //    LogInfo() << "Random action chosen: " << action_leader ;    
   } else {
     action_leader = saved_leader_action_;    
   }
@@ -198,31 +198,29 @@ void Q_learning<flight_controller_t>::phase_two()
 
 /* Change action to enum in quadcopter */
 template <class flight_controller_t>
-lt::action<bool> Q_learning<flight_controller_t>::
+Quadcopter<Gazebo>::Action Q_learning<flight_controller_t>::
 randomize_action()
 {  
-  random_action = distribution_int_(generator_);
+  int random_action = distribution_int_(generator_);
   
   LogInfo() << "Random: " << random_action ;
 
-  Quadcopter::Action action; 
+  Quadcopter<Gazebo>::Action action
+    = Quadcopter<Gazebo>::Action::forward ; 
   
   if( random_action == 0){
-    action = forward ;
+    action = Quadcopter<Gazebo>::Action::forward ;
   }
   else if(random_action == 1){
-    action = backward ;
+    action = Quadcopter<Gazebo>::Action::backward ;
   }    
   else if(random_action == 2){
-    action = left ;	
+    action = Quadcopter<Gazebo>::Action::left ;
   }
   else if (random_action == 3){
-    action = right ;
+    action = Quadcopter<Gazebo>::Action::right ;   
   }
-  
-  LogInfo() << "Action: " << action ;
-  
-  return action;
+   return action;
 }
 
 template <class flight_controller_t>
@@ -240,7 +238,7 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   
   lt::triangle<double> original_triangle = mtools_.triangle_side(original_positions);
 
-  f3_side_.push_back( original_triangle);
+  f3_side_.push_back(original_triangle);
   
   for (episode_ = 0; episode_ < max_episode_; episode_++){
     
@@ -376,7 +374,7 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	it_action = std::next(it_action, 1);
 		
 	data_set.save_csv_data_set(*it_state,
-				   action_follower_.back(),
+				   mtools_.to_one_hot_encoding(action_follower_.back(), 4),
 				   states_.back(),
 				   reward
 				   );
