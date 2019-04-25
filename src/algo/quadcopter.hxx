@@ -40,14 +40,14 @@ distances () const
   return dists_;
 }
 
-/*  To resolve later */
-
-// template <class simulator_t>
-// std::ostream& operator<< (std::ostream& out, Quadcopter<simulator_t>::State& state)
-// {
-//   out << state.signal_strength() <<","
-//       << state.height() << "," 
-//       << state.distances() << ","
-//       << state.orientation() ;  
-//   return out;
-// }
+template <class simulator_t>
+state_printer Quadcopter<simulator_t>::State::
+create_printer_struct(Quadcopter<simulator_t>::State state)
+{
+  state_printer sp;
+  sp.rssi = state.signal_strength();
+  sp.height = state.height();
+  sp.distances = state.distances();
+  sp.orientation = state.orientation();
+  return sp;
+}

@@ -15,6 +15,22 @@
 
 namespace lt = local_types;
 
+struct state_printer {
+  lt::rssi<double> rssi   ;
+  double  height   ;
+  lt::triangle<double>  distances  ;
+  double  orientation   ;
+};
+
+std::ostream& operator<< (std::ostream& out, const state_printer& s)
+{
+  out << s.rssi <<","
+      << s.height << "," 
+      << s.distances << ","
+      << s.orientation ;  
+  return out;
+}
+
 template <class simulator_t>
 class Quadcopter {
 
@@ -31,11 +47,13 @@ public:
     lt::triangle<double> distances () const;
     double orientation () const;
 
+    state_printer
+    create_printer_struct(Quadcopter<simulator_t>::State state);
+      
+    
   private:
-
     
     Math_tools mtools_;
-
     lt::rssi<double> rssi_ ;
     double height_;
     double z_orinetation_  ;
@@ -53,7 +71,10 @@ public:
      left,
      right,          
     };
-      
+
+
+  
+private:  
   
 };
 
