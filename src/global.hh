@@ -138,7 +138,15 @@ std::ostream& operator<< (std::ostream& out, const local_types::rssi<T>& r)
 }
 
 template <typename T>
-std::ostream& operator<< (std::ostream& out, const std::vector<T>& v) {
+std::ostream& operator<< (std::ostream& out, const local_types::triangle<T>& t)
+{/*  Print in order  f1, f2 ,f3, according to TF FF TL */
+  out << t.f1 <<"," << t.f2 <<"," << t.f3 ;
+  return out;
+}
+
+template <typename T>
+std::ostream& operator<< (std::ostream& out, const std::vector<T>& v)
+{
   if ( !v.empty() ) {
     std::copy (v.begin(), v.end(), std::ostream_iterator<T>(out, ",")); 
   }
@@ -146,7 +154,8 @@ std::ostream& operator<< (std::ostream& out, const std::vector<T>& v) {
 }
 
 template <typename T>
-std::ostream& operator<< (std::ostream& out, const std::vector<std::vector<T>>& v) {
+std::ostream& operator<< (std::ostream& out, const std::vector<std::vector<T>>& v)
+{
   if ( !v.empty() ) {
     out << '[';
     for (int i = 0; i < v.size(); i++ )

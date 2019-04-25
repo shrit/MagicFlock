@@ -20,12 +20,13 @@
 # include <boost/algorithm/string.hpp>
 # include <boost/date_time/posix_time/posix_time.hpp>
 
-
 # include <armadillo>
 
 /*  local defined include */
 # include "global.hh"
-#include "../third_party/gnuplot/plot.h"
+# include "algo/quadcopter.hh"
+
+# include "../third_party/gnuplot/plot.h"
 
 namespace lt = local_types;
 
