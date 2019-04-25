@@ -80,7 +80,7 @@ private:
   float rssi_lower_threshold_;
   float rssi_upper_threshold_;
   
-  std::vector<lt::rssi<double>>   states_, new_state_;
+  std::vector<Quadcopter<Gazebo>::State> states_;
     
   std::vector<double> rewards_;
 

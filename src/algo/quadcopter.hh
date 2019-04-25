@@ -32,14 +32,19 @@ public:
     double orientation () const;
 
   private:
+
     
     Math_tools mtools_;
+
+    lt::rssi<double> rssi_ ;
+    double height_;
+    double z_orinetation_  ;
+    lt::triangle<double> dists_ ;
     
     /*  Create a shared pointer to a simulator interface The interface
      need to have all the required data about the quadcopter*/
     std::shared_ptr<simulator_t> sim_interface_;
   };
-
   
   enum class Action
     {

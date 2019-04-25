@@ -142,9 +142,9 @@ phase_one(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   
   std::vector<std::thread> threads;
     
-  /* Get the state (signal strength) at time t  */
-  LogInfo() << "RSSI on Leader action: " << gzs->rssi() ;
-  states_.push_back(gzs->rssi());
+  /* Get the state at time t  */
+  Quadcopter<Gazebo>::State state(gzs);
+  states_.push_back(state);
   
   if ( random_leader_action == true){
     
@@ -159,35 +159,34 @@ phase_one(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   
   /*  Threading QuadCopter */    
   threads.push_back(std::thread([&](){
-				  for (int i = 0; i < 4; ++i){
+				  for (int i = 0; i < 4; ++i) {
 				    move_action(iris_x, "l" , speed, action_leader);
 				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
 				  }				  
 				}));
   threads.push_back(std::thread([&](){
-				  for (int i = 0; i < 4; ++i){
+				  for (int i = 0; i < 4; ++i) {
 				    move_action(iris_x, "f1" , speed, action_leader);
 				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
 				  }				  
 				}));
   threads.push_back(std::thread([&](){
-				  for (int i = 0; i < 4; ++i){
+				  for (int i = 0; i < 4; ++i) {
 				    move_action(iris_x, "f2", speed, action_follower_.back());
 				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
 				  }				  
 				}));
   
-  for(auto& thread : threads){
+  for(auto& thread : threads) {
     thread.join();
   }
   
   /* We need to wait until the quadcopters finish their actions */  
   std::this_thread::sleep_for(std::chrono::milliseconds(300));
-  
-  LogInfo() << "RSSI on T follower action: " << gzs->rssi() ;
-  
-  /* Get the state (signal strength) at time t + 1  */
-  states_.push_back(gzs->rssi());
+    
+  /* Get the next state at time t + 1  */
+  Quadcopter<Gazebo>::State nextState(gzs);
+  states_.push_back(nextState);
 
   return ;  
 }
