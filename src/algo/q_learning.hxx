@@ -1,4 +1,5 @@
 # include "q_learning.hh"
+
 template <class flight_controller_t>
 Q_learning<flight_controller_t>::
 Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
@@ -351,7 +352,7 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	  if (mtools_.is_triangle(new_triangle.at(1)) == false) {
 	    break;
 	  }
-	  	  
+	  
 	} else if (count_ == 2 ) {
 	  reward = action_evaluator(new_triangle.at(1),
 				    new_triangle.at(2),
@@ -371,14 +372,14 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	
 	it_state = std::next(it_state, 1);
 	it_action = std::next(it_action, 1);
-		
-	data_set.save_csv_data_set(*it_state,
-				   mtools_.to_one_hot_encoding(action_follower_.back(), 4),
-				   states_.back(),
-				   reward
-				   );
-			                
-	LogInfo() << "reward: " << reward ;
+	
+	data_set.save_csv_data_set(create_state_p ),
+	  mtools_.to_one_hot_encoding(action_follower_.back(), 4),
+	  state_printer<states_.back()>,
+	  reward
+	  );
+      
+      LogInfo() << "reward: " << reward ;
 	
 	//reduce epsilon as we explore more each episode
 	epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode_); 
@@ -390,7 +391,7 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	
 	++count_;
-      }
+    }
     }
 
     for (auto it: iris_x)
