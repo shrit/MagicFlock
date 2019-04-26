@@ -372,10 +372,12 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	
 	it_state = std::next(it_state, 1);
 	it_action = std::next(it_action, 1);
+
+	Quadcopter<Gazebo>::State sp(gzs);
 	
-	data_set.save_csv_data_set(create_state_p ),
+	data_set.save_csv_data_set(sp.create_printer_struct(*it_state),
 	  mtools_.to_one_hot_encoding(action_follower_.back(), 4),
-	  state_printer<states_.back()>,
+	  sp.create_printer_struct(states_.back()),
 	  reward
 	  );
       

@@ -1,13 +1,9 @@
 # include "math_tools.hh"
 
 
-Math_tools::Math_tools()
-  :   lower_threshold_{4, 4, 4},
-      upper_threshold_{9, 9, 9}
-{}
-
-double Math_tools::gaussian_noise(std::vector<lt::triangle<double>> distances,
-				  std::vector<double> drift_f3)
+template <typename T>
+double Math_tools::gaussian_noise(std::vector<lt::triangle<T>> distances,
+				  std::vector<T> drift_f3)
 {
   std::vector<double> ideal_f3;
   
@@ -26,9 +22,9 @@ double Math_tools::gaussian_noise(std::vector<lt::triangle<double>> distances,
 				   drift_f3.end(), 0.0)/drift_f3.size();
   return noise_mean;
 }
-
+template <typename T>
 bool Math_tools::
-is_triangle(lt::triangle<double> t)
+is_triangle(lt::triangle<T> t)
 {
   bool value = false;
   if((t.f1 + t.f2 >  lower_threshold_.at(0))  and
@@ -43,8 +39,9 @@ is_triangle(lt::triangle<double> t)
   return value;   
 }
 
+template <typename T>
 lt::triangle<double> Math_tools::
-triangle_side(lt::positions<double> pos)
+triangle_side(lt::positions<T> pos)
 {
     lt::position<double> dist, dist2, dist3;
     

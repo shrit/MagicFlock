@@ -22,7 +22,7 @@ struct state_printer {
   double  orientation   ;
 };
 
-std::ostream& operator<< (std::ostream& out, const state_printer& s)
+inline std::ostream& operator<< (std::ostream& out, const state_printer& s)
 {
   out << s.rssi <<","
       << s.height << "," 

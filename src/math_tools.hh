@@ -16,14 +16,19 @@ class Math_tools {
 
 public:
 
-  Math_tools();
+  Math_tools() :
+    lower_threshold_{4, 4, 4},
+    upper_threshold_{9, 9, 9}
+  {}
   
-  double gaussian_noise(std::vector<lt::triangle<double>> ideal_dist,
-			std::vector<double> drift_f3);
-  
-  bool is_triangle(lt::triangle<double> t);
-  
-  lt::triangle<double> triangle_side(lt::positions<double> pos);
+  template <typename T>
+  double gaussian_noise(std::vector<lt::triangle<T>> ideal_dist,
+			std::vector<T> drift_f3);
+  template <typename T>
+  bool is_triangle(lt::triangle<T> t);
+
+  template <typename T>
+  lt::triangle<double> triangle_side(lt::positions<T> pos);
 
   template <typename Arg, typename Arg2>
   std::vector<bool> to_one_hot_encoding(Arg arg,
