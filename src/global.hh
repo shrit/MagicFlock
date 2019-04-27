@@ -148,10 +148,11 @@ template <typename T>
 std::ostream& operator<< (std::ostream& out, const std::vector<T>& v)
 {
   if ( !v.empty() ) {
-    for (auto&& it : v) { 
-      out << it ; 
-      if (it != v.back() ) 
-	out << ", "; 
+    for (size_t i = 0; i< v.size(); i++) { 
+      out << v.at(i) ;
+      
+      if (i != v.size() - 1 )
+	out << ","; 
     } 
   }
   return out;
