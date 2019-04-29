@@ -34,10 +34,10 @@ public:
 	     std::shared_ptr<Gazebo> gzs,
 	     DataSet data_set,
 	     bool train);
-
-  double action_evaluator(lt::triangle<double> old_dist,
-  			lt::triangle<double> new_dist,
-			double noise);
+  
+  Quadcopter<Gazebo>::Reward
+  action_evaluator(lt::triangle<double> old_dist,
+		   lt::triangle<double> new_dist);
     
   double deformation_error(lt::triangle<double>  old_dist,
 			   lt::triangle<double>  new_dist);
@@ -81,8 +81,6 @@ private:
   float rssi_upper_threshold_;
   
   std::vector<Quadcopter<Gazebo>::State> states_;
-    
-  std::vector<double> rewards_;
 
   Math_tools mtools_;
   

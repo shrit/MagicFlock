@@ -108,5 +108,3 @@ Arg Math_tools::variance(std::vector<Arg> vec)
 			     ((val - mean)*(val - mean) / (sz - 1));
 			 } );  
 }
-
-

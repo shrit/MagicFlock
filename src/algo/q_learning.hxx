@@ -25,10 +25,10 @@ Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   }
 }
 template <class flight_controller_t>
-double Q_learning<flight_controller_t>::
+Quadcopter<Gazebo>::Reward
+Q_learning<flight_controller_t>::
 action_evaluator(lt::triangle<double> old_dist,
-		 lt::triangle<double> new_dist,
-		 double noise)
+		 lt::triangle<double> new_dist)
 {
   LogInfo() << "F1 differences: " << std::fabs(old_dist.f1 - new_dist.f1);
   LogInfo() << "F2 differences: " << std::fabs(old_dist.f2 - new_dist.f2);
@@ -36,25 +36,21 @@ action_evaluator(lt::triangle<double> old_dist,
   double diff_f1 = std::fabs(old_dist.f1 - new_dist.f1);
   double diff_f2 = std::fabs(old_dist.f2 - new_dist.f2);
   
-  double reward = 0.0;
+  Quadcopter<Gazebo>::Reward reward = Quadcopter<Gazebo>::Reward::very_bad;
   
-  if (diff_f1 + diff_f2  < noise ) {
-    reward = 4 + diff_f1 + diff_f2 ;
-    
-  } else if ( 0.5  > diff_f1 + diff_f2 and
-	       diff_f1 + diff_f2  > noise ) {
-    reward = 2 + diff_f1 + diff_f2 ;
+  if (0.5  > diff_f1 + diff_f2 ) {
+    reward = Quadcopter<Gazebo>::Reward::very_good;      
   } else if ( 1.0  > diff_f1 + diff_f2 and
 	      diff_f1 + diff_f2  > 0.5 ) {
-    reward = 0 - (diff_f1 + diff_f2) ;
+    reward = Quadcopter<Gazebo>::Reward::good;
   } else if ( 1.5  > diff_f1 + diff_f2 and
 	      diff_f1 + diff_f2  > 1.0 ) {
-    reward = -2 - (diff_f1 + diff_f2) ;
+    reward = Quadcopter<Gazebo>::Reward::bad;
   } else if ( 2.0  > diff_f1 + diff_f2 and
 	      diff_f1 + diff_f2  > 1.5 ) {
-    reward = -4 - (diff_f1 + diff_f2) ;
+    reward = Quadcopter<Gazebo>::Reward::very_bad;
   }  
-      return reward;
+  return reward;
 }
 
 template <class flight_controller_t>
@@ -240,7 +236,7 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 
   f3_side_.push_back(original_triangle);
   
-  for (episode_ = 0; episode_ < max_episode_; episode_++){
+  for (episode_ = 0; episode_ < max_episode_; ++episode_){
     
     /* Intilization phase, in each episode we should reset the
      * position of each quadcopter to the initial position.
@@ -274,7 +270,7 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
       if(!takeoff)
 	stop_episode = true;
     }
-                
+    
     std::this_thread::sleep_for(std::chrono::seconds(3));
     /*  Setting up speed important to switch the mode */
     for (auto it : iris_x){
@@ -298,8 +294,9 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
       
       while (count_ < 3) {
 
-        double  reward = 0;
-       
+	Quadcopter<Gazebo>::Reward reward =
+	  Quadcopter<Gazebo>::Reward::very_bad;
+	
 	/*  if the follower is has executed a good action we need to
 	    re-discover the other action in this loop until we get a 0
 	    reward, the other actions are related to exploration and
@@ -335,8 +332,7 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	/* Compare with the original at start */
 	if (count_ == 0 ) {
 	  reward = action_evaluator(original_triangle,
-				    new_triangle.at(0),
-				    noise);
+				    new_triangle.at(0));
 	  
 	  /*  move it outside of the while loop */
 	  if (mtools_.is_triangle(new_triangle.at(0)) == false) {
@@ -345,8 +341,7 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	  
 	} else if (count_ == 1 ) {
 	  reward = action_evaluator(new_triangle.at(0),
-				    new_triangle.at(1),
-				    noise);
+				    new_triangle.at(1));
 	  
 	  /*  move it outside of the while loop */
 	  if (mtools_.is_triangle(new_triangle.at(1)) == false) {
@@ -355,8 +350,7 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	  
 	} else if (count_ == 2 ) {
 	  reward = action_evaluator(new_triangle.at(1),
-				    new_triangle.at(2),
-				    noise);
+				    new_triangle.at(2));
 	  
 	  /*  move it outside of the while loop */
 	  if (mtools_.is_triangle(new_triangle.at(1)) == false) {
@@ -372,23 +366,21 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	
 	it_state = std::next(it_state, 1);
 	it_action = std::next(it_action, 1);
-
+	
 	Quadcopter<Gazebo>::State sp(gzs);
 	
 	data_set.save_csv_data_set(sp.create_printer_struct(*it_state),
-	  mtools_.to_one_hot_encoding(action_follower_.back(), 4),
-	  sp.create_printer_struct(states_.back()),
-	  reward
-	  );
-      
-      LogInfo() << "reward: " << reward ;
+				   mtools_.to_one_hot_encoding(action_follower_.back(), 4),
+				   sp.create_printer_struct(states_.back()),
+				   mtools_.to_one_hot_encoding(reward, 4)
+				   );
+	
+	//	LogInfo() << "reward: " << reward ;
 	
 	//reduce epsilon as we explore more each episode
 	epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode_); 
 	
-	LogInfo() << "Epsilon: " << epsilon_ ;
-	
-	rewards_.push_back(reward);			
+	LogInfo() << "Epsilon: " << epsilon_ ;	
 	
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	

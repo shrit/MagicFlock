@@ -72,7 +72,13 @@ public:
      right,          
     };
 
-
+  enum class Reward
+    {
+     very_good,
+     good,
+     bad,
+     very_bad,     
+    };
   
 private:  
   
