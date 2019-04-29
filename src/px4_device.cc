@@ -203,15 +203,15 @@ void Px4Device::turnToRight()
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});     
 }
 
-Action::Result Px4Device::arm()
+bool Px4Device::arm()
 {
   Action::Result arm_result = action_->arm();
   if(arm_result != Action::Result::SUCCESS){
     LogInfo() << "Arming failed: "
 	      << Action::result_str(arm_result);
-    return arm_result;    
+    return false;    
   }  
-  return arm_result;              
+  return true;              
 }
 
 Action::Result Px4Device::reboot()

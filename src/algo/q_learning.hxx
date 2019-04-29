@@ -254,9 +254,16 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
      */
     
     /*  Think How we can use threads here */
-    /*  Arming the Quads */
+
+    
+    /* Stop the episode if one of the quad has fallen to takoff */
+    /*  Replace it by a template function  */
+    bool arm;
+    bool stop_episode = false;    
     for (auto it : iris_x){
-      it->arm();
+      arm = it->arm();
+      if(!arm)
+	stop_episode = true;
     }
     
     std::this_thread::sleep_for(std::chrono::seconds(2));
@@ -264,7 +271,6 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
     /* Stop the episode if one of the quad has fallen to takoff */
     /*  Replace it by a template function  */
     bool takeoff;
-    bool stop_episode = false;    
     for (auto it : iris_x){
       takeoff = it->takeoff();
       if(!takeoff)
@@ -272,7 +278,7 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
     }
     
     std::this_thread::sleep_for(std::chrono::seconds(3));
-    /*  Setting up speed important to switch the mode */
+    /*  Setting up speed is important to switch the mode */
     for (auto it : iris_x){
       it->init_speed();
     }

@@ -45,7 +45,7 @@ public:
 
   Px4Device(lt::connection_type socket, lt::port_type port);
 
-  Action::Result arm();
+  bool arm();
   Action::Result reboot();
   
   bool takeoff();
