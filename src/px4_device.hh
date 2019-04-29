@@ -1,16 +1,14 @@
-# ifndef PX4_DEVICE_HH_
-# define PX4_DEVICE_HH_
+#pragma once
 
 /**
  * @file px4_device.hh
- * @brief Device code, that allow user to handle the quadcopters
+ * @brief An interface to dronecodesdk, that allow user to handle the quadcopters
  * using keyboard or joystick
- * @authors Author: Omar Shrit <shrit@lri.fr>
+ * @author: Omar Shrit <shrit@lri.fr>
  * @date 2018-06-13
  */
 
 /*  C++ Standard includes */
-
 # include <chrono>
 # include <cmath>
 # include <iostream>
@@ -21,7 +19,6 @@
 # include <future>
 
 /*  DronecodeSDK includes */
-
 # include <dronecode_sdk/action.h>
 # include <dronecode_sdk/calibration.h>
 # include <dronecode_sdk/dronecode_sdk.h>
@@ -29,7 +26,6 @@
 # include <dronecode_sdk/telemetry.h>
 
 /*  local includes */
-
 # include "global.hh"
 
 using namespace dronecode_sdk;
@@ -37,21 +33,13 @@ using std::this_thread::sleep_for;
 using std::chrono::milliseconds;
 using std::chrono::seconds;
 
-
 #define ERROR_CONSOLE_TEXT "\033[31m" // Turn text on console red
 #define TELEMETRY_CONSOLE_TEXT "\033[34m" // Turn text on console blue
 #define NORMAL_CONSOLE_TEXT "\033[0m" // Restore normal console colour
 
 namespace lt = local_types;
 
-/*  TODO list:     
- * Add error management 
- * Put the code inside the examples of the api
- */
-
-
-class Px4Device 
-{
+class Px4Device {
   
 public:
 
@@ -112,10 +100,6 @@ private:
   std::shared_ptr<dronecode_sdk::Telemetry> telemetry_;
   std::shared_ptr<dronecode_sdk::Action> action_;
   std::shared_ptr<dronecode_sdk::Offboard> offboard_;
-  std::shared_ptr<dronecode_sdk::Calibration> calibration_;  
-  
+  std::shared_ptr<dronecode_sdk::Calibration> calibration_;    
 };
 
-
-
-#endif
