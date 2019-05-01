@@ -5,7 +5,8 @@ project(QCopter)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_definitions("-Wall -Werror -Wextra -O -Wno-parentheses -march=native -g3")
+add_definitions("-Wall -Werror -Wextra -O -Wno-parentheses -march=native -g3 
+-fopenmp -lgomp")
 
 find_package(gazebo REQUIRED)
 
@@ -27,8 +28,10 @@ set(file_system "/usr/lib/libstdc++fs.a")
 set(ncurses_lib "/usr/lib/libncurses.so")
 set(pthread_lib "/usr/lib/libpthread.so")
 set(arma "/usr/lib/libarmadillo.so")
+set(mlpack "/usr/local/lib64/libmlpack.so.3.0")
+set(gomp "/usr/lib/libgomp.so")
 
-
+set(boost_lib_serialization "/usr/lib/libboost_serialization.so")
 set(boost_lib_program_options "/usr/lib/libboost_program_options.so")
 set(boost_lib_time "/usr/lib/libboost_date_time.so")
 
@@ -55,8 +58,11 @@ target_link_libraries(QCopter
   ${dronecode_sdk_telemetry_lib}
   ${dronecode_sdk_calibrattion_lib}
 
+  ${gomp}
+  ${mlpack}
   ${file_system}
   # ${ncurses_lib}
+  ${boost_lib_serialization}
   ${boost_lib_program_options}  
   ${boost_lib_time}  
   )
