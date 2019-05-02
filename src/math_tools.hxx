@@ -24,7 +24,7 @@ double Math_tools::gaussian_noise(std::vector<lt::triangle<T>> distances,
 }
 
 template <typename T>
-int Math_tools::
+long long unsigned int Math_tools::
 index_of_smallest_value(const std::vector<T>& vec)
 { 
   // Find Smallest Value in vec

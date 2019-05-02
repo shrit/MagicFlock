@@ -73,6 +73,9 @@ public:
   
   Quadcopter<Gazebo>::Action randomize_action();
   
+  Quadcopter<Gazebo>::Action 
+  action_follower(arma::mat features, arma::uword index);
+  
   arma::mat 
   insert_features(std::vector<Quadcopter<Gazebo>::Action> actions);
       

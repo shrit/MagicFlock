@@ -35,7 +35,8 @@ public:
 			  Arg2 number_of_class);
 
   template <typename T>
-  int index_of_smallest_value(const std::vector<T>& vec);
+  long long unsigned int
+  index_of_smallest_value(const std::vector<T>& vec);
     
   template <typename Arg>
   Arg variance(std::vector<Arg> vec);

@@ -200,6 +200,26 @@ insert_features(std::vector<Quadcopter<Gazebo>::Action> actions)
   return features;  
 }
 
+template <class flight_controller_t>
+Quadcopter<Gazebo>::Action Q_learning<flight_controller_t>::
+action_follower(arma::mat features, arma::uword index)
+{
+  /*  just a HACK, need to find a dynamic solution later */
+  Quadcopter<Gazebo>::Action
+    action =  Quadcopter<Gazebo>::Action::backward;
+  
+  if(features(index, 8) == 1) {
+    action =  Quadcopter<Gazebo>::Action::forward;
+  } else if (features(index, 9) == 1) {
+    action =  Quadcopter<Gazebo>::Action::backward;
+  } else if (features(index, 10) == 1) {
+    action =  Quadcopter<Gazebo>::Action::left;
+  } else if (features(index, 11) == 1) {
+    action =  Quadcopter<Gazebo>::Action::right;
+  }
+  return action;
+}
+
 /*  Data Set generation */
 template <class flight_controller_t>
 void Q_learning<flight_controller_t>::
@@ -315,7 +335,9 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 				  }				  
 				}));
 
-
+  /* We need to wait until the quadcopters finish their actions */  
+  std::this_thread::sleep_for(std::chrono::milliseconds(300));
+  
   /* Get the next state at time t + 1  */
   Quadcopter<Gazebo>::State nextState(gzs);
   states_.push_back(nextState);
@@ -349,16 +371,17 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
     
   std::vector<arma::uword> index = index_of_highest_values(label);
        
-  int matrix_row_index = mtools_.index_of_smallest_value(index);
+  arma::uword matrix_row_index = mtools_.index_of_smallest_value(index);
   
   /*  Get the action now !! */
   
   
-  Quadcopter<Gazebo>::Action action_follower;
+  Quadcopter<Gazebo>::Action action_for_follower =
+    action_follower(features, matrix_row_index);
   
   threads.push_back(std::thread([&](){
 				  for (int i = 0; i < 4; ++i) {
-				    move_action(iris_x, "f2", speed, action_follower);
+				    move_action(iris_x, "f2", speed, action_for_follower);
 				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
 				  }				  
 				}));
@@ -366,13 +389,8 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   for(auto& thread : threads) {
     thread.join();
   }
-  
-  /* We need to wait until the quadcopters finish their actions */  
-  std::this_thread::sleep_for(std::chrono::milliseconds(300));
     
-
-  return ;  
-  
+  return ;    
 }
 
 /* Change action to enum in quadcopter */
