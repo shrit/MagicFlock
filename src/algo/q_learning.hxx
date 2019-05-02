@@ -174,24 +174,27 @@ insert_features(std::vector<Quadcopter<Gazebo>::Action> actions)
   it_state = std::next(it_state, 1);
 
   for(int i = 0; i < 4; ++i) {
-  
-  features << *it_state.height();
-  features << *it_state.distances().f1;
-  features << *it_state.distances().f2;
-  features << *it_state.distances().f3;
-  features << *it_state.orientation();
-
-  features << mtools_.to_one_hot_encoding(actions.at(i), 4).at(0);
-  features << mtools_.to_one_hot_encoding(actions.at(i), 4).at(1);
-  features << mtools_.to_one_hot_encoding(actions.at(i), 4).at(2);
-  features << mtools_.to_one_hot_encoding(actions.at(i), 4).at(3);
     
-  features << states_.back().height();
-  features << states_.back().distances().f1;
-  features << states_.back().distances().f2;
-  features << states_.back().distances().f3;
-  features << states_.back().orientation();
-
+    arma::Cols<size_t> col;
+    /*  State */
+    col << *it_state.height();
+    col << *it_state.distances().f1;
+    col << *it_state.distances().f2;
+    col << *it_state.distances().f3;
+    col << *it_state.orientation();
+    /*  Action  */
+    col << mtools_.to_one_hot_encoding(actions.at(i), 4).at(0);
+    col << mtools_.to_one_hot_encoding(actions.at(i), 4).at(1);
+    col << mtools_.to_one_hot_encoding(actions.at(i), 4).at(2);
+    col << mtools_.to_one_hot_encoding(actions.at(i), 4).at(3);
+    /*  nextState */
+    col << states_.back().height();
+    col << states_.back().distances().f1;
+    col << states_.back().distances().f2;
+    col << states_.back().distances().f3;
+    col << states_.back().orientation();
+    
+    features.insert_cols(0, col);    
   }
   return features;  
 }
@@ -318,13 +321,10 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   
   arma::mat features = insert_features(action_follower);
   
-  
-  
-
-  
   arma::mat label;    
   model.Predict(features, label);
 
+ 
   
   threads.push_back(std::thread([&](){
 				  for (int i = 0; i < 4; ++i) {
