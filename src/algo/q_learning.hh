@@ -25,7 +25,7 @@
 # include "../gazebo.hh"
 # include "../log.hh"
 # include "../math_tools.hh"
-#include "quadcopter.hh"
+# include "quadcopter.hh"
 
 namespace lt = local_types;
 
@@ -62,10 +62,16 @@ public:
 		 std::shared_ptr<Gazebo> gzs,
 		 bool random_leader_action);
   
-  void phase_two();
-
+  void phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
+		 float speed,                                             
+		 std::shared_ptr<Gazebo> gzs,                             
+		 bool random_leader_action);
+  
   Quadcopter<Gazebo>::Action randomize_action();
   
+  arma::mat 
+  insert_features(Quadcopter<Gazebo>::Action action);
+      
   void run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 		   float speed,
 		   std::shared_ptr<Gazebo> gzs,

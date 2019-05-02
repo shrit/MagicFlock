@@ -60,35 +60,35 @@ action_evaluator(lt::triangle<double> old_dist,
  * CSV file that contain many other double values).
  * @return percentage of correct answers.
  */
-double accuracy(arma::Row<size_t> predLabels, arma::Row<size_t> LabelY)
-{
-  // Calculating how many predicted classes are coincide with real labels.
-  size_t success = 0;
-  for (size_t j = 0; j < LabelY.n_cols; j++) {
-    //    std::cout << predLabels(j) << std::endl;
-    //  std::cout << LabelY(j) << std::endl;
-    if (predLabels(j) == LabelY(j)) {
-      ++success;
-    }
-  }
+// double accuracy(arma::Row<size_t> predLabels, arma::Row<size_t> LabelY)
+// {
+//   // Calculating how many predicted classes are coincide with real labels.
+//   size_t success = 0;
+//   for (size_t j = 0; j < LabelY.n_cols; j++) {
+//     //    std::cout << predLabels(j) << std::endl;
+//     //  std::cout << LabelY(j) << std::endl;
+//     if (predLabels(j) == LabelY(j)) {
+//       ++success;
+//     }
+//   }
   
-  // Calculating percentage of correctly classified data points.
-  return (double)success / (double)LabelY.n_cols * 100.0;
-}
+//   // Calculating percentage of correctly classified data points.
+//   return (double)success / (double)LabelY.n_cols * 100.0;
+// }
 
-arma::Row<size_t> getLabels(const arma::mat& predOut)
-{
-  arma::Row<size_t> pred(predOut.n_cols);
+// arma::Row<size_t> getLabels(const arma::mat& predOut)
+// {
+//   arma::Row<size_t> pred(predOut.n_cols);
   
-  // Class of a j-th data point is chosen to be the one with maximum value
-  // in j-th column plus 1 (since column's elements are numbered from 0).
-  for (size_t j = 0; j < predOut.n_cols; ++j) {
-    pred(j) = arma::as_scalar(arma::find(
-					 arma::max(predOut.col(j)) == predOut.col(j), 1)) + 1;
-  }
+//   // Class of a j-th data point is chosen to be the one with maximum value
+//   // in j-th column plus 1 (since column's elements are numbered from 0).
+//   for (size_t j = 0; j < predOut.n_cols; ++j) {
+//     pred(j) = arma::as_scalar(arma::find(
+// 					 arma::max(predOut.col(j)) == predOut.col(j), 1)) + 1;
+//   }
   
-  return pred;
-}
+//   return pred;
+// }
 
 template <class flight_controller_t>
 double Q_learning<flight_controller_t>::deformation_error(lt::triangle<double> old_dist,
@@ -164,6 +164,37 @@ move_action(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   }  
 }
 
+template <class flight_controller_t>
+arma::mat Q_learning<flight_controller_t>::
+insert_features(std::vector<Quadcopter<Gazebo>::Action> actions)
+{  
+  arma::mat features;
+  
+  auto it_state = states_.rbegin();    
+  it_state = std::next(it_state, 1);
+
+  for(int i = 0; i < 4; ++i) {
+  
+  features << *it_state.height();
+  features << *it_state.distances().f1;
+  features << *it_state.distances().f2;
+  features << *it_state.distances().f3;
+  features << *it_state.orientation();
+
+  features << mtools_.to_one_hot_encoding(actions.at(i), 4).at(0);
+  features << mtools_.to_one_hot_encoding(actions.at(i), 4).at(1);
+  features << mtools_.to_one_hot_encoding(actions.at(i), 4).at(2);
+  features << mtools_.to_one_hot_encoding(actions.at(i), 4).at(3);
+    
+  features << states_.back().height();
+  features << states_.back().distances().f1;
+  features << states_.back().distances().f2;
+  features << states_.back().distances().f3;
+  features << states_.back().orientation();
+
+  }
+  return features;  
+}
 
 /*  Data Set generation */
 template <class flight_controller_t>
@@ -229,11 +260,10 @@ phase_one(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 
 template <class flight_controller_t>
 void Q_learning<flight_controller_t>::
-phase_two(
-	  std::vector<std::shared_ptr<flight_controller_t>> iris_x,
+phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	  float speed,                                             
 	  std::shared_ptr<Gazebo> gzs,                             
-	  bool random_leader_action)  
+	  bool random_leader_action)
 {    
   mlpack::FFN<SigmoidCrossEntropyError<>, RandomInitialization> model;
   mlpack::data::Load("model.xml", "model", model);
@@ -253,7 +283,6 @@ phase_two(
   } else {
     action_leader = saved_leader_action_;    
   }
-
   
   /*  Threading QuadCopter */    
   threads.push_back(std::thread([&](){
@@ -273,13 +302,29 @@ phase_two(
   /* Get the next state at time t + 1  */
   Quadcopter<Gazebo>::State nextState(gzs);
   states_.push_back(nextState);
-  
-  
+    
   /*  we need to predict the action for the follower using h(S)*/
 
   /*  Extract state and push it into the model with several H */
   /*  take the highest value given back by the model */
+
+   
+  std::vector<Quadcopter<Gazebo>::Action> action_follower ;
+
+  action_follower.push_back(Quadcopter<Gazebo>::Action::forward);
+  action_follower.push_back(Quadcopter<Gazebo>::Action::backward);
+  action_follower.push_back(Quadcopter<Gazebo>::Action::left);
+  action_follower.push_back(Quadcopter<Gazebo>::Action::right);
   
+  arma::mat features = insert_features(action_follower);
+  
+  
+  
+
+  
+  arma::mat label;    
+  model.Predict(features, label);
+
   
   threads.push_back(std::thread([&](){
 				  for (int i = 0; i < 4; ++i) {
