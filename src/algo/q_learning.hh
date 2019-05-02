@@ -84,6 +84,10 @@ public:
 		   std::shared_ptr<Gazebo> gzs,
 		   DataSet data_set);
   
+  void run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
+		   float speed,
+		   std::shared_ptr<Gazebo> gzs);
+  
 private:
 
   int count_;

@@ -21,6 +21,7 @@ Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
    rssi_upper_threshold_(0.94)
 {
   if(train == true){
+    run_episods(iris_x, speed, gzs);
     run_episods(iris_x, speed, gzs, data_set);
   }
 }
@@ -512,9 +513,9 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	    action for leader */
 	
 	if (count_ == 0 ) {
-	  phase_one(iris_x, speed, gzs, true);	  
+	  phase_two(iris_x, speed, gzs, true);	  
 	} else {
-	  phase_one(iris_x, speed, gzs, false);      
+	  phase_two(iris_x, speed, gzs, false);      
 	}
 	
 	lt::positions<double> new_positions = get_positions(gzs);
@@ -545,7 +546,6 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	  if (mtools_.is_triangle(new_triangle.at(0)) == false) {
 	    break;
 	  }
-	  
 	} else if (count_ == 1 ) {
 	  reward = action_evaluator(new_triangle.at(0),
 				    new_triangle.at(1));
@@ -582,7 +582,6 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 				   mtools_.to_one_hot_encoding(reward, 4)
 				   );
 	
-	//	LogInfo() << "reward: " << reward ;
 	
 	//reduce epsilon as we explore more each episode
 	epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode_); 
@@ -626,3 +625,107 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
      * to find a better one, I will replace it directly. */      
   }
 }
+
+template <class flight_controller_t>
+void Q_learning<flight_controller_t>::
+run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
+	    float speed,
+	    std::shared_ptr<Gazebo> gzs)
+{
+
+  for (episode_ = 0; episode_ < max_episode_; ++episode_){
+    
+    /* Intilization phase, in each episode we should reset the
+     * position of each quadcopter to the initial position.
+     * From here we can start automatically the quads: 
+     * Arm + takeoff + offboard mode + moving + land 
+     * Then: repeat each episode.
+     */
+
+    LogInfo() << "Episode : " << episode_ ;            
+
+    /* 
+     * Step phase, where we update the q table each step
+     * Each episode has a fixed step number.
+     * Note: at the end of each episode, we re-intilize everything   
+     */
+    
+    /*  Think How we can use threads here */
+
+    
+    /* Stop the episode if one of the quad has fallen to takoff */
+    /*  Replace it by a template function  */
+    bool arm;
+    bool stop_episode = false;    
+    for (auto it : iris_x){
+      arm = it->arm();
+      if(!arm)
+	stop_episode = true;
+    }
+    
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    
+    /* Stop the episode if one of the quad has fallen to takoff */
+    /*  Replace it by a template function  */
+    bool takeoff;
+    for (auto it : iris_x){
+      takeoff = it->takeoff();
+      if(!takeoff)
+	stop_episode = true;
+    }
+    
+    std::this_thread::sleep_for(std::chrono::seconds(3));
+    /*  Setting up speed is important to switch the mode */
+    for (auto it : iris_x){
+      it->init_speed();
+    }
+    
+    /*  Switch to offboard mode, Allow the control */
+    for(auto it : iris_x){
+      it->start_offboard_mode();
+    }
+    /*  Wait to complete the take off process */
+    std::this_thread::sleep_for(std::chrono::seconds(1));  
+    
+  
+    if (!stop_episode) {
+      
+      count_ = 0 ;
+      
+      while (count_ < 3) {
+	
+	// Quadcopter<Gazebo>::Reward reward =
+	//   Quadcopter<Gazebo>::Reward::very_bad;
+	
+	/*  if the follower is has executed a good action we need to
+	    re-discover the other action in this loop until we get a 0
+	    reward, the other actions are related to exploration and
+	    exploitation note that */
+	/*  Test if the signal is good, if yes continue with the same
+	    action for leader */
+	
+	if (count_ == 0 ) {
+	  phase_two(iris_x, speed, gzs, true);	  
+	} else {
+	  phase_two(iris_x, speed, gzs, false);      
+	}
+	
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+	
+	++count_;
+      }
+    }
+        
+    for (auto it: iris_x)
+      it->land();
+    
+    std::this_thread::sleep_for(std::chrono::seconds(6));
+    
+    gzs->reset_models();
+    
+    std::this_thread::sleep_for(std::chrono::seconds(15));
+  }
+}
+
+
+
