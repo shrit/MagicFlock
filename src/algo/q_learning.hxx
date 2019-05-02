@@ -175,27 +175,28 @@ insert_features(std::vector<Quadcopter<Gazebo>::Action> actions)
 
   for(int i = 0; i < 4; ++i) {
     
-    arma::Cols<size_t> col;
     /*  State */
-    col << *it_state.height();
-    col << *it_state.distances().f1;
-    col << *it_state.distances().f2;
-    col << *it_state.distances().f3;
-    col << *it_state.orientation();
-    /*  Action  */
-    col << mtools_.to_one_hot_encoding(actions.at(i), 4).at(0);
-    col << mtools_.to_one_hot_encoding(actions.at(i), 4).at(1);
-    col << mtools_.to_one_hot_encoding(actions.at(i), 4).at(2);
-    col << mtools_.to_one_hot_encoding(actions.at(i), 4).at(3);
-    /*  nextState */
-    col << states_.back().height();
-    col << states_.back().distances().f1;
-    col << states_.back().distances().f2;
-    col << states_.back().distances().f3;
-    col << states_.back().orientation();
-    
-    features.insert_cols(0, col);    
+    features << (*it_state).height()
+	     << (*it_state).distances().f1
+	     << (*it_state).distances().f2
+	     << (*it_state).distances().f3
+	     << (*it_state).orientation()
+      /*  Action  */
+	     << mtools_.to_one_hot_encoding(actions.at(i), 4).at(0)
+	     << mtools_.to_one_hot_encoding(actions.at(i), 4).at(1)
+	     << mtools_.to_one_hot_encoding(actions.at(i), 4).at(2)
+	     << mtools_.to_one_hot_encoding(actions.at(i), 4).at(3)
+      /*  nextState */
+	     << states_.back().height()
+	     << states_.back().distances().f1
+	     << states_.back().distances().f2
+	     << states_.back().distances().f3
+	     << states_.back().orientation() << arma::endr;
+      
   }
+  /*  We need to transpose the matrix, since mlpack is column major */  
+  features = features.t();
+  
   return features;  
 }
 
@@ -268,7 +269,9 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	  std::shared_ptr<Gazebo> gzs,                             
 	  bool random_leader_action)
 {    
-  mlpack::FFN<SigmoidCrossEntropyError<>, RandomInitialization> model;
+  mlpack::ann::FFN<mlpack::ann::SigmoidCrossEntropyError<>,
+		   mlpack::ann::RandomInitialization> model;
+  
   mlpack::data::Load("model.xml", "model", model);
   
   /*  we need to pass State ,and nextState, and try possible a */
@@ -312,14 +315,14 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   /*  take the highest value given back by the model */
 
    
-  std::vector<Quadcopter<Gazebo>::Action> action_follower ;
+  std::vector<Quadcopter<Gazebo>::Action> possible_action ;
 
-  action_follower.push_back(Quadcopter<Gazebo>::Action::forward);
-  action_follower.push_back(Quadcopter<Gazebo>::Action::backward);
-  action_follower.push_back(Quadcopter<Gazebo>::Action::left);
-  action_follower.push_back(Quadcopter<Gazebo>::Action::right);
+  possible_action.push_back(Quadcopter<Gazebo>::Action::forward);
+  possible_action.push_back(Quadcopter<Gazebo>::Action::backward);
+  possible_action.push_back(Quadcopter<Gazebo>::Action::left);
+  possible_action.push_back(Quadcopter<Gazebo>::Action::right);
   
-  arma::mat features = insert_features(action_follower);
+  arma::mat features = insert_features(possible_action);
   
   arma::mat label;    
   model.Predict(features, label);
@@ -328,7 +331,7 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   
   threads.push_back(std::thread([&](){
 				  for (int i = 0; i < 4; ++i) {
-				    move_action(iris_x, "f2", speed, );
+				    //				    move_action(iris_x, "f2", speed, );
 				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
 				  }				  
 				}));

@@ -9,15 +9,16 @@
 # include <vector>
 # include <unordered_map>
 
-/*  Armadillo includes  */
-# include <armadillo>
-
 /*  MLPack ncludes */
 #include <mlpack/core.hpp>
 #include <mlpack/methods/ann/layer/layer.hpp>
 #include <mlpack/methods/ann/loss_functions/sigmoid_cross_entropy_error.hpp>
 #include <mlpack/methods/ann/ffn.hpp>
 #include <ensmallen_bits/adam/adam_update.hpp>
+
+
+/*  Armadillo includes  */
+# include <armadillo>
 
 /* local includes  */
 # include "../data_set.hh"
@@ -70,7 +71,7 @@ public:
   Quadcopter<Gazebo>::Action randomize_action();
   
   arma::mat 
-  insert_features(Quadcopter<Gazebo>::Action action);
+  insert_features(std::vector<Quadcopter<Gazebo>::Action> actions);
       
   void run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 		   float speed,
