@@ -12,13 +12,19 @@
 /*  Armadillo includes  */
 # include <armadillo>
 
+/*  MLPack ncludes */
+#include <mlpack/core.hpp>
+#include <mlpack/methods/ann/layer/layer.hpp>
+#include <mlpack/methods/ann/loss_functions/sigmoid_cross_entropy_error.hpp>
+#include <mlpack/methods/ann/ffn.hpp>
+#include <ensmallen_bits/adam/adam_update.hpp>
+
 /* local includes  */
 # include "../data_set.hh"
 # include "../global.hh"
 # include "../gazebo.hh"
 # include "../log.hh"
 # include "../math_tools.hh"
-
 #include "quadcopter.hh"
 
 namespace lt = local_types;

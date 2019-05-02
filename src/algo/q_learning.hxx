@@ -53,6 +53,43 @@ action_evaluator(lt::triangle<double> old_dist,
   return reward;
 }
 
+/**
+ * Returns the accuracy (percentage of correct answers).
+ * @param predLabels predicted labels of data points.
+ * @param realY real labels (they are double because we usually read them from
+ * CSV file that contain many other double values).
+ * @return percentage of correct answers.
+ */
+double accuracy(arma::Row<size_t> predLabels, arma::Row<size_t> LabelY)
+{
+  // Calculating how many predicted classes are coincide with real labels.
+  size_t success = 0;
+  for (size_t j = 0; j < LabelY.n_cols; j++) {
+    //    std::cout << predLabels(j) << std::endl;
+    //  std::cout << LabelY(j) << std::endl;
+    if (predLabels(j) == LabelY(j)) {
+      ++success;
+    }
+  }
+  
+  // Calculating percentage of correctly classified data points.
+  return (double)success / (double)LabelY.n_cols * 100.0;
+}
+
+arma::Row<size_t> getLabels(const arma::mat& predOut)
+{
+  arma::Row<size_t> pred(predOut.n_cols);
+  
+  // Class of a j-th data point is chosen to be the one with maximum value
+  // in j-th column plus 1 (since column's elements are numbered from 0).
+  for (size_t j = 0; j < predOut.n_cols; ++j) {
+    pred(j) = arma::as_scalar(arma::find(
+					 arma::max(predOut.col(j)) == predOut.col(j), 1)) + 1;
+  }
+  
+  return pred;
+}
+
 template <class flight_controller_t>
 double Q_learning<flight_controller_t>::deformation_error(lt::triangle<double> old_dist,
 				     lt::triangle<double> new_dist)
@@ -127,6 +164,8 @@ move_action(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   }  
 }
 
+
+/*  Data Set generation */
 template <class flight_controller_t>
 void Q_learning<flight_controller_t>::
 phase_one(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
@@ -189,8 +228,77 @@ phase_one(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 }
 
 template <class flight_controller_t>
-void Q_learning<flight_controller_t>::phase_two()
-{/* To be implemented*/}
+void Q_learning<flight_controller_t>::
+phase_two(
+	  std::vector<std::shared_ptr<flight_controller_t>> iris_x,
+	  float speed,                                             
+	  std::shared_ptr<Gazebo> gzs,                             
+	  bool random_leader_action)  
+{    
+  mlpack::FFN<SigmoidCrossEntropyError<>, RandomInitialization> model;
+  mlpack::data::Load("model.xml", "model", model);
+  
+  /*  we need to pass State ,and nextState, and try possible a */
+  Quadcopter<Gazebo>::Action action_leader ;
+  
+  std::vector<std::thread> threads;
+    
+  /* Get the state at time t  */
+  Quadcopter<Gazebo>::State state(gzs);
+  states_.push_back(state);
+  
+  if ( random_leader_action == true){    
+    action_leader = randomize_action() ;
+    saved_leader_action_ = action_leader;
+  } else {
+    action_leader = saved_leader_action_;    
+  }
+
+  
+  /*  Threading QuadCopter */    
+  threads.push_back(std::thread([&](){
+				  for (int i = 0; i < 4; ++i) {
+				    move_action(iris_x, "l" , speed, action_leader);
+				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
+				  }				  
+				}));
+  threads.push_back(std::thread([&](){
+				  for (int i = 0; i < 4; ++i) {
+				    move_action(iris_x, "f1" , speed, action_leader);
+				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
+				  }				  
+				}));
+
+
+  /* Get the next state at time t + 1  */
+  Quadcopter<Gazebo>::State nextState(gzs);
+  states_.push_back(nextState);
+  
+  
+  /*  we need to predict the action for the follower using h(S)*/
+
+  /*  Extract state and push it into the model with several H */
+  /*  take the highest value given back by the model */
+  
+  
+  threads.push_back(std::thread([&](){
+				  for (int i = 0; i < 4; ++i) {
+				    move_action(iris_x, "f2", speed, );
+				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
+				  }				  
+				}));
+  
+  for(auto& thread : threads) {
+    thread.join();
+  }
+  
+  /* We need to wait until the quadcopters finish their actions */  
+  std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    
+
+  return ;  
+  
+}
 
 /* Change action to enum in quadcopter */
 template <class flight_controller_t>
