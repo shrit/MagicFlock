@@ -33,7 +33,10 @@ public:
   template <typename Arg, typename Arg2>
   std::vector<bool> to_one_hot_encoding(Arg arg,
 			  Arg2 number_of_class);
-  
+
+  template <typename T>
+  int index_of_smallest_value(const std::vector<T>& vec);
+    
   template <typename Arg>
   Arg variance(std::vector<Arg> vec);
     

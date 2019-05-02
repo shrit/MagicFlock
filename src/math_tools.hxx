@@ -22,6 +22,16 @@ double Math_tools::gaussian_noise(std::vector<lt::triangle<T>> distances,
 				   drift_f3.end(), 0.0)/drift_f3.size();
   return noise_mean;
 }
+
+template <typename T>
+int Math_tools::
+index_of_smallest_value(const std::vector<T>& vec)
+{ 
+  // Find Smallest Value in vec
+    auto smallest = std::min_element(vec.begin(), vec.end());
+    return std::distance(vec.begin(), smallest);
+}
+
 template <typename T>
 bool Math_tools::
 is_triangle(lt::triangle<T> t)

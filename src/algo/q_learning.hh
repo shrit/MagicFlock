@@ -67,6 +67,9 @@ public:
 		 float speed,                                             
 		 std::shared_ptr<Gazebo> gzs,                             
 		 bool random_leader_action);
+
+  std::vector<arma::uword> 
+  index_of_highest_values(arma::mat matrix);
   
   Quadcopter<Gazebo>::Action randomize_action();
   

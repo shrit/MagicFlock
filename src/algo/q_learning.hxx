@@ -263,6 +263,17 @@ phase_one(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 }
 
 template <class flight_controller_t>
+std::vector<arma::uword> Q_learning<flight_controller_t>::
+index_of_highest_values(arma::mat matrix)   
+{  
+  std::vector<arma::uword> index;
+  for (arma::uword i = 0; i < matrix.n_rows; ++i) {
+    index.push_back( arma::index_max(matrix.row(i)) );
+  }
+  return index;
+}
+
+template <class flight_controller_t>
 void Q_learning<flight_controller_t>::
 phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	  float speed,                                             
@@ -323,15 +334,31 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   possible_action.push_back(Quadcopter<Gazebo>::Action::right);
   
   arma::mat features = insert_features(possible_action);
+
+  LogInfo() << features;
   
   arma::mat label;    
-  model.Predict(features, label);
 
- 
+  model.Predict(features, label);
+  
+  /*  transpose to the original format */
+  features = features.t();
+  label = label.t();
+
+  LogInfo() << label;
+    
+  std::vector<arma::uword> index = index_of_highest_values(label);
+       
+  int matrix_row_index = mtools_.index_of_smallest_value(index);
+  
+  /*  Get the action now !! */
+  
+  
+  Quadcopter<Gazebo>::Action action_follower;
   
   threads.push_back(std::thread([&](){
 				  for (int i = 0; i < 4; ++i) {
-				    //				    move_action(iris_x, "f2", speed, );
+				    move_action(iris_x, "f2", speed, action_follower);
 				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
 				  }				  
 				}));
