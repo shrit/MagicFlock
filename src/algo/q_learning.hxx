@@ -174,26 +174,29 @@ insert_features(std::vector<Quadcopter<Gazebo>::Action> actions)
   auto it_state = states_.rbegin();    
   it_state = std::next(it_state, 1);
 
+  arma::rowvec row;
   for(int i = 0; i < 4; ++i) {
     
     /*  State */
-    features << (*it_state).height()
-	     << (*it_state).distances().f1
-	     << (*it_state).distances().f2
-	     << (*it_state).distances().f3
-	     << (*it_state).orientation()
+    row << (*it_state).height()
+	<< (*it_state).distances().f1
+	<< (*it_state).distances().f2
+	<< (*it_state).distances().f3
+	<< (*it_state).orientation()
       /*  Action  */
-	     << mtools_.to_one_hot_encoding(actions.at(i), 4).at(0)
-	     << mtools_.to_one_hot_encoding(actions.at(i), 4).at(1)
-	     << mtools_.to_one_hot_encoding(actions.at(i), 4).at(2)
-	     << mtools_.to_one_hot_encoding(actions.at(i), 4).at(3)
+	<< mtools_.to_one_hot_encoding(actions.at(i), 4).at(0)
+	<< mtools_.to_one_hot_encoding(actions.at(i), 4).at(1)
+	<< mtools_.to_one_hot_encoding(actions.at(i), 4).at(2)
+	<< mtools_.to_one_hot_encoding(actions.at(i), 4).at(3)
       /*  nextState */
-	     << states_.back().height()
-	     << states_.back().distances().f1
-	     << states_.back().distances().f2
-	     << states_.back().distances().f3
-	     << states_.back().orientation() << arma::endr;
-      
+	<< states_.back().height()
+	<< states_.back().distances().f1
+	<< states_.back().distances().f2
+	<< states_.back().distances().f3
+	<< states_.back().orientation() ;
+    
+    features.insert_rows(0, row);
+    
   }
   /*  We need to transpose the matrix, since mlpack is column major */  
   features = features.t();
@@ -357,26 +360,25 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   possible_action.push_back(Quadcopter<Gazebo>::Action::right);
   
   arma::mat features = insert_features(possible_action);
-
-  LogInfo() << features;
   
-  arma::mat label;    
-
+  arma::mat label;
+  
   model.Predict(features, label);
   
   /*  transpose to the original format */
+  LogInfo() << "Size of features: " << arma::size(features);
+  
   features = features.t();
   label = label.t();
 
+  LogInfo() << features;
   LogInfo() << label;
     
   std::vector<arma::uword> index = index_of_highest_values(label);
        
   arma::uword matrix_row_index = mtools_.index_of_smallest_value(index);
   
-  /*  Get the action now !! */
-  
-  
+  /*  Get the action now !! */    
   Quadcopter<Gazebo>::Action action_for_follower =
     action_follower(features, matrix_row_index);
   
