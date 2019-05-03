@@ -69,7 +69,8 @@ public:
      forward,
      backward,
      left,
-     right,          
+     right,
+     NoMove,
     };
 
   enum class Reward
