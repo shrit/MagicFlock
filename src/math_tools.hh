@@ -36,7 +36,7 @@ public:
 
   template <typename T>
   long long unsigned int
-  index_of_smallest_value(const std::vector<T>& vec);
+  index_of_highest_value(const std::vector<T>& vec);
     
   template <typename Arg>
   Arg variance(std::vector<Arg> vec);

@@ -25,11 +25,11 @@ double Math_tools::gaussian_noise(std::vector<lt::triangle<T>> distances,
 
 template <typename T>
 long long unsigned int Math_tools::
-index_of_smallest_value(const std::vector<T>& vec)
+index_of_highest_value(const std::vector<T>& vec)
 { 
   // Find Smallest Value in vec
-    auto smallest = std::min_element(vec.begin(), vec.end());
-    return std::distance(vec.begin(), smallest);
+    auto highest = std::max_element(vec.begin(), vec.end());
+    return std::distance(vec.begin(), highest);
 }
 
 template <typename T>
