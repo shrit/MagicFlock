@@ -210,15 +210,15 @@ action_follower(arma::mat features, arma::uword index)
 {
   /*  just a HACK, need to find a dynamic solution later */
   Quadcopter<Gazebo>::Action
-    action =  Quadcopter<Gazebo>::Action::backward;
+    action =  Quadcopter<Gazebo>::Action::NoMove;
   
-  if(features(index, 8) == 1) {
+  if(features(index, 5) == 1) {
     action =  Quadcopter<Gazebo>::Action::forward;
-  } else if (features(index, 9) == 1) {
+  } else if (features(index, 6) == 1) {
     action =  Quadcopter<Gazebo>::Action::backward;
-  } else if (features(index, 10) == 1) {
+  } else if (features(index, 7) == 1) {
     action =  Quadcopter<Gazebo>::Action::left;
-  } else if (features(index, 11) == 1) {
+  } else if (features(index, 8) == 1) {
     action =  Quadcopter<Gazebo>::Action::right;
   }
   return action;
@@ -278,23 +278,22 @@ phase_one(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   
   /* We need to wait until the quadcopters finish their actions */  
   std::this_thread::sleep_for(std::chrono::milliseconds(300));
-    
+  
   /* Get the next state at time t + 1  */
   Quadcopter<Gazebo>::State nextState(gzs);
   states_.push_back(nextState);
-
-  return ;  
+  return ;
 }
 
 template <class flight_controller_t>
-std::vector<arma::uword> Q_learning<flight_controller_t>::
-index_of_highest_values(arma::mat matrix)   
+int Q_learning<flight_controller_t>::
+highest_values(arma::mat matrix)   
 {  
-  std::vector<arma::uword> index;
+  int value = 0;
   for (arma::uword i = 0; i < matrix.n_rows; ++i) {
-    index.push_back( arma::index_max(matrix.row(i)) );
+    value = arma::index_max(matrix.col(0));
   }
-  return index;
+  return value;
 }
 
 template <class flight_controller_t>
@@ -318,7 +317,7 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   Quadcopter<Gazebo>::State state(gzs);
   states_.push_back(state);
   
-  if ( random_leader_action == true){    
+  if ( random_leader_action == true) {    
     action_leader = randomize_action() ;
     saved_leader_action_ = action_leader;
   } else {
@@ -350,7 +349,6 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 
   /*  Extract state and push it into the model with several H */
   /*  take the highest value given back by the model */
-
    
   std::vector<Quadcopter<Gazebo>::Action> possible_action ;
 
@@ -366,21 +364,26 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   model.Predict(features, label);
   
   /*  transpose to the original format */
-  LogInfo() << "Size of features: " << arma::size(features);
+
   
   features = features.t();
   label = label.t();
-
+  
+  LogInfo() << "Size of features: " << arma::size(features);
   LogInfo() << features;
   LogInfo() << label;
     
-  std::vector<arma::uword> index = index_of_highest_values(label);
-       
-  arma::uword matrix_row_index = mtools_.index_of_smallest_value(index);
+  int values = highest_values(label);
+
+  LogInfo() << values;
+  
+  //  auto matrix_row_index = mtools_.index_of_highest_value(values);
+  
+  // LogInfo() << matrix_row_index;
   
   /*  Get the action now !! */    
   Quadcopter<Gazebo>::Action action_for_follower =
-    action_follower(features, matrix_row_index);
+    action_follower(features, values);
   
   threads.push_back(std::thread([&](){
 				  for (int i = 0; i < 4; ++i) {
@@ -391,8 +394,7 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   
   for(auto& thread : threads) {
     thread.join();
-  }
-    
+  }    
   return ;    
 }
 
@@ -440,7 +442,7 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 
   f3_side_.push_back(original_triangle);
   
-  for (episode_ = 0; episode_ < max_episode_; ++episode_){
+  for (episode_ = 0; episode_ < max_episode_; ++episode_) { 
     
     /* Intilization phase, in each episode we should reset the
      * position of each quadcopter to the initial position.
@@ -458,7 +460,6 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
      */
     
     /*  Think How we can use threads here */
-
     
     /* Stop the episode if one of the quad has fallen to takoff */
     /*  Replace it by a template function  */
@@ -583,8 +584,7 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 				   sp.create_printer_struct(states_.back()),
 				   mtools_.to_one_hot_encoding(reward, 4)
 				   );
-	
-	
+		
 	//reduce epsilon as we explore more each episode
 	epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode_); 
 	
@@ -593,9 +593,9 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	
 	++count_;
+      }
     }
-    }
-
+    
     for (auto it: iris_x)
       it->land();
     
@@ -606,7 +606,7 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
     std::this_thread::sleep_for(std::chrono::seconds(15));
     
     /*BIAS accelerometer problem after resetting the models*/
-      
+    
     /*  The only possible solution was to change the upper limit value
      * for the bias inside thee code of te firmware direclty. The
      * solution can be found at this link:
@@ -645,7 +645,7 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
      */
 
     LogInfo() << "Episode : " << episode_ ;            
-
+    
     /* 
      * Step phase, where we update the q table each step
      * Each episode has a fixed step number.
@@ -694,7 +694,7 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
       
       count_ = 0 ;
       
-      while (count_ < 3) {
+      while (count_ < 6) {
 	
 	// Quadcopter<Gazebo>::Reward reward =
 	//   Quadcopter<Gazebo>::Reward::very_bad;
