@@ -25,34 +25,8 @@ Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
     run_episods(iris_x, speed, gzs);
   }
 }
-template <class flight_controller_t>
-Quadcopter<Gazebo>::Reward
-Q_learning<flight_controller_t>::
-action_evaluator(lt::triangle<double> old_dist,
-		 lt::triangle<double> new_dist)
-{
-  LogInfo() << "F1 differences: " << std::fabs(old_dist.f1 - new_dist.f1);
-  LogInfo() << "F2 differences: " << std::fabs(old_dist.f2 - new_dist.f2);
-  
-  double diff_f1 = std::fabs(old_dist.f1 - new_dist.f1);
-  double diff_f2 = std::fabs(old_dist.f2 - new_dist.f2);
-  
-  Quadcopter<Gazebo>::Reward reward = Quadcopter<Gazebo>::Reward::very_bad;
-  
-  if (0.5  > diff_f1 + diff_f2 ) {
-    reward = Quadcopter<Gazebo>::Reward::very_good;      
-  } else if ( 1.0  > diff_f1 + diff_f2 and
-	      diff_f1 + diff_f2  > 0.5 ) {
-    reward = Quadcopter<Gazebo>::Reward::good;
-  } else if ( 1.5  > diff_f1 + diff_f2 and
-	      diff_f1 + diff_f2  > 1.0 ) {
-    reward = Quadcopter<Gazebo>::Reward::bad;
-  } else if ( 2.0  > diff_f1 + diff_f2 and
-	      diff_f1 + diff_f2  > 1.5 ) {
-    reward = Quadcopter<Gazebo>::Reward::very_bad;
-  }  
-  return reward;
-}
+
+/*  Move to the training class */
 
 /**
  * Returns the accuracy (percentage of correct answers).
@@ -90,19 +64,6 @@ action_evaluator(lt::triangle<double> old_dist,
   
 //   return pred;
 // }
-
-template <class flight_controller_t>
-double Q_learning<flight_controller_t>::deformation_error(lt::triangle<double> old_dist,
-				     lt::triangle<double> new_dist)
-{
-  double error;  
-  error = std::sqrt(std::pow((old_dist.f1 - new_dist.f1), 2)  +
-		    std::pow((old_dist.f2 - new_dist.f2), 2)  +
-		    std::pow((old_dist.f3 - new_dist.f3), 2));
-  
-  /*  Recalculate the Error between quadcopters  */  
-  return error;   
-}
 
 template <class flight_controller_t>
 lt::positions<double> Q_learning<flight_controller_t>::
@@ -224,66 +185,6 @@ action_follower(arma::mat features, arma::uword index)
   return action;
 }
 
-/*  Data Set generation */
-template <class flight_controller_t>
-void Q_learning<flight_controller_t>::
-phase_one(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
-	  float speed,
-	  std::shared_ptr<Gazebo> gzs,
-	  bool random_leader_action)
-{
-  /*  Phase One: Construct the dataset */  
-  Quadcopter<Gazebo>::Action action_leader ;
-  
-  std::vector<std::thread> threads;
-    
-  /* Get the state at time t  */
-  Quadcopter<Gazebo>::State state(gzs);
-  states_.push_back(state);
-  
-  if ( random_leader_action == true){
-    
-    action_leader = randomize_action() ;
-    saved_leader_action_ = action_leader;
-    //    LogInfo() << "Random action chosen: " << action_leader ;    
-  } else {
-    action_leader = saved_leader_action_;    
-  }
-  
-  action_follower_.push_back(randomize_action());
-  
-  /*  Threading QuadCopter */    
-  threads.push_back(std::thread([&](){
-				  for (int i = 0; i < 4; ++i) {
-				    move_action(iris_x, "l" , speed, action_leader);
-				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
-				  }				  
-				}));
-  threads.push_back(std::thread([&](){
-				  for (int i = 0; i < 4; ++i) {
-				    move_action(iris_x, "f1" , speed, action_leader);
-				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
-				  }				  
-				}));
-  threads.push_back(std::thread([&](){
-				  for (int i = 0; i < 4; ++i) {
-				    move_action(iris_x, "f2", speed, action_follower_.back());
-				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
-				  }				  
-				}));
-  
-  for(auto& thread : threads) {
-    thread.join();
-  }
-  
-  /* We need to wait until the quadcopters finish their actions */  
-  std::this_thread::sleep_for(std::chrono::milliseconds(300));
-  
-  /* Get the next state at time t + 1  */
-  Quadcopter<Gazebo>::State nextState(gzs);
-  states_.push_back(nextState);
-  return ;
-}
 
 template <class flight_controller_t>
 int Q_learning<flight_controller_t>::
@@ -443,12 +344,6 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 
     LogInfo() << "Episode : " << episode_ ;            
     
-    /* 
-     * Step phase, where we update the q table each step
-     * Each episode has a fixed step number.
-     * Note: at the end of each episode, we re-intilize everything   
-     */
-    
     /*  Think How we can use threads here */
 
     
@@ -493,9 +388,6 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
       
       while (count_ < 6) {
 	
-	// Quadcopter<Gazebo>::Reward reward =
-	//   Quadcopter<Gazebo>::Reward::very_bad;
-	
 	/*  if the follower is has executed a good action we need to
 	    re-discover the other action in this loop until we get a 0
 	    reward, the other actions are related to exploration and
@@ -525,6 +417,3 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
     std::this_thread::sleep_for(std::chrono::seconds(15));
   }
 }
-
-
-
