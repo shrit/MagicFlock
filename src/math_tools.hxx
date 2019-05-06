@@ -2,6 +2,19 @@
 
 
 template <typename T>
+double Math_tools::deformation_error(lt::triangle<T> old_dist,
+				     lt::triangle<T> new_dist)
+{
+  double error;  
+  error = std::sqrt(std::pow((old_dist.f1 - new_dist.f1), 2)  +
+		    std::pow((old_dist.f2 - new_dist.f2), 2)  +
+		    std::pow((old_dist.f3 - new_dist.f3), 2));
+  
+  /*  Recalculate the Error between quadcopters  */  
+  return error;   
+}
+
+template <typename T>
 double Math_tools::gaussian_noise(std::vector<lt::triangle<T>> distances,
 				  std::vector<T> drift_f3)
 {

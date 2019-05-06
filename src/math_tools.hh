@@ -20,6 +20,10 @@ public:
     lower_threshold_{4, 4, 4},
     upper_threshold_{9, 9, 9}
   {}
+
+  template <typename T>
+  double deformation_error(lt::triangle<T> old_dist,
+			   lt::triangle<T> new_dist)
   
   template <typename T>
   double gaussian_noise(std::vector<lt::triangle<T>> ideal_dist,
