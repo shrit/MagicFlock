@@ -75,26 +75,21 @@ move_action(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 {
   int quad_number = 0;
   
-  if (label == "l"){
+  if (label == "l") {
     quad_number = 0;
-  }
-  else if (label == "f1"){
+  } else if (label == "f1") {
     quad_number = 1;
-  }
-  else if (label == "f2"){
+  } else if (label == "f2") {
     quad_number = 2;
   }
         
-  if(action == Quadcopter<Gazebo>::Action::left){
+  if (action == Quadcopter<Gazebo>::Action::left) {
     iris_x.at(quad_number)->left(speed);
-  }
-  else if(action == Quadcopter<Gazebo>::Action::right){ 
+  } else if (action == Quadcopter<Gazebo>::Action::right) { 
     iris_x.at(quad_number)->right(speed);
-  }
-  else if(action == Quadcopter<Gazebo>::Action::forward){ 
+  } else if (action == Quadcopter<Gazebo>::Action::forward) { 
     iris_x.at(quad_number)->forward(speed); 
-  }
-  else if(action == Quadcopter<Gazebo>::Action::backward){ 
+  } else if (action == Quadcopter<Gazebo>::Action::backward) { 
     iris_x.at(quad_number)->backward(speed);
   }  
 }

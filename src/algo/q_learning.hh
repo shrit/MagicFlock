@@ -40,12 +40,7 @@ public:
 	     std::shared_ptr<Gazebo> gzs,
 	     DataSet data_set,
 	     bool train);
-  
-  Quadcopter<Gazebo>::Reward
-  action_evaluator(lt::triangle<double> old_dist,
-		   lt::triangle<double> new_dist);
-
-    
+        
   void move_action(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 		   std::string label,
 		   float speed,
@@ -56,8 +51,7 @@ public:
 		 std::shared_ptr<Gazebo> gzs,                             
 		 bool random_leader_action);
 
-  int 
-  highest_values(arma::mat matrix);
+  int highest_values(arma::mat matrix);
   
   Quadcopter<Gazebo>::Action randomize_action();
   
@@ -85,8 +79,6 @@ private:
   float learning_rate_ ;
   int max_episode_ ;  
   float min_epsilon_ ;  
-  float rssi_lower_threshold_;
-  float rssi_upper_threshold_;
   
   std::vector<Quadcopter<Gazebo>::State> states_;
 
