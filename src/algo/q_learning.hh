@@ -97,6 +97,8 @@ private:
   std::uniform_int_distribution<> distribution_int_;
   int episode_ ;
   float epsilon_ ;
+  std::random_device random_dev;  
+  std::mt19937 generator_;  
   float learning_rate_ ;
   int max_episode_ ;  
   float min_epsilon_ ;  
@@ -106,8 +108,7 @@ private:
   std::vector<Quadcopter<Gazebo>::State> states_;
 
   Math_tools mtools_;
-  
-  std::default_random_engine generator_;
+
   
   std::unordered_map<int, int> signal_map_;
       
