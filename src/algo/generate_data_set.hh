@@ -43,6 +43,16 @@ private:
   float seed_;
 
   DataSet data_set_;
+  Math_tools mtools_;
+
+  std::vector<lt::triangle<double>> f3_side_;
+
+  std::uniform_real_distribution<> distribution_;
+  std::uniform_int_distribution<> distribution_int_;
+  
+  std::random_device random_dev;  
+  std::mt19937 generator_;  
+  
   
 };
 

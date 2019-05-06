@@ -80,11 +80,6 @@ public:
       
   void run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 		   float speed,
-		   std::shared_ptr<Gazebo> gzs,
-		   DataSet data_set);
-  
-  void run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
-		   float speed,
 		   std::shared_ptr<Gazebo> gzs);
   
 private:
@@ -107,17 +102,10 @@ private:
   std::vector<Quadcopter<Gazebo>::State> states_;
 
   Math_tools mtools_;
-
-  
-  std::unordered_map<int, int> signal_map_;
       
   std::vector<Quadcopter<Gazebo>::Action> action_follower_ ;
   
-  Quadcopter<Gazebo>::Action saved_leader_action_;
-
-  std::vector<lt::triangle<double>> f3_side_;
-  
-  std::vector<double> drift_f3_;
+  Quadcopter<Gazebo>::Action saved_leader_action_;  
   
 };
 
