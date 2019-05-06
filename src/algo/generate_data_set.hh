@@ -25,34 +25,37 @@ class Generator {
   
   
 public:
-  
-  /*  
-  
- */
-  
+    
   Generator(std::vector<std::shared_ptr<flight_controller_t>> quads,
 	    std::shared_ptr<simulator_t> sim_interface_); 
-      
+  /*Move it from here*/
+  Quadcopter<Gazebo>::Reward
+  action_evaluator(lt::triangle<double> old_dist,
+		   lt::triangle<double> new_dist);
+
+  void move_action(std::string label,
+		   Quadcopter<Gazebo>::Action action);  
+
+  
+  void phase_one(bool random_leader_action); /* Find a better name for this function */
+  
   void run(); //bool random_leader_action
 
   
 private:
-  /*  Move into them */
-  std::vector<std::shared_ptr<flight_controller_t>> quads_;  
-  std::shared_ptr<simulator_t> sim_interface_;
-  float seed_;
-
+    
+  int count_;
+  int episode_;
   DataSet data_set_;
-  Math_tools mtools_;
-
-  std::vector<lt::triangle<double>> f3_side_;
-
   std::uniform_real_distribution<> distribution_;
   std::uniform_int_distribution<> distribution_int_;
-  
+  std::vector<lt::triangle<double>> f3_side_;
   std::random_device random_dev;  
-  std::mt19937 generator_;  
-  
+  std::mt19937 generator_;
+  Math_tools mtools_;
+  std::vector<std::shared_ptr<flight_controller_t>> quads_;  
+  std::shared_ptr<simulator_t> sim_interface_;
+  float speed_;  
   
 };
 

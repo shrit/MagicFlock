@@ -5,11 +5,135 @@ template<class flight_controller_t,
 	 class simulator_t>
 Generator<flight_controller_t, simulator_t>::
 Generator (std::vector<std::shared_ptr<flight_controller_t>> quads,
-	   std::shared_ptr<simulator_t> sim_interface):             
+	   std::shared_ptr<simulator_t> sim_interface)
+  :count_(0),
+  distribution_(0.0, 1.0),
+  distribution_int_(0, 3),
+  episode_(0),
+  generator_(random_dev()),
   quads_(std::move(quads)),
   sim_interface_(std::move(sim_interface))
 {}
 
+/*  need to be moved to quadcopter class, think about it */
+template <class flight_controller_t,
+	  class simulator_t>
+Quadcopter<simulator_t>::Reward
+Generator<flight_controller_t, simulator_t>::
+action_evaluator(lt::triangle<double> old_dist,
+		 lt::triangle<double> new_dist)
+{
+  LogInfo() << "F1 differences: " << std::fabs(old_dist.f1 - new_dist.f1);
+  LogInfo() << "F2 differences: " << std::fabs(old_dist.f2 - new_dist.f2);
+  
+  double diff_f1 = std::fabs(old_dist.f1 - new_dist.f1);
+  double diff_f2 = std::fabs(old_dist.f2 - new_dist.f2);
+  
+  Quadcopter<simulator_t>::Reward reward = Quadcopter<simulator_t>::Reward::very_bad;
+  
+  if (0.5  > diff_f1 + diff_f2 ) {
+    reward = Quadcopter<simulator_t>::Reward::very_good;      
+  } else if ( 1.0  > diff_f1 + diff_f2 and
+	      diff_f1 + diff_f2  > 0.5 ) {
+    reward = Quadcopter<simulator_t>::Reward::good;
+  } else if ( 1.5  > diff_f1 + diff_f2 and
+	      diff_f1 + diff_f2  > 1.0 ) {
+    reward = Quadcopter<simulator_t>::Reward::bad;
+  } else if ( 2.0  > diff_f1 + diff_f2 and
+	      diff_f1 + diff_f2  > 1.5 ) {
+    reward = Quadcopter<simulator_t>::Reward::very_bad;
+  }  
+  return reward;
+}
+
+template <class flight_controller_t,
+	  class simulator_t>
+void Generator<flight_controller_t, simulator_t>::
+move_action(std::string label,
+	    Quadcopter<simulator_t>::Action action)
+{
+  int quad_number = 0;
+  
+  if (label == "l") {
+    quad_number = 0;
+  } else if (label == "f1") {
+    quad_number = 1;
+  } else if (label == "f2") {
+    quad_number = 2;
+  }
+        
+  if (action == Quadcopter<Gazebo>::Action::left) {
+    quads_.at(quad_number)->left(speed);
+    
+  } else if (action == Quadcopter<Gazebo>::Action::right) {  
+    quads_.at(quad_number)->right(speed);
+    
+  } else if (action == Quadcopter<Gazebo>::Action::forward) { 
+    quads_.at(quad_number)->forward(speed);
+    
+  } else if (action == Quadcopter<Gazebo>::Action::backward) { 
+    quads_.at(quad_number)->backward(speed);
+    
+  }  
+}
+
+/*  Data Set generation */
+template <class flight_controller_t,
+	  class simulator_t>
+void Generator<flight_controller_t, simulator_t>::
+phase_one(bool random_leader_action)
+{
+  Quadcopter<simulator_t>::Action action_leader ;
+  
+  std::vector<std::thread> threads;
+    
+  /* Get the state at time t  */
+  Quadcopter<simulator_t>::State state(gzs);
+  states_.push_back(state);
+  
+  if ( random_leader_action == true) {
+    
+    action_leader = randomize_action() ;
+    saved_leader_action_ = action_leader;
+    //    LogInfo() << "Random action chosen: " << action_leader ;    
+  } else {
+    action_leader = saved_leader_action_;    
+  }
+  
+  action_follower_.push_back(randomize_action());
+  
+  /*  Threading QuadCopter */    
+  threads.push_back(std::thread([&](){
+				  for (int i = 0; i < 4; ++i) {
+				    move_action(quads_, "l" , speed, action_leader);
+				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
+				  }				  
+				}));
+  threads.push_back(std::thread([&](){
+				  for (int i = 0; i < 4; ++i) {
+				    move_action(quads_, "f1" , speed, action_leader);
+				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
+				  }				  
+				}));
+  threads.push_back(std::thread([&](){
+				  for (int i = 0; i < 4; ++i) {
+				    move_action(quads_, "f2", speed, action_follower_.back());
+				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
+				  }				  
+				}));
+  
+  for(auto& thread : threads) {
+    thread.join();
+  }
+  
+  /* We need to wait until the quadcopters finish their actions */  
+  std::this_thread::sleep_for(std::chrono::milliseconds(300));
+  
+  /* Get the next state at time t + 1  */
+  Quadcopter<simulator_t>::State nextState(gzs);
+  states_.push_back(nextState);
+  return ;
+}
 
 template<class flight_controller_t,
 	 class simulator_t>
@@ -18,7 +142,7 @@ run()
 {
   std::vector<lt::position<double>> distance;
   
-  lt::positions<double> original_positions = get_positions(sim_interface_);
+  lt::positions<double> original_positions = sim_interface_.positions();
   
   LogInfo() << "Starting positions : " << original_positions ;
   
@@ -49,7 +173,7 @@ run()
     /*  Replace it by a template function  */
     bool arm;
     bool stop_episode = false;    
-    for (auto it : iris_x){
+    for (auto it : quads_){
       arm = it->arm();
       if(!arm)
 	stop_episode = true;
@@ -60,7 +184,7 @@ run()
     /* Stop the episode if one of the quad has fallen to takoff */
     /*  Replace it by a template function  */
     bool takeoff;
-    for (auto it : iris_x){
+    for (auto it : quads_){
       takeoff = it->takeoff();
       if(!takeoff)
 	stop_episode = true;
@@ -68,12 +192,12 @@ run()
     
     std::this_thread::sleep_for(std::chrono::seconds(3));
     /*  Setting up speed is important to switch the mode */
-    for (auto it : iris_x){
+    for (auto it : quads_){
       it->init_speed();
     }
     
     /*  Switch to offboard mode, Allow the control */
-    for(auto it : iris_x){
+    for(auto it : quads_){
       it->start_offboard_mode();
     }
     /*  Wait to complete the take off process */
@@ -89,8 +213,8 @@ run()
       
       while (count_ < 3) {
 
-	Quadcopter<Gazebo>::Reward reward =
-	  Quadcopter<Gazebo>::Reward::very_bad;
+	Quadcopter<simulator_t>::Reward reward =
+	  Quadcopter<simulator_t>::Reward::very_bad;
 	
 	/*  if the follower has executed a good action we need to
 	    re-discover the other action in this loop until we get a 0
@@ -100,12 +224,12 @@ run()
 	    action for leader */
 	
 	if (count_ == 0 ) {
-	  phase_two(iris_x, speed, sim_interface_, true);	  
+	  phase_one(true);	  
 	} else {
-	  phase_two(iris_x, speed, sim_interface_, false);      
+	  phase_one(false);      
 	}
 	
-	lt::positions<double> new_positions = get_positions(sim_interface_);
+	lt::positions<double> new_positions = sim_interface_.positions();
 	
 	LogInfo() << "New positions : " << new_positions ;
   	
@@ -161,7 +285,7 @@ run()
 	it_state = std::next(it_state, 1);
 	it_action = std::next(it_action, 1);
 	
-	Quadcopter<Gazebo>::State sp(sim_interface_);
+	Quadcopter<simulator_t>::State sp(sim_interface_);
 	
 	data_set.save_csv_data_set(sp.create_printer_struct(*it_state),
 				   mtools_.to_one_hot_encoding(action_follower_.back(), 4),
@@ -180,7 +304,7 @@ run()
       }
     }
     
-    for (auto it: iris_x)
+    for (auto it: quads_)
       it->land();
     
     std::this_thread::sleep_for(std::chrono::seconds(6));
