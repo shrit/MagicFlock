@@ -7,7 +7,6 @@
 # include <random>
 # include <thread>
 # include <vector>
-# include <unordered_map>
 
 /*  MLPack ncludes */
 #include <mlpack/core.hpp>
