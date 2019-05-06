@@ -44,23 +44,12 @@ public:
   Quadcopter<Gazebo>::Reward
   action_evaluator(lt::triangle<double> old_dist,
 		   lt::triangle<double> new_dist);
-    
-  double deformation_error(lt::triangle<double>  old_dist,
-			   lt::triangle<double>  new_dist);
-  
-  lt::positions<double> get_positions(std::shared_ptr<Gazebo> gzs);
-    
-  bool is_signal_in_limits(std::shared_ptr<Gazebo> gzs);  
 
+    
   void move_action(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 		   std::string label,
 		   float speed,
 		   Quadcopter<Gazebo>::Action action);  
-  
-  void phase_one(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
-		 float speed,
-		 std::shared_ptr<Gazebo> gzs,
-		 bool random_leader_action);
   
   void phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 		 float speed,                                             

@@ -65,33 +65,6 @@ Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 //   return pred;
 // }
 
-template <class flight_controller_t>
-lt::positions<double> Q_learning<flight_controller_t>::
-get_positions(std::shared_ptr<Gazebo> gzs)
-{  
-  lt::positions<double> pos;
-  pos.leader = gzs->positions().leader;
-  pos.f1 = gzs->positions().f1;
-  pos.f2 = gzs->positions().f2;
-
-  return pos; 
-}
-
-template <class flight_controller_t>
-bool Q_learning<flight_controller_t>::
-is_signal_in_limits(std::shared_ptr<Gazebo> gzs)
-{
-  bool ok = false;
-  
-  float sum_of_neigh_signal = gzs->rssi().lf1() + gzs->rssi().ff() ;
-  
-  if ( sum_of_neigh_signal < sum_of_neigh_signal* rssi_upper_threshold_ ) {
-    if ( sum_of_neigh_signal > sum_of_neigh_signal* rssi_lower_threshold_) {      
-      ok = true;      
-    }    
-  }  
-  return ok;  
-}
 
 template <class flight_controller_t>
 void Q_learning<flight_controller_t>::
