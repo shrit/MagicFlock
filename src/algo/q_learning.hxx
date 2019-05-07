@@ -18,7 +18,7 @@ Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
    max_episode_(10000),  
    min_epsilon_(0.0)   
 {
-  if(train == true){
+  if(train == true) {
     run_episods(iris_x, speed, gzs);
   }
 }
@@ -72,7 +72,7 @@ insert_features(std::vector<Quadcopter<Gazebo>::Action> actions)
   it_state = std::next(it_state, 1);
 
   arma::rowvec row;
-  for(int i = 0; i < 4; ++i) {
+  for (int i = 0; i < 4; ++i) {
     
     /*  State */
     row << (*it_state).height()
@@ -109,7 +109,7 @@ action_follower(arma::mat features, arma::uword index)
   Quadcopter<Gazebo>::Action
     action =  Quadcopter<Gazebo>::Action::NoMove;
   
-  if(features(index, 5) == 1) {
+  if (features(index, 5) == 1) {
     action =  Quadcopter<Gazebo>::Action::forward;
   } else if (features(index, 6) == 1) {
     action =  Quadcopter<Gazebo>::Action::backward;
@@ -154,7 +154,7 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   Quadcopter<Gazebo>::State state(gzs);
   states_.push_back(state);
   
-  if ( random_leader_action == true) {    
+  if (random_leader_action == true) {    
     action_leader = robot.randomize_action() ;
     saved_leader_action_ = action_leader;
   } else {
@@ -174,7 +174,7 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
 				  }				  
 				}));
-
+  
   /* We need to wait until the quadcopters finish their actions */  
   std::this_thread::sleep_for(std::chrono::milliseconds(300));
   
@@ -185,14 +185,11 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   /*  we need to predict the action for the follower using h(S)*/
 
   /*  Extract state and push it into the model with several H */
-  /*  take the highest value given back by the model */
+  /*  take the highest value for the highest reward 
+      given back by the model */
    
-  std::vector<Quadcopter<Gazebo>::Action> possible_action ;
-
-  possible_action.push_back(Quadcopter<Gazebo>::Action::forward);
-  possible_action.push_back(Quadcopter<Gazebo>::Action::backward);
-  possible_action.push_back(Quadcopter<Gazebo>::Action::left);
-  possible_action.push_back(Quadcopter<Gazebo>::Action::right);
+  std::vector<Quadcopter<Gazebo>::Action> possible_action  =
+    robot.possible_actions() ;
   
   arma::mat features = insert_features(possible_action);
   
@@ -200,7 +197,7 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   
   model.Predict(features, label);
   
-  /*  transpose to the original format */
+  /* Transpose to the original format */
   
   features = features.t();
   label = label.t();
@@ -212,11 +209,7 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   int values = highest_values(label);
 
   LogInfo() << values;
-  
-  //  auto matrix_row_index = mtools_.index_of_highest_value(values);
-  
-  // LogInfo() << matrix_row_index;
-  
+    
   /*  Get the action now !! */    
   Quadcopter<Gazebo>::Action action_for_follower =
     action_follower(features, values);
@@ -228,7 +221,7 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 				  }				  
 				}));
   
-  for(auto& thread : threads) {
+  for (auto& thread : threads) {
     thread.join();
   }    
   return ;    
@@ -241,7 +234,7 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	    std::shared_ptr<Gazebo> gzs)
 {
 
-  for (episode_ = 0; episode_ < max_episode_; ++episode_){
+  for (episode_ = 0; episode_ < max_episode_; ++episode_) {
     
     /* Intilization phase, in each episode we should reset the
      * position of each quadcopter to the initial position.
@@ -270,7 +263,7 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
     /* Stop the episode if one of the quad has fallen to takoff */
     /*  Replace it by a template function  */
     bool takeoff;
-    for (auto it : iris_x){
+    for (auto it : iris_x) {
       takeoff = it->takeoff();
       if(!takeoff)
 	stop_episode = true;
@@ -278,12 +271,12 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
     
     std::this_thread::sleep_for(std::chrono::seconds(3));
     /*  Setting up speed is important to switch the mode */
-    for (auto it : iris_x){
+    for (auto it : iris_x) {
       it->init_speed();
     }
     
     /*  Switch to offboard mode, Allow the control */
-    for(auto it : iris_x){
+    for (auto it : iris_x) {
       it->start_offboard_mode();
     }
     /*  Wait to complete the take off process */
