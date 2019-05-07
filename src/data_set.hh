@@ -1,6 +1,4 @@
-#ifndef _DATA_SET_
-#define _DATA_SET_
-
+#pragma once
 
 # include <algorithm>
 # include <chrono> 
@@ -30,13 +28,12 @@
 
 namespace lt = local_types;
 
-
-class DataSet
-{
+class DataSet {
+  
 public:
   
   DataSet();
-    
+  
   void read_data_set_file(std::string file_name);
   
   template <typename Arg, typename... Args>
@@ -80,4 +77,3 @@ private:
 
 # include "data_set.hxx"
 
-#endif

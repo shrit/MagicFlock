@@ -7,7 +7,7 @@
  */
 
 // extern "C" {
-// # include <curses.h>
+
 // }
 
 /*  C++ Standard library include */
@@ -21,6 +21,7 @@
 /*  locale defined include */
 
 # include "algo/q_learning.hh"
+# include "algo/generate_data_set.hh"
 # include "config_ini.hh"
 # include "data_set.hh"
 # include "gazebo.hh"
@@ -30,11 +31,6 @@
 # include "px4_device.hh"
 # include "settings.hh"
 
-
-// using namespace dronecode_sdk;
-// using std::this_thread::sleep_for;
-// using std::chrono::milliseconds;
-// using std::chrono::seconds;
 
 namespace lt = local_types;
 
@@ -303,8 +299,8 @@ JoystickEvent joystick_event_handler(Joystick& joystick,
 //   }
 // }
 
-/*  Main file: Start one controller by quadcopters, 
- *  
+/*  
+ *  Main file: Start one controller by quadcopters  
  */
 
 int main(int argc, char* argv[])
@@ -324,16 +320,13 @@ int main(int argc, char* argv[])
   Configs configs;
 
   /*  Init logging system */
-  Log log;
-  
+  Log log;  
   log.init();
   
   /*  
    * The ns3 Command commented inside the code, A good way to remember it :)
    */
   //  /meta/ns-allinone-3.29/ns-3.29/ && /meta/ns-allinone-3.29/ns-3.29/waf --run  \"triangolo --fMode=4 --workDir=/meta/ns-allinone-3.29/ns-3.29 --xmlFilename=/meta/Spider-pig/gazebo/ns3/ns3.world --radioRange=300 --numusers=3\"
-     
-  float speed = configs.speed();
   
   std::vector<lt::port_type> ports  =  configs.quads_ports();
   
@@ -341,7 +334,6 @@ int main(int argc, char* argv[])
    * quadcopters at a time
    */
 
-  //chagnge iris into a string and capture from ini file
   std::vector<std::shared_ptr<Px4Device>> iris_x;  
   
   for (auto& it : ports) {					       
@@ -356,14 +348,12 @@ int main(int argc, char* argv[])
   ////////////
   // Gazebo //
   ///////////
-   
-  /*  gazebo local test */
   
   std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(argc,argv);
   
   gz->subscriber(configs.positions());
 
-   //verify the numbers to subscribe to the good signal strength
+  /* Verify the numbers to subscribe to the good signal strength */
   
   gz->subscriber(configs.rssi_1_2());
   gz->subscriber(configs.rssi_1_3());
@@ -374,70 +364,54 @@ int main(int argc, char* argv[])
   gz->publisher(configs.reset_3());
  
   
-  // /* Wait for 10 seconds, Just to finish subscribe to
-  // * gazebo topics before Starting Q learning*/
+  /* Wait for 10 seconds, Just to finish subscribe to
+   * gazebo topics */
   
   std::this_thread::sleep_for(std::chrono::seconds(10));
   
-  // ////////////////
-  // // Q_learning //
-  // ////////////////
-  
-  
-  // Pass the devices to the q learning algorithm
-  if (configs.train()) {
-    DataSet data_set;
-    data_set.init_dataset_directory();
-    Q_learning<Px4Device> qlearning(iris_x, speed, gz, data_set, configs.train());
-    return 0;
-  }
- 
+  /*  1: Generate a dataset 
+   *  2: Train the model on the dataset
+   *  3: Test the trained model    
+   */
+
+
+  /*  Check for the data set, if we need to pass it or recreate it tn the class */
   DataSet data_set;
-  Q_learning<Px4Device> qlearning(iris_x, speed, gz, data_set, false);    
+  data_set.init_dataset_directory();
+
   
-  std::unordered_map<int, int> map;
-  data_set.read_map_file(configs.map_file_name(), map);
+  Generator<Px4Device, Gazebo> generator(iris_x, gz);
+  
+  
+  /* Pass the devices to the q learning algorithm  */ 
+  // if (configs.train()) {
+  //   Q_learning<Px4Device> qlearning(iris_x, configs.speed(), gz, data_set, configs.train());
+  //   return 0;
+  // }
+ 
 
-  for (auto elem : map) {
-    LogInfo() << elem.first << " " << elem.second << "\n";
-  }
+  // Q_learning<Px4Device> qlearning(iris_x, configs.speed(), gz, data_set, false);    
 
-  std::this_thread::sleep_for(std::chrono::seconds(5));  
-
+  
   // fly mode
   /*  This fly mode is intended to test only one drone usually 
    the leader, can be tested with keyboard of with joystick*/
   bool just_fly = configs.just_fly();
 
-  //Ncurses
   
-  // setlocale(LC_ALL, "");
-  
-  // initscr();
-  
-  // halfdelay(3);
-  // // Suppress automatic echoing
-  // noecho();
-  // // Do not translate the return key into newline
-  // nonl();
-  // // Capture special keystrokes (including the four arrow keys)
-  // keypad(stdscr, TRUE);
-  
-  // refresh();     
-        
   auto joystick_handler = [&](){			   			  
-  			  joystick_event_handler(joystick,
-  						 iris_x,
-						 speed,
-						 just_fly);
-    
-  };
+			    joystick_event_handler(joystick,
+						   iris_x,
+						   configs.speed(),
+						   just_fly);
+			    
+			  };
   
   // auto keyboard_handler = [&](){			 
-    
-
+  
+  
   // 			    keyboard_event_handler(iris_x,
-  // 						   speed,
+  // 						   configs.speed(),
   // 						   qlearning,
   // 						   qtable,
   // 						   gz, map,
