@@ -20,7 +20,6 @@
 # include <armadillo>
 
 /* local includes  */
-# include "../data_set.hh"
 # include "../global.hh"
 # include "../gazebo.hh"
 # include "../log.hh"
@@ -38,7 +37,6 @@ public:
   Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	     float speed,
 	     std::shared_ptr<Gazebo> gzs,
-	     DataSet data_set,
 	     bool train);
         
   void move_action(std::vector<std::shared_ptr<flight_controller_t>> iris_x,

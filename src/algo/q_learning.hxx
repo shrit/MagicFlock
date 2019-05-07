@@ -5,7 +5,6 @@ Q_learning<flight_controller_t>::
 Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	   float speed,
 	   std::shared_ptr<Gazebo> gzs,
-	   DataSet data_set,
 	   bool train)
   :count_(0),
    decay_rate_(0.01),
@@ -17,9 +16,7 @@ Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
    generator_(random_dev()),
    learning_rate_(0.3),
    max_episode_(10000),  
-   min_epsilon_(0.0),
-   rssi_lower_threshold_(1.1),
-   rssi_upper_threshold_(0.94)
+   min_epsilon_(0.0)   
 {
   if(train == true){
     run_episods(iris_x, speed, gzs);
@@ -267,7 +264,6 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   return ;    
 }
 
-/* Change action to enum in quadcopter */
 template <class flight_controller_t>
 Quadcopter<Gazebo>::Action Q_learning<flight_controller_t>::
 randomize_action()
@@ -370,6 +366,11 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	}
 	
 	std::this_thread::sleep_for(std::chrono::seconds(1));
+
+	//reduce epsilon as we explore more each episode
+	epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode_); 
+
+	LogInfo() << "Epsilon: " << epsilon_ ;
 	
 	++count_;
       }

@@ -29,37 +29,46 @@ public:
   Generator(std::vector<std::shared_ptr<flight_controller_t>> quads,
 	    std::shared_ptr<simulator_t> sim_interface_); 
   /*Move it from here*/
-  Quadcopter<Gazebo>::Reward
+  typename Quadcopter<simulator_t>::Reward
   action_evaluator(lt::triangle<double> old_dist,
 		   lt::triangle<double> new_dist);
 
   void move_action(std::string label,
-		   Quadcopter<Gazebo>::Action action);  
+		   typename Quadcopter<simulator_t>::Action action);  
 
   
   void phase_one(bool random_leader_action); /* Find a better name for this function */
+
+
+  typename Quadcopter<simulator_t>::Action
+  randomize_action();
   
   void run(); //bool random_leader_action
 
   
 private:
-    
+  
+  std::vector<Quadcopter<Gazebo>::Action> action_follower_ ;
   int count_;
-  int episode_;
   DataSet data_set_;
+  std::vector<double> drift_f3_;
   std::uniform_real_distribution<> distribution_;
   std::uniform_int_distribution<> distribution_int_;
+  int episode_;
   std::vector<lt::triangle<double>> f3_side_;
   std::random_device random_dev;  
   std::mt19937 generator_;
+  int max_episode_;  
   Math_tools mtools_;
   std::vector<std::shared_ptr<flight_controller_t>> quads_;  
   std::shared_ptr<simulator_t> sim_interface_;
-  float speed_;  
+  float speed_;
+  std::vector<Quadcopter<Gazebo>::State> states_;
+  typename Quadcopter<simulator_t>::Action saved_leader_action_;  
   
 };
 
-
+# include "generate_data_set.hxx"
 
 
 
