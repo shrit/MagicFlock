@@ -36,6 +36,8 @@ class Quadcopter {
 
 public:
 
+  Quadcopter();
+  
   class State {
         
   public:
@@ -49,8 +51,7 @@ public:
 
     state_printer
     create_printer_struct(Quadcopter<simulator_t>::State state);
-      
-    
+          
   private:
     
     Math_tools mtools_;
@@ -80,9 +81,29 @@ public:
      bad,
      very_bad,     
     };
+
+
+  Reward action_evaluator(lt::triangle<double> old_dist,
+			  lt::triangle<double> new_dist);
   
-private:  
+  Action possible_actions() const;
   
+  Action randomize_action();
+
+
+    
+private:
+  
+  std::vector<Action> possible_actions_ = { Action::forward,
+					    Action::backward,
+					    Action::left,   					   
+					    Action::right };
+  
+  std::uniform_real_distribution<> distribution_;
+  std::uniform_int_distribution<> distribution_int_;
+  std::random_device random_dev;  
+  std::mt19937 generator_;  
+   
 };
 
 # include "quadcopter.hxx"

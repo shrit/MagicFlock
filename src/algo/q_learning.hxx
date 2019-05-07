@@ -62,35 +62,6 @@ Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 //   return pred;
 // }
 
-
-template <class flight_controller_t>
-void Q_learning<flight_controller_t>::
-move_action(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
-	    std::string label,
-	    float speed,
-	    Quadcopter<Gazebo>::Action action)
-{
-  int quad_number = 0;
-  
-  if (label == "l") {
-    quad_number = 0;
-  } else if (label == "f1") {
-    quad_number = 1;
-  } else if (label == "f2") {
-    quad_number = 2;
-  }
-        
-  if (action == Quadcopter<Gazebo>::Action::left) {
-    iris_x.at(quad_number)->left(speed);
-  } else if (action == Quadcopter<Gazebo>::Action::right) { 
-    iris_x.at(quad_number)->right(speed);
-  } else if (action == Quadcopter<Gazebo>::Action::forward) { 
-    iris_x.at(quad_number)->forward(speed); 
-  } else if (action == Quadcopter<Gazebo>::Action::backward) { 
-    iris_x.at(quad_number)->backward(speed);
-  }  
-}
-
 template <class flight_controller_t>
 arma::mat Q_learning<flight_controller_t>::
 insert_features(std::vector<Quadcopter<Gazebo>::Action> actions)
@@ -150,7 +121,6 @@ action_follower(arma::mat features, arma::uword index)
   return action;
 }
 
-
 template <class flight_controller_t>
 int Q_learning<flight_controller_t>::
 highest_values(arma::mat matrix)   
@@ -176,6 +146,7 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   
   /*  we need to pass State ,and nextState, and try possible a */
   Quadcopter<Gazebo>::Action action_leader ;
+  Quadcopter<Gazebo> robot ;
   
   std::vector<std::thread> threads;
     
@@ -184,7 +155,7 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   states_.push_back(state);
   
   if ( random_leader_action == true) {    
-    action_leader = randomize_action() ;
+    action_leader = robot.randomize_action() ;
     saved_leader_action_ = action_leader;
   } else {
     action_leader = saved_leader_action_;    
@@ -230,7 +201,6 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   model.Predict(features, label);
   
   /*  transpose to the original format */
-
   
   features = features.t();
   label = label.t();
@@ -262,32 +232,6 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
     thread.join();
   }    
   return ;    
-}
-
-template <class flight_controller_t>
-Quadcopter<Gazebo>::Action Q_learning<flight_controller_t>::
-randomize_action()
-{  
-  int random_action = distribution_int_(generator_);
-  
-  LogInfo() << "Random: " << random_action ;
-
-  Quadcopter<Gazebo>::Action action
-    = Quadcopter<Gazebo>::Action::forward ; 
-  
-  if( random_action == 0){
-    action = Quadcopter<Gazebo>::Action::forward ;
-  }
-  else if(random_action == 1){
-    action = Quadcopter<Gazebo>::Action::backward ;
-  }    
-  else if(random_action == 2){
-    action = Quadcopter<Gazebo>::Action::left ;
-  }
-  else if (random_action == 3){
-    action = Quadcopter<Gazebo>::Action::right ;   
-  }
-   return action;
 }
 
 template <class flight_controller_t>
