@@ -1,6 +1,5 @@
 # include "generate_data_set.hh"
 
-
 template<class flight_controller_t,
 	 class simulator_t>
 Generator<flight_controller_t, simulator_t>::
@@ -66,7 +65,7 @@ phase_one(bool random_leader_action)
     
     action_leader = robot.randomize_action() ;
     saved_leader_action_ = action_leader;
-    //    LogInfo() << "Random action chosen: " << action_leader ;    
+
   } else {
     action_leader = saved_leader_action_;    
   }

@@ -62,7 +62,12 @@ public:
   void run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 		   float speed,
 		   std::shared_ptr<Gazebo> gzs);
+
+
+  Q_learning(Q_learning const&) = delete;  
   
+  Q_learning(Q_learning &&) = default;
+
 private:
 
   int count_;

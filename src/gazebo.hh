@@ -21,7 +21,6 @@ class configs;
 
 class Gazebo 
 {
-
   
 public:
 
@@ -51,6 +50,10 @@ public:
   lt::rssi<double> filtered_rssi();
   lt::positions<double> positions() const;
   lt::orientations<double> orientations() const;
+
+  Gazebo(Gazebo const&) = delete;  
+  
+  Gazebo(Gazebo &&) = default;
   
 private:
   
