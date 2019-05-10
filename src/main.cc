@@ -6,10 +6,6 @@
  * 
  */
 
-// extern "C" {
-
-// }
-
 /*  C++ Standard library include */
 # include <chrono>
 # include <cstdlib>
