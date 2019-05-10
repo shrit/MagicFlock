@@ -45,55 +45,56 @@ void Train::load_data_set()
   mlpack::data::Load("new_sample.csv", dataset_, true);   
   
   // Split the labels from the training set.
-  trainData_ = dataset.submat(0, 0,
-			     dataset.n_rows - 5,
-			     dataset.n_cols - 1);
+  trainData_ = dataset_.submat(0, 0,
+			     dataset_.n_rows - 5,
+			     dataset_.n_cols - 1);
   
   // Split the data from the training set.
-  trainLabel_ = dataset.submat(dataset.n_rows - 4, 0,
-			       dataset.n_rows - 1, dataset.n_cols - 1);
+  trainlabel_ = dataset_.submat(dataset_.n_rows - 4, 0,
+			       dataset_.n_rows - 1, dataset_.n_cols - 1);
   
   
   mlpack::data::Load("test.csv", testset_, true);
 
-  testData_ = testset.submat(0, 0,
-			    testset.n_rows - 5,
-			    testset.n_cols - 1);
+  testData_ = testset_.submat(0, 0,
+			    testset_.n_rows - 5,
+			    testset_.n_cols - 1);
   
-  testlabel_ = testset.submat(testset.n_rows - 4, 0,
-			     testset.n_rows - 1,
-			     testset.n_cols - 1);
+  testlabel_ = testset_.submat(testset_.n_rows - 4, 0,
+			     testset_.n_rows - 1,
+			     testset_.n_cols - 1);
       
 }
 
 void Train::run()
 {
-  FFN<SigmoidCrossEntropyError<>, RandomInitialization> model;
-  model.Add<Linear<> >(trainData.n_rows, 200);
-  model.Add<LeakyReLU<> >();
-  model.Add<Linear<> >(200, 200);
-  model.Add<LeakyReLU<> >();
-  model.Add<Linear<> >(200, 200);
-  model.Add<LeakyReLU<> >();
-  model.Add<Linear<> >(200, 4);
-  model.Add<LeakyReLU<> >();
+  mlpack::ann::FFN<mlpack::ann::SigmoidCrossEntropyError<>,
+		   mlpack::ann::RandomInitialization> model;
+  model.Add<mlpack::ann::Linear<> >(trainData_.n_rows, 200);
+  model.Add<mlpack::ann::LeakyReLU<> >();
+  model.Add<mlpack::ann::Linear<> >(200, 200);
+  model.Add<mlpack::ann::LeakyReLU<> >();
+  model.Add<mlpack::ann::Linear<> >(200, 200);
+  model.Add<mlpack::ann::LeakyReLU<> >();
+  model.Add<mlpack::ann::Linear<> >(200, 4);
+  model.Add<mlpack::ann::LeakyReLU<> >();
 
   ens::AdamType<ens::AdamUpdate> optimizer;
   
   // Train the model.
   for (int i = 0; i < 150; ++i) {
     std::cout << "training..." << std::endl;
-    model.Train(trainData,
-		trainLabelsTemp,
+    model.Train(trainData_,
+		trainlabel_,
 		optimizer);
     
     optimizer.ResetPolicy() = false;
     
     arma::mat pred;    
-    model.Predict(trainData, pred);
+    model.Predict(trainData_, pred);
     // Calculate accuracy on training data points.
     arma::Row<size_t> predLabels = getLabels(pred);
-    arma::Row<size_t> YLabels = getLabels(trainLabel_);
+    arma::Row<size_t> YLabels = getLabels(trainlabel_);
     
     double trainAccuracy = accuracy(predLabels, YLabels);
 
