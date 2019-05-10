@@ -25,7 +25,6 @@ set(dronecode_sdk_telemetry_lib "/usr/local/lib/libdronecode_sdk_telemetry.so")
 set(dronecode_sdk_action_lib "/usr/local/lib/libdronecode_sdk_action.so")
 set(dronecode_sdk_calibrattion_lib "/usr/local/lib/libdronecode_sdk_calibration.so")
 set(file_system "/usr/lib/libstdc++fs.a")
-set(ncurses_lib "/usr/lib/libncurses.so")
 set(pthread_lib "/usr/lib/libpthread.so")
 set(arma "/usr/lib/libarmadillo.so")
 set(mlpack "/usr/local/lib64/libmlpack.so.3.0")
@@ -62,7 +61,6 @@ target_link_libraries(QCopter
   ${gomp}
   ${mlpack}
   ${file_system}
-  # ${ncurses_lib}
   ${boost_lib_serialization}
   ${boost_lib_program_options}  
   ${boost_lib_time}  
