@@ -41,6 +41,7 @@ add_executable(QCopter
   src/config_ini.cc
   src/data_set.cc
   src/gazebo.cc
+  src/keyboard.cc
   third_party/joystick/joystick.cc
   src/log.cc  
   src/main.cc
