@@ -3,10 +3,38 @@
 
 Train::Train(){};
 
+double Train::accuracy(arma::Row<size_t> predLabels,
+	        arma::Row<size_t> LabelY)
+{
+  // Calculating how many predicted classes are coincide with real labels.
+  size_t success = 0;
+  for (size_t j = 0; j < LabelY.n_cols; j++) {
+    //    std::cout << predLabels(j) << std::endl;
+    //  std::cout << LabelY(j) << std::endl;
+    if (predLabels(j) == LabelY(j)) {
+      ++success;
+    }
+  }
+  
+  // Calculating percentage of correctly classified data points.
+  return (double)success / (double)LabelY.n_cols * 100.0;      
+}
 
+arma::Row<size_t> Train::getLabels(const arma::mat& predOut)
+{
+  arma::Row<size_t> pred(predOut.n_cols);
+  
+  // Class of a j-th data point is chosen to be the one with maximum value
+  // in j-th column plus 1 (since column's elements are numbered from 0).
+  for (size_t j = 0; j < predOut.n_cols; ++j) {
+    pred(j) = arma::as_scalar(arma::find(
+					 arma::max(predOut.col(j)) == predOut.col(j), 1)) + 1;
+  }
+  
+  return pred;
+}
 
-
-Train::load_data_set()
+void Train::load_data_set()
 {
 
   /*  We need to figure a way to load dataset from a file or 
@@ -38,8 +66,7 @@ Train::load_data_set()
       
 }
 
-
-Train::run()
+void Train::run()
 {
   FFN<SigmoidCrossEntropyError<>, RandomInitialization> model;
   model.Add<Linear<> >(trainData.n_rows, 200);
@@ -65,8 +92,8 @@ Train::run()
     arma::mat pred;    
     model.Predict(trainData, pred);
     // Calculate accuracy on training data points.
-    Row<size_t> predLabels = getLabels(pred);
-    Row<size_t> YLabels = getLabels(trainLabelsTemp);
+    arma::Row<size_t> predLabels = getLabels(pred);
+    arma::Row<size_t> YLabels = getLabels(trainLabel_);
     
     double trainAccuracy = accuracy(predLabels, YLabels);
 
@@ -78,16 +105,17 @@ Train::run()
   }
 
   LogInfo() << "Training Finished...";
-  LogInfo() << "Test with Independent part..."
-    arma::mat predtest;    
-
-  model.Predict(testData, predtest);  
-
-  Row<size_t> predtestlabel = getLabels(predtest);
-
+  LogInfo() << "Test with Independent part...";
+  
+  arma::mat predtest;    
+  
+  model.Predict(testData_, predtest);  
+  
+  arma::Row<size_t> predtestlabel = getLabels(predtest);
+  
   std::cout << predtestlabel.n_cols << std::endl;
   
-  Row<size_t> YTestlabels = getLabels(testlabel);
+  arma::Row<size_t> YTestlabels = getLabels(testlabel_);
 
   std::cout << YTestlabels.n_cols << std::endl;
 
@@ -97,7 +125,7 @@ Train::run()
 	      << std::endl;
   
   predtest = predtest.t();
-  predtest.save("result.csv", raw_ascii);
+  predtest.save("result.csv", arma::raw_ascii);
 
   mlpack::data::Save("model.xml", "model", model, false);
    

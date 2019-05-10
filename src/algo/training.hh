@@ -5,6 +5,7 @@
 #include <ensmallen_bits/adam/adam_update.hpp>
 #include <armadillo>
 
+#include "../log.hh"
 
 class Train {
 
@@ -21,9 +22,6 @@ public:
   arma::Row<size_t> getLabels(const arma::mat& predOut);
   
   void load_data_set();
-
-
-
   
   void run();
   
@@ -40,7 +38,7 @@ private:
   arma::mat trainlabel_;
 
   arma::mat testset_;
-  arma::mat testData_:
+  arma::mat testData_;
   arma::mat testlabel_;
 
 

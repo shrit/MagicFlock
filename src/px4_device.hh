@@ -88,7 +88,11 @@ public:
   inline void action_error_exit(Action::Result result, const std::string &message);
   inline void offboard_error_exit(Offboard::Result result, const std::string &message);
   inline void connection_error_exit(ConnectionResult result, const std::string &message);
+
+  Px4Device(Px4Device const&) = delete;  
   
+  Px4Device(Px4Device &&) = default;
+    
 private:
 
   double CalculateDistance (Telemetry::PositionVelocityNED& a,
