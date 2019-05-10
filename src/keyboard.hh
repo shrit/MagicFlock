@@ -10,8 +10,6 @@ extern "C" {
 /* C++ includes */
 #include <memory>
 
-static struct termios orig_termios; /* In order to restore at exit.*/
-
 class Keyboard {
 
 public:
@@ -23,7 +21,7 @@ public:
     
   int poll_event(int fd);
   
-  enum class Special_Keys {
+  enum class Special_keys {
 			   KEY_NULL = 0,       
 			   CTRL_C = 3,         
 			   CTRL_D = 4,         

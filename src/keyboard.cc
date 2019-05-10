@@ -10,6 +10,8 @@ void call_back_exit(void) {
   ptr->disable_raw_mode(STDIN_FILENO);
 }
 
+static struct termios orig_termios; /* In order to restore at exit.*/
+
 int Keyboard::enable_raw_mode(int fd)
 {
   struct termios raw;
@@ -17,7 +19,7 @@ int Keyboard::enable_raw_mode(int fd)
   if (raw_mode_) return 0; /* Already enabled. */
   if (!isatty(STDIN_FILENO)) goto fatal;
   atexit(call_back_exit);
-  if (tcgetattr(fd,&orig_termios) == -1) goto fatal;
+  if (tcgetattr(fd, &orig_termios) == -1) goto fatal;
 
   raw = orig_termios;  /* modify the original mode */
   /* input modes: no break, no CR to NL, no parity check, no strip char,

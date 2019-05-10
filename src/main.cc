@@ -23,6 +23,7 @@
 # include "gazebo.hh"
 # include "global.hh"
 # include "../third_party/joystick/joystick.hh"
+# include "keyboard.hh"
 # include "log.hh"
 # include "px4_device.hh"
 # include "settings.hh"
@@ -182,118 +183,98 @@ JoystickEvent joystick_event_handler(Joystick& joystick,
 }
 
 
-// void keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
-// 			    float speed,
-// 			    Q_learning qlearning,
-// 			    arma::mat qtable,
-// 			    std::shared_ptr<Gazebo> gz,
-// 			    std::unordered_map<int, int> map,
-// 			    bool just_fly)
-// {
-//   int ch;
+void keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
+			    float speed,
+			    bool just_fly)
+{
+  Keyboard keyboard(STDIN_FILENO);
   
-//   while (true) {            
-//       // Attempt to read an event from the joystick
+  while (true) {            
+      // Attempt to read an event from the joystick
 
-//     ch = getch();
+    int ch = keyboard.poll_event(STDIN_FILENO);
     
-//     switch (ch) {
+    switch (ch) {
       
-//     case 'a':
-//       if (!just_fly) {
-// 	for (auto it : iris_x) {
-// 	  it->arm();
-// 	}
-//       } else {
-// 	iris_x.at(0)->arm();
-//       }       
-//       LogInfo() << "arming..." ;
-//       break;
-//     case 'l':
-//       if (!just_fly) {  
-// 	for (auto it : iris_x) {
-// 	  it->land();	
-// 	}       
-//       } else {
-// 	iris_x.at(0)->land();
-//       }	
+    case 'a':
+      if (!just_fly) {
+	for (auto it : iris_x) {
+	  it->arm();
+	}
+      } else {
+	iris_x.at(0)->arm();
+      }       
+      LogInfo() << "arming..." ;
+      break;
+    case 'l':
+      if (!just_fly) {  
+	for (auto it : iris_x) {
+	  it->land();	
+	}       
+      } else {
+	iris_x.at(0)->land();
+      }	
 	
-//       LogInfo() << "landing..." ;
-//       break;
-//     case 't':
-//       if (!just_fly) {
-// 	for (auto it : iris_x) {
-// 	  it->takeoff();	
-// 	}
-//       } else {
-// 	iris_x.at(0)->takeoff();
-//       }
+      LogInfo() << "landing..." ;
+      break;
+    case 't':
+      if (!just_fly) {
+	for (auto it : iris_x) {
+	  it->takeoff();	
+	}
+      } else {
+	iris_x.at(0)->takeoff();
+      }
 	
-//       LogInfo() << "taking off..." ;
-//       std::this_thread::sleep_for(std::chrono::seconds(5));
-//       break;
-//     case 's':
-//       if (!just_fly) {
-// 	for (auto it : iris_x) {
-// 	  it->init_speed();
-// 	}
-// 	for (auto it : iris_x) {
-// 	  it->start_offboard_mode();
-// 	}
-//       } else {
-// 	iris_x.at(0)->init_speed();	
-// 	iris_x.at(0)->start_offboard_mode();	  	  
-//       }
+      LogInfo() << "taking off..." ;
+      std::this_thread::sleep_for(std::chrono::seconds(5));
+      break;
+    case 's':
+      if (!just_fly) {
+	for (auto it : iris_x) {
+	  it->init_speed();
+	}
+	for (auto it : iris_x) {
+	  it->start_offboard_mode();
+	}
+      } else {
+	iris_x.at(0)->init_speed();	
+	iris_x.at(0)->start_offboard_mode();	  	  
+      }
 	
-//       LogInfo() << "Start offoard mode..." ;
-//       std::this_thread::sleep_for(std::chrono::seconds(1));          
-//       break;
-//     case KEY_RIGHT:	
-//       iris_x.at(0)->right(speed);
-//       LogInfo() << "Moving right... " ;
-//       break;
-//     case KEY_LEFT:	
-//       iris_x.at(0)->left(speed);
-//       LogInfo() << "Moving left... " ;
-//       break;
-//     case KEY_DOWN:	
-//       iris_x.at(0)->backward(speed);
-//       LogInfo() << "Moving backward... " ;	  	  
-//       break;
-//     case KEY_UP: 
-//       /*  Speed should be fixed as the joystick does not move */
-//       iris_x.at(0)->forward(speed);	  
-//       LogInfo() << "Moving forward... " ;
-//       break;	
-//     case 'd':
-//       iris_x.at(0)->down(speed);
-//       LogInfo() << "Moving down...: " ;
-//       break;
-//     case 'u': 	
-//       iris_x.at(0)->up(speed);	 
-//       LogInfo() << "Moving up...: " ;
-//       break;
-//     default:		    	
-//       printw("key_NOT DEFINED: %c", ch);	
-//       endwin();
-//       break;
-//     }
-      
-//     if (!just_fly) {
-//       LogInfo() << gz->rssi() ;
-//       arma::uword index =0;
-	
-//       index = qlearning.qtable_state_from_map(gz, map);
-//       LogInfo() << "index: "<< index ;    
-	
-//       if (index > qtable.n_rows) {
-// 	LogInfo() << "Move the leader around...";
-//       } else {
-// 	qlearning.qtable_action(qtable, index);
-//       }
-//     }
-//   }
-// }
+      LogInfo() << "Start offoard mode..." ;
+      std::this_thread::sleep_for(std::chrono::seconds(1));          
+      break;
+    case static_cast<int>(Keyboard::Special_keys::KEY_RIGHT):	
+      iris_x.at(0)->right(speed);
+      LogInfo() << "Moving right... " ;
+      break;
+    case static_cast<int>(Keyboard::Special_keys::KEY_LEFT):	
+      iris_x.at(0)->left(speed);
+      LogInfo() << "Moving left... " ;
+      break;
+    case static_cast<int>(Keyboard::Special_keys::KEY_DOWN):	
+      iris_x.at(0)->backward(speed);
+      LogInfo() << "Moving backward... " ;	  	  
+      break;
+    case static_cast<int>(Keyboard::Special_keys::KEY_UP):     
+      iris_x.at(0)->forward(speed);	  
+      LogInfo() << "Moving forward... " ;
+      break;	
+    case 'd':
+      iris_x.at(0)->down(speed);
+      LogInfo() << "Moving down...: " ;
+      break;
+    case 'u': 	
+      iris_x.at(0)->up(speed);	 
+      LogInfo() << "Moving up...: " ;
+      break;
+    default:		    	
+      LogInfo() << "NON assigned key: " << ch;	  
+      break;
+    }
+  }
+}
 
 /*  
  *  Main file: Start one controller by quadcopters  
@@ -403,22 +384,17 @@ int main(int argc, char* argv[])
 			    
 			  };
   
-  // auto keyboard_handler = [&](){			 
-  
-  
-  // 			    keyboard_event_handler(iris_x,
-  // 						   configs.speed(),
-  // 						   qlearning,
-  // 						   qtable,
-  // 						   gz, map,
-  // 						   just_fly);
+  auto keyboard_handler = [&](){			     
+  			    keyboard_event_handler(iris_x,
+  						   configs.speed(),
+  						   just_fly);
     
-  // };
+  };
   
   auto joystick_events =  std::async(std::launch::async, joystick_handler);
-  // auto keyboard_events =  std::async(std::launch::async, keyboard_handler);  
+  auto keyboard_events =  std::async(std::launch::async, keyboard_handler);  
   
   joystick_events.get();
-  // keyboard_events.get();
+  keyboard_events.get();
     
 }
