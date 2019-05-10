@@ -279,27 +279,26 @@ void keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
 /*  
  *  Main file: Start one controller by quadcopters  
  */
-
 int main(int argc, char* argv[])
 {
-
-  Joystick joystick("/dev/input/js0");
-  
-  // Ensure that it was found and that we can use it
-  if (!joystick.isFound()) {
-    /*  remove the exit of the joystick and replace it with jpystick mode disable */
-    LogInfo() << "No device found, please connect a joystick" ;
-    exit(1);
-  }
         
-  Settings settings(argc, argv);
-
+  Settings settings(argc, argv);  
   Configs configs;
 
   /*  Init logging system */
   Log log;  
   log.init();
+
+  bool joystick_mode = true;
+  Joystick joystick("/dev/input/js0");
   
+  // Ensure that it was found and that we can use it
+  if (!joystick.isFound()) {
+    LogErr() << "No device found, please connect a joystick" ;
+    LogErr() << "Joystick mode disabled. Control only possible using a keyboard";
+    joystick_mode = false;
+  }
+    
   /*  
    * The ns3 Command commented inside the code, A good way to remember it :)
    */
@@ -316,11 +315,10 @@ int main(int argc, char* argv[])
   for (auto& it : ports) {					       
     								      
     iris_x.push_back(std::make_shared<Px4Device>("udp", it)); 
-    LogInfo()  << "Add an iris QCopter! " ;	       
+    LogInfo() << "Add an iris QCopter! " ;	       
   }								      
 
-  LogInfo()<< "Ports number: "<<ports ;
-
+  LogInfo() << "Ports number: "<<ports ;
   
   ////////////
   // Gazebo //
@@ -350,51 +348,37 @@ int main(int argc, char* argv[])
    *  2: Train the model on the dataset
    *  3: Test the trained model    
    */
-
-
-  /*  Check for the data set, if we need to pass it or recreate it tn the class */
-  DataSet data_set;
-  data_set.init_dataset_directory();
-
   
   Generator<Px4Device, Gazebo> generator(iris_x, gz);
+  generator.run();
   
-  
-  /* Pass the devices to the q learning algorithm  */ 
-  // if (configs.train()) {
-  //   Q_learning<Px4Device> qlearning(iris_x, configs.speed(), gz, data_set, configs.train());
-  //   return 0;
-  // }
+  Q_learning<Px4Device> qlearning(iris_x, gz);
+  // qlearning.run(); 
  
-
-  // Q_learning<Px4Device> qlearning(iris_x, configs.speed(), gz, data_set, false);    
-
-  
-  // fly mode
-  /*  This fly mode is intended to test only one drone usually 
-   the leader, can be tested with keyboard of with joystick*/
-  bool just_fly = configs.just_fly();
-
-  
+  if (joystick_mode) {
   auto joystick_handler = [&](){			   			  
 			    joystick_event_handler(joystick,
 						   iris_x,
 						   configs.speed(),
-						   just_fly);
-			    
+						   configs.just_fly());			    
 			  };
+  }
   
   auto keyboard_handler = [&](){			     
   			    keyboard_event_handler(iris_x,
   						   configs.speed(),
-  						   just_fly);
-    
+  						   configs.just_fly());    
   };
-  
-  auto joystick_events =  std::async(std::launch::async, joystick_handler);
+
+  if (joystick_mode) {
+    auto joystick_events =  std::async(std::launch::async, joystick_handler);
+  }
+
   auto keyboard_events =  std::async(std::launch::async, keyboard_handler);  
+
+  if (joystick_mode) {
+    joystick_events.get();
+  }
   
-  joystick_events.get();
-  keyboard_events.get();
-    
+  keyboard_events.get();    
 }

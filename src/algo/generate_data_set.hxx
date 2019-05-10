@@ -13,7 +13,9 @@ Generator (std::vector<std::shared_ptr<flight_controller_t>> quads,
    max_episode_(10000),  
    quads_(std::move(quads)),
    sim_interface_(std::move(sim_interface))
-{}
+{
+  data_set_.init_dataset_directory();
+}
 
 template <class flight_controller_t,
 	  class simulator_t>

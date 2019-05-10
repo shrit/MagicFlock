@@ -1,4 +1,5 @@
 #pragma once
+
 /*  Standard C++ includes  */
 # include <algorithm>
 # include <chrono>
@@ -14,7 +15,6 @@
 #include <mlpack/methods/ann/loss_functions/sigmoid_cross_entropy_error.hpp>
 #include <mlpack/methods/ann/ffn.hpp>
 #include <ensmallen_bits/adam/adam_update.hpp>
-
 
 /*  Armadillo includes  */
 # include <armadillo>
@@ -34,10 +34,8 @@ class Q_learning
   
 public:
   
-  Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
-	     float speed,
-	     std::shared_ptr<Gazebo> gzs,
-	     bool train);
+  Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,	     
+	     std::shared_ptr<Gazebo> gzs);
         
   void move_action(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 		   std::string label,
@@ -62,7 +60,6 @@ public:
   void run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 		   float speed,
 		   std::shared_ptr<Gazebo> gzs);
-
 
   Q_learning(Q_learning const&) = delete;  
   

@@ -3,9 +3,7 @@
 template <class flight_controller_t>
 Q_learning<flight_controller_t>::
 Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
-	   float speed,
-	   std::shared_ptr<Gazebo> gzs,
-	   bool train)
+	   std::shared_ptr<Gazebo> gzs)
   :count_(0),
    decay_rate_(0.01),
    discount_rate_(0.95),
@@ -18,49 +16,8 @@ Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
    max_episode_(10000),  
    min_epsilon_(0.0)   
 {
-  if(train == true) {
-    run_episods(iris_x, speed, gzs);
-  }
+  run_episods(iris_x, speed, gzs);
 }
-
-/*  Move to the training class */
-
-/**
- * Returns the accuracy (percentage of correct answers).
- * @param predLabels predicted labels of data points.
- * @param realY real labels (they are double because we usually read them from
- * CSV file that contain many other double values).
- * @return percentage of correct answers.
- */
-// double accuracy(arma::Row<size_t> predLabels, arma::Row<size_t> LabelY)
-// {
-//   // Calculating how many predicted classes are coincide with real labels.
-//   size_t success = 0;
-//   for (size_t j = 0; j < LabelY.n_cols; j++) {
-//     //    std::cout << predLabels(j) << std::endl;
-//     //  std::cout << LabelY(j) << std::endl;
-//     if (predLabels(j) == LabelY(j)) {
-//       ++success;
-//     }
-//   }
-  
-//   // Calculating percentage of correctly classified data points.
-//   return (double)success / (double)LabelY.n_cols * 100.0;
-// }
-
-// arma::Row<size_t> getLabels(const arma::mat& predOut)
-// {
-//   arma::Row<size_t> pred(predOut.n_cols);
-  
-//   // Class of a j-th data point is chosen to be the one with maximum value
-//   // in j-th column plus 1 (since column's elements are numbered from 0).
-//   for (size_t j = 0; j < predOut.n_cols; ++j) {
-//     pred(j) = arma::as_scalar(arma::find(
-// 					 arma::max(predOut.col(j)) == predOut.col(j), 1)) + 1;
-//   }
-  
-//   return pred;
-// }
 
 template <class flight_controller_t>
 arma::mat Q_learning<flight_controller_t>::

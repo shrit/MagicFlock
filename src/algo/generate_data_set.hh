@@ -46,7 +46,7 @@ public:
   
   
 private:
-  
+  /*  Intilizate speed with configs settings */
   std::vector<typename Quadcopter<simulator_t>::Action> action_follower_ ;
   int count_;
   DataSet data_set_;
