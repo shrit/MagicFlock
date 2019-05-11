@@ -12,7 +12,9 @@ Generator (std::vector<std::shared_ptr<flight_controller_t>> quads,
    generator_(random_dev()),
    max_episode_(10000),  
    quads_(std::move(quads)),
-   sim_interface_(std::move(sim_interface))
+   sim_interface_(std::move(sim_interface)),
+   speed_(configs_.speed())
+   
 {
   data_set_.init_dataset_directory();
 }
@@ -77,19 +79,19 @@ phase_one(bool random_leader_action)
   /*  Threading QuadCopter */    
   threads.push_back(std::thread([&](){
 				  for (int i = 0; i < 4; ++i) {
-				    move_action(quads_, "l" , speed_, action_leader);
+				    move_action("l" ,  action_leader);
 				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
 				  }				  
 				}));
   threads.push_back(std::thread([&](){
 				  for (int i = 0; i < 4; ++i) {
-				    move_action(quads_, "f1" , speed_, action_leader);
+				    move_action("f1" , action_leader);
 				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
 				  }				  
 				}));
   threads.push_back(std::thread([&](){
 				  for (int i = 0; i < 4; ++i) {
-				    move_action(quads_, "f2", speed_, action_follower_.back());
+				    move_action( "f2", action_follower_.back());
 				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
 				  }				  
 				}));
@@ -115,7 +117,7 @@ run()
 {
   std::vector<lt::position<double>> distance;
   
-  lt::positions<double> original_positions = sim_interface_.positions();
+  lt::positions<double> original_positions = sim_interface_->positions();
   
   LogInfo() << "Starting positions : " << original_positions ;
   
@@ -202,7 +204,7 @@ run()
 	  phase_one(false);      
 	}
 	
-	lt::positions<double> new_positions = sim_interface_.positions();
+	lt::positions<double> new_positions = sim_interface_->positions();
 	
 	LogInfo() << "New positions : " << new_positions ;
   	

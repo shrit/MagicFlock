@@ -10,6 +10,7 @@
 # include <vector>
 
 /* local includes  */
+# include "../config_ini.hh"
 # include "../data_set.hh"
 # include "../global.hh"
 # include "../gazebo.hh"
@@ -22,8 +23,7 @@ namespace lt = local_types;
 template<class flight_controller_t,
 	 class simulator_t>
 class Generator {
-  
-  
+    
 public:
     
   Generator(std::vector<std::shared_ptr<flight_controller_t>> quads,
@@ -31,7 +31,6 @@ public:
 
   void move_action(std::string label,
 		   typename Quadcopter<simulator_t>::Action action);  
-
   
   void phase_one(bool random_leader_action); /* Find a better name for this function */
       
@@ -43,11 +42,11 @@ public:
   Generator(Generator const&) = delete;  
   
   Generator(Generator &&) = default;
-  
-  
+    
 private:
   /*  Intilizate speed with configs settings */
   std::vector<typename Quadcopter<simulator_t>::Action> action_follower_ ;
+  Configs configs_;
   int count_;
   DataSet data_set_;
   std::vector<double> drift_f3_;

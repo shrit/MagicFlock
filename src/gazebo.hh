@@ -30,10 +30,6 @@ public:
   
   Gazebo(int argc, char* argv[]);
 
-  /*  This function subscribe to any topic and handle 
-   the message */
-  //  template <typename MsgHandler> , MsgHandler&& handler // to see later
-
   void subscriber(lt::topic_name name);
   
   void publisher(lt::topic_name name);
