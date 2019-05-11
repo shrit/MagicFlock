@@ -25,41 +25,36 @@
 # include "../log.hh"
 # include "../math_tools.hh"
 # include "quadcopter.hh"
+# include "../config_ini.hh"
 
 namespace lt = local_types;
 
-template<class flight_controller_t>
+template<class flight_controller_t,
+	 class simulator_t>
 class Q_learning
 {
   
 public:
   
   Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,	     
-	     std::shared_ptr<Gazebo> gzs);
+	     std::shared_ptr<simulator_t> gzs);
         
-  void move_action(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
-		   std::string label,
-		   float speed,
-		   Quadcopter<Gazebo>::Action action);  
+  void move_action(std::string label,
+		   typename Quadcopter<simulator_t>::Action action);  
   
-  void phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
-		 float speed,                                             
-		 std::shared_ptr<Gazebo> gzs,                             
-		 bool random_leader_action);
-
+  void phase_two(bool random_leader_action);
+  
   int highest_values(arma::mat matrix);
   
-  Quadcopter<Gazebo>::Action randomize_action();
+  typename Quadcopter<simulator_t>::Action randomize_action();
   
-  Quadcopter<Gazebo>::Action 
+  typename Quadcopter<simulator_t>::Action 
   action_follower(arma::mat features, arma::uword index);
   
   arma::mat 
-  insert_features(std::vector<Quadcopter<Gazebo>::Action> actions);
+  insert_features(std::vector<typename Quadcopter<simulator_t>::Action> actions);
       
-  void run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
-		   float speed,
-		   std::shared_ptr<Gazebo> gzs);
+  void run();
 
   Q_learning(Q_learning const&) = delete;  
   
@@ -67,6 +62,8 @@ public:
 
 private:
 
+  std::vector<typename Quadcopter<simulator_t>::Action> action_follower_ ;
+  Configs configs_;
   int count_;
   float decay_rate_ ;   
   float discount_rate_ ;
@@ -78,15 +75,13 @@ private:
   std::mt19937 generator_;  
   float learning_rate_ ;
   int max_episode_ ;  
-  float min_epsilon_ ;  
-  
-  std::vector<Quadcopter<Gazebo>::State> states_;
-
-  Math_tools mtools_;
-      
-  std::vector<Quadcopter<Gazebo>::Action> action_follower_ ;
-  
-  Quadcopter<Gazebo>::Action saved_leader_action_;  
+  float min_epsilon_ ;    
+  Math_tools mtools_;       
+  std::vector<std::shared_ptr<flight_controller_t>> iris_x_;
+  typename Quadcopter<simulator_t>::Action saved_leader_action_;
+  std::shared_ptr<simulator_t> sim_interface_;
+  float speed_;
+  std::vector<typename Quadcopter<simulator_t>::State> states_;
   
 };
 

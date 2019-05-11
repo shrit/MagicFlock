@@ -352,17 +352,18 @@ int main(int argc, char* argv[])
   Generator<Px4Device, Gazebo> generator(iris_x, gz);
   generator.run();
   
-  Q_learning<Px4Device> qlearning(iris_x, gz);
-  // qlearning.run(); 
+  Q_learning<Px4Device, Gazebo> qlearning(iris_x, gz);
+  qlearning.run(); 
  
-  if (joystick_mode) {
-  auto joystick_handler = [&](){			   			  
-			    joystick_event_handler(joystick,
-						   iris_x,
-						   configs.speed(),
-						   configs.just_fly());			    
+
+  auto joystick_handler = [&](){
+			    if (joystick_mode) {
+			      joystick_event_handler(joystick,
+						     iris_x,
+						     configs.speed(),
+						     configs.just_fly());			}    
 			  };
-  }
+  
   
   auto keyboard_handler = [&](){			     
   			    keyboard_event_handler(iris_x,
@@ -370,15 +371,9 @@ int main(int argc, char* argv[])
   						   configs.just_fly());    
   };
 
-  if (joystick_mode) {
-    auto joystick_events =  std::async(std::launch::async, joystick_handler);
-  }
-
+  auto joystick_events =  std::async(std::launch::async, joystick_handler);    
   auto keyboard_events =  std::async(std::launch::async, keyboard_handler);  
-
-  if (joystick_mode) {
-    joystick_events.get();
-  }
   
+  joystick_events.get();    
   keyboard_events.get();    
 }

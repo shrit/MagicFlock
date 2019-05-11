@@ -1,9 +1,10 @@
 # include "q_learning.hh"
 
-template <class flight_controller_t>
-Q_learning<flight_controller_t>::
+template <class flight_controller_t,
+	  class simulator_t>
+Q_learning<flight_controller_t, simulator_t>::
 Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
-	   std::shared_ptr<Gazebo> gzs)
+	   std::shared_ptr<simulator_t> gzs)
   :count_(0),
    decay_rate_(0.01),
    discount_rate_(0.95),
@@ -14,14 +15,17 @@ Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
    generator_(random_dev()),
    learning_rate_(0.3),
    max_episode_(10000),  
-   min_epsilon_(0.0)   
-{
-  run_episods(iris_x, speed, gzs);
-}
+   min_epsilon_(0.0),
+   iris_x_(std::move(iris_x)),
+   sim_interface_(std::move(gzs)),
+   speed_(configs_.speed())
+{}
 
-template <class flight_controller_t>
-arma::mat Q_learning<flight_controller_t>::
-insert_features(std::vector<Quadcopter<Gazebo>::Action> actions)
+template <class flight_controller_t,
+	  class simulator_t>
+arma::mat Q_learning<flight_controller_t,
+		     simulator_t>::
+insert_features(std::vector<typename Quadcopter<simulator_t>::Action> actions)
 {  
   arma::mat features;
   
@@ -58,28 +62,32 @@ insert_features(std::vector<Quadcopter<Gazebo>::Action> actions)
   return features;  
 }
 
-template <class flight_controller_t>
-Quadcopter<Gazebo>::Action Q_learning<flight_controller_t>::
+template <class flight_controller_t,
+	  class simulator_t>
+typename Quadcopter<simulator_t>::Action Q_learning<flight_controller_t,
+						    simulator_t>::
 action_follower(arma::mat features, arma::uword index)
 {
   /*  just a HACK, need to find a dynamic solution later */
-  Quadcopter<Gazebo>::Action
-    action =  Quadcopter<Gazebo>::Action::NoMove;
+  typename Quadcopter<simulator_t>::Action
+    action = Quadcopter<simulator_t>::Action::NoMove;
   
   if (features(index, 5) == 1) {
-    action =  Quadcopter<Gazebo>::Action::forward;
+    action =  Quadcopter<simulator_t>::Action::forward;
   } else if (features(index, 6) == 1) {
-    action =  Quadcopter<Gazebo>::Action::backward;
+    action =  Quadcopter<simulator_t>::Action::backward;
   } else if (features(index, 7) == 1) {
-    action =  Quadcopter<Gazebo>::Action::left;
+    action =  Quadcopter<simulator_t>::Action::left;
   } else if (features(index, 8) == 1) {
-    action =  Quadcopter<Gazebo>::Action::right;
+    action =  Quadcopter<simulator_t>::Action::right;
   }
   return action;
 }
 
-template <class flight_controller_t>
-int Q_learning<flight_controller_t>::
+template <class flight_controller_t,
+	  class simulator_t>
+int Q_learning<flight_controller_t,
+	       simulator_t>::
 highest_values(arma::mat matrix)   
 {  
   int value = 0;
@@ -89,12 +97,42 @@ highest_values(arma::mat matrix)
   return value;
 }
 
-template <class flight_controller_t>
-void Q_learning<flight_controller_t>::
-phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
-	  float speed,                                             
-	  std::shared_ptr<Gazebo> gzs,                             
-	  bool random_leader_action)
+template <class flight_controller_t,
+	  class simulator_t>
+void Q_learning<flight_controller_t, simulator_t>::
+move_action(std::string label,
+	    typename Quadcopter<simulator_t>::Action action)
+{
+  int quad_number = 0;
+  
+  if (label == "l") {
+    quad_number = 0;
+  } else if (label == "f1") {
+    quad_number = 1;
+  } else if (label == "f2") {
+    quad_number = 2;
+  }
+        
+  if (action == Quadcopter<simulator_t>::Action::left) {
+    iris_x_.at(quad_number)->left(speed_);
+    
+  } else if (action == Quadcopter<simulator_t>::Action::right) {  
+    iris_x_.at(quad_number)->right(speed_);
+    
+  } else if (action == Quadcopter<simulator_t>::Action::forward) { 
+    iris_x_.at(quad_number)->forward(speed_);
+    
+  } else if (action == Quadcopter<simulator_t>::Action::backward) { 
+    iris_x_.at(quad_number)->backward(speed_);
+    
+  }  
+}
+
+template <class flight_controller_t,
+	  class simulator_t>
+void Q_learning<flight_controller_t,
+		simulator_t>::
+phase_two(bool random_leader_action)
 {    
   mlpack::ann::FFN<mlpack::ann::SigmoidCrossEntropyError<>,
 		   mlpack::ann::RandomInitialization> model;
@@ -102,13 +140,13 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   mlpack::data::Load("model.xml", "model", model);
   
   /*  we need to pass State ,and nextState, and try possible a */
-  Quadcopter<Gazebo>::Action action_leader ;
-  Quadcopter<Gazebo> robot ;
+  typename Quadcopter<simulator_t>::Action action_leader ;
+  Quadcopter<simulator_t> robot ;
   
   std::vector<std::thread> threads;
     
   /* Get the state at time t  */
-  Quadcopter<Gazebo>::State state(gzs);
+  typename Quadcopter<simulator_t>::State state(sim_interface_);
   states_.push_back(state);
   
   if (random_leader_action == true) {    
@@ -121,13 +159,13 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   /*  Threading QuadCopter */    
   threads.push_back(std::thread([&](){
 				  for (int i = 0; i < 4; ++i) {
-				    move_action(iris_x, "l" , speed, action_leader);
+				    move_action("l", action_leader);
 				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
 				  }				  
 				}));
   threads.push_back(std::thread([&](){
 				  for (int i = 0; i < 4; ++i) {
-				    move_action(iris_x, "f1" , speed, action_leader);
+				    move_action("f1", action_leader);
 				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
 				  }				  
 				}));
@@ -136,7 +174,7 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   std::this_thread::sleep_for(std::chrono::milliseconds(300));
   
   /* Get the next state at time t + 1  */
-  Quadcopter<Gazebo>::State nextState(gzs);
+  typename Quadcopter<simulator_t>::State nextState(sim_interface_);
   states_.push_back(nextState);
     
   /*  we need to predict the action for the follower using h(S)*/
@@ -145,7 +183,7 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   /*  take the highest value for the highest reward 
       given back by the model */
    
-  std::vector<Quadcopter<Gazebo>::Action> possible_action  =
+  std::vector<typename Quadcopter<simulator_t>::Action> possible_action  =
     robot.possible_actions() ;
   
   arma::mat features = insert_features(possible_action);
@@ -168,12 +206,12 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   LogInfo() << values;
     
   /*  Get the action now !! */    
-  Quadcopter<Gazebo>::Action action_for_follower =
+  typename Quadcopter<simulator_t>::Action action_for_follower =
     action_follower(features, values);
   
   threads.push_back(std::thread([&](){
 				  for (int i = 0; i < 4; ++i) {
-				    move_action(iris_x, "f2", speed, action_for_follower);
+				    move_action("f2", action_for_follower);
 				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
 				  }				  
 				}));
@@ -184,11 +222,9 @@ phase_two(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   return ;    
 }
 
-template <class flight_controller_t>
-void Q_learning<flight_controller_t>::
-run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
-	    float speed,
-	    std::shared_ptr<Gazebo> gzs)
+template <class flight_controller_t,
+	  class simulator_t>
+void Q_learning<flight_controller_t, simulator_t>::run()
 {
 
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
@@ -209,7 +245,7 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
     /*  Replace it by a template function  */
     bool arm;
     bool stop_episode = false;    
-    for (auto it : iris_x){
+    for (auto it : iris_x_){
       arm = it->arm();
       if(!arm)
 	stop_episode = true;
@@ -220,20 +256,20 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
     /* Stop the episode if one of the quad has fallen to takoff */
     /*  Replace it by a template function  */
     bool takeoff;
-    for (auto it : iris_x) {
+    for (auto it : iris_x_) {
       takeoff = it->takeoff();
       if(!takeoff)
 	stop_episode = true;
     }
     
     std::this_thread::sleep_for(std::chrono::seconds(3));
-    /*  Setting up speed is important to switch the mode */
-    for (auto it : iris_x) {
+    /*  Setting up speed_ is important to switch the mode */
+    for (auto it : iris_x_) {
       it->init_speed();
     }
     
     /*  Switch to offboard mode, Allow the control */
-    for (auto it : iris_x) {
+    for (auto it : iris_x_) {
       it->start_offboard_mode();
     }
     /*  Wait to complete the take off process */
@@ -254,9 +290,9 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	    action for leader */
 	
 	if (count_ == 0 ) {
-	  phase_two(iris_x, speed, gzs, true);	  
+	  phase_two(true);	  
 	} else {
-	  phase_two(iris_x, speed, gzs, false);      
+	  phase_two(false);      
 	}
 	
 	std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -270,12 +306,12 @@ run_episods(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
       }
     }
         
-    for (auto it: iris_x)
+    for (auto it: iris_x_)
       it->land();
     
     std::this_thread::sleep_for(std::chrono::seconds(6));
     
-    gzs->reset_models();
+    sim_interface_->reset_models();
     
     std::this_thread::sleep_for(std::chrono::seconds(15));
   }
