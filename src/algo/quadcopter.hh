@@ -87,11 +87,9 @@ public:
   Reward action_evaluator(lt::triangle<double> old_dist,
 			  lt::triangle<double> new_dist);
   
-  Action possible_actions() const;
+  std::vector<Action> possible_actions() const;
   
   Action randomize_action();
-
-
     
 private:
   

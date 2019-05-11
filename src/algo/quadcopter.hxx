@@ -88,7 +88,7 @@ action_evaluator(lt::triangle<double> old_dist,
 }
 
 template <class simulator_t>
-typename Quadcopter<simulator_t>::Action Quadcopter<simulator_t>::
+std::vector<typename Quadcopter<simulator_t>::Action> Quadcopter<simulator_t>::
 possible_actions() const
 { return possible_actions_; }
 
