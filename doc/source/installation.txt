@@ -1,0 +1,52 @@
+
+Installation:
+
+This section explains how to build QCopter from the source, we provide
+only tested linux distributions. However, by following the same steps,
+QCopters can be installed easily on several different distro.
+
+We start by installing depedencies:
+
+On Ubuntu:
+
+sudo apt-get install gazebo gazebo-dev armadillo boost CMake python-numpy libmlpack-dev dronecodesdk
+
+
+On fedora:
+
+
+
+On arch:
+
+
+
+
+Verify that gazebo is working by running gazebo in your terminal, if
+everything is fine, you can start building QCopter from the source
+code.
+
+Build From the source code
+
+After ensuring the installation of all dependecies, use git to
+download the source code of QCopter.
+
+
+git clone https://github.com/shrit/QCopters.git
+
+cd QCopter
+
+mkdir build && cd build
+
+cmake ../
+
+make -j4
+
+When building is finished, we will notice a QCopter executable in the build folder.
+
+
+
+
+
+
+
+

@@ -1,0 +1,28 @@
+Understanding the INI file:
+
+
+This section helps the user to understand the configuration file of
+QCopter. We use ini format as our standard config format. The
+configuration file quad.ini is situated in the root directory.
+
+
+You need to configure your QCopter before running it, The basic
+configurations consist of different sections, each section has
+different key=value pair.
+
+The first sections [simulation] contain a general configurations about
+QCopter, the sections named [quadcpters_x] contain the configurations
+of each quadcopter, such as name model name and the port number to
+enable communications with dronecode SDK.
+
+QCopter use Gazebo publish subscribe system to communicate with Gazebo
+and NS3 simulator. Publish-subscribe systems use topics to
+communicates, where the publisher send the data on a specific topic,
+and the receiver subscribe to this topic to recover the data. Since
+topics have names, user should ensure that sender and receiver uses
+the same name.
+
+QCopter need to recover the position of each quadcopters. Therefore,
+we connect QCopter to /gazebo/default/pose/info topic which contain
+the position information for all the models in the environment.
+

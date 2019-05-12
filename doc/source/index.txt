@@ -1,4 +1,4 @@
-.. 3QS documentation master file, created by
+.. QCopter documentation master file, created by
    sphinx-quickstart on Fri Jan 11 18:51:27 2019.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
@@ -8,12 +8,12 @@ Welcome!
 
 
 The following are a colllection of documentations for the
-DeviceController code, That is used to control quadcopters in
-Gazebo simulator.
+QCopter code, That is used to control swarm quadcopters using
+machine learning algorithm in Gazebo simulator.
 
-The following section are developped to help to understand
-some part of the source code, and to keep a list of question
-to ask as a part of developpmenet of this thesis project.
+So far we support only gazebo sim. However, we intend
+to support another simulators.
+
 
 
 
@@ -21,9 +21,8 @@ to ask as a part of developpmenet of this thesis project.
    :maxdepth: 2
    :caption: Contents:
 
-   Questions
-   gazebo
-   firmware    	  
+   Installation   
+   PX4 Firmware configuratiion	  
    
    
 
