@@ -114,9 +114,7 @@ template<class flight_controller_t,
 	 class simulator_t>
 void Generator<flight_controller_t, simulator_t>::
 run()
-{
-  std::vector<lt::position<double>> distance;
-  
+{ 
   lt::positions<double> original_positions = sim_interface_->positions();
   
   LogInfo() << "Starting positions : " << original_positions ;
