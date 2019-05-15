@@ -4,9 +4,22 @@ Propagation_model()::Propagation_model()
 {}
 
 template <typename T>
+T Propagation_model::convert_to_distance(T receiver_power)
+{
+
+  /*  ensure initialization  */
+  receiver_power = dbm_to_watt(receiver_power);
+  T distance = wave_length_ /(4*PI) *
+    std::sqrt(transmitter_power_ * transmitter_gain_ * receiver_gain_
+	      / receiver_power * system_loss_);
+  return distance;
+  
+}
+
+template <typename T>
 T Propagation_model::dbm_to_watt(T value)
 {
-  rssi_watt_ = std::pow(10, (value - 30)/10 );  
+  return rssi_watt = std::pow(10, (value - 30)/10 );  
 }
 
 void Propagation_model::channel_to_frequency(int channel)

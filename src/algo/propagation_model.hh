@@ -15,7 +15,7 @@ public:
   Propagation_model();
   
   template <typename T>
-  lt::triangle<T> convert_to_distance(T value);
+  T convert_to_distance(T receiver_power);
 
   
   template <typename T>
@@ -29,9 +29,12 @@ private:
 
   
   double frequency_; // in HZ
-  double rssi_watt_; // in Watt
   double wave_length_;
-  
+  double transmitter_power_; // in Watt
+  double transmitter_gain_ ;
+  double receiver_gain_ ;
+  double system_loss_;
+
 };
   
 # include "propagation_mode.hxx"
