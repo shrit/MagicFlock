@@ -54,19 +54,19 @@ void Gazebo::reset_models()
 void Gazebo::Parse_rssi_msg_0(ConstVector2dPtr& msg)
 {
   /*  Parsing the RSSI send by NS3 */
-  _signal.lf1(msg->x());
+  _signal.f3(msg->x());
 }
 
 void Gazebo::Parse_rssi_msg_1(ConstVector2dPtr& msg)
 {
   /*  Parsing the RSSI send by NS3 */
-  _signal.lf2 (msg->x());
+  _signal.f1 (msg->x());
 }
 
 void Gazebo::Parse_rssi_msg_2(ConstVector2dPtr& msg)
 {
   /*  Parsing the RSSI send by NS3 */
-  _signal.ff (msg->x());
+  _signal.f2 (msg->x());
 }
 
 /*  positin msg received from gazebo */

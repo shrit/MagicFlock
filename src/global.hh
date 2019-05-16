@@ -46,17 +46,6 @@ namespace local_types {
     orientation<T> f2;  
   };
     
- 
-  template <typename T> 
-  struct action {
-
-    T forward;
-    T backward;
-    T left;
-    T right;    
-    
-  };
-
   template<typename T>
   struct triangle 
   {
@@ -78,25 +67,26 @@ namespace local_types {
     
     rssi<T>(){}
 	        
-    const T lf1() const
-    { return lf1_;}
-    const T lf2() const
-    { return lf2_;}
-    const T ff() const
-    {return ff_;}      
-
-    void lf1(T value) 
-    {  lf1_ =  value;}
-    void lf2(T value) 
-    {  lf2_ = value;}
-    void ff(T value) 
-    { ff_ = value;}      
+    const T f1() const
+    { return f1_;}
+    const T f2() const
+    {return f2_;}
+    const T f3() const
+    { return f3_;}
+    
+    void f1(T value) 
+    {  f1_ = value;}
+    void f2(T value) 
+    { f2_ = value;}
+    void f3(T value) 
+    {  f3_ =  value;}
         
   private:
     
-    T lf1_;
-    T lf2_;
-    T ff_;
+    T f1_;
+    T f2_;    
+    T f3_;
+
   };
   
   /// Type of a drone's port
@@ -133,7 +123,7 @@ std::ostream& operator<< (std::ostream& out, const local_types::action<T>& a)
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const local_types::rssi<T>& r)
 {/*  Print in order  f1, f2 ,f3, according to TF FF TL */
-  out << r.lf2() <<"," << r.ff() <<"," << r.lf1() ;
+  out << r.f1() <<"," << r.f2() <<"," << r.f3() ;
   return out;
 }
 
