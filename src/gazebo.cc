@@ -134,14 +134,14 @@ lt::rssi<double> Gazebo::filtered_rssi()
 {
   std::lock_guard<std::mutex> lock(_signal_mutex);
 
-  ema_filter_.input(_signal.lf1());
-  _signal.lf1(ema_filter_.output());
+  ema_filter_.input(_signal.f3());
+  _signal.f3(ema_filter_.output());
   
-  ema_filter_.input(_signal.lf2());
-  _signal.lf2(ema_filter_.output());
+  ema_filter_.input(_signal.f1());
+  _signal.f1(ema_filter_.output());
     
-  ema_filter_.input(_signal.ff());
-  _signal.ff(ema_filter_.output());
+  ema_filter_.input(_signal.f2());
+  _signal.f2(ema_filter_.output());
   
   return _signal;
 }

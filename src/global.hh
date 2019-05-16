@@ -114,13 +114,6 @@ std::ostream& operator<< (std::ostream& out, const local_types::positions<T>& p)
 }
 
 template <typename T>
-std::ostream& operator<< (std::ostream& out, const local_types::action<T>& a)
-{
-  out << a.forward <<"," << a.backward <<"," << a.left <<","<< a.right ;
-  return out;
-}
-
-template <typename T>
 std::ostream& operator<< (std::ostream& out, const local_types::rssi<T>& r)
 {/*  Print in order  f1, f2 ,f3, according to TF FF TL */
   out << r.f1() <<"," << r.f2() <<"," << r.f3() ;
