@@ -4,19 +4,18 @@
 
 # include "../log.hh"
 
-
 constexpr double PI           = 3.14159265358979323846;  /* pi */
 constexpr double speed_of_light = 299792458;
 
+template<typename simulator_t>
 class Propagation_model {
 
 public:
 
-  Propagation_model();
+  Propagation_model(std::shared_ptr<simulator_t> sim_interface_);
   
   template <typename T>
   T convert_to_distance(T receiver_power);
-
   
   template <typename T>
   T dbm_to_watt(T value);
@@ -26,7 +25,6 @@ public:
   void wave_length();
 
 private:
-
   
   double frequency_; // in HZ
   double wave_length_;
@@ -34,7 +32,9 @@ private:
   double transmitter_gain_ ;
   double receiver_gain_ ;
   double system_loss_;
-
+  
+  std::shared_ptr<simulator_t> sim_interface_;
+  
 };
   
 # include "propagation_mode.hxx"
