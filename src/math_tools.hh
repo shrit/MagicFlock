@@ -41,7 +41,13 @@ public:
   template <typename T>
   long long unsigned int
   index_of_highest_value(const std::vector<T>& vec);
-    
+
+  template <typename T>
+  T pythagore_leg(T leg, T hypotenuse);
+
+  template <typename T>
+  T pythagore_hypotenuse(T leg_1, T leg_2);
+  
   template <typename Arg>
   Arg variance(std::vector<Arg> vec);
     

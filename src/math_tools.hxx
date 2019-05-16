@@ -1,5 +1,6 @@
-# include "math_tools.hh"
+#pragma once
 
+# include "math_tools.hh"
 
 template <typename T>
 double Math_tools::deformation_error(lt::triangle<T> old_dist,
@@ -96,6 +97,7 @@ triangle_side(lt::positions<T> pos)
     /*  it return the traingle side */
     return t;
 }
+
 /*  Simple implementation, need more logical one */
 template <typename Arg, typename Arg2>
 std::vector<bool> Math_tools::to_one_hot_encoding(Arg arg, Arg2 number_of_class)
@@ -111,6 +113,22 @@ std::vector<bool> Math_tools::to_one_hot_encoding(Arg arg, Arg2 number_of_class)
   }
   
   return one_hot;  
+}
+
+template <typename T>
+T pythagore_leg(T leg, T hypotenuse)
+{
+  T leg_2 = std::sqrt( std::pow(hypotenuse, 2)
+		       - std::pow(leg, 2) ) ;
+  return leg_2;
+}
+
+template <typename T>
+T pythagore_hypotenuse(T leg_1, T leg_2)
+{
+  T hypotenuse = std::sqrt( std::pow(leg_1, 2)
+		       + std::pow(leg_2, 2) ) ;
+  return hypotenuse;
 }
 
 template <typename Arg>
