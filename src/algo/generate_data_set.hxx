@@ -1,3 +1,5 @@
+#pragma once
+
 # include "generate_data_set.hh"
 
 template<class flight_controller_t,

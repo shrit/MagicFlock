@@ -1,3 +1,4 @@
+#pragma once
 
 # include "ema_filter.hh"
  

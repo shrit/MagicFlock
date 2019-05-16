@@ -1,3 +1,5 @@
+#pragma once
+
 # include "quadcopter.hh"
 
 template <class simulator_t>

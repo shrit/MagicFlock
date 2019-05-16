@@ -27,7 +27,7 @@ class Generator {
 public:
     
   Generator(std::vector<std::shared_ptr<flight_controller_t>> quads,
-	    std::shared_ptr<simulator_t> sim_interface_); 
+	    std::shared_ptr<simulator_t> sim_interface); 
 
   void move_action(std::string label,
 		   typename Quadcopter<simulator_t>::Action action);  

@@ -1,3 +1,6 @@
+#pragma once
+
+# include "data_set.hh"
 
 template <typename Arg, typename... Args>
 void DataSet::write_data_set_file(std::ofstream& file, Arg&& arg, Args&&... args)
