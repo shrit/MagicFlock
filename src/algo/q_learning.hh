@@ -50,9 +50,12 @@ public:
   
   typename Quadcopter<simulator_t>::Action 
   action_follower(arma::mat features, arma::uword index);
+
+  arma::mat 
+  features_extractor(std::vector<typename Quadcopter<simulator_t>::Action> actions);
   
   arma::mat 
-  insert_features(std::vector<typename Quadcopter<simulator_t>::Action> actions);
+  insert_absolute_features(std::vector<typename Quadcopter<simulator_t>::Action> actions);
       
   void run();
 

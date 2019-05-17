@@ -25,10 +25,47 @@ template <class flight_controller_t,
 	  class simulator_t>
 arma::mat Q_learning<flight_controller_t,
 		     simulator_t>::
-insert_features(std::vector<typename Quadcopter<simulator_t>::Action> actions)
-{  
-  arma::mat features;
+features_extractor(std::vector<typename Quadcopter<simulator_t>::Action> actions)
+{
+  arma::mat features;  
+  auto it_state = states_.rbegin();    
+  it_state = std::next(it_state, 1);
+
+  arma::rowvec row;
+  for (int i = 0; i < 4; ++i) {    
+    /*  State */
+    row << (*it_state).height()
+	<< (*it_state).estimated_distances().f1
+	<< (*it_state).estimated_distances().f2
+	<< (*it_state).estimated_distances().f3
+	<< (*it_state).orientation()
+      /*  Action  */
+	<< mtools_.to_one_hot_encoding(actions.at(i), 4).at(0)
+	<< mtools_.to_one_hot_encoding(actions.at(i), 4).at(1)
+	<< mtools_.to_one_hot_encoding(actions.at(i), 4).at(2)
+	<< mtools_.to_one_hot_encoding(actions.at(i), 4).at(3)
+      /*  nextState */
+	<< states_.back().height()
+	<< states_.back().estimated_distances().f1
+	<< states_.back().estimated_distances().f2
+	<< states_.back().estimated_distances().f3
+	<< states_.back().orientation() ;
+    
+    features.insert_rows(0, row);    
+  }
+  /*  We need to transpose the matrix, since mlpack is column major */  
+  features = features.t();
   
+  return features;    
+}
+  
+template <class flight_controller_t,
+	  class simulator_t>
+arma::mat Q_learning<flight_controller_t,
+		     simulator_t>::
+insert_absolute_features(std::vector<typename Quadcopter<simulator_t>::Action> actions)
+{  
+  arma::mat features;  
   auto it_state = states_.rbegin();    
   it_state = std::next(it_state, 1);
 
@@ -53,8 +90,7 @@ insert_features(std::vector<typename Quadcopter<simulator_t>::Action> actions)
 	<< states_.back().distances().f3
 	<< states_.back().orientation() ;
     
-    features.insert_rows(0, row);
-    
+    features.insert_rows(0, row);    
   }
   /*  We need to transpose the matrix, since mlpack is column major */  
   features = features.t();
@@ -185,8 +221,13 @@ phase_two(bool random_leader_action)
    
   std::vector<typename Quadcopter<simulator_t>::Action> possible_action  =
     robot.possible_actions() ;
+
+  /*  Now we need to estimate the features using fgeature extractor */
   
-  arma::mat features = insert_features(possible_action);
+  arma::mat features = features_extractor(possible_action);
+
+  /*  Test the trained model using the absolute feature */
+  //  arma::mat features = insert_absolute_features(possible_action);
   
   arma::mat label;
   
