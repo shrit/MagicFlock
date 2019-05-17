@@ -66,6 +66,7 @@ public:
     /*  Create a shared pointer to a simulator interface The interface
      need to have all the required data about the quadcopter*/
     std::shared_ptr<simulator_t> sim_interface_;
+    Propagation_model<simulator_t, double> pmodel_;
   };
   
   enum class Action

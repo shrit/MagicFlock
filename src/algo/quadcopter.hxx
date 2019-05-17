@@ -7,17 +7,18 @@ Quadcopter<simulator_t>::Quadcopter()
   :distribution_(0.0, 1.0),
    distribution_int_(0, 3),
    generator_(random_dev())
-  
 {}
 
 template <class simulator_t>
 Quadcopter<simulator_t>::State::State(std::shared_ptr<simulator_t> sim_interface):
-  sim_interface_(std::move(sim_interface))   
+  sim_interface_(std::move(sim_interface)),
+  pmodel_(std::move(sim_interface))
 {  
   rssi_ = sim_interface_->rssi();  
   height_ = sim_interface_->positions().f2.z;  
   z_orinetation_  = sim_interface_->orientations().f2.z;
-  dists_ =   mtools_.triangle_side(sim_interface_->positions());  
+  dists_ =   mtools_.triangle_side(sim_interface_->positions());
+  e_dists_ = pmodel_.distances_2D();
 }
 
 
