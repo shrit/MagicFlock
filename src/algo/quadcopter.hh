@@ -11,8 +11,9 @@
 # include <random>
 # include <utility>
 
-# include "../math_tools.hh"
 # include "../global.hh"
+# include "../math_tools.hh"
+# include "propagation_model.hh"
 
 namespace lt = local_types;
 
@@ -48,6 +49,7 @@ public:
     double height () const;
     lt::rssi<double> signal_strength () const;
     lt::triangle<double> distances () const;
+    lt::triangle<double> estimated_distances () const;
     double orientation () const;
 
     state_printer
@@ -60,7 +62,7 @@ public:
     double height_;
     double z_orinetation_  ;
     lt::triangle<double> dists_ ;
-    
+    lt::triangle<double> e_dists_;
     /*  Create a shared pointer to a simulator interface The interface
      need to have all the required data about the quadcopter*/
     std::shared_ptr<simulator_t> sim_interface_;

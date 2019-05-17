@@ -50,6 +50,13 @@ distances () const
 }
 
 template <class simulator_t>
+lt::triangle<double> Quadcopter<simulator_t>::State::
+estimated_distances () const
+{
+  return e_dists_;
+}
+
+template <class simulator_t>
 state_printer Quadcopter<simulator_t>::State::
 create_printer_struct(Quadcopter<simulator_t>::State state)
 {
