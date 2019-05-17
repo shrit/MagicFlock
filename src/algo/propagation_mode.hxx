@@ -7,7 +7,7 @@ Propagation_model<simulator_t, T>::
 Propagation_model(std::shared_ptr<simulator_t> sim_interface)
   :sim_interface_(std::move(sim_interface))
 {
-  channel_to_frequency();
+  channel_to_frequency(1);
   wave_length();  
 }
 
@@ -39,9 +39,9 @@ lt::triangle<double> Propagation_model<simulator_t, T>::
 distances_2D()
 {
   lt::triangle<double> dist;
-  dist.f1 = convert_to_distance (sim_interface_.rssi().f1) ;
-  dist.f2 = convert_to_distance (sim_interface_.rssi().f2) ;
-  dist.f3 = convert_to_distance (sim_interface_.rssi().f3) ;
+  dist.f1 = convert_to_distance (sim_interface_->rssi().f1()) ;
+  dist.f2 = convert_to_distance (sim_interface_->rssi().f2()) ;
+  dist.f3 = convert_to_distance (sim_interface_->rssi().f3()) ;
   return dist;
 }
 
