@@ -9,26 +9,25 @@
 constexpr double PI           = 3.14159265358979323846;  /* pi */
 constexpr double speed_of_light = 299792458;
 
-template<typename simulator_t>
+template<class simulator_t,
+	 class T>
 class Propagation_model {
 
 public:
 
-  Propagation_model(std::shared_ptr<simulator_t> sim_interface_);
-  
-  template <typename T>
+  Propagation_model(std::shared_ptr<simulator_t> sim_interface);
+ 
   T dbm_to_watt(T value);
-    
-  lt::triangle<double> distances_2D(T receiver_power);
   
-  void channel_to_frequencey(int channel);
+  lt::triangle<double> distances_2D();
+  
+  void channel_to_frequency(int channel);
         
   void wave_length();
 
 private:
-  
-  template <typename T>
-  T convert_to_distance();
+   
+  T convert_to_distance(T receiver_power);
     
   double frequency_; // in HZ
   double wave_length_;

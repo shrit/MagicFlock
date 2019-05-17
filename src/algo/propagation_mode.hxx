@@ -1,13 +1,19 @@
-Propagation_model<simulator_t>()::Propagation_model()
+#pragma once
+
+# include "propagation_model.hh"
+
+template <class simulator_t, class T>
+Propagation_model<simulator_t, T>::
+Propagation_model(std::shared_ptr<simulator_t> sim_interface)
   :sim_interface_(std::move(sim_interface))
 {
-  changel_to_frequency();
+  channel_to_frequency();
   wave_length();  
 }
 
-template <typename simulator_t,
-	  typename T>
-T Propagation_model<simulator_t>::
+template <class simulator_t,
+	  class T>
+T Propagation_model<simulator_t, T>::
 convert_to_distance(T receiver_power)
 {
   /*  ensure initialization  */
@@ -28,26 +34,27 @@ convert_to_distance(T receiver_power)
   return distance;  
 }
 
-template <typename simulator_t>
-lt::triangle<T> Propagation_model<simulator_t>::
+template <class simulator_t, class T>
+lt::triangle<double> Propagation_model<simulator_t, T>::
 distances_2D()
 {
-  lt::triangle<T> dist;
+  lt::triangle<double> dist;
   dist.f1 = convert_to_distance (sim_interface_.rssi().f1) ;
   dist.f2 = convert_to_distance (sim_interface_.rssi().f2) ;
   dist.f3 = convert_to_distance (sim_interface_.rssi().f3) ;
   return dist;
 }
 
-template <typename simulator_t,
-	  typename T>
-T Propagation_model<simulator_t>::dbm_to_watt(T value)
+template <class simulator_t,
+	  class T>
+T Propagation_model<simulator_t, T>::dbm_to_watt(T value)
 {
+  double rssi_watt;
   return rssi_watt = std::pow(10, (value - 30)/10 );  
 }
 
-template <typename simulator_t>
-void Propagation_model<simulator_t>::channel_to_frequency(int channel)
+template <class simulator_t, class T>
+void Propagation_model<simulator_t, T>::channel_to_frequency(int channel)
 {
   if (channel > 13 and channel < 1) {
     LogErr() << "No valid channel number";
@@ -57,8 +64,8 @@ void Propagation_model<simulator_t>::channel_to_frequency(int channel)
   frequency_ = ((channel - ref_channel)*5 +  2412) * 1000000 ;      
 }
 
-template <typename simulator_t>
-void Propagation_model<simulator_t>::wave_length()
+template <class simulator_t, class T>
+void Propagation_model<simulator_t, T>::wave_length()
 {
   wave_length_ = speed_of_light / frequency_;
 }
