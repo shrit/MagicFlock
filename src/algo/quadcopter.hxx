@@ -12,7 +12,7 @@ Quadcopter<simulator_t>::Quadcopter()
 template <class simulator_t>
 Quadcopter<simulator_t>::State::State(std::shared_ptr<simulator_t> sim_interface):
   sim_interface_(std::move(sim_interface)),
-  pmodel_(std::move(sim_interface))
+  pmodel_(sim_interface_)
 {  
   rssi_ = sim_interface_->rssi();  
   height_ = sim_interface_->positions().f2.z;  
