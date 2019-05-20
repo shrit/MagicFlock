@@ -27,7 +27,8 @@ public:
 
 private:
    
-  T convert_to_distance(T receiver_power);
+  T convert_watt_to_distance(T receiver_power);
+  T convert_dbm_to_distance(T receiver_power);
     
   double frequency_; // in HZ
   double wave_length_;

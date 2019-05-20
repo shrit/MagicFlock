@@ -237,6 +237,8 @@ phase_two(bool random_leader_action)
   
   features = features.t();
   label = label.t();
+
+  LogInfo() << "True 2D distance: " << states_.back().distances();
   
   LogInfo() << "Size of features: " << arma::size(features);
   LogInfo() << features;
