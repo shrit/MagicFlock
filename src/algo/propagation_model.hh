@@ -18,6 +18,7 @@ public:
   Propagation_model(std::shared_ptr<simulator_t> sim_interface);
  
   T dbm_to_watt(T value);
+  T Hz_to_Ghz(T value);
   
   lt::triangle<double> distances_2D();
   
@@ -27,8 +28,9 @@ public:
 
 private:
    
-  T convert_watt_to_distance(T receiver_power);
-  T convert_dbm_to_distance(T receiver_power);
+  T friis_convert_watt_to_distance(T receiver_power);
+  T friis_convert_dbm_to_distance(T receiver_power);
+  T ITU_convert_dbm_to_distance(T receiver_power);
     
   double frequency_; // in HZ
   double wave_length_;
@@ -36,6 +38,11 @@ private:
   double transmitter_gain_ ;
   double receiver_gain_ ;
   double system_loss_;
+
+  double alpha_;
+  double beta_;
+  double gamma_;
+  double sigma_;
 
   Math_tools mtools_;
   
