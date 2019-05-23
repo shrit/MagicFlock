@@ -1,0 +1,50 @@
+
+
+
+
+Need to install omnetpp from source (github)
+Install Inet framework from the source too.
+
+Comments from the maintainer about building the IDE of OMNET++
+
+About building the ide: the code in the github repo is complete,
+however the usual ./configure; make; command builds on the simulator.
+The IDE code resides in the /ui directory. To build the whole
+distribution, you should visit the /releng folder and execute the
+distro build scripts there. Note that the build system uses docker, so
+you should have docker daemon installed and running on Linux if you
+want to uild the whole UI.
+
+
+
+
+Actually we are using make build system:
+
+To build the code using:
+
+make -f makemakefiles
+
+
+
+
+
+Questions about omnetpp here:
+
+	  1. Verify the materials and their fading properties
+
+	  2. Verify if simulation using open scen graph (OSG) uses the
+	  propoer propagation models that suites the city for outdoors
+	  and inside indoors.
+
+	  3. Find a way to build the source code using cmake instead
+	  of their build systems
+
+	  4. Find a way to integrate the omnet code inside QCopter,
+	    First start with two different build, and if every thing
+	    is woring fine, integrate it inside QCopter	    	  
+
+	  5. Find a way to repare open scene graph (Wait gitter
+	  answer from the maintainer).
+
+	  
+	  
