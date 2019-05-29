@@ -8,7 +8,7 @@
       <ambient>0.592 0.624 0.635 1</ambient>
       <sky>
         <clouds>
-          <speed>12</speed>
+          <speed>1</speed>
         </clouds>
       </sky>
       <background>0.35 0.35 0.35 1.0</background>
@@ -43,19 +43,21 @@
       <direction>-0.5 0.1 -0.4</direction>
     </light>
 
-        <!-- Environment -->
+    <!-- Environment -->
     <include>
       <name>city_terrain_1</name>
       <pose>
-      0
-      0
-      5.01
-      0
-      0
-      0
+	0
+	0
+	5.01
+	0
+	0
+	0
       </pose>
       <uri>model://city_terrain</uri>
     </include>
+
+    <!-- Need a descent graphic card to run ocean -->
 
     <!-- <include> -->
     <!--   <name>ocean_2</name> -->
@@ -70,6 +72,21 @@
     <!--   <uri>model://ocean</uri> -->
     <!-- </include> -->
 
+
     
+    <!-- QuadCopters -->
+    <include>
+      <uri>model://iris_1</uri>
+      <pose>3.00 0.00 000 0 0 -0.85</pose>
+    </include>
+    <include>
+      <uri>model://iris_2</uri>
+      <pose>0.00 0.00 0.00 0 0 -0.85</pose>
+    </include>
+    <include>
+      <uri>model://iris_3</uri>
+      <pose>1.50 2.59800 0.00 0 0 -0.85</pose>
+    </include>
+       
   </world>
 </sdf>
