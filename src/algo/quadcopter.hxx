@@ -10,6 +10,12 @@ Quadcopter<simulator_t>::Quadcopter()
 {}
 
 template <class simulator_t>
+void Quadcopter<simulator_t>::init()
+{
+  data_set_.init_dataset_directory();  
+}
+
+template <class simulator_t>
 Quadcopter<simulator_t>::State::State(std::shared_ptr<simulator_t> sim_interface):
   sim_interface_(std::move(sim_interface)),
   pmodel_(sim_interface_)
@@ -20,7 +26,6 @@ Quadcopter<simulator_t>::State::State(std::shared_ptr<simulator_t> sim_interface
   dists_ =   mtools_.triangle_side(sim_interface_->positions());
   e_dists_ = pmodel_.distances_2D();
 }
-
 
 template <class simulator_t>
 lt::rssi<double> Quadcopter<simulator_t>::State::
@@ -96,6 +101,21 @@ action_evaluator(lt::triangle<double> old_dist,
   }  
   return reward;
 }
+
+template <class simulator_t>
+void Quadcopter<simulator_t>::
+calculate_save_error(lt::triangle<double> old_dist,
+		     lt::triangle<double> new_dist)
+{
+  double diff_f1 = std::fabs(old_dist.f1 - new_dist.f1);
+  double diff_f2 = std::fabs(old_dist.f2 - new_dist.f2);
+
+  double error = diff_f1 + diff_f2;
+
+  data_set_.save_error_file(error);  
+  
+}
+
 
 template <class simulator_t>
 std::vector<typename Quadcopter<simulator_t>::Action> Quadcopter<simulator_t>::

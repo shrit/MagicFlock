@@ -85,6 +85,8 @@ private:
   std::shared_ptr<simulator_t> sim_interface_;
   float speed_;
   std::vector<typename Quadcopter<simulator_t>::State> states_;
+  lt::triangle<double> original_dist_;
+  Quadcopter<simulator_t> robot_;
   
 };
 

@@ -73,7 +73,7 @@ insert_absolute_features(std::vector<typename Quadcopter<simulator_t>::Action> a
   for (int i = 0; i < 4; ++i) {
     
     /*  State */
-    row << (*it_state).height()
+    row << 3 //(*it_state).height()
 	<< (*it_state).distances().f1
 	<< (*it_state).distances().f2
 	<< (*it_state).distances().f3
@@ -84,7 +84,7 @@ insert_absolute_features(std::vector<typename Quadcopter<simulator_t>::Action> a
 	<< mtools_.to_one_hot_encoding(actions.at(i), 4).at(2)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 4).at(3)
       /*  nextState */
-	<< states_.back().height()
+	<< 3 //states_.back().height()
 	<< states_.back().distances().f1
 	<< states_.back().distances().f2
 	<< states_.back().distances().f3
@@ -177,7 +177,6 @@ phase_two(bool random_leader_action)
   
   /*  we need to pass State ,and nextState, and try possible a */
   typename Quadcopter<simulator_t>::Action action_leader ;
-  Quadcopter<simulator_t> robot ;
   
   std::vector<std::thread> threads;
     
@@ -186,7 +185,7 @@ phase_two(bool random_leader_action)
   states_.push_back(state);
   
   if (random_leader_action == true) {    
-    action_leader = robot.randomize_action() ;
+    action_leader = robot_.randomize_action() ;
     saved_leader_action_ = action_leader;
   } else {
     action_leader = saved_leader_action_;    
@@ -220,14 +219,14 @@ phase_two(bool random_leader_action)
       given back by the model */
    
   std::vector<typename Quadcopter<simulator_t>::Action> possible_action  =
-    robot.possible_actions() ;
+    robot_.possible_actions() ;
 
   /*  Now we need to estimate the features using fgeature extractor */
   
-  arma::mat features = features_extractor(possible_action);
+  //  arma::mat features = features_extractor(possible_action);
 
   /*  Test the trained model using the absolute feature */
-  //  arma::mat features = insert_absolute_features(possible_action);
+  arma::mat features = insert_absolute_features(possible_action);
   
   arma::mat label;
   
@@ -248,7 +247,7 @@ phase_two(bool random_leader_action)
 
   LogInfo() << values;
     
-  /*  Get the action now !! */    
+  /*  Get the follower action now !! */    
   typename Quadcopter<simulator_t>::Action action_for_follower =
     action_follower(features, values);
   
@@ -261,14 +260,27 @@ phase_two(bool random_leader_action)
   
   for (auto& thread : threads) {
     thread.join();
-  }    
-  return ;    
+  }
+
+
+  /*  Get error of deformation to improve persicion later and to
+      verify the model accuracy */
+  typename Quadcopter<simulator_t>::State ObserverState(sim_interface_);
+  robot_.calculate_save_error(original_dist_, ObserverState.distances());        
+  
+  return;    
 }
 
 template <class flight_controller_t,
 	  class simulator_t>
-void Q_learning<flight_controller_t, simulator_t>::run()
+void Q_learning<flight_controller_t, simulator_t>::
+run()
 {
+
+  robot_.init();
+  
+  typename Quadcopter<simulator_t>::State ObserverState(sim_interface_);
+  original_dist_ = ObserverState.distances();
 
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
     
@@ -323,14 +335,7 @@ void Q_learning<flight_controller_t, simulator_t>::run()
       
       count_ = 0 ;
       
-      while (count_ < 6) {
-	
-	/*  if the follower is has executed a good action we need to
-	    re-discover the other action in this loop until we get a 0
-	    reward, the other actions are related to exploration and
-	    exploitation note that */
-	/*  Test if the signal is good, if yes continue with the same
-	    action for leader */
+      while (count_ < 150) {
 	
 	if (count_ == 0 ) {
 	  phase_two(true);	  
@@ -340,10 +345,11 @@ void Q_learning<flight_controller_t, simulator_t>::run()
 	
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 
+	/*  need to verify that the controller is working, 
+	 use the triangle test to figure out after each iteration*/
+	
 	//reduce epsilon as we explore more each episode
-	epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode_); 
-
-	LogInfo() << "Epsilon: " << epsilon_ ;
+	//epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode_); 
 	
 	++count_;
       }

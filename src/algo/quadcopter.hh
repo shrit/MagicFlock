@@ -11,9 +11,11 @@
 # include <random>
 # include <utility>
 
+# include "../data_set.hh"
 # include "../global.hh"
 # include "../math_tools.hh"
 # include "propagation_model.hh"
+
 
 namespace lt = local_types;
 
@@ -86,9 +88,14 @@ public:
      very_bad,     
     };
 
-
+  void init();
+  
   Reward action_evaluator(lt::triangle<double> old_dist,
 			  lt::triangle<double> new_dist);
+
+  void
+  calculate_save_error(lt::triangle<double> old_dist,
+		       lt::triangle<double> new_dist);
   
   std::vector<Action> possible_actions() const;
   
@@ -104,7 +111,8 @@ private:
   std::uniform_real_distribution<> distribution_;
   std::uniform_int_distribution<> distribution_int_;
   std::random_device random_dev;  
-  std::mt19937 generator_;  
+  std::mt19937 generator_;
+  DataSet data_set_;
    
 };
 
