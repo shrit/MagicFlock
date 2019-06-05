@@ -33,14 +33,15 @@ void DataSet::save_csv_data_set(Arg&& arg, Args&&... args)
   file.close();
 }
 
-template <typename A, typename B>  
-void DataSet::write_map_file(std::unordered_map <A, B> map_)
+template <typename Arg>  
+void DataSet::save_error_file(Arg&& arg)
 {
   std::ofstream file;
-  file.open(map_file_name_);
+  file.open(error_file_name_,
+	    std::ios::out | std::ios::app);
   
-  for(auto [key, value] : map_)
-    file << key <<" "<< value <<"\n";
+  file << std::forward<Arg>(arg) <<"\n";
+  
   file.flush();
   file.close();  
 }

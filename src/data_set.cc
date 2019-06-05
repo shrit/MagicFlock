@@ -2,9 +2,7 @@
 
 DataSet::DataSet() :
   line_number_(0)
-{
-  
-}
+{}
 
 void DataSet::read_data_set_file(std::string file_name)
 {
@@ -62,19 +60,11 @@ void DataSet::init_dataset_directory()
   dataset_file_name_=
     "../dataset/" + date_stream.str() + "/" + time_stream.str();
   
-  map_file_name_=
-    "../dataset/" + date_stream.str() + "/map" + time_stream.str();
-
-  qtable_file_name_=
-    "../dataset/" + date_stream.str() + "/qtable" + time_stream.str();
+  error_file_name_=
+    "../dataset/" + date_stream.str() + "/error" + time_stream.str();
 
   result_file_name_ =
     "../dataset/" + date_stream.str() + "/figure" + time_stream.str();
-}
-
-void DataSet::save_qtable(arma::mat qtable)
-{
-  qtable.save(qtable_file_name_, arma::raw_ascii);
 }
 
 

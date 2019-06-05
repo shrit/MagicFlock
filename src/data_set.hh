@@ -22,7 +22,6 @@
 
 /*  local defined include */
 # include "global.hh"
-# include "algo/quadcopter.hh"
 
 # include "../third_party/gnuplot/plot.h"
 
@@ -41,7 +40,10 @@ public:
   
   template <typename Arg, typename... Args>  
   void save_csv_data_set(Arg&& arg, Args&&... args);
-  
+
+  template <typename Arg>
+  void save_error_file(Arg&& arg);
+
   template <typename A, typename B>  
   void read_map_file(std::string file_name, std::unordered_map <A, B>& map_);
   
@@ -54,7 +56,6 @@ public:
 	    std::string ylabel,		   
 	    Arg arg, Arg argv, Args... args);
   
-  void save_qtable(arma::mat  qtable);
   void init_dataset_directory();
   
   std::vector<lt::rssi<double>>  rssi_vector() const;
@@ -67,8 +68,7 @@ private:
   int line_number_;
 
   std::string dataset_file_name_;
-  std::string map_file_name_;
-  std::string qtable_file_name_;
+  std::string error_file_name_;
   std::string result_file_name_;
   
   std::vector<std::vector<double>> data_set_;  
