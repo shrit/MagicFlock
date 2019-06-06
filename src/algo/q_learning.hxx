@@ -345,13 +345,18 @@ run()
 	
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 
-	/*  need to verify that the controller is working, 
+	/*  Need to verify that the controller is working, 
 	 use the triangle test to figure out after each iteration*/
+	if (mtools_.is_triangle(mtools_.triangle_side(sim_interface_->positions())) == false) {
+	  LogInfo() << "The triangle is no longer conserved" ;
+	  break;
+	}
 	
 	//reduce epsilon as we explore more each episode
 	//epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode_); 
 	
 	++count_;
+	
       }
     }
         

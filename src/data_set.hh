@@ -43,13 +43,10 @@ public:
 
   template <typename Arg>
   void save_error_file(Arg&& arg);
-
-  template <typename A, typename B>  
-  void read_map_file(std::string file_name, std::unordered_map <A, B>& map_);
   
-  template <typename A, typename B>  
-  void write_map_file(std::unordered_map <A, B> map_);
-
+  template <typename Arg>  
+  void save_count_file(Arg&& arg);
+  
   template <typename Arg, typename... Args>
   void plot(std::string title,
 	    std::string xlabel,
@@ -70,6 +67,7 @@ private:
   std::string dataset_file_name_;
   std::string error_file_name_;
   std::string result_file_name_;
+  std::string count_file_name_;
   
   std::vector<std::vector<double>> data_set_;  
     

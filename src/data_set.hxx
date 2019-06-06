@@ -46,26 +46,17 @@ void DataSet::save_error_file(Arg&& arg)
   file.close();  
 }
 
-template <typename A, typename B>  
-void DataSet::read_map_file(std::string file_name, std::unordered_map<A, B>& map_)
+template <typename Arg>  
+void DataSet::save_count_file(Arg&& arg)
 {
-  std::string line;
-  std::ifstream fs;
-  fs.open(file_name);
+  std::ofstream file;
+  file.open(count_file_name_,
+	    std::ios::out | std::ios::app);
   
-  while (std::getline(fs, line)) {
-    
-    A key;
-    B value;
-    std::stringstream ss(line);
-    if (ss >> key){
-      if(ss >> value){	    
-	map_[key] = value;
-      }        
-    }
-  }
+  file << std::forward<Arg>(arg) <<"\n";
   
-  fs.close();
+  file.flush();
+  file.close();  
 }
 
 template <typename Arg, typename... Args>

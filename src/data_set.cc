@@ -62,7 +62,10 @@ void DataSet::init_dataset_directory()
   
   error_file_name_=
     "../dataset/" + date_stream.str() + "/error" + time_stream.str();
-
+  
+  count_file_name_=
+    "../dataset/" + date_stream.str() + "/count" + time_stream.str();
+  
   result_file_name_ =
     "../dataset/" + date_stream.str() + "/figure" + time_stream.str();
 }

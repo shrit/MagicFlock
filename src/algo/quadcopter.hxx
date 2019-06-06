@@ -113,9 +113,14 @@ calculate_save_error(lt::triangle<double> old_dist,
   double error = diff_f1 + diff_f2;
 
   data_set_.save_error_file(error);  
-  
 }
 
+template <class simulator_t>
+void Quadcopter<simulator_t>::
+save_controller_count(double value)
+{
+  data_set_.save_count_file(value);  
+}
 
 template <class simulator_t>
 std::vector<typename Quadcopter<simulator_t>::Action> Quadcopter<simulator_t>::
