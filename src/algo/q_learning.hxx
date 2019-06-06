@@ -348,7 +348,8 @@ run()
 	/*  Need to verify that the controller is working, 
 	 use the triangle test to figure out after each iteration*/
 	if (mtools_.is_triangle(mtools_.triangle_side(sim_interface_->positions())) == false) {
-	  LogInfo() << "The triangle is no longer conserved" ;
+	  LogInfo() << "The triangle is no longer conserved";
+	  robot_.save_controller_count(count_);
 	  break;
 	}
 	

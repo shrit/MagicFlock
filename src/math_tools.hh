@@ -18,7 +18,7 @@ public:
 
   Math_tools() :
     lower_threshold_{4, 4, 4},
-    upper_threshold_{9, 9, 9}
+    upper_threshold_{11, 11, 11}
   {}
 
   template <typename T>
