@@ -190,6 +190,14 @@ phase_two(bool random_leader_action)
   } else {
     action_leader = saved_leader_action_;    
   }
+
+  LogInfo() << "Z height: "<< sim_interface_->positions().f1.z;
+  
+  if (sim_interface_->positions().f1.z < 6 or
+      sim_interface_->positions().f2.z < 6 ) {    
+    return ;
+  }
+
   
   /*  Threading QuadCopter */    
   threads.push_back(std::thread([&](){
@@ -328,8 +336,16 @@ run()
       it->start_offboard_mode();
     }
     /*  Wait to complete the take off process */
-    std::this_thread::sleep_for(std::chrono::seconds(1));  
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    /*  Increase the heights of the drones to decrease the change of
+	touching the ground */
     
+    for(int i = 0; i < 10; ++i) {
+      for (auto it : iris_x_) {
+	it->up(10);
+      }
+    }
   
     if (!stop_episode) {
       
@@ -345,8 +361,19 @@ run()
 	
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 
+	LogInfo() << "Z height: "<< sim_interface_->positions().f1.z;
+	
+	if (sim_interface_->positions().f1.z < 6 or
+	    sim_interface_->positions().f2.z < 6 ) {	  
+
+	  robot_.save_controller_count(count_);
+	  break;
+	}
+
+	
 	/*  Need to verify that the controller is working, 
 	 use the triangle test to figure out after each iteration*/
+	
 	if (mtools_.is_triangle(mtools_.triangle_side(sim_interface_->positions())) == false) {
 	  LogInfo() << "The triangle is no longer conserved";
 	  robot_.save_controller_count(count_);
@@ -364,10 +391,10 @@ run()
     for (auto it: iris_x_)
       it->land();
     
-    std::this_thread::sleep_for(std::chrono::seconds(6));
+    std::this_thread::sleep_for(std::chrono::seconds(8));
     
     sim_interface_->reset_models();
     
-    std::this_thread::sleep_for(std::chrono::seconds(15));
+    std::this_thread::sleep_for(std::chrono::seconds(17));
   }
 }
