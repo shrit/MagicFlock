@@ -99,10 +99,26 @@ bool Px4Device::return_to_launch()
   return true;  
 }
 
-bool Px4Device::set_altitude_rtl_max(float meter)
+bool Px4Device::set_takeoff_altitude(float meters)
+{
+    LogInfo() << "set altitude takeoff..." ;
+    const Action::Result takeoff_altitude =
+      action_->set_takeoff_altitude(meters);
+    if (takeoff_altitude != Action::Result::SUCCESS) {
+      LogInfo() << ERROR_CONSOLE_TEXT
+		<< "return to launch position failed:"
+		<< Action::result_str(takeoff_altitude)
+		<< NORMAL_CONSOLE_TEXT ;
+      return false;
+    }
+    return true;      
+}
+
+bool Px4Device::set_altitude_rtl_max(float meters)
 {
   LogInfo() << "set altitude rtl..." ;
-  const Action::Result rtl_altitude = action_->set_return_to_launch_return_altitude(meter);
+  const Action::Result rtl_altitude =
+    action_->set_return_to_launch_return_altitude(meters);
   if (rtl_altitude != Action::Result::SUCCESS) {
     LogInfo() << ERROR_CONSOLE_TEXT
 	      << "return to launch position failed:"
