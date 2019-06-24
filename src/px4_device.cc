@@ -9,12 +9,12 @@ Px4Device::Px4Device(lt::connection_type socket,
   
   connect_to_quad(connection_url);  
   discover_system();    
-  System& system = dc_.system();  
+  System& system = mavsdk_.system();  
   
-  telemetry_   = std::make_shared<dronecode_sdk::Telemetry>(system);
-  offboard_    = std::make_shared<dronecode_sdk::Offboard>(system);
-  action_      = std::make_shared<dronecode_sdk::Action>(system);
-  calibration_ = std::make_shared<dronecode_sdk::Calibration>(system);
+  telemetry_   = std::make_shared<mavsdk::Telemetry>(system);
+  offboard_    = std::make_shared<mavsdk::Offboard>(system);
+  action_      = std::make_shared<mavsdk::Action>(system);
+  calibration_ = std::make_shared<mavsdk::Calibration>(system);
   
   set_rate_result();
   position_ned();
@@ -24,7 +24,7 @@ Px4Device::Px4Device(lt::connection_type socket,
 ConnectionResult Px4Device::connect_to_quad(std::string connection_url)
 {
   ConnectionResult connection_result;  
-  connection_result = dc_.add_any_connection(connection_url);
+  connection_result = mavsdk_.add_any_connection(connection_url);
    
   if (connection_result != ConnectionResult::SUCCESS) {
     LogInfo() << ERROR_CONSOLE_TEXT
@@ -41,7 +41,7 @@ bool Px4Device::discover_system()
   bool discovered_system = false;
     
   LogInfo() << "Waiting to discover system..." ;
-  dc_.register_on_discover([&discovered_system](uint64_t uuid) {
+  mavsdk_.register_on_discover([&discovered_system](uint64_t uuid) {
 			     LogInfo() << "Discovered system with UUID: "
 				       << uuid ;
 			     discovered_system = true;

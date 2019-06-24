@@ -19,16 +19,16 @@
 # include <future>
 
 /*  DronecodeSDK includes */
-# include <dronecode_sdk/action.h>
-# include <dronecode_sdk/calibration.h>
-# include <dronecode_sdk/dronecode_sdk.h>
-# include <dronecode_sdk/offboard.h>
-# include <dronecode_sdk/telemetry.h>
+# include <mavsdk/plugins/action/action.h>
+# include <mavsdk/plugins/calibration/calibration.h>
+# include <mavsdk/mavsdk.h>
+# include <mavsdk/plugins/offboard/offboard.h>
+# include <mavsdk/plugins/telemetry/telemetry.h>
 
 /*  local includes */
 # include "global.hh"
 
-using namespace dronecode_sdk;
+using namespace mavsdk;
 using std::this_thread::sleep_for;
 using std::chrono::milliseconds;
 using std::chrono::seconds;
@@ -99,12 +99,12 @@ private:
   double CalculateDistance (Telemetry::PositionVelocityNED& a,
 			    Telemetry::PositionVelocityNED& b);
   
-  DronecodeSDK dc_;
+  Mavsdk mavsdk_;
   
   Telemetry::PositionVelocityNED _position_ned{{0, 0, 0}, {0, 0, 0}};
-  std::shared_ptr<dronecode_sdk::Telemetry> telemetry_;
-  std::shared_ptr<dronecode_sdk::Action> action_;
-  std::shared_ptr<dronecode_sdk::Offboard> offboard_;
-  std::shared_ptr<dronecode_sdk::Calibration> calibration_;    
+  std::shared_ptr<mavsdk::Telemetry> telemetry_;
+  std::shared_ptr<mavsdk::Action> action_;
+  std::shared_ptr<mavsdk::Offboard> offboard_;
+  std::shared_ptr<mavsdk::Calibration> calibration_;    
 };
 

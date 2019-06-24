@@ -13,17 +13,17 @@ find_package(gazebo REQUIRED)
 include_directories(
 
   ${GAZEBO_INCLUDE_DIRS}
- /usr/local/include/dronecode_sdk 
+ /usr/local/include/mavsdk 
  /usr/include/
   )
 
 
 #find_package(boost)
-set(dronecode_sdk_lib "/usr/local/lib/libdronecode_sdk.so")
-set(dronecode_sdk_offboard_lib "/usr/local/lib/libdronecode_sdk_offboard.so")
-set(dronecode_sdk_telemetry_lib "/usr/local/lib/libdronecode_sdk_telemetry.so")
-set(dronecode_sdk_action_lib "/usr/local/lib/libdronecode_sdk_action.so")
-set(dronecode_sdk_calibrattion_lib "/usr/local/lib/libdronecode_sdk_calibration.so")
+set(mavsdk_lib "/usr/local/lib64/libmavsdk.so")
+set(mavsdk_offboard_lib "/usr/local/lib64/libmavsdk_offboard.so")
+set(mavsdk_telemetry_lib "/usr/local/lib64/libmavsdk_telemetry.so")
+set(mavsdk_action_lib "/usr/local/lib64/libmavsdk_action.so")
+set(mavsdk_calibrattion_lib "/usr/local/lib64/libmavsdk_calibration.so")
 set(file_system "/usr/lib/libstdc++fs.a")
 set(pthread_lib "/usr/lib/libpthread.so")
 set(arma "/usr/lib/libarmadillo.so")
@@ -53,11 +53,11 @@ target_link_libraries(QCopter
   ${pthread_lib}
   ${arma}
   ${GAZEBO_LIBRARIES}
-  ${dronecode_sdk_lib}
-  ${dronecode_sdk_offboard_lib}
-  ${dronecode_sdk_action_lib}
-  ${dronecode_sdk_telemetry_lib}
-  ${dronecode_sdk_calibrattion_lib}
+  ${mavsdk_lib}
+  ${mavsdk_offboard_lib}
+  ${mavsdk_action_lib}
+  ${mavsdk_telemetry_lib}
+  ${mavsdk_calibrattion_lib}
 
   ${gomp}
   ${mlpack}
