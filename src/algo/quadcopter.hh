@@ -28,8 +28,8 @@ struct state_printer {
 
 inline std::ostream& operator<< (std::ostream& out, const state_printer& s)
 {
-  out << s.rssi <<","
-      << s.height << "," 
+  // << s.rssi <<","
+  out << s.height << "," 
       << s.distances << ","
       << s.orientation ;  
   return out;
