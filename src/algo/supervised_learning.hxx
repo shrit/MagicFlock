@@ -358,11 +358,10 @@ run()
         typename Quadcopter<simulator_t>::Reward reward =
 	  Quadcopter<simulator_t>::Reward::very_bad;		
 	
-	/*  Change each 10 times the direction of the leader */	
 	if (count_ == 0 ) {
 	  phase_two(true);
-	  /*  need to change 10 to multiple. Just note it in then code */
-	} else if (count_ == 10) {
+	  /*  Change each 10 times the direction of the leader */		  
+	} else if (count_ % 10 == 0) {
 	  phase_two(true);      
 	} else {
 	  phase_two(false);      
