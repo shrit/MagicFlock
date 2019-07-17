@@ -74,15 +74,17 @@ void Train::run()
   model.Add<mlpack::ann::LeakyReLU<> >();
   model.Add<mlpack::ann::Linear<> >(200, 200);
   model.Add<mlpack::ann::LeakyReLU<> >();
+  model.Add<Dropout<> >(0.5);
   model.Add<mlpack::ann::Linear<> >(200, 200);
   model.Add<mlpack::ann::LeakyReLU<> >();
-  model.Add<mlpack::ann::Linear<> >(200, 4);
+  model.Add<Dropout<> >(0.5);
+  model.Add<mlpack::ann::Linear<> >(200, 4);  
   model.Add<mlpack::ann::LeakyReLU<> >();
 
   ens::AdamType<ens::AdamUpdate> optimizer;
   
   // Train the model.
-  for (int i = 0; i < 150; ++i) {
+  for (int i = 0; i < 54; ++i) {
     std::cout << "training..." << std::endl;
     model.Train(trainData_,
 		trainlabel_,
@@ -100,15 +102,13 @@ void Train::run()
 
     LogInfo() << "Epoch " << i
 	      << ":\tTraining Accuracy = "<< trainAccuracy
-	      << "%" ;
-	      
-    
+	      << "%" ;          
   }
 
   LogInfo() << "Training Finished...";
   LogInfo() << "Test with Independent part...";
   
-  arma::mat predtest;    
+  arma::mat predtest;   
   
   model.Predict(testData_, predtest);  
   
@@ -128,6 +128,5 @@ void Train::run()
   predtest = predtest.t();
   predtest.save("result.csv", arma::raw_ascii);
 
-  mlpack::data::Save("model.xml", "model", model, false);
-   
+  mlpack::data::Save("model.xml", "model", model, false);   
 }
