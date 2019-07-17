@@ -31,12 +31,12 @@ namespace lt = local_types;
 
 template<class flight_controller_t,
 	 class simulator_t>
-class Q_learning
+class Supervised_learning
 {
   
 public:
   
-  Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,	     
+  Supervised_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,	     
 	     std::shared_ptr<simulator_t> gzs);
         
   void move_action(std::string label,
@@ -59,27 +59,27 @@ public:
       
   void run();
 
-  Q_learning(Q_learning const&) = delete;  
+  Supervised_learning(Supervised_learning const&) = delete;  
   
-  Q_learning(Q_learning &&) = default;
+  Supervised_learning(Supervised_learning &&) = default;
 
 private:
 
   std::vector<typename Quadcopter<simulator_t>::Action> action_follower_ ;
   Configs configs_;
   int count_;
-  float decay_rate_ ;   
+  float decay_rate_ ;
   float discount_rate_ ;
   std::uniform_real_distribution<> distribution_;
   std::uniform_int_distribution<> distribution_int_;
   int episode_ ;
   float epsilon_ ;
-  std::random_device random_dev;  
-  std::mt19937 generator_;  
+  std::random_device random_dev;
+  std::mt19937 generator_;
   float learning_rate_ ;
-  int max_episode_ ;  
-  float min_epsilon_ ;    
-  Math_tools mtools_;       
+  int max_episode_ ;
+  float min_epsilon_ ;
+  Math_tools mtools_;      
   std::vector<std::shared_ptr<flight_controller_t>> iris_x_;
   typename Quadcopter<simulator_t>::Action saved_leader_action_;
   std::shared_ptr<simulator_t> sim_interface_;
@@ -90,4 +90,4 @@ private:
   
 };
 
-# include "q_learning.hxx"
+# include "supervised_learning.hxx"

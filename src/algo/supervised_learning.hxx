@@ -1,9 +1,9 @@
-# include "q_learning.hh"
+# include "supervised_learning.hh"
 
 template <class flight_controller_t,
 	  class simulator_t>
-Q_learning<flight_controller_t, simulator_t>::
-Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
+Supervised_learning<flight_controller_t, simulator_t>::
+Supervised_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	   std::shared_ptr<simulator_t> gzs)
   :count_(0),
    decay_rate_(0.01),
@@ -23,7 +23,7 @@ Q_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 
 template <class flight_controller_t,
 	  class simulator_t>
-arma::mat Q_learning<flight_controller_t,
+arma::mat Supervised_learning<flight_controller_t,
 		     simulator_t>::
 features_extractor(std::vector<typename Quadcopter<simulator_t>::Action> actions)
 {
@@ -61,7 +61,7 @@ features_extractor(std::vector<typename Quadcopter<simulator_t>::Action> actions
   
 template <class flight_controller_t,
 	  class simulator_t>
-arma::mat Q_learning<flight_controller_t,
+arma::mat Supervised_learning<flight_controller_t,
 		     simulator_t>::
 insert_absolute_features(std::vector<typename Quadcopter<simulator_t>::Action> actions)
 {  
@@ -100,7 +100,7 @@ insert_absolute_features(std::vector<typename Quadcopter<simulator_t>::Action> a
 
 template <class flight_controller_t,
 	  class simulator_t>
-typename Quadcopter<simulator_t>::Action Q_learning<flight_controller_t,
+typename Quadcopter<simulator_t>::Action Supervised_learning<flight_controller_t,
 						    simulator_t>::
 action_follower(arma::mat features, arma::uword index)
 {
@@ -122,7 +122,7 @@ action_follower(arma::mat features, arma::uword index)
 
 template <class flight_controller_t,
 	  class simulator_t>
-int Q_learning<flight_controller_t,
+int Supervised_learning<flight_controller_t,
 	       simulator_t>::
 highest_values(arma::mat matrix)   
 {  
@@ -135,7 +135,7 @@ highest_values(arma::mat matrix)
 
 template <class flight_controller_t,
 	  class simulator_t>
-void Q_learning<flight_controller_t, simulator_t>::
+void Supervised_learning<flight_controller_t, simulator_t>::
 move_action(std::string label,
 	    typename Quadcopter<simulator_t>::Action action)
 {
@@ -159,14 +159,13 @@ move_action(std::string label,
     iris_x_.at(quad_number)->forward(speed_);
     
   } else if (action == Quadcopter<simulator_t>::Action::backward) { 
-    iris_x_.at(quad_number)->backward(speed_);
-    
+    iris_x_.at(quad_number)->backward(speed_);    
   }  
 }
 
 template <class flight_controller_t,
 	  class simulator_t>
-void Q_learning<flight_controller_t,
+void Supervised_learning<flight_controller_t,
 		simulator_t>::
 phase_two(bool random_leader_action)
 {    
@@ -179,7 +178,7 @@ phase_two(bool random_leader_action)
   typename Quadcopter<simulator_t>::Action action_leader ;
   
   std::vector<std::thread> threads;
-    
+  
   /* Get the state at time t  */
   typename Quadcopter<simulator_t>::State state(sim_interface_);
   states_.push_back(state);
@@ -197,7 +196,6 @@ phase_two(bool random_leader_action)
       sim_interface_->positions().f2.z < 6 ) {    
     return ;
   }
-
   
   /*  Threading QuadCopter */    
   threads.push_back(std::thread([&](){
@@ -270,7 +268,6 @@ phase_two(bool random_leader_action)
     thread.join();
   }
 
-
   /*  Get error of deformation to improve persicion later and to
       verify the model accuracy */
   typename Quadcopter<simulator_t>::State ObserverState(sim_interface_);
@@ -281,7 +278,7 @@ phase_two(bool random_leader_action)
 
 template <class flight_controller_t,
 	  class simulator_t>
-void Q_learning<flight_controller_t, simulator_t>::
+void Supervised_learning<flight_controller_t, simulator_t>::
 run()
 {
 
@@ -369,7 +366,6 @@ run()
 	  robot_.save_controller_count(count_);
 	  break;
 	}
-
 	
 	/*  Need to verify that the controller is working, 
 	 use the triangle test to figure out after each iteration*/
@@ -379,12 +375,7 @@ run()
 	  robot_.save_controller_count(count_);
 	  break;
 	}
-	
-	//reduce epsilon as we explore more each episode
-	//epsilon_ = min_epsilon_ + (0.5 - min_epsilon_) * std::exp( -decay_rate_/5 * episode_); 
-	
-	++count_;
-	
+	++count_;	
       }
     }
         

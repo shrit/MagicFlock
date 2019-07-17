@@ -74,10 +74,10 @@ void Train::run()
   model.Add<mlpack::ann::LeakyReLU<> >();
   model.Add<mlpack::ann::Linear<> >(200, 200);
   model.Add<mlpack::ann::LeakyReLU<> >();
-  model.Add<Dropout<> >(0.5);
+  model.Add<mlpack::ann::Dropout<> >(0.5);
   model.Add<mlpack::ann::Linear<> >(200, 200);
   model.Add<mlpack::ann::LeakyReLU<> >();
-  model.Add<Dropout<> >(0.5);
+  model.Add<mlpack::ann::Dropout<> >(0.5);
   model.Add<mlpack::ann::Linear<> >(200, 4);  
   model.Add<mlpack::ann::LeakyReLU<> >();
 

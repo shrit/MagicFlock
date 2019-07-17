@@ -16,7 +16,7 @@
 
 /*  locale defined include */
 
-# include "algo/q_learning.hh"
+# include "algo/supervised_learning.hh"
 # include "algo/generate_data_set.hh"
 # include "config_ini.hh"
 # include "data_set.hh"
@@ -348,14 +348,15 @@ int main(int argc, char* argv[])
    *  2: Train the model on the dataset
    *  3: Test the trained model    
    */
+  // DataSet data_set;
+  // data_set.init_dataset_directory();
   
-  Generator<Px4Device, Gazebo> generator(iris_x, gz);
-  generator.run();
+  //  Generator<Px4Device, Gazebo> generator(iris_x, gz);
+  //  generator.run();
   
-  Q_learning<Px4Device, Gazebo> qlearning(iris_x, gz);
-  qlearning.run(); 
+  Supervised_learning<Px4Device, Gazebo> slearning(iris_x, gz);
+  slearning.run(); 
  
-
   auto joystick_handler = [&](){
 			    if (joystick_mode) {
 			      joystick_event_handler(joystick,
@@ -363,8 +364,7 @@ int main(int argc, char* argv[])
 						     configs.speed(),
 						     configs.just_fly());			}    
 			  };
-  
-  
+    
   auto keyboard_handler = [&](){			     
   			    keyboard_event_handler(iris_x,
   						   configs.speed(),
