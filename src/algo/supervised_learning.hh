@@ -20,6 +20,7 @@
 # include <armadillo>
 
 /* local includes  */
+# include "../data_set.hh"
 # include "../global.hh"
 # include "../gazebo.hh"
 # include "../log.hh"
@@ -68,6 +69,7 @@ private:
   std::vector<typename Quadcopter<simulator_t>::Action> action_follower_ ;
   Configs configs_;
   int count_;
+  DataSet data_set_;
   float decay_rate_ ;
   float discount_rate_ ;
   std::uniform_real_distribution<> distribution_;

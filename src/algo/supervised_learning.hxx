@@ -19,7 +19,9 @@ Supervised_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
    iris_x_(std::move(iris_x)),
    sim_interface_(std::move(gzs)),
    speed_(configs_.speed())
-{}
+{
+  data_set_.init_dataset_directory();
+}
 
 template <class flight_controller_t,
 	  class simulator_t>
@@ -253,13 +255,12 @@ phase_two(bool random_leader_action)
 
   LogInfo() << values;
     
-  /*  Get the follower action now !! */    
-  typename Quadcopter<simulator_t>::Action action_for_follower =
-    action_follower(features, values);
+  /*  Get the follower action now !! and store it direclty */    
+  action_follower_.push_back(action_follower(features, values));
   
   threads.push_back(std::thread([&](){
 				  for (int i = 0; i < 4; ++i) {
-				    move_action("f2", action_for_follower);
+				    move_action("f2", action_follower_.back());
 				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
 				  }				  
 				}));
@@ -267,10 +268,11 @@ phase_two(bool random_leader_action)
   for (auto& thread : threads) {
     thread.join();
   }
-
+  
   /*  Get error of deformation to improve persicion later and to
       verify the model accuracy */
   typename Quadcopter<simulator_t>::State ObserverState(sim_interface_);
+  states_.push_back(ObserverState);
   robot_.calculate_save_error(original_dist_, ObserverState.distances());        
   
   return;    
@@ -347,21 +349,44 @@ run()
     if (!stop_episode) {
       
       count_ = 0 ;
+
+      std::vector<lt::triangle<double>> new_triangle;
       
       while (count_ < 150) {
+
+	/*  Do online learning... */
+        typename Quadcopter<simulator_t>::Reward reward =
+	  Quadcopter<simulator_t>::Reward::very_bad;		
 	
+	/*  Change each 10 times the direction of the leader */	
 	if (count_ == 0 ) {
-	  phase_two(true);	  
+	  phase_two(true);
+	  /*  need to change 10 to multiple. Just note it in then code */
+	} else if (count_ == 10) {
+	  phase_two(true);      
 	} else {
 	  phase_two(false);      
 	}
+       	
+	lt::positions<double> new_positions = sim_interface_->positions();
 	
-	std::this_thread::sleep_for(std::chrono::seconds(1));
-
-	LogInfo() << "Z height: "<< sim_interface_->positions().f1.z;
+	LogInfo() << "New positions : " << new_positions ;
 	
-	if (sim_interface_->positions().f1.z < 6 or
-	    sim_interface_->positions().f2.z < 6 ) {	  
+	new_triangle.push_back(mtools_.triangle_side(new_positions));
+				
+	if (count_ == 0 ) {
+	  reward = robot_.action_evaluator(original_dist_,
+					  new_triangle.at(count_));
+	  	
+	} else  {
+	  reward = robot_.action_evaluator(new_triangle.at(count_ -1),
+					  new_triangle.at(count_));        
+	}
+	
+	LogInfo() << "Z height: "<< new_positions.f1.z;
+	
+	if (new_positions.f1.z < 6 or
+	    new_positions.f2.z < 6 ) {	  
 
 	  robot_.save_controller_count(count_);
 	  break;
@@ -375,6 +400,22 @@ run()
 	  robot_.save_controller_count(count_);
 	  break;
 	}
+
+	/* Log online dataset */
+	auto it_state = states_.rbegin();
+	it_state = std::next(it_state, 1);
+	
+	/*  Save the generated data during the testing to improve the model later*/
+	typename Quadcopter<simulator_t>::State sp(sim_interface_);
+	
+	data_set_.save_csv_data_set(sp.create_printer_struct(*it_state),
+				    mtools_.to_one_hot_encoding(action_follower_.back(), 4),
+				    sp.create_printer_struct(states_.back()),
+				    mtools_.to_one_hot_encoding(reward, 4)
+				    );
+
+	/* Check why we need this sleep ! ??*/	
+	std::this_thread::sleep_for(std::chrono::seconds(1));       
 	++count_;	
       }
     }
