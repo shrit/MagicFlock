@@ -16,7 +16,6 @@ Generator (std::vector<std::shared_ptr<flight_controller_t>> quads,
    quads_(std::move(quads)),
    sim_interface_(std::move(sim_interface)),
    speed_(configs_.speed())
-   
 {
   data_set_.init_dataset_directory();
 }
@@ -224,36 +223,26 @@ run()
 	
 	/* Calculate the error compare to the starting point */
 	/* Compare with the original at start */
-			
+	/*  We have compared the value of the triangle with the one
+	    before executing this action. Instead of comparing it to
+	    the original one. But why? Why should this comparison
+	    gives better learning score than the one before */
+	
 	Quadcopter<simulator_t> robot;						  
-			
+	
 	if (count_ == 0 ) {
 	  reward = robot.action_evaluator(original_triangle,
-					  new_triangle.at(0));
-	  
-	  /*  move it outside of the while loop */
-	  if (mtools_.is_triangle(new_triangle.at(0)) == false) {
-	    break;
-	  }
-	} else if (count_ == 1 ) {
-	  reward = robot.action_evaluator(new_triangle.at(0),
-					  new_triangle.at(1));
-	  
-	  /*  move it outside of the while loop */
-	  if (mtools_.is_triangle(new_triangle.at(1)) == false) {
-	    break;
-	  }
-	  
-	} else if (count_ == 2 ) {
-	  reward = robot.action_evaluator(new_triangle.at(1),
-					  new_triangle.at(2));
-	  
-	  /*  move it outside of the while loop */
-	  if (mtools_.is_triangle(new_triangle.at(1)) == false) {
-	    break;
-	  }	  	  
+					  new_triangle.at(count_));
+	  	
+	} else  {
+	  reward = robot.action_evaluator(new_triangle.at(count_ -1),
+					  new_triangle.at(count_));        
 	}
 	
+	if (mtools_.is_triangle(mtools_.triangle_side(sim_interface_->positions())) == false) {
+	  LogInfo() << "The triangle is no longer conserved";	  
+	  break;
+	}
 	/*  1- problem logging the actions the next action is not
 	    registered before being logged */
 	
