@@ -415,18 +415,24 @@ run()
 				    mtools_.to_one_hot_encoding(reward, 4)
 				    );
 
-	/*  Get the fligtht error as the mean of the step error */
-	double mean_error = std::accumulate(step_errors_.begin() , step_errors_.end(),
-					    0.0)/step_errors_.size();
-	flight_errors_.push_back(mean_error);
-	step_errors_.clear();
 	
 	/* Check why we need this sleep ! ??*/	
 	std::this_thread::sleep_for(std::chrono::seconds(1));       
 	++count_;	
-      }
+      }      
     }
-        
+
+    /*  Get the fligtht error as the mean of the step error */
+    double mean_error = std::accumulate(step_errors_.begin() , step_errors_.end(),
+					0.0)/step_errors_.size();
+    
+    data_set_.save_error_file(mean_error);
+
+    flight_errors_.push_back(mean_error);
+    
+    step_errors_.clear();
+
+    
     for (auto it: iris_x_)
       it->land();
     
