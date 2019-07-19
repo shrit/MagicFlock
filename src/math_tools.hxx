@@ -3,13 +3,13 @@
 # include "math_tools.hh"
 
 template <typename T>
-double Math_tools::deformation_error(lt::triangle<T> old_dist,
-				     lt::triangle<T> new_dist)
-{
-  double error;  
-  error = std::sqrt(std::pow((old_dist.f1 - new_dist.f1), 2)  +
-		    std::pow((old_dist.f2 - new_dist.f2), 2)  +
-		    std::pow((old_dist.f3 - new_dist.f3), 2));
+double Math_tools::deformation_error_one_follower(lt::triangle<T> old_dist,
+						  lt::triangle<T> new_dist)
+{  
+  double diff_f1 = std::fabs(old_dist.f1 - new_dist.f1);
+  double diff_f2 = std::fabs(old_dist.f2 - new_dist.f2);
+  
+  double error = diff_f1 + diff_f2;
   
   /*  Recalculate the Error between quadcopters  */  
   return error;   
