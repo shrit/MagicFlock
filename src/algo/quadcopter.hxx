@@ -104,19 +104,6 @@ action_evaluator(lt::triangle<double> old_dist,
 
 template <class simulator_t>
 void Quadcopter<simulator_t>::
-calculate_save_error(lt::triangle<double> old_dist,
-		     lt::triangle<double> new_dist)
-{
-  double diff_f1 = std::fabs(old_dist.f1 - new_dist.f1);
-  double diff_f2 = std::fabs(old_dist.f2 - new_dist.f2);
-
-  double error = diff_f1 + diff_f2;
-
-  data_set_.save_error_file(error);  
-}
-
-template <class simulator_t>
-void Quadcopter<simulator_t>::
 save_controller_count(double value)
 {
   data_set_.save_count_file(value);  

@@ -92,11 +92,7 @@ public:
   
   Reward action_evaluator(lt::triangle<double> old_dist,
 			  lt::triangle<double> new_dist);
-
-  void
-  calculate_save_error(lt::triangle<double> old_dist,
-		       lt::triangle<double> new_dist);
-
+  
   void 
   save_controller_count(double value);
     
