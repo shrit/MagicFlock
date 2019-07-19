@@ -74,8 +74,9 @@ private:
   float discount_rate_ ;
   std::uniform_real_distribution<> distribution_;
   std::uniform_int_distribution<> distribution_int_;
-  int episode_ ;
-  float epsilon_ ;
+  int episode_;
+  float epsilon_;
+  std::vector<double> flight_errors_;
   std::random_device random_dev;
   std::mt19937 generator_;
   float learning_rate_ ;
@@ -86,6 +87,7 @@ private:
   typename Quadcopter<simulator_t>::Action saved_leader_action_;
   std::shared_ptr<simulator_t> sim_interface_;
   float speed_;
+  std::vector<double> step_errors_;
   std::vector<typename Quadcopter<simulator_t>::State> states_;
   lt::triangle<double> original_dist_;
   Quadcopter<simulator_t> robot_;

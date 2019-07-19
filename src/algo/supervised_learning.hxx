@@ -75,7 +75,7 @@ insert_absolute_features(std::vector<typename Quadcopter<simulator_t>::Action> a
   for (int i = 0; i < 4; ++i) {
     
     /*  State */
-    row << 3 //(*it_state).height()
+    row << (*it_state).height()
 	<< (*it_state).distances().f1
 	<< (*it_state).distances().f2
 	<< (*it_state).distances().f3
@@ -86,7 +86,7 @@ insert_absolute_features(std::vector<typename Quadcopter<simulator_t>::Action> a
 	<< mtools_.to_one_hot_encoding(actions.at(i), 4).at(2)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 4).at(3)
       /*  nextState */
-	<< 3 //states_.back().height()
+	<< states_.back().height()
 	<< states_.back().distances().f1
 	<< states_.back().distances().f2
 	<< states_.back().distances().f3
@@ -273,7 +273,9 @@ phase_two(bool random_leader_action)
       verify the model accuracy */
   typename Quadcopter<simulator_t>::State ObserverState(sim_interface_);
   states_.push_back(ObserverState);
-  robot_.calculate_save_error(original_dist_, ObserverState.distances());        
+  
+  step_errors_.push_back(mtools_.deformation_error_one_follower
+			(original_dist_, ObserverState.distances()));        
   
   return;    
 }
@@ -413,6 +415,12 @@ run()
 				    mtools_.to_one_hot_encoding(reward, 4)
 				    );
 
+	/*  Get the fligtht error as the mean of the step error */
+	double mean_error = std::accumulate(step_errors_.begin() , step_errors_.end(),
+					    0.0)/step_errors_.size();
+	flight_errors_.push_back(mean_error);
+	step_errors_.clear();
+	
 	/* Check why we need this sleep ! ??*/	
 	std::this_thread::sleep_for(std::chrono::seconds(1));       
 	++count_;	
