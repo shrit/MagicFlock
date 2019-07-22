@@ -185,7 +185,7 @@ run()
       
       std::vector<lt::triangle<double>> new_triangle;
       
-      while (count_ < 3) {
+      while (count_ < 10) {
 	
         typename Quadcopter<simulator_t>::Reward reward =
 	  Quadcopter<simulator_t>::Reward::very_bad;

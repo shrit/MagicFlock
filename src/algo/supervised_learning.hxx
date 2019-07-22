@@ -354,7 +354,7 @@ run()
 
       std::vector<lt::triangle<double>> new_triangle;
       
-      while (count_ < 150) {
+      while (count_ < 300) {
 
 	/*  Do online learning... */
         typename Quadcopter<simulator_t>::Reward reward =
