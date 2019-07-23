@@ -176,8 +176,14 @@ run()
     }
     /*  Wait to complete the take off process */
     std::this_thread::sleep_for(std::chrono::seconds(1));  
-    
-    /*  Start the First phase, in 3 Steps */
+
+    for(int i = 0; i < 10; ++i) {
+      for (auto it : iris_x_) {
+	it->up(10);
+      }
+    }
+        
+    /*  Start the First phase */
              
     if (!stop_episode) {
       
