@@ -8,7 +8,7 @@ log/*
 paper/auto/*
 material/auto/*
 model_plugin/build/*
-
+model/*
 
 
 GPATH
