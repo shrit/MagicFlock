@@ -147,12 +147,23 @@ T Math_tools::pythagore_hypotenuse(T leg_1, T leg_2)
 }
 
 template <typename Arg>
+Arg Math_tools::mean(std::vector<Arg> vec)
+{
+  size_t sz = vec.size();
+  if (sz == 1)
+    return -1;
+  
+  return std::accumulate(vec_.begin() , vec_.end(),
+			 0.0)/vec_.size();
+}
+
+template <typename Arg>
 Arg Math_tools::variance(std::vector<Arg> vec)
 {
   /*  note that diff_f3_ was used here */
   size_t sz = vec.size();
   if (sz == 1)
-    return 0.0;
+    return -1;
 
   /*  Do not take the first value */
   Arg mean = std::accumulate(vec.begin() + 1, 
