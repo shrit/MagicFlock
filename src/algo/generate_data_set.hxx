@@ -178,7 +178,7 @@ run()
     std::this_thread::sleep_for(std::chrono::seconds(1));  
 
     for(int i = 0; i < 10; ++i) {
-      for (auto it : iris_x_) {
+      for (auto it : quads_) {
 	it->up(10);
       }
     }
@@ -191,7 +191,7 @@ run()
       
       std::vector<lt::triangle<double>> new_triangle;
       
-      while (count_ < 10) {
+      while (count_ < 4) {
 	
         typename Quadcopter<simulator_t>::Reward reward =
 	  Quadcopter<simulator_t>::Reward::very_bad;
