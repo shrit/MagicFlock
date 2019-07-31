@@ -64,6 +64,21 @@ is_triangle(lt::triangle<T> t)
 }
 
 template <typename T>
+std::vector<int> Math_tools::
+histogram(std::vector<T> vec)
+{
+  auto max = std::max_element(vec.begin(), vec.end());
+  auto min = std::min_element(vec.begin(), vec.end());
+  std::vector<int> histo;
+  int diff = *(max) - *(min);
+  for (int i = 0 ; i < diff; i++) {
+    histo.push_back(std::count
+	       (vec.begin(), vec.end(), *(min) + i)) ;
+  }
+  return histo;
+}
+
+template <typename T>
 lt::triangle<double> Math_tools::
 triangle_side(lt::positions<T> pos)
 {

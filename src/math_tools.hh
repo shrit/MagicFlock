@@ -18,7 +18,7 @@ public:
 
   Math_tools() :
     lower_threshold_{4, 4, 4},
-    upper_threshold_{11, 11, 11}
+    upper_threshold_{9, 9, 9}
   {}
 
   template <typename T>
@@ -29,18 +29,21 @@ public:
   double gaussian_noise(std::vector<lt::triangle<T>> ideal_dist,
 			std::vector<T> drift_f3);
   template <typename T>
+  long long unsigned int
+  index_of_highest_value(const std::vector<T>& vec);
+  
+  template <typename T>
   bool is_triangle(lt::triangle<T> t);
 
+  template <typename T>
+  std::vector<int> histogram(std::vector<T> vec);
+  
   template <typename T>
   lt::triangle<double> triangle_side(lt::positions<T> pos);
 
   template <typename Arg, typename Arg2>
   std::vector<bool> to_one_hot_encoding(Arg arg,
 			  Arg2 number_of_class);
-
-  template <typename T>
-  long long unsigned int
-  index_of_highest_value(const std::vector<T>& vec);
 
   template <typename T>
   T pythagore_leg(T leg, T hypotenuse);
