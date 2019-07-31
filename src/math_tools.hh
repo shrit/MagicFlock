@@ -37,6 +37,9 @@ public:
 
   template <typename T>
   std::vector<int> histogram(std::vector<T> vec);
+
+  template <typename Arg>
+  Arg mean(std::vector<Arg> vec);
   
   template <typename T>
   lt::triangle<double> triangle_side(lt::positions<T> pos);

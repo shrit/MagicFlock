@@ -153,8 +153,8 @@ Arg Math_tools::mean(std::vector<Arg> vec)
   if (sz == 1)
     return -1;
   
-  return std::accumulate(vec_.begin() , vec_.end(),
-			 0.0)/vec_.size();
+  return std::accumulate(vec.begin() , vec.end(),
+			 0.0)/vec.size();
 }
 
 template <typename Arg>

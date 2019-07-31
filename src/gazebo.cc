@@ -1,8 +1,7 @@
 # include "gazebo.hh"
 
 Gazebo::Gazebo(int argc, char* argv[])
-  :  node_(new gazebo::transport::Node()),
-     ema_filter_{0.9, 42}
+  :  node_(new gazebo::transport::Node())
 {
   gazebo::client::setup(argc, argv);  
   node_->Init();  
@@ -127,22 +126,6 @@ void Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
 lt::rssi<double> Gazebo::rssi() const
 {
   std::lock_guard<std::mutex> lock(_signal_mutex);
-  return _signal;
-}
-
-lt::rssi<double> Gazebo::filtered_rssi() 
-{
-  std::lock_guard<std::mutex> lock(_signal_mutex);
-
-  ema_filter_.input(_signal.f3());
-  _signal.f3(ema_filter_.output());
-  
-  ema_filter_.input(_signal.f1());
-  _signal.f1(ema_filter_.output());
-    
-  ema_filter_.input(_signal.f2());
-  _signal.f2(ema_filter_.output());
-  
   return _signal;
 }
 

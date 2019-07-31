@@ -9,7 +9,6 @@
 
 # include <mutex>
 
-# include "ema_filter.hh"
 # include "global.hh"
 # include "log.hh"
 # include "config_ini.hh"
@@ -43,7 +42,6 @@ public:
   void Parse_rssi_msg_2(ConstVector2dPtr& msg);
   
   lt::rssi<double> rssi() const;
-  lt::rssi<double> filtered_rssi();
   lt::positions<double> positions() const;
   lt::orientations<double> orientations() const;
 
@@ -66,8 +64,6 @@ private:
 
   mutable std::mutex _orientations_mutex{};
   lt::orientations<double> _orientations;
-
-  EWMAFilter<double> ema_filter_;
 
   mutable std::mutex _signal_mutex{};
   lt::rssi<double> _signal;
