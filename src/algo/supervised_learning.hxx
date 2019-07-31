@@ -174,7 +174,7 @@ phase_two(bool random_leader_action)
   mlpack::ann::FFN<mlpack::ann::SigmoidCrossEntropyError<>,
 		   mlpack::ann::RandomInitialization> model;
   
-  mlpack::data::Load("model.xml", "model", model);
+  mlpack::data::Load("model.xml", "model", model, true);
   
   /*  we need to pass State ,and nextState, and try possible a */
   typename Quadcopter<simulator_t>::Action action_leader ;
@@ -229,11 +229,11 @@ phase_two(bool random_leader_action)
   std::vector<typename Quadcopter<simulator_t>::Action> possible_action  =
     robot_.possible_actions() ;
 
-  /*  Now we need to estimate the features using fgeature extractor */
+  /*  Now we need to estimate the features using propagation model */
   
   //  arma::mat features = features_extractor(possible_action);
 
-  /*  Test the trained model using the absolute feature */
+  /*  Test the trained model using the absolute gazebo distance feature */
   arma::mat features = insert_absolute_features(possible_action);
   
   arma::mat label;
@@ -244,7 +244,7 @@ phase_two(bool random_leader_action)
   
   features = features.t();
   label = label.t();
-
+  
   LogInfo() << "True 2D distance: " << states_.back().distances();
   
   LogInfo() << "Size of features: " << arma::size(features);
@@ -259,11 +259,11 @@ phase_two(bool random_leader_action)
   action_follower_.push_back(action_follower(features, values));
   
   threads.push_back(std::thread([&](){
-				  for (int i = 0; i < 4; ++i) {
-				    move_action("f2", action_follower_.back());
-				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
-				  }				  
-				}));
+  				  for (int i = 0; i < 4; ++i) {
+  				    move_action("f2", action_follower_.back());
+  				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
+  				  }				  
+  				}));
   
   for (auto& thread : threads) {
     thread.join();
@@ -363,8 +363,8 @@ run()
 	if (count_ == 0 ) {
 	  phase_two(true);
 	  /*  Change each 10 times the direction of the leader */		  
-	} else if (count_ % 10 == 0) {
-	  phase_two(true);      
+	  // } else if (count_ % 10 == 0) {
+	  //  phase_two(true);      
 	} else {
 	  phase_two(false);      
 	}
@@ -414,24 +414,27 @@ run()
 				    sp.create_printer_struct(states_.back()),
 				    mtools_.to_one_hot_encoding(reward, 4)
 				    );
-
+	time_step_vector_.push_back(count_);
 	
 	/* Check why we need this sleep ! ??*/	
 	std::this_thread::sleep_for(std::chrono::seconds(1));       
 	++count_;	
-      }      
+      }     
     }
 
-    /*  Get the fligtht error as the mean of the step error */
-    double mean_error = std::accumulate(step_errors_.begin() , step_errors_.end(),
-					0.0)/step_errors_.size();
+    /*  Save a version of the time steps to create a histogram */
+    std::vector<int> histogram_vec  = mtools_.histogram(time_step_vector_);
+    data_set_.save_histogram(histogram_vec);
     
-    data_set_.save_error_file(mean_error);
+    /*  Get the flight error as the mean of the step error */
+    double mean_error = mtools_.mean(step_errors_);
 
-    flight_errors_.push_back(mean_error);
-    
+    if(mean_error != -1) {
+      data_set_.save_error_file(mean_error);
+      flight_errors_.push_back(mean_error);
+    }
+            
     step_errors_.clear();
-
     
     for (auto it: iris_x_)
       it->land();

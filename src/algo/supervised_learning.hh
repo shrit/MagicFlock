@@ -89,6 +89,7 @@ private:
   float speed_;
   std::vector<double> step_errors_;
   std::vector<typename Quadcopter<simulator_t>::State> states_;
+  std::vector<int>  time_step_vector_;
   lt::triangle<double> original_dist_;
   Quadcopter<simulator_t> robot_;
   
