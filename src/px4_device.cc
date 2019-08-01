@@ -170,7 +170,7 @@ void Px4Device::init_speed()
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});		         
 }
 
-Offboard::Result Px4Device::start_offboard_mode()
+bool Px4Device::start_offboard_mode()
 {
   
   Offboard::Result offboard_result = offboard_->start();
@@ -179,9 +179,9 @@ Offboard::Result Px4Device::start_offboard_mode()
     std::cerr << "Offboard::start() failed: " 
   	      << Offboard::result_str(offboard_result) ;
     
-    return offboard_result; 
+    return false; 
   }  
-  return offboard_result; 
+  return true; 
 }
 
 /*  Speed in m/s */
@@ -230,7 +230,7 @@ bool Px4Device::arm()
   return true;              
 }
 
-Action::Result Px4Device::reboot()
+bool Px4Device::reboot()
 {
 
   LogInfo() << "Rebooting..." ;
@@ -238,9 +238,9 @@ Action::Result Px4Device::reboot()
   if(reboot_result != Action::Result::SUCCESS){
     LogInfo() << "Rebooting failed: "
 	      << Action::result_str(reboot_result) ;
-    return reboot_result;    
+    return false;    
   }  
-  return reboot_result;              
+  return true;              
 }
 
 void Px4Device::print_position()

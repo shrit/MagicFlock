@@ -46,7 +46,7 @@ public:
   Px4Device(lt::connection_type socket, lt::port_type port);
 
   bool arm();
-  Action::Result reboot();
+  bool reboot();
   
   bool takeoff();
   bool land();
@@ -65,7 +65,7 @@ public:
   void turnToRight();
   
   void init_speed();
-  Offboard::Result start_offboard_mode();
+  bool start_offboard_mode();
   
   bool discover_system();
   ConnectionResult connect_to_quad(std::string connection_url);

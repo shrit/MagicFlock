@@ -333,8 +333,11 @@ run()
     }
     
     /*  Switch to offboard mode, Allow the control */
+    bool offboard_mode;
     for (auto it : iris_x_) {
-      it->start_offboard_mode();
+      offboard_mode = it->start_offboard_mode();
+      if(!offboard_mode)
+	stop_episode = true;
     }
     /*  Wait to complete the take off process */
     std::this_thread::sleep_for(std::chrono::seconds(1));

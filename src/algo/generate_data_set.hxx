@@ -169,11 +169,15 @@ run()
     for (auto it : quads_){
       it->init_speed();
     }
-    
-    /*  Switch to offboard mode, Allow the control */
-    for(auto it : quads_){
-      it->start_offboard_mode();
+
+     /*  Switch to offboard mode, Allow the control */
+    bool offboard_mode;
+    for (auto it : quads_) {
+      offboard_mode = it->start_offboard_mode();
+      if(!offboard_mode)
+	stop_episode = true;
     }
+        
     /*  Wait to complete the take off process */
     std::this_thread::sleep_for(std::chrono::seconds(1));  
 
