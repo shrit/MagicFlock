@@ -281,7 +281,11 @@ void keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
  */
 int main(int argc, char* argv[])
 {
-        
+  if (argc != 2) {
+    LogErr() << "Please specify if you want to train or test a controller!!" ;
+    exit(0);
+  }
+  
   Settings settings(argc, argv);  
   Configs configs;
 
@@ -348,14 +352,16 @@ int main(int argc, char* argv[])
    *  2: Train the model on the dataset
    *  3: Test the trained model    
    */
-  // DataSet data_set;
-  // data_set.init_dataset_directory();
+
+  if(settings.training()) {
+    Generator<Px4Device, Gazebo> generator(iris_x, gz);
+    generator.run();
+  }
   
-  //  Generator<Px4Device, Gazebo> generator(iris_x, gz);
-  //  generator.run();
-  
-  Supervised_learning<Px4Device, Gazebo> slearning(iris_x, gz);
-  slearning.run(); 
+  if (settings.testing()) {
+    Supervised_learning<Px4Device, Gazebo> slearning(iris_x, gz);
+    slearning.run();
+  }
  
   auto joystick_handler = [&](){
 			    if (joystick_mode) {

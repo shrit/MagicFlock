@@ -15,12 +15,13 @@ public:
   
   Settings(int argc, char* argv[]);
   
-  
+  bool training() const;
+  bool testing() const;
 private:
-   
-  std::string ini_file_;
-  std::string connection_url_;
-  lt::connection_type socket_;
+
+  bool training_;
+  bool testing_;
+  std::string ini_file_;  
   std::string outputfile_;
   
 };

@@ -44,7 +44,9 @@ Settings::Settings(int argc, char* argv[])
     ("version,v", "Print the current version")
     ("Versbose,V", "Be more verbose")
     ("ini-file,n", po::value<std::string>(&ini_file_),"Specify the name of the ini file")
-    ("output-file,o", po::value<std::string>(&outputfile_),"Specify the file name to be used to logging");
+    ("output-file,o", po::value<std::string>(&outputfile_),"Specify the file name to be used to logging")
+    ("training", po::value<bool>(&training_)," Generate data set to train the swarm")
+    ("test", po::value<bool>(&testing_)," Test an aleardy trained controller on the followers");
     
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, option), vm);
@@ -64,5 +66,10 @@ Settings::Settings(int argc, char* argv[])
   if(vm.count("Verbose")){
     std::cout << "Debug level increased ";
   }    
-
 }
+
+bool Settings::training() const
+{ return training_; }
+
+bool Settings::testing() const
+{ return testing_; }
