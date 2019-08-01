@@ -64,18 +64,24 @@ is_triangle(lt::triangle<T> t)
 }
 
 template <typename T>
-std::vector<int> Math_tools::
-histogram(std::vector<T> vec)
+void Math_tools::
+histogram(T times)
 {
-  auto max = std::max_element(vec.begin(), vec.end());
-  auto min = std::min_element(vec.begin(), vec.end());
-  std::vector<int> histo;
-  int diff = *(max) - *(min);
-  for (int i = 0 ; i < diff; i++) {
-    histo.push_back(std::count
-	       (vec.begin(), vec.end(), *(min) + i)) ;
+  auto it = histo_.find(times);
+
+  if (it != histo_.end()) {
+    it->second = it->second + 1;
+  } else {
+    histo_.insert(std::pair<T, T>(times, 1));        
   }
-  return histo;
+}
+
+template <typename T>
+std::map<T, T> Math_tools::
+get_histogram()
+{
+  std::sort(histo_.begin(), histo_.end());
+  return histo_;  
 }
 
 template <typename T>
@@ -150,7 +156,7 @@ template <typename Arg>
 Arg Math_tools::mean(std::vector<Arg> vec)
 {
   size_t sz = vec.size();
-  if (sz == 1)
+  if (sz == 0)
     return -1;
   
   return std::accumulate(vec.begin() , vec.end(),

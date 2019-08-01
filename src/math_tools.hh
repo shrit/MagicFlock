@@ -36,7 +36,10 @@ public:
   bool is_triangle(lt::triangle<T> t);
 
   template <typename T>
-  std::vector<int> histogram(std::vector<T> vec);
+  std::map<T, T> get_histogram();
+    
+  template <typename T>
+  void histogram(T times);
 
   template <typename Arg>
   Arg mean(std::vector<Arg> vec);
@@ -56,9 +59,10 @@ public:
   
   template <typename Arg>
   Arg variance(std::vector<Arg> vec);
-    
+
 private:
 
+  std::map <int, int> histo_;
   std::vector<float> lower_threshold_;
   std::vector<float> upper_threshold_;
   
