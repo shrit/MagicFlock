@@ -421,10 +421,11 @@ run()
 	++count_;	
       }     
     }
-
+    /*  Add 1 to adjust count to one instead of starting by zero */
+    count_ = count_ + 1;
     /*  Save a version of the time steps to create a histogram */
-    std::vector<int> histogram_vec  = mtools_.histogram(time_step_vector_);
-    data_set_.save_histogram(histogram_vec);
+    mtools_.histogram(count_);
+    data_set_.save_histogram(mtools_.get_histogram<int>());
     
     /*  Get the flight error as the mean of the step error */
     double mean_error = mtools_.mean(step_errors_);

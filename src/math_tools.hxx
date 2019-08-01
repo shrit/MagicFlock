@@ -80,7 +80,6 @@ template <typename T>
 std::map<T, T> Math_tools::
 get_histogram()
 {
-  std::sort(histo_.begin(), histo_.end());
   return histo_;  
 }
 
