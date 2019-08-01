@@ -3,6 +3,7 @@ import textwrap
 import argparse
 import matplotlib.pyplot as plt
 import numpy as np
+import sys
 
 """
 Error files need to be formated as one column file
@@ -14,7 +15,7 @@ def plot_flight_error(error_file_name):
     num_lines = sum(1 for line in open(error_file_name))
     print (num_lines)
     
-    y = np.loadtxt("error")
+    y = np.loadtxt(error_file_name)
     x = np.arange(y.size)
     
     print(y)
@@ -48,7 +49,7 @@ def plot_flight_count(count_file_name):
     num_lines = sum(1 for line in open(count_file_name))
     print (num_lines)
     
-    y = np.loadtxt("count16:18:15")
+    y = np.loadtxt(count_file_name)
     x = np.arange(y.size)
     
     z = np.mean(y)
