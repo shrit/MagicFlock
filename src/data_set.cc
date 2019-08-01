@@ -63,6 +63,9 @@ void DataSet::init_dataset_directory()
   error_file_name_=
     "../dataset/" + date_stream.str() + "/error" + time_stream.str();
   
+  histogram_file_name_=
+    "../dataset/" + date_stream.str() + "/histogram" + time_stream.str();
+  
   count_file_name_=
     "../dataset/" + date_stream.str() + "/count" + time_stream.str();
   

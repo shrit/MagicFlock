@@ -46,6 +46,21 @@ void DataSet::save_error_file(Arg&& arg)
   file.close();  
 }
 
+template <typename Arg>
+void DataSet::save_histogram(Arg&& arg)
+{
+  std::ofstream file;
+  file.open(histogram_file_name_,
+	    std::ios::out);
+  
+  for (auto& [key, value]: arg) {
+    file << key << " " << value << "\n";
+  }
+  
+  file.flush();
+  file.close();  
+}
+
 template <typename Arg>  
 void DataSet::save_count_file(Arg&& arg)
 {

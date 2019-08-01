@@ -43,6 +43,9 @@ public:
 
   template <typename Arg>
   void save_error_file(Arg&& arg);
+
+  template <typename Arg>
+  void save_histogram(Arg&& arg);
   
   template <typename Arg>  
   void save_count_file(Arg&& arg);
@@ -68,6 +71,7 @@ private:
   std::string error_file_name_;
   std::string result_file_name_;
   std::string count_file_name_;
+  std::string histogram_file_name_;
   
   std::vector<std::vector<double>> data_set_;  
     
