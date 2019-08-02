@@ -3,6 +3,7 @@ import textwrap
 import argparse
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import sys
 
 """
@@ -22,22 +23,20 @@ def plot_flight_error(error_file_name):
     
     z = np.mean(y)
     
-    print ("error standard deviation : ", np.std(y))
-    
+    print ("error standard deviation : ", np.std(y))    
     print(z)
     #plt.ylim(-1, +9)
     
     plt.plot(x, y, color='blue')
     
-    
     plt.xlabel('Number of flight')
     plt.ylabel('Error of deformation combined totatly in m')
+
+    figure = plt.gcf() # get current figure
+    figure.set_size_inches(25, 6)    
     
+    plt.savefig(error_file_name + ".png", dpi=100)
     
-    fig = plt.subplot()
-    
-    #fig.savefig("test.png")
-    plt.show()
 
 """
 Count files need to be formated as one column file
@@ -50,9 +49,9 @@ def plot_flight_count(count_file_name):
     print (num_lines)
     
     y = np.loadtxt(count_file_name)
-    x = np.arange(y.size)
-    
+    x = np.arange(y.size)    
     z = np.mean(y)
+    
     print ("count deviation: ", np.std(y) )
     print(z)
     
@@ -61,25 +60,39 @@ def plot_flight_count(count_file_name):
     plt.xlabel('Number of flights')
     plt.ylabel('Controller Counts before deformation')
     
-    #plt.title("Plot the deformation error according to the number of action ")
-    
-    plt.savefig("count_high_res.esp", format='eps', dpi=1000)
-    plt.show()
+    figure = plt.gcf() # get current figure
+    figure.set_size_inches(25, 6)    
+
+    plt.savefig(count_file_name + ".png", dpi=100)
 
 
-def plot_histogram(histogram_file_name):
-    
-    x = np.loadtxt()
-    y = np.arange()
-    
+def plot_histogram(count_file_name, histogram_file_name):
+    x = np.loadtxt(count_file_name)
+    plt.hist(x, bins=3)
+
     plt.xlabel('Number of time steps')
     plt.ylabel('Frequency')
     
-    plt.savefig("count_high_res.esp", format='eps', dpi=1000)
-    plt.show()
+    figure = plt.gcf() 
+    figure.set_size_inches(25, 6)    
 
+    plt.savefig(histogram_file_name + ".png", dpi=100)
 
-   
+    
+def plot_histogram_2d(histogram_file_name):
+    
+    data = pd.read_csv(histogram_file_name, sep=' ',header=None, index_col =0)
+
+    data.plot(kind='bar')
+    plt.xlabel('Number of time steps')
+    plt.ylabel('Frequency')
+            
+    figure = plt.gcf() # get current figure
+    figure.set_size_inches(25, 6)    
+
+    plt.savefig(histogram_file_name + ".png", dpi=100)
+
+    
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(
@@ -113,7 +126,7 @@ if __name__ == '__main__':
         plot_flight_count(args.count_file_name)
 
     if args.histogram_file_name:   
-        plot_histogram(args.histogram_file_name)
+        plot_histogram_2d(args.histogram_file_name)
 
 
     
