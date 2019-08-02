@@ -174,7 +174,7 @@ phase_two(bool random_leader_action)
   mlpack::ann::FFN<mlpack::ann::SigmoidCrossEntropyError<>,
 		   mlpack::ann::RandomInitialization> model;
   
-  mlpack::data::Load("model.xml", "model", model, true);
+  mlpack::data::Load("model.txt", "model", model, true);
   
   /*  we need to pass State ,and nextState, and try possible a */
   typename Quadcopter<simulator_t>::Action action_leader ;
