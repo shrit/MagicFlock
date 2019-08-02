@@ -281,7 +281,7 @@ void keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
  */
 int main(int argc, char* argv[])
 {
-  if (argc != 2) {
+  if (argc < 2) {
     LogErr() << "Please specify if you want to train or test a controller!!" ;
     exit(0);
   }
@@ -353,12 +353,12 @@ int main(int argc, char* argv[])
    *  3: Test the trained model    
    */
 
-  if(settings.training()) {
+  if(settings.training() == true) {
     Generator<Px4Device, Gazebo> generator(iris_x, gz);
     generator.run();
   }
   
-  if (settings.testing()) {
+  if (settings.testing() == true) {
     Supervised_learning<Px4Device, Gazebo> slearning(iris_x, gz);
     slearning.run();
   }

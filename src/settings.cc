@@ -46,24 +46,24 @@ Settings::Settings(int argc, char* argv[])
     ("ini-file,n", po::value<std::string>(&ini_file_),"Specify the name of the ini file")
     ("output-file,o", po::value<std::string>(&outputfile_),"Specify the file name to be used to logging")
     ("training", po::value<bool>(&training_)," Generate data set to train the swarm")
-    ("test", po::value<bool>(&testing_)," Test an aleardy trained controller on the followers");
+    ("testing", po::value<bool>(&testing_)," Test an aleardy trained controller on the followers");
     
   po::variables_map vm;
   po::store(po::parse_command_line(argc, argv, option), vm);
-  po::notify(vm);
-    
-  if(vm.count("help")){
+  po::notify(vm);    
+  
+  if(vm.count("help")) {
     usage(std::cout);
     std::cout << option << std::endl;
     exit(0);        
   }
     
-  if(vm.count("version")){
+  if(vm.count("version")) {
     std::cout << "0.9v ";
     exit(0);        
   }
       
-  if(vm.count("Verbose")){
+  if(vm.count("Verbose")) {
     std::cout << "Debug level increased ";
   }    
 }
