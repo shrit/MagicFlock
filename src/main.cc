@@ -15,9 +15,9 @@
 # include <vector>
 
 /*  locale defined include */
-
-# include "algo/supervised_learning.hh"
+# include "algo/training.hh"
 # include "algo/generate_data_set.hh"
+# include "algo/supervised_learning.hh"
 # include "config_ini.hh"
 # include "data_set.hh"
 # include "gazebo.hh"
@@ -353,9 +353,15 @@ int main(int argc, char* argv[])
    *  3: Test the trained model    
    */
 
-  if(settings.training() == true) {
+  if(settings.generate() == true) {
     Generator<Px4Device, Gazebo> generator(iris_x, gz);
     generator.run();
+  }
+
+  if(settings.training() == true) {
+    Train trainer;
+    trainer.load_data_set();
+    trainer.run();
   }
   
   if (settings.testing() == true) {

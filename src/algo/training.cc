@@ -84,7 +84,7 @@ void Train::run()
   ens::AdamType<ens::AdamUpdate> optimizer;
   
   // Train the model.
-  for (int i = 0; i < 54; ++i) {
+  for (int i = 0; i < 1000; ++i) {
     std::cout << "training..." << std::endl;
     model.Train(trainData_,
 		trainlabel_,

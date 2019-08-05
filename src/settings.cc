@@ -45,7 +45,8 @@ Settings::Settings(int argc, char* argv[])
     ("Versbose,V", "Be more verbose")
     ("ini-file,n", po::value<std::string>(&ini_file_),"Specify the name of the ini file")
     ("output-file,o", po::value<std::string>(&outputfile_),"Specify the file name to be used to logging")
-    ("training", po::value<bool>(&training_)," Generate data set to train the swarm")
+    ("generate-dataset", po::value<bool>(&generate_)," Generate data set by doing random actions")
+    ("training", po::value<bool>(&training_)," train the swarm using an already generated dataset")
     ("testing", po::value<bool>(&testing_)," Test an aleardy trained controller on the followers");
     
   po::variables_map vm;
@@ -67,6 +68,9 @@ Settings::Settings(int argc, char* argv[])
     std::cout << "Debug level increased ";
   }    
 }
+
+bool Settings::generate() const
+{ return generate_; }
 
 bool Settings::training() const
 { return training_; }

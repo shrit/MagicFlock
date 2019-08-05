@@ -14,11 +14,13 @@ class Settings {
 public:
   
   Settings(int argc, char* argv[]);
-  
-  bool training() const;
+
+  bool generate() const;
+  bool training() const;  
   bool testing() const;
 private:
 
+  bool generate_;
   bool training_;
   bool testing_;
   std::string ini_file_;  

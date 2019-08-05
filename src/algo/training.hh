@@ -18,7 +18,6 @@ public:
   double accuracy(arma::Row<size_t> predLabels,
 		  arma::Row<size_t> LabelY);
   
-
   arma::Row<size_t> getLabels(const arma::mat& predOut);
   
   void load_data_set();
@@ -29,7 +28,6 @@ public:
   
   Train(Train &&) = default;
   
-
 private:
   
   arma::mat dataset_;
