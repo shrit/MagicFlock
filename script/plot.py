@@ -108,9 +108,9 @@ if __name__ == '__main__':
         You have to provide the file format as described in the above comments.
         '''))
     
-    parser.add_argument('error_file_name', type=str)
-    parser.add_argument('count_file_name', type=str)
-    parser.add_argument('histogram_file_name', type=str)
+    parser.add_argument('--error_file_name', metavar="error file name", type=str, help="Enter error file name that has the mean value of each flight")
+    parser.add_argument('--count_file_name', metavar="count file name", type=str, help="Enter flight count file name  ")
+    parser.add_argument('--histogram_file_name', metavar="histogtam file name", type=str, help="Enter histogram file name, two column file name, nuumber of steps and frequency")
     
     args = parser.parse_args()
 
@@ -122,10 +122,10 @@ if __name__ == '__main__':
     if args.error_file_name:
         plot_flight_error(args.error_file_name)
 
-    if args.count_file_name:    
+    elif args.count_file_name:    
         plot_flight_count(args.count_file_name)
 
-    if args.histogram_file_name:   
+    elif args.histogram_file_name:   
         plot_histogram_2d(args.histogram_file_name)
 
 
