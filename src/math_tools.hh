@@ -24,29 +24,29 @@ public:
   template <typename T>
   double deformation_error_one_follower(lt::triangle<T> old_dist,
 					lt::triangle<T> new_dist);
-  
+
   template <typename T>
   double gaussian_noise(std::vector<lt::triangle<T>> ideal_dist,
 			std::vector<T> drift_f3);
   template <typename T>
   long long unsigned int
   index_of_highest_value(const std::vector<T>& vec);
-  
+
   template <typename T>
   bool is_triangle(lt::triangle<T> t);
 
   template <typename T>
   std::map<T, T> get_histogram();
-    
+
   template <typename T>
   void histogram(T times);
 
   template <typename Arg>
   Arg mean(std::vector<Arg> vec);
-  
+
   template <typename T>
   lt::triangle<double> triangle_side_2D(lt::positions<T> pos);
-  
+
   template <typename T>
   lt::triangle<double> triangle_side_3D(lt::positions<T> pos);
 
@@ -59,7 +59,7 @@ public:
 
   template <typename T>
   T pythagore_hypotenuse(T leg_1, T leg_2);
-  
+
   template <typename Arg>
   Arg variance(std::vector<Arg> vec);
 
@@ -68,7 +68,7 @@ private:
   std::map <int, int> histo_;
   std::vector<float> lower_threshold_;
   std::vector<float> upper_threshold_;
-  
+
 };
 
 # include "math_tools.hxx"

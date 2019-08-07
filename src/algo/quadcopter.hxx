@@ -12,16 +12,16 @@ Quadcopter<simulator_t>::Quadcopter()
 template <class simulator_t>
 void Quadcopter<simulator_t>::init()
 {
-  data_set_.init_dataset_directory();  
+  data_set_.init_dataset_directory();
 }
 
 template <class simulator_t>
 Quadcopter<simulator_t>::State::State(std::shared_ptr<simulator_t> sim_interface):
   sim_interface_(std::move(sim_interface)),
   pmodel_(sim_interface_)
-{  
-  rssi_ = sim_interface_->rssi();  
-  height_ = sim_interface_->positions().f2.z;  
+{
+  rssi_ = sim_interface_->rssi();
+  height_ = sim_interface_->positions().f2.z;
   z_orinetation_  = sim_interface_->orientations().f2.z;
   dists_2D_ =   mtools_.triangle_side_2D(sim_interface_->positions());
   dists_3D_ =   mtools_.triangle_side_3D(sim_interface_->positions());
@@ -32,7 +32,7 @@ template <class simulator_t>
 lt::rssi<double> Quadcopter<simulator_t>::State::
 signal_strength () const
 {
-  return rssi_ ; 
+  return rssi_ ;
 }
 
 template <class simulator_t>
@@ -89,14 +89,14 @@ action_evaluator(lt::triangle<double> old_dist,
 {
   LogInfo() << "F1 differences: " << std::fabs(old_dist.f1 - new_dist.f1);
   LogInfo() << "F2 differences: " << std::fabs(old_dist.f2 - new_dist.f2);
-  
+
   double diff_f1 = std::fabs(old_dist.f1 - new_dist.f1);
   double diff_f2 = std::fabs(old_dist.f2 - new_dist.f2);
-  
+
    Reward reward = Reward::very_bad;
-  
+
   if (0.5  > diff_f1 + diff_f2 ) {
-    reward = Reward::very_good;      
+    reward = Reward::very_good;
   } else if ( 1.0  > diff_f1 + diff_f2 and
 	      diff_f1 + diff_f2  > 0.5 ) {
     reward = Reward::good;
@@ -106,7 +106,7 @@ action_evaluator(lt::triangle<double> old_dist,
   } else if ( 2.0  > diff_f1 + diff_f2 and
 	      diff_f1 + diff_f2  > 1.5 ) {
     reward = Reward::very_bad;
-  }  
+  }
   return reward;
 }
 
@@ -114,7 +114,7 @@ template <class simulator_t>
 void Quadcopter<simulator_t>::
 save_controller_count(double value)
 {
-  data_set_.save_count_file(value);  
+  data_set_.save_count_file(value);
 }
 
 template <class simulator_t>
@@ -125,24 +125,24 @@ possible_actions() const
 template <class simulator_t>
 typename Quadcopter<simulator_t>::Action Quadcopter<simulator_t>::
 randomize_action()
-{  
+{
   int random_action = distribution_int_(generator_);
-  
+
   LogInfo() << "Random action value: " << random_action ;
 
-  Action action = Action::forward ; 
-  
+  Action action = Action::forward ;
+
   if( random_action == 0){
     action = Action::forward ;
   }
   else if(random_action == 1){
     action = Action::backward ;
-  }    
+  }
   else if(random_action == 2){
     action = Action::left ;
   }
   else if (random_action == 3){
-    action = Action::right ;   
+    action = Action::right ;
   }
    return action;
 }

@@ -12,11 +12,11 @@ Propagation_model(std::shared_ptr<simulator_t> sim_interface):
   alpha_(2.12),
   beta_(29.3),
   gamma_(2.11),
-  sigma_(0),  
+  sigma_(0),
   sim_interface_(std::move(sim_interface))
 {
   channel_to_frequency(1);
-  wave_length();  
+  wave_length();
 }
 
 /*  Do not use, something is missing in the watt version */
@@ -29,10 +29,10 @@ friis_convert_watt_to_distance(T receiver_power)
   /*  ensure initialization  */
   /*  Convert everything to watt before calculation */
   receiver_power = dbm_to_watt(receiver_power);
-  
+
   LogInfo () << "R Power in Watt: " << receiver_power;
   LogInfo () << "Wave length: " << wave_length_;
-  
+
   T distance = wave_length_ /(4*PI) *
     std::sqrt(transmitter_power_ * transmitter_gain_ * receiver_gain_
 	      / receiver_power * system_loss_);
@@ -44,10 +44,10 @@ friis_convert_watt_to_distance(T receiver_power)
   double original_heights = sim_interface_->positions().f1.z;
 
   double diff_heights = total_heights - original_heights;
-  
+
   distance =  mtools_.pythagore_leg(diff_heights, distance);
-  
-  return distance;  
+
+  return distance;
 }
 
 template <class simulator_t,
@@ -66,10 +66,10 @@ friis_convert_dbm_to_distance(T receiver_power)
   double original_heights = sim_interface_->positions().f1.z;
 
   double diff_heights = total_heights - original_heights;
-  
+
   distance =  mtools_.pythagore_leg(diff_heights, distance);
-  
-  return distance;        
+
+  return distance;
 }
 
 template <class simulator_t,
@@ -89,10 +89,10 @@ ITU_convert_dbm_to_distance(T receiver_power)
   double original_heights = sim_interface_->positions().f1.z;
 
   double diff_heights = total_heights - original_heights;
-  
+
   distance =  mtools_.pythagore_leg(diff_heights, distance);
-    
-  return distance;  
+
+  return distance;
 }
 
 template <class simulator_t, class T>
@@ -103,7 +103,7 @@ distances_2D()
   lt::rssi signal = sim_interface_->rssi();
   LogInfo() << "Signal received in PropModel: "
 	    << signal ;
-  
+
   dist.f1 = friis_convert_dbm_to_distance (signal.f1()) ;
   dist.f2 = friis_convert_dbm_to_distance (signal.f2()) ;
   dist.f3 = friis_convert_dbm_to_distance (signal.f3()) ;
@@ -118,7 +118,7 @@ template <class simulator_t,
 T Propagation_model<simulator_t, T>::dbm_to_watt(T value)
 {
   double rssi_watt;
-  return rssi_watt = std::pow(10, (value - 30)/10 );  
+  return rssi_watt = std::pow(10, (value - 30)/10 );
 }
 
 template <class simulator_t,
@@ -126,7 +126,7 @@ template <class simulator_t,
 T Propagation_model<simulator_t, T>::Hz_to_Ghz(T value)
 {
   double f_ghz ;
-  return f_ghz = value / 1000000000;  
+  return f_ghz = value / 1000000000;
 }
 
 template <class simulator_t, class T>
@@ -136,8 +136,8 @@ void Propagation_model<simulator_t, T>::channel_to_frequency(int channel)
     LogErr() << "No valid channel number";
   }
   double ref_channel = 1;
-  
-  frequency_ = ((channel - ref_channel)*5 +  2412) * 1000000 ;      
+
+  frequency_ = ((channel - ref_channel)*5 +  2412) * 1000000 ;
 }
 
 template <class simulator_t, class T>
@@ -145,4 +145,3 @@ void Propagation_model<simulator_t, T>::wave_length()
 {
   wave_length_ = speed_of_light / frequency_;
 }
-

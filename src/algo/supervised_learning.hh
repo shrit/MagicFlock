@@ -34,34 +34,34 @@ template<class flight_controller_t,
 	 class simulator_t>
 class Supervised_learning
 {
-  
+
 public:
-  
-  Supervised_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,	     
+
+  Supervised_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	     std::shared_ptr<simulator_t> gzs);
-        
+
   void move_action(std::string label,
-		   typename Quadcopter<simulator_t>::Action action);  
-  
+		   typename Quadcopter<simulator_t>::Action action);
+
   void phase_two(bool random_leader_action);
-  
+
   int highest_values(arma::mat matrix);
-  
+
   typename Quadcopter<simulator_t>::Action randomize_action();
-  
-  typename Quadcopter<simulator_t>::Action 
+
+  typename Quadcopter<simulator_t>::Action
   action_follower(arma::mat features, arma::uword index);
 
-  arma::mat 
+  arma::mat
   features_extractor(std::vector<typename Quadcopter<simulator_t>::Action> actions);
-  
-  arma::mat 
+
+  arma::mat
   insert_absolute_features(std::vector<typename Quadcopter<simulator_t>::Action> actions);
-      
+
   void run();
 
-  Supervised_learning(Supervised_learning const&) = delete;  
-  
+  Supervised_learning(Supervised_learning const&) = delete;
+
   Supervised_learning(Supervised_learning &&) = default;
 
 private:
@@ -82,7 +82,7 @@ private:
   float learning_rate_ ;
   int max_episode_ ;
   float min_epsilon_ ;
-  Math_tools mtools_;      
+  Math_tools mtools_;
   std::vector<std::shared_ptr<flight_controller_t>> iris_x_;
   typename Quadcopter<simulator_t>::Action saved_leader_action_;
   std::shared_ptr<simulator_t> sim_interface_;
@@ -92,7 +92,7 @@ private:
   std::vector<int>  time_step_vector_;
   lt::triangle<double> original_dist_;
   Quadcopter<simulator_t> robot_;
-  
+
 };
 
 # include "supervised_learning.hxx"

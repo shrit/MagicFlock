@@ -15,7 +15,7 @@ static struct termios orig_termios; /* In order to restore at exit.*/
 int Keyboard::enable_raw_mode(int fd)
 {
   struct termios raw;
-  
+
   if (raw_mode_) return 0; /* Already enabled. */
   if (!isatty(STDIN_FILENO)) goto fatal;
   atexit(call_back_exit);
@@ -44,7 +44,7 @@ int Keyboard::enable_raw_mode(int fd)
  fatal:
   errno = ENOTTY;
   return -1;
-  
+
 }
 
 void Keyboard::disable_raw_mode(int fd)
@@ -53,7 +53,7 @@ void Keyboard::disable_raw_mode(int fd)
   if (raw_mode_) {
     tcsetattr(fd,TCSAFLUSH,&orig_termios);
     raw_mode_ = 0;
-  }  
+  }
 }
 
 int Keyboard::poll_event(int fd)
@@ -63,7 +63,7 @@ int Keyboard::poll_event(int fd)
   while ((nread = read(fd,&c,1)) == 0);
   if (nread == -1)
     exit(1);
-  
+
   return c;
-  
+
 }

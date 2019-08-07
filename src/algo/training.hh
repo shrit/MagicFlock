@@ -17,21 +17,21 @@ public:
 
   double accuracy(arma::Row<size_t> predLabels,
 		  arma::Row<size_t> LabelY);
-  
+
   arma::Row<size_t> getLabels(const arma::mat& predOut);
-  
+
   void load_data_set();
-  
+
   void run();
-  
-  Train(Train const&) = delete;  
-  
+
+  Train(Train const&) = delete;
+
   Train(Train &&) = default;
-  
+
 private:
-  
+
   arma::mat dataset_;
-  
+
   arma::mat trainData_;
   arma::mat trainlabel_;
 
@@ -40,5 +40,5 @@ private:
   arma::mat testlabel_;
 
 
-  
+
 };

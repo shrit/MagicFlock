@@ -2,61 +2,61 @@
 
 Configs::Configs()
 {
-  
-  mINI::INIFile file("../quad.ini");  
+
+  mINI::INIFile file("../quad.ini");
   file.read(ini_);
-  
+
   parse_ini();
-  
+
 }
 
 void Configs::parse_ini()
 {
 
   /*Parse Simulation section*/
-  
+
   number_of_quads_ = std::stoi(ini_.get("simulation").get("quad_number"));
 
   std::string joystick = ini_.get("simulation").get("use_joystick");
   std::istringstream(joystick) >> std::boolalpha >> joystick_;
 
-  
+
   std::string keyboard = ini_.get("simulation").get("use_keyboard");
   std::istringstream(keyboard) >> std::boolalpha >> keyboard_;
-    
+
   speed_ = std::stoi(ini_.get("simulation").get("speed"));
 
   std::string just_fly = ini_.get("simulation").get("just_fly");
   std::istringstream(keyboard) >> std::boolalpha >> just_fly_;
 
     /*Parse quadcopter section*/
-  
+
   quad_names_.push_back(ini_.get("quadcopter_01").get("model_name"));
   quad_names_.push_back(ini_.get("quadcopter_02").get("model_name"));
   quad_names_.push_back(ini_.get("quadcopter_03").get("model_name"));
 
   ports_.push_back(static_cast<lt::port_type>
 		   (std::stoi(ini_.get("quadcopter_01").get("port"))));
-  
+
   ports_.push_back(static_cast<lt::port_type>
   		   (std::stoi(ini_.get("quadcopter_02").get("port"))));
-  
+
   ports_.push_back(static_cast<lt::port_type>
-  		   (std::stoi(ini_.get("quadcopter_03").get("port")))); 
+  		   (std::stoi(ini_.get("quadcopter_03").get("port"))));
 
   /* Parse subscribe topic section */
 
   positions_ = ini_.get("subscribe_topics").get("positions");
-  
+
   rssi_1_2_ = ini_.get("subscribe_topics").get("rssi_1_2");
   rssi_1_3_ = ini_.get("subscribe_topics").get("rssi_1_3");
-  rssi_2_3_ = ini_.get("subscribe_topics").get("rssi_2_3"); 
+  rssi_2_3_ = ini_.get("subscribe_topics").get("rssi_2_3");
 
   /* Parse publish topic section */
 
   reset_1_ = ini_.get("publish_topics").get("reset_1");
   reset_2_ = ini_.get("publish_topics").get("reset_2");
-  reset_3_ = ini_.get("publish_topics").get("reset_3"); 
+  reset_3_ = ini_.get("publish_topics").get("reset_3");
 }
 
 

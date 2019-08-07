@@ -5,14 +5,14 @@
 template <typename T>
 double Math_tools::deformation_error_one_follower(lt::triangle<T> old_dist,
 						  lt::triangle<T> new_dist)
-{  
+{
   double diff_f1 = std::fabs(old_dist.f1 - new_dist.f1);
   double diff_f2 = std::fabs(old_dist.f2 - new_dist.f2);
-  
+
   double error = diff_f1 + diff_f2;
-  
-  /*  Recalculate the Error between quadcopters  */  
-  return error;   
+
+  /*  Recalculate the Error between quadcopters  */
+  return error;
 }
 
 template <typename T>
@@ -20,19 +20,19 @@ double Math_tools::gaussian_noise(std::vector<lt::triangle<T>> distances,
 				  std::vector<T> drift_f3)
 {
   std::vector<double> ideal_f3;
-  
+
   std::transform(distances.begin(), distances.end(), std::back_inserter(ideal_f3),
 		 [](lt::triangle<double> const& t) { return t.f3; });
-  
+
   std::adjacent_difference(ideal_f3.begin(), ideal_f3.end(), std::back_inserter(drift_f3));
 
   /* The difference in distances needs to be in absolute value */
   /*  This has a tremendous cost since we need to re */
   double (*fabs)(double) = &std::fabs;
   std::transform(drift_f3.begin(), drift_f3.end(), drift_f3.begin(), fabs);
-    
+
   // adding one here to remove the first element of adjacent difference
-  double noise_mean = std::accumulate(drift_f3.begin() + 1, 
+  double noise_mean = std::accumulate(drift_f3.begin() + 1,
 				   drift_f3.end(), 0.0)/drift_f3.size();
   return noise_mean;
 }
@@ -40,7 +40,7 @@ double Math_tools::gaussian_noise(std::vector<lt::triangle<T>> distances,
 template <typename T>
 long long unsigned int Math_tools::
 index_of_highest_value(const std::vector<T>& vec)
-{ 
+{
   // Find Smallest Value in vec
     auto highest = std::max_element(vec.begin(), vec.end());
     return std::distance(vec.begin(), highest);
@@ -60,7 +60,7 @@ is_triangle(lt::triangle<T> t)
 	value = true;
     }
   }
-  return value;   
+  return value;
 }
 
 template <typename T>
@@ -72,7 +72,7 @@ histogram(T times)
   if (it != histo_.end()) {
     it->second = it->second + 1;
   } else {
-    histo_.insert(std::pair<T, T>(times, 1));        
+    histo_.insert(std::pair<T, T>(times, 1));
   }
 }
 
@@ -80,7 +80,7 @@ template <typename T>
 std::map<T, T> Math_tools::
 get_histogram()
 {
-  return histo_;  
+  return histo_;
 }
 
 template <typename T>
@@ -88,7 +88,7 @@ lt::triangle<double> Math_tools::
 triangle_side_2D(lt::positions<T> pos)
 {
     lt::position<double> dist, dist2, dist3;
-    
+
     /*  Distance between leader and FF */
     dist.x =  pos.leader.x - pos.f1.x;
     dist.y =  pos.leader.y - pos.f1.y;
@@ -105,10 +105,10 @@ triangle_side_2D(lt::positions<T> pos)
 
     t.f3 = std::sqrt(std::pow((dist.x), 2) +
 		     std::pow((dist.y), 2));
-    
+
     t.f1 = std::sqrt(std::pow((dist2.x), 2)+
 		     std::pow((dist2.y), 2));
-    
+
     t.f2 = std::sqrt(std::pow((dist3.x), 2)+
 		     std::pow((dist3.y), 2));
     /*  it return the traingle side */
@@ -120,7 +120,7 @@ lt::triangle<double> Math_tools::
 triangle_side_3D(lt::positions<T> pos)
 {
     lt::position<double> dist, dist2, dist3;
-    
+
     /*  Distance between leader and FF */
     dist.x =  pos.leader.x - pos.f1.x;
     dist.y =  pos.leader.y - pos.f1.y;
@@ -141,11 +141,11 @@ triangle_side_3D(lt::positions<T> pos)
     t.f3 = std::sqrt(std::pow((dist.x), 2) +
 		     std::pow((dist.y), 2) +
 		     std::pow((dist.z), 2));
-    
+
     t.f1 = std::sqrt(std::pow((dist2.x), 2) +
 		     std::pow((dist2.y), 2) +
 		     std::pow((dist2.z), 2));
-    
+
     t.f2 = std::sqrt(std::pow((dist3.x), 2) +
 		     std::pow((dist3.y), 2) +
 		     std::pow((dist3.z), 2));
@@ -158,7 +158,7 @@ template <typename Arg, typename Arg2>
 std::vector<bool> Math_tools::to_one_hot_encoding(Arg arg, Arg2 number_of_class)
 {
   std::vector<bool> one_hot (number_of_class, 0);
-  // // to check 
+  // // to check
   // if constexpr (std::is_same<Arg,
   // 		typename std::underlying_type<Quadcopter<Arg>::Action>::type>::value) {
   if( number_of_class > static_cast<int>(arg)) {
@@ -166,8 +166,8 @@ std::vector<bool> Math_tools::to_one_hot_encoding(Arg arg, Arg2 number_of_class)
   } else {
     LogErr() << "Can not convert to one hot, please add more classes..." ;
   }
-  
-  return one_hot;  
+
+  return one_hot;
 }
 
 template <typename T>
@@ -192,7 +192,7 @@ Arg Math_tools::mean(std::vector<Arg> vec)
   size_t sz = vec.size();
   if (sz == 0)
     return -1;
-  
+
   return std::accumulate(vec.begin() , vec.end(),
 			 0.0)/vec.size();
 }
@@ -206,12 +206,12 @@ Arg Math_tools::variance(std::vector<Arg> vec)
     return -1;
 
   /*  Do not take the first value */
-  Arg mean = std::accumulate(vec.begin() + 1, 
+  Arg mean = std::accumulate(vec.begin() + 1,
 			     vec.end(), 0.0)/vec.size();
-  
-  return std::accumulate(vec.begin(), vec.end(), 0.0, 
-			 [&mean, &sz](double accumulator, const double& val) {		      
+
+  return std::accumulate(vec.begin(), vec.end(), 0.0,
+			 [&mean, &sz](double accumulator, const double& val) {
 			   return accumulator +
 			     ((val - mean)*(val - mean) / (sz - 1));
-			 } );  
+			 } );
 }

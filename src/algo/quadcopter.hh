@@ -1,5 +1,5 @@
 /*
- * @author: Omar Shrit 
+ * @author: Omar Shrit
  *
  * This file implement the state class for quadcopters
  *
@@ -29,9 +29,9 @@ struct state_printer {
 inline std::ostream& operator<< (std::ostream& out, const state_printer& s)
 {
   // << s.rssi <<","
-  out << s.height << "," 
+  out << s.height << ","
       << s.distances << ","
-      << s.orientation ;  
+      << s.orientation ;
   return out;
 }
 
@@ -41,13 +41,13 @@ class Quadcopter {
 public:
 
   Quadcopter();
-  
+
   class State {
-        
+
   public:
-    
+
     State(std::shared_ptr<simulator_t> sim_interface);
-    
+
     double height () const;
     lt::rssi<double> signal_strength () const;
     lt::triangle<double> distances_2D () const;
@@ -57,9 +57,9 @@ public:
 
     state_printer
     create_printer_struct(Quadcopter<simulator_t>::State state);
-          
+
   private:
-    
+
     Math_tools mtools_;
     lt::rssi<double> rssi_ ;
     double height_;
@@ -72,7 +72,7 @@ public:
     std::shared_ptr<simulator_t> sim_interface_;
     Propagation_model<simulator_t, double> pmodel_;
   };
-  
+
   enum class Action
     {
      forward,
@@ -87,34 +87,34 @@ public:
      very_good,
      good,
      bad,
-     very_bad,     
+     very_bad,
     };
 
   void init();
-  
+
   Reward action_evaluator(lt::triangle<double> old_dist,
 			  lt::triangle<double> new_dist);
-  
-  void 
+
+  void
   save_controller_count(double value);
-    
+
   std::vector<Action> possible_actions() const;
-  
+
   Action randomize_action();
-    
+
 private:
-  
+
   std::vector<Action> possible_actions_ = { Action::forward,
 					    Action::backward,
-					    Action::left,   					   
+					    Action::left,
 					    Action::right };
-  
+
   std::uniform_real_distribution<> distribution_;
   std::uniform_int_distribution<> distribution_int_;
-  std::random_device random_dev;  
+  std::random_device random_dev;
   std::mt19937 generator_;
   DataSet data_set_;
-   
+
 };
 
 # include "quadcopter.hxx"

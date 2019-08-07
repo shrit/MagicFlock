@@ -3,28 +3,28 @@
 Px4Device::Px4Device(lt::connection_type socket,
 		     lt::port_type port)
 {
-    
-  std::string connection_url = socket + "://:" + std::to_string(port);    
-  
-  connect_to_quad(connection_url);  
-  discover_system();    
-  System& system = mavsdk_.system();  
-  
+
+  std::string connection_url = socket + "://:" + std::to_string(port);
+
+  connect_to_quad(connection_url);
+  discover_system();
+  System& system = mavsdk_.system();
+
   telemetry_   = std::make_shared<mavsdk::Telemetry>(system);
   offboard_    = std::make_shared<mavsdk::Offboard>(system);
   action_      = std::make_shared<mavsdk::Action>(system);
   calibration_ = std::make_shared<mavsdk::Calibration>(system);
-  
+
   set_rate_result();
   position_ned();
-  //  quad_health();  //Stop testing quad health for some moments  
+  //  quad_health();  //Stop testing quad health for some moments
 }
 
 ConnectionResult Px4Device::connect_to_quad(std::string connection_url)
 {
-  ConnectionResult connection_result;  
+  ConnectionResult connection_result;
   connection_result = mavsdk_.add_any_connection(connection_url);
-   
+
   if (connection_result != ConnectionResult::SUCCESS) {
     LogErr() << ERROR_CONSOLE_TEXT
 	     << "Connection failed: "
@@ -32,13 +32,13 @@ ConnectionResult Px4Device::connect_to_quad(std::string connection_url)
 	     << NORMAL_CONSOLE_TEXT ;
     return connection_result;
   }
-  return connection_result;  
+  return connection_result;
 }
 
 bool Px4Device::discover_system()
 {
   bool discovered_system = false;
-    
+
   LogInfo() << "Waiting to discover system..." ;
   mavsdk_.register_on_discover([&discovered_system](uint64_t uuid) {
 				 LogInfo() << "Discovered system with UUID: "
@@ -50,13 +50,13 @@ bool Px4Device::discover_system()
   if (!discovered_system) {
     LogErr() << ERROR_CONSOLE_TEXT
 	     <<"No system found, exiting."
-	     << NORMAL_CONSOLE_TEXT;    
+	     << NORMAL_CONSOLE_TEXT;
   }
   return discovered_system;
 }
 
 bool Px4Device::takeoff()
-{  
+{
   LogInfo() << "taking off..." ;
   const Action::Result takeoff_result = action_->takeoff();
   if(takeoff_result != Action::Result::SUCCESS){
@@ -65,16 +65,16 @@ bool Px4Device::takeoff()
 	     << Action::result_str(takeoff_result);
     return false;
   }
-  return true;  
+  return true;
 }
 
 bool Px4Device::takeoff(float meters)
 {
   bool altitude = set_takeoff_altitude(meters);
   if (!altitude) {
-    LogWarn() << "Set takeoff altitude has failed, Taking off with default altitude";    
+    LogWarn() << "Set takeoff altitude has failed, Taking off with default altitude";
   }
-  
+
   LogInfo() << "taking off..." ;
   const Action::Result takeoff_result = action_->takeoff();
   if(takeoff_result != Action::Result::SUCCESS){
@@ -83,7 +83,7 @@ bool Px4Device::takeoff(float meters)
 	     << Action::result_str(takeoff_result);
     return false;
   }
-  return true;  
+  return true;
 }
 
 bool Px4Device::land()
@@ -111,7 +111,7 @@ bool Px4Device::return_to_launch()
 	     << NORMAL_CONSOLE_TEXT ;
     return false;
   }
-  return true;  
+  return true;
 }
 
 bool Px4Device::set_takeoff_altitude(float meters)
@@ -141,16 +141,16 @@ bool Px4Device::set_altitude_rtl_max(float meters)
 	     << NORMAL_CONSOLE_TEXT ;
     return false;
   }
-  return true;  
+  return true;
 }
 
 void Px4Device::up(float speed)
 {
   LogInfo() << "To the sky !" ;
-  
+
   offboard_->set_velocity_body({0.0f, 0.0f, -speed, 0.0f});
   sleep_for(milliseconds(50));
-  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});      
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
 }
 
 void Px4Device::down(float speed)
@@ -159,63 +159,63 @@ void Px4Device::down(float speed)
 
   offboard_->set_velocity_body({0.0f, 0.0f, +speed, 0.0f});
   sleep_for(milliseconds(50));
-  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});    
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
 }
 
 void Px4Device::right(float speed)
 {
   LogInfo() << "Right now !" ;
-  
-  offboard_->set_velocity_body({0.0f, +speed, 0.0f, 0.0f}); 
+
+  offboard_->set_velocity_body({0.0f, +speed, 0.0f, 0.0f});
   sleep_for(milliseconds(50));
-  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
 }
 
 void Px4Device::left(float speed)
 {
   LogInfo() << "Left now !" ;
-  
+
   offboard_->set_velocity_body({0.0f, -speed, 0.0f, 0.0f});
   sleep_for(milliseconds(50));
-  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
 }
 
 void Px4Device::init_speed()
 {
-  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});		         
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
 }
 
 bool Px4Device::start_offboard_mode()
 {
-  
+
   Offboard::Result offboard_result = offboard_->start();
-    
+
   if (offboard_result != Offboard::Result::SUCCESS) {
-    std::cerr << "Offboard::start() failed: " 
+    std::cerr << "Offboard::start() failed: "
   	      << Offboard::result_str(offboard_result) ;
-    
-    return false; 
-  }  
-  return true; 
+
+    return false;
+  }
+  return true;
 }
 
 /*  Speed in m/s */
 void Px4Device::forward(float speed)
 {
   LogInfo() << " forward !" ;
-  // we need to set it to zero after each keyboard touch    
+  // we need to set it to zero after each keyboard touch
   offboard_->set_velocity_body({speed, 0.0f, 0.0f, 0.0f});
   sleep_for(milliseconds(50));
-  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
 }
 
 void Px4Device::backward(float speed)
 {
   LogInfo() << " backward !" ;
-    
+
   offboard_->set_velocity_body({-speed, 0.0f, 0.0f, 0.0f});
   sleep_for(milliseconds(50));
-  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});  
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
 }
 // add later the angular yaw speed
 void Px4Device::turnToLeft()
@@ -223,7 +223,7 @@ void Px4Device::turnToLeft()
   LogInfo() << " ... left rotate !" ;
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 270.0f});
   sleep_for(milliseconds(50));
-  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});      
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
 }
 // add later the angular yaw speed
 void Px4Device::turnToRight()
@@ -231,7 +231,7 @@ void Px4Device::turnToRight()
   LogInfo() << " ... right rotate" ;
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 90.0f});
   sleep_for(milliseconds(50));
-  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});     
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
 }
 
 bool Px4Device::arm()
@@ -240,9 +240,9 @@ bool Px4Device::arm()
   if(arm_result != Action::Result::SUCCESS){
     LogInfo() << "Arming failed: "
 	      << Action::result_str(arm_result);
-    return false;    
-  }  
-  return true;              
+    return false;
+  }
+  return true;
 }
 
 bool Px4Device::reboot()
@@ -253,14 +253,14 @@ bool Px4Device::reboot()
   if(reboot_result != Action::Result::SUCCESS){
     LogInfo() << "Rebooting failed: "
 	      << Action::result_str(reboot_result) ;
-    return false;    
-  }  
-  return true;              
+    return false;
+  }
+  return true;
 }
 
 void Px4Device::print_position()
 {
-  
+
   telemetry_->position_async([](Telemetry::Position position){
 			       LogInfo() << TELEMETRY_CONSOLE_TEXT
 					 << "Altitude : "
@@ -278,18 +278,18 @@ Telemetry::PositionVelocityNED Px4Device::position() const
 {  return _position_ned;  }
 
 double Px4Device::DistanceFrom(std::shared_ptr<Px4Device> a)
-{  
+{
   Telemetry::PositionVelocityNED a_position = a->position();
   Telemetry::PositionVelocityNED my_position = position();
-  return CalculateDistance (my_position, a_position);  
+  return CalculateDistance (my_position, a_position);
 }
 
 double Px4Device::CalculateDistance (Telemetry::PositionVelocityNED& a,
 				     Telemetry::PositionVelocityNED& b)
 {
-  return std::sqrt( std::pow ((a.position.north_m - b.position.north_m), 2) + 
+  return std::sqrt( std::pow ((a.position.north_m - b.position.north_m), 2) +
 		    std::pow ((a.position.east_m - b.position.east_m), 2) +
-		    std::pow ((a.position.down_m - b.position.down_m), 2)  	    
+		    std::pow ((a.position.down_m - b.position.down_m), 2)
 		    );
 }
 
@@ -297,7 +297,7 @@ void Px4Device::position_ned()
 {
   telemetry_->position_velocity_ned_async([this](Telemetry::PositionVelocityNED pvn){
 					    this->_position_ned = pvn ;
-					  });   
+					  });
 }
 
 Calibration::calibration_callback_t
@@ -323,20 +323,20 @@ Px4Device::create_calibration_callback(std::promise<void> &calibration_promise)
 	     calibration_promise.set_value();
 	     break;
 	   }
-	 };  
+	 };
 }
 
 void Px4Device::calibrate_accelerometer()
 {
-  
+
   LogInfo() << "Calibrating accelerometer..." ;
-  
+
   std::promise<void> calibration_promise;
   auto calibration_future = calibration_promise.get_future();
-  
+
   calibration_->
     calibrate_accelerometer_async(Px4Device::create_calibration_callback(calibration_promise));
-  
+
   calibration_future.wait();
 }
 
@@ -346,13 +346,13 @@ void Px4Device::quad_health()
   while (telemetry_->health_all_ok() != true) {
     LogInfo() << "Vehicle is getting ready to arm" ;
     sleep_for(seconds(1));
-  }    
+  }
 }
 
 Telemetry::Result Px4Device::set_rate_result()
 {
   const Telemetry::Result set_rate_result = telemetry_->set_rate_position(1.0);
-  
+
   if (set_rate_result != Telemetry::Result::SUCCESS){
     LogErr() << ERROR_CONSOLE_TEXT
 	     <<"Set rate failed:"
@@ -360,7 +360,7 @@ Telemetry::Result Px4Device::set_rate_result()
 	     << NORMAL_CONSOLE_TEXT ;
     return set_rate_result;
   }
-  return set_rate_result;      
+  return set_rate_result;
 }
 
 // Handles Action result

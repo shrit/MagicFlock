@@ -40,23 +40,23 @@ using std::chrono::seconds;
 namespace lt = local_types;
 
 class Px4Device {
-  
+
 public:
 
   Px4Device(lt::connection_type socket, lt::port_type port);
 
   bool arm();
   bool reboot();
-  
+
   bool takeoff();
   bool takeoff(float meters);
-  
+
   bool land();
-  
+
   bool return_to_launch();
   bool set_altitude_rtl_max(float meters);
   bool set_takeoff_altitude(float meters);
-  
+
   void up(float speed);
   void down(float speed);
   void right(float speed);
@@ -65,10 +65,10 @@ public:
   void backward(float speed);
   void turnToLeft();
   void turnToRight();
-  
+
   void init_speed();
   bool start_offboard_mode();
-  
+
   bool discover_system();
   ConnectionResult connect_to_quad(std::string connection_url);
 
@@ -82,31 +82,30 @@ public:
   Telemetry::PositionVelocityNED position() const;
 
   double DistanceFrom(std::shared_ptr<Px4Device> a);
-  
+
   void quad_health();
   Telemetry::Result set_rate_result();
-  
+
   /*  Handles plugin results. */
-  
+
   inline void action_error_exit(Action::Result result, const std::string &message);
   inline void offboard_error_exit(Offboard::Result result, const std::string &message);
   inline void connection_error_exit(ConnectionResult result, const std::string &message);
 
-  Px4Device(Px4Device const&) = delete;  
-  
+  Px4Device(Px4Device const&) = delete;
+
   Px4Device(Px4Device &&) = default;
-    
+
 private:
 
   double CalculateDistance (Telemetry::PositionVelocityNED& a,
 			    Telemetry::PositionVelocityNED& b);
-  
+
   Mavsdk mavsdk_;
-  
+
   Telemetry::PositionVelocityNED _position_ned{{0, 0, 0}, {0, 0, 0}};
   std::shared_ptr<mavsdk::Telemetry> telemetry_;
   std::shared_ptr<mavsdk::Action> action_;
   std::shared_ptr<mavsdk::Offboard> offboard_;
-  std::shared_ptr<mavsdk::Calibration> calibration_;    
+  std::shared_ptr<mavsdk::Calibration> calibration_;
 };
-

@@ -16,22 +16,22 @@ class Propagation_model {
 public:
 
   Propagation_model(std::shared_ptr<simulator_t> sim_interface);
- 
+
   T dbm_to_watt(T value);
   T Hz_to_Ghz(T value);
-  
+
   lt::triangle<double> distances_2D();
-  
+
   void channel_to_frequency(int channel);
-        
+
   void wave_length();
 
 private:
-   
+
   T friis_convert_watt_to_distance(T receiver_power);
   T friis_convert_dbm_to_distance(T receiver_power);
   T ITU_convert_dbm_to_distance(T receiver_power);
-    
+
   double frequency_; // in HZ
   double wave_length_;
   double transmitter_power_; // in Watt
@@ -45,9 +45,9 @@ private:
   double sigma_;
 
   Math_tools mtools_;
-  
+
   std::shared_ptr<simulator_t> sim_interface_;
-  
+
 };
-  
+
 # include "propagation_mode.hxx"
