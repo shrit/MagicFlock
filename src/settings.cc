@@ -74,7 +74,24 @@ Settings::Settings(int argc, char* argv[])
   }
   
   if (vm.count("training")) {
-    training_ = true;
+
+    po::options_description training_desc("training options");
+    training_desc.add_options()
+      ("dataset-file", po::value<std::string>(&dataset_file_), "Specify the name of the dataset file to train")
+      ("testset-file", po::value<std::string>(&testset_file_), "Specify the name of the testset file to validate the training");
+
+    std::vector<std::string> opts = po::collect_unrecognized(parsed.options, po::include_positional);
+    opts.erase(opts.begin());
+    
+    po::store(po::command_line_parser(opts).options(training_desc).run(), vm);
+
+    if (vm.count("dataset-file") &&  vm.count("testset-file")) {
+
+      training_ = true;
+      
+    } else {
+      std::cout << "ERROR: You need to enter two files, training and testing files to start training process" << std::endl;
+    }  
   }
   
   if (vm.count("testing")) {

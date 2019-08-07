@@ -24,7 +24,8 @@ private:
   bool training_;
   bool testing_;
   std::string ini_file_;  
-  std::string outputfile_;
+  std::string dataset_file_;
+  std::string testset_file_;
   
 };
 
