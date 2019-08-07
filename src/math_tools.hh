@@ -45,7 +45,10 @@ public:
   Arg mean(std::vector<Arg> vec);
   
   template <typename T>
-  lt::triangle<double> triangle_side(lt::positions<T> pos);
+  lt::triangle<double> triangle_side_2D(lt::positions<T> pos);
+  
+  template <typename T>
+  lt::triangle<double> triangle_side_3D(lt::positions<T> pos);
 
   template <typename Arg, typename Arg2>
   std::vector<bool> to_one_hot_encoding(Arg arg,

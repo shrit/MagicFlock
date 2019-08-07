@@ -85,7 +85,39 @@ get_histogram()
 
 template <typename T>
 lt::triangle<double> Math_tools::
-triangle_side(lt::positions<T> pos)
+triangle_side_2D(lt::positions<T> pos)
+{
+    lt::position<double> dist, dist2, dist3;
+    
+    /*  Distance between leader and FF */
+    dist.x =  pos.leader.x - pos.f1.x;
+    dist.y =  pos.leader.y - pos.f1.y;
+
+    /* Distance between leader and TF */
+    dist2.x = pos.leader.x - pos.f2.x;
+    dist2.y = pos.leader.y - pos.f2.y;
+
+    /* Distance between TF and FF */
+    dist3.x = pos.f1.x - pos.f2.x;
+    dist3.y = pos.f1.y - pos.f2.y;
+
+    lt::triangle<double> t;
+
+    t.f3 = std::sqrt(std::pow((dist.x), 2) +
+		     std::pow((dist.y), 2));
+    
+    t.f1 = std::sqrt(std::pow((dist2.x), 2)+
+		     std::pow((dist2.y), 2));
+    
+    t.f2 = std::sqrt(std::pow((dist3.x), 2)+
+		     std::pow((dist3.y), 2));
+    /*  it return the traingle side */
+    return t;
+}
+
+template <typename T>
+lt::triangle<double> Math_tools::
+triangle_side_3D(lt::positions<T> pos)
 {
     lt::position<double> dist, dist2, dist3;
     
@@ -107,13 +139,16 @@ triangle_side(lt::positions<T> pos)
     lt::triangle<double> t;
 
     t.f3 = std::sqrt(std::pow((dist.x), 2) +
-		    std::pow((dist.y), 2));
+		     std::pow((dist.y), 2) +
+		     std::pow((dist.z), 2));
     
-    t.f1 = std::sqrt(std::pow((dist2.x), 2)+
-		    std::pow((dist2.y), 2));
+    t.f1 = std::sqrt(std::pow((dist2.x), 2) +
+		     std::pow((dist2.y), 2) +
+		     std::pow((dist2.z), 2));
     
-    t.f2 = std::sqrt(std::pow((dist3.x), 2)+
-		    std::pow((dist3.y), 2));
+    t.f2 = std::sqrt(std::pow((dist3.x), 2) +
+		     std::pow((dist3.y), 2) +
+		     std::pow((dist3.z), 2));
     /*  it return the traingle side */
     return t;
 }

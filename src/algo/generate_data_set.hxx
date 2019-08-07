@@ -120,7 +120,7 @@ run()
   
   LogInfo() << "Starting positions : " << original_positions ;
   
-  lt::triangle<double> original_triangle = mtools_.triangle_side(original_positions);
+  lt::triangle<double> original_triangle = mtools_.triangle_side_3D(original_positions);
 
   f3_side_.push_back(original_triangle);
   
@@ -218,10 +218,10 @@ run()
 	LogInfo() << "New positions : " << new_positions ;
   	
 	/*  Get the distance between the TL TF, and FF TF  at time t*/
-	new_triangle.push_back(mtools_.triangle_side(new_positions));
+	new_triangle.push_back(mtools_.triangle_side_3D(new_positions));
 	
 	/*  Keep a copy of the new distance between all of them */
-	f3_side_.push_back(mtools_.triangle_side(new_positions));
+	f3_side_.push_back(mtools_.triangle_side_3D(new_positions));
 	
 	/*Calculate the noise over the entire trainning session
 	  This will allow to refine exactly the good action */	
@@ -249,7 +249,7 @@ run()
 					  new_triangle.at(count_));        
 	}
 	
-	if (mtools_.is_triangle(mtools_.triangle_side(sim_interface_->positions())) == false) {
+	if (mtools_.is_triangle(mtools_.triangle_side_3D(sim_interface_->positions())) == false) {
 	  LogInfo() << "The triangle is no longer conserved";	  
 	  break;
 	}
@@ -275,6 +275,11 @@ run()
 	++count_;
       }
     }
+    
+    count_ = count_ + 1;
+    /*  Save a version of the time steps to create a histogram */
+    mtools_.histogram(count_);
+    data_set_.save_histogram(mtools_.get_histogram<int>());
     
     for (auto it: quads_)
       it->land();

@@ -50,7 +50,8 @@ public:
     
     double height () const;
     lt::rssi<double> signal_strength () const;
-    lt::triangle<double> distances () const;
+    lt::triangle<double> distances_2D () const;
+    lt::triangle<double> distances_3D () const;
     lt::triangle<double> estimated_distances () const;
     double orientation () const;
 
@@ -63,7 +64,8 @@ public:
     lt::rssi<double> rssi_ ;
     double height_;
     double z_orinetation_  ;
-    lt::triangle<double> dists_ ;
+    lt::triangle<double> dists_2D_ ;
+    lt::triangle<double> dists_3D_ ;
     lt::triangle<double> e_dists_;
     /*  Create a shared pointer to a simulator interface The interface
      need to have all the required data about the quadcopter*/

@@ -76,9 +76,9 @@ insert_absolute_features(std::vector<typename Quadcopter<simulator_t>::Action> a
     
     /*  State */
     row << (*it_state).height()
-	<< (*it_state).distances().f1
-	<< (*it_state).distances().f2
-	<< (*it_state).distances().f3
+	<< (*it_state).distances_3D().f1
+	<< (*it_state).distances_3D().f2
+	<< (*it_state).distances_3D().f3
 	<< (*it_state).orientation()
       /*  Action  */
 	<< mtools_.to_one_hot_encoding(actions.at(i), 4).at(0)
@@ -87,9 +87,9 @@ insert_absolute_features(std::vector<typename Quadcopter<simulator_t>::Action> a
 	<< mtools_.to_one_hot_encoding(actions.at(i), 4).at(3)
       /*  nextState */
 	<< states_.back().height()
-	<< states_.back().distances().f1
-	<< states_.back().distances().f2
-	<< states_.back().distances().f3
+	<< states_.back().distances_3D().f1
+	<< states_.back().distances_3D().f2
+	<< states_.back().distances_3D().f3
 	<< states_.back().orientation() ;
     
     features.insert_rows(0, row);    
@@ -245,7 +245,7 @@ phase_two(bool random_leader_action)
   features = features.t();
   label = label.t();
   
-  LogInfo() << "True 2D distance: " << states_.back().distances();
+  LogInfo() << "True 3D distance: " << states_.back().distances_3D();
   
   LogInfo() << "Size of features: " << arma::size(features);
   LogInfo() << features;
@@ -275,7 +275,7 @@ phase_two(bool random_leader_action)
   states_.push_back(ObserverState);
   
   step_errors_.push_back(mtools_.deformation_error_one_follower
-			(original_dist_, ObserverState.distances()));        
+			(original_dist_, ObserverState.distances_3D()));        
   
   return;    
 }
@@ -289,7 +289,7 @@ run()
   robot_.init();
   
   typename Quadcopter<simulator_t>::State ObserverState(sim_interface_);
-  original_dist_ = ObserverState.distances();
+  original_dist_ = ObserverState.distances_3D();
 
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
     
@@ -365,9 +365,9 @@ run()
 	
 	if (count_ == 0 ) {
 	  phase_two(true);
-	  /*  Change each 10 times the direction of the leader */		  
-	  // } else if (count_ % 10 == 0) {
-	  //  phase_two(true);      
+	  //Change each 10 times the direction of the leader		  
+	} else if (count_ % 10 == 0) {
+	  phase_two(true);      
 	} else {
 	  phase_two(false);      
 	}
@@ -376,7 +376,7 @@ run()
 	
 	LogInfo() << "New positions : " << new_positions ;
 	
-	new_triangle.push_back(mtools_.triangle_side(new_positions));
+	new_triangle.push_back(mtools_.triangle_side_3D(new_positions));
 				
 	if (count_ == 0 ) {
 	  reward = robot_.action_evaluator(original_dist_,
@@ -399,7 +399,7 @@ run()
 	/*  Need to verify that the controller is working, 
 	 use the triangle test to figure out after each iteration*/
 	
-	if (mtools_.is_triangle(mtools_.triangle_side(sim_interface_->positions())) == false) {
+	if (mtools_.is_triangle(mtools_.triangle_side_3D(sim_interface_->positions())) == false) {
 	  LogInfo() << "The triangle is no longer conserved";
 	  robot_.save_controller_count(count_);
 	  break;
