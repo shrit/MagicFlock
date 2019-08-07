@@ -6,16 +6,11 @@ Supervised_learning<flight_controller_t, simulator_t>::
 Supervised_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	   std::shared_ptr<simulator_t> gzs)
   :count_(0),
-   decay_rate_(0.01),
-   discount_rate_(0.95),
    distribution_(0.0, 1.0),
    distribution_int_(0, 3),
    episode_(0),
-   epsilon_(1.0),
    generator_(random_dev()),
-   learning_rate_(0.3),
    max_episode_(10000),  
-   min_epsilon_(0.0),
    iris_x_(std::move(iris_x)),
    sim_interface_(std::move(gzs)),
    speed_(configs_.speed())
