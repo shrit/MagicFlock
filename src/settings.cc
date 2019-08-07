@@ -37,33 +37,55 @@ Settings::Settings(int argc, char* argv[])
 {
 
   namespace po = boost::program_options;
-  po::options_description option("Allowed:");
+  po::options_description global("Allowed:");
   
-  option.add_options()
+  global.add_options()
     ("help,h", "Print this help message and exit" )				
     ("version,v", "Print the current version")
     ("Versbose,V", "Be more verbose")
     ("ini-file,n", po::value<std::string>(&ini_file_),"Specify the name of the ini file")
-    ("output-file,o", po::value<std::string>(&outputfile_),"Specify the file name to be used to logging")
-    ("generate-dataset", po::value<bool>(&generate_)," Generate data set by doing random actions")
-    ("training", po::value<bool>(&training_)," train the swarm using an already generated dataset")
-    ("testing", po::value<bool>(&testing_)," Test an aleardy trained controller on the followers");
-    
+    ("generate-dataset"," Generate data set by doing random actions")
+    ("training", "Train the swarm using an already generated dataset")
+    ("testing", "Test an aleardy trained controller on the followers");
+
+  po::positional_options_description pos;
+  pos.add("training", 2);
+  
   po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, option), vm);
+    
+  po::parsed_options parsed = po::command_line_parser(argc, argv).
+    options(global).
+    positional(pos).
+    allow_unregistered().
+    run();
+  
+  po::store(parsed, vm);
+  
   po::notify(vm);    
   
-  if(vm.count("help")) {
+  if (vm.count("help")) {
     usage(std::cout);
-    std::cout << option << std::endl;
+    std::cout << global << std::endl;
     exit(0);        
   }
-    
-  if(vm.count("version")) {
+  
+  if (vm.count("generate-dataset")) {
+    generate_ = true;
+  }
+  
+  if (vm.count("training")) {
+    training_ = true;
+  }
+  
+  if (vm.count("testing")) {
+    testing_ = true;
+  }
+  
+  if (vm.count("version")) {
     std::cout << "0.9v ";
     exit(0);        
   }
-      
+  
   if(vm.count("Verbose")) {
     std::cout << "Debug level increased ";
   }    
