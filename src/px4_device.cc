@@ -1,6 +1,5 @@
 # include "px4_device.hh"
 
-
 Px4Device::Px4Device(lt::connection_type socket,
 		     lt::port_type port)
 {
@@ -27,10 +26,10 @@ ConnectionResult Px4Device::connect_to_quad(std::string connection_url)
   connection_result = mavsdk_.add_any_connection(connection_url);
    
   if (connection_result != ConnectionResult::SUCCESS) {
-    LogInfo() << ERROR_CONSOLE_TEXT
-	      << "Connection failed: "
-	      << connection_result_str(connection_result)
-	      << NORMAL_CONSOLE_TEXT ;
+    LogErr() << ERROR_CONSOLE_TEXT
+	     << "Connection failed: "
+	     << connection_result_str(connection_result)
+	     << NORMAL_CONSOLE_TEXT ;
     return connection_result;
   }
   return connection_result;  
@@ -42,30 +41,46 @@ bool Px4Device::discover_system()
     
   LogInfo() << "Waiting to discover system..." ;
   mavsdk_.register_on_discover([&discovered_system](uint64_t uuid) {
-			     LogInfo() << "Discovered system with UUID: "
-				       << uuid ;
-			     discovered_system = true;
-			   });
+				 LogInfo() << "Discovered system with UUID: "
+					   << uuid ;
+				 discovered_system = true;
+			       });
   sleep_for(seconds(5));
 
   if (!discovered_system) {
-    LogInfo() << ERROR_CONSOLE_TEXT
-	      <<"No system found, exiting."
-	      << NORMAL_CONSOLE_TEXT;
-  
+    LogErr() << ERROR_CONSOLE_TEXT
+	     <<"No system found, exiting."
+	     << NORMAL_CONSOLE_TEXT;    
   }
   return discovered_system;
 }
 
 bool Px4Device::takeoff()
+{  
+  LogInfo() << "taking off..." ;
+  const Action::Result takeoff_result = action_->takeoff();
+  if(takeoff_result != Action::Result::SUCCESS){
+    LogErr() << ERROR_CONSOLE_TEXT
+	     << "take off failed: "
+	     << Action::result_str(takeoff_result);
+    return false;
+  }
+  return true;  
+}
+
+bool Px4Device::takeoff(float meters)
 {
+  bool altitude = set_takeoff_altitude(meters);
+  if (!altitude) {
+    LogWarn() << "Set takeoff altitude has failed, Taking off with default altitude";    
+  }
   
   LogInfo() << "taking off..." ;
   const Action::Result takeoff_result = action_->takeoff();
   if(takeoff_result != Action::Result::SUCCESS){
-    LogInfo() << ERROR_CONSOLE_TEXT
-	      << "take off failed: "
-	      << Action::result_str(takeoff_result);
+    LogErr() << ERROR_CONSOLE_TEXT
+	     << "take off failed: "
+	     << Action::result_str(takeoff_result);
     return false;
   }
   return true;  
@@ -76,10 +91,10 @@ bool Px4Device::land()
   LogInfo() << "Landing..." ;
   const Action::Result land_result = action_->land();
   if (land_result != Action::Result::SUCCESS) {
-    LogInfo() << ERROR_CONSOLE_TEXT
-	      << "Land failed:"
-	      << Action::result_str(land_result)
-	      << NORMAL_CONSOLE_TEXT ;
+    LogErr() << ERROR_CONSOLE_TEXT
+	     << "Landing failed:"
+	     << Action::result_str(land_result)
+	     << NORMAL_CONSOLE_TEXT ;
     return false;
   }
   return true;
@@ -90,10 +105,10 @@ bool Px4Device::return_to_launch()
   LogInfo() << "return to launch position..." ;
   const Action::Result rtl_result = action_->return_to_launch();
   if (rtl_result != Action::Result::SUCCESS) {
-    LogInfo() << ERROR_CONSOLE_TEXT
-	      << "return to launch position failed:"
-	      << Action::result_str(rtl_result)
-	      << NORMAL_CONSOLE_TEXT ;
+    LogErr() << ERROR_CONSOLE_TEXT
+	     << "return to launch position failed:"
+	     << Action::result_str(rtl_result)
+	     << NORMAL_CONSOLE_TEXT ;
     return false;
   }
   return true;  
@@ -101,17 +116,17 @@ bool Px4Device::return_to_launch()
 
 bool Px4Device::set_takeoff_altitude(float meters)
 {
-    LogInfo() << "set altitude takeoff..." ;
-    const Action::Result takeoff_altitude =
-      action_->set_takeoff_altitude(meters);
-    if (takeoff_altitude != Action::Result::SUCCESS) {
-      LogInfo() << ERROR_CONSOLE_TEXT
-		<< "return to launch position failed:"
-		<< Action::result_str(takeoff_altitude)
-		<< NORMAL_CONSOLE_TEXT ;
-      return false;
-    }
-    return true;      
+  LogInfo() << "Setting altitude takeoff to "<< meters << "meters";
+  const Action::Result takeoff_altitude =
+    action_->set_takeoff_altitude(meters);
+  if (takeoff_altitude != Action::Result::SUCCESS) {
+    LogErr() << ERROR_CONSOLE_TEXT
+	     << "Set takeoff altitude has failed:"
+	     << Action::result_str(takeoff_altitude)
+	     << NORMAL_CONSOLE_TEXT ;
+    return false;
+  }
+  return true;
 }
 
 bool Px4Device::set_altitude_rtl_max(float meters)
@@ -120,10 +135,10 @@ bool Px4Device::set_altitude_rtl_max(float meters)
   const Action::Result rtl_altitude =
     action_->set_return_to_launch_return_altitude(meters);
   if (rtl_altitude != Action::Result::SUCCESS) {
-    LogInfo() << ERROR_CONSOLE_TEXT
-	      << "return to launch position failed:"
-	      << Action::result_str(rtl_altitude)
-	      << NORMAL_CONSOLE_TEXT ;
+    LogErr() << ERROR_CONSOLE_TEXT
+	     << "return to launch position failed:"
+	     << Action::result_str(rtl_altitude)
+	     << NORMAL_CONSOLE_TEXT ;
     return false;
   }
   return true;  
@@ -255,7 +270,7 @@ void Px4Device::print_position()
 					 << position.latitude_deg << " deg"
 					 << "Longtitude"
 					 << position.longitude_deg <<" deg"
-					 ;
+				 ;
 			     });
 }
 
@@ -305,8 +320,8 @@ Px4Device::create_calibration_callback(std::promise<void> &calibration_promise)
 	   default:
 	     LogInfo() << "--- Calibration failed with message: "
 		       << Calibration::result_str(result) ;
-                calibration_promise.set_value();
-                break;
+	     calibration_promise.set_value();
+	     break;
 	   }
 	 };  
 }
@@ -339,10 +354,10 @@ Telemetry::Result Px4Device::set_rate_result()
   const Telemetry::Result set_rate_result = telemetry_->set_rate_position(1.0);
   
   if (set_rate_result != Telemetry::Result::SUCCESS){
-    LogInfo() << ERROR_CONSOLE_TEXT
-	      <<"Set rate failed:"
-	      << Telemetry::result_str(set_rate_result)
-	      << NORMAL_CONSOLE_TEXT ;
+    LogErr() << ERROR_CONSOLE_TEXT
+	     <<"Set rate failed:"
+	     << Telemetry::result_str(set_rate_result)
+	     << NORMAL_CONSOLE_TEXT ;
     return set_rate_result;
   }
   return set_rate_result;      
@@ -353,27 +368,27 @@ inline void Px4Device::action_error_exit(Action::Result result, const std::strin
 {
   if (result != Action::Result::SUCCESS) {
     std::cerr << ERROR_CONSOLE_TEXT << msg << Action::result_str(result)
-                  << NORMAL_CONSOLE_TEXT ;
-        exit(EXIT_FAILURE);
-    }
+	      << NORMAL_CONSOLE_TEXT ;
+    exit(EXIT_FAILURE);
+  }
 }
 
 // Handles Offboard result
 inline void Px4Device::offboard_error_exit(Offboard::Result result, const std::string &msg)
 {
-    if (result != Offboard::Result::SUCCESS) {
-        std::cerr << ERROR_CONSOLE_TEXT << msg << Offboard::result_str(result)
-                  << NORMAL_CONSOLE_TEXT ;
-        exit(EXIT_FAILURE);
-    }
+  if (result != Offboard::Result::SUCCESS) {
+    std::cerr << ERROR_CONSOLE_TEXT << msg << Offboard::result_str(result)
+	      << NORMAL_CONSOLE_TEXT ;
+    exit(EXIT_FAILURE);
+  }
 }
 
 // Handles Connection result
 inline void Px4Device::connection_error_exit(ConnectionResult result, const std::string &msg)
 {
   if (result != ConnectionResult::SUCCESS) {
-        std::cerr << ERROR_CONSOLE_TEXT << msg << connection_result_str(result)
-                  << NORMAL_CONSOLE_TEXT ;
-        exit(EXIT_FAILURE);
-    }
+    std::cerr << ERROR_CONSOLE_TEXT << msg << connection_result_str(result)
+	      << NORMAL_CONSOLE_TEXT ;
+    exit(EXIT_FAILURE);
+  }
 }

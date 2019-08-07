@@ -49,6 +49,8 @@ public:
   bool reboot();
   
   bool takeoff();
+  bool takeoff(float meters);
+  
   bool land();
   
   bool return_to_launch();
