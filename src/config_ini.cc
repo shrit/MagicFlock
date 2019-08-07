@@ -44,18 +44,6 @@ void Configs::parse_ini()
   ports_.push_back(static_cast<lt::port_type>
   		   (std::stoi(ini_.get("quadcopter_03").get("port")))); 
 
-
-  /*Parse algorithm section*/
-  
-  algo_name_ = ini_.get("algorithm").get("name");
-
-  std::string  train = ini_.get("algorithm").get("train");
-  std::istringstream(train) >> std::boolalpha >> train_;
-
-  qtable_file_name_ = ini_.get("algorithm").get("qtable");
-  
-  map_file_name_ = ini_.get("algorithm").get("map_qtable");
-
   /* Parse subscribe topic section */
 
   positions_ = ini_.get("subscribe_topics").get("positions");
@@ -90,16 +78,6 @@ std::vector<std::string> Configs::quad_names() const
 std::vector<lt::port_type> Configs::quads_ports() const
 {
   return ports_;
-}
-
-std::string Configs::qtable_file_name() const
-{
-  return qtable_file_name_;
-}
-
-std::string Configs::map_file_name() const
-{
-  return map_file_name_;
 }
 
 std::string Configs::positions() const
@@ -140,9 +118,4 @@ std::string Configs::reset_3() const
 float Configs::speed() const
 {
   return speed_;
-}
-
-bool Configs::train() const
-{
-  return train_;
 }
