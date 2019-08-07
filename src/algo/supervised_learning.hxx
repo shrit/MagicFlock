@@ -316,7 +316,7 @@ run()
     /*  Replace it by a template function  */
     bool takeoff;
     for (auto it : iris_x_) {
-      takeoff = it->takeoff();
+      takeoff = it->takeoff(7);
       if(!takeoff)
 	stop_episode = true;
     }
@@ -335,16 +335,7 @@ run()
 	stop_episode = true;
     }
     /*  Wait to complete the take off process */
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-
-    /*  Increase the heights of the drones to decrease the change of
-	touching the ground */
-    
-    for(int i = 0; i < 10; ++i) {
-      for (auto it : iris_x_) {
-	it->up(10);
-      }
-    }
+    std::this_thread::sleep_for(std::chrono::seconds(1)); 
   
     if (!stop_episode) {
       

@@ -159,7 +159,7 @@ run()
     /*  Replace it by a template function  */
     bool takeoff;
     for (auto it : quads_){
-      takeoff = it->takeoff();
+      takeoff = it->takeoff(7);
       if(!takeoff)
 	stop_episode = true;
     }
@@ -180,12 +180,6 @@ run()
         
     /*  Wait to complete the take off process */
     std::this_thread::sleep_for(std::chrono::seconds(1));  
-
-    for(int i = 0; i < 10; ++i) {
-      for (auto it : quads_) {
-	it->up(10);
-      }
-    }
         
     /*  Start the First phase */
              
