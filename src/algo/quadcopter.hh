@@ -79,6 +79,8 @@ public:
      backward,
      left,
      right,
+     up,
+     down,
      NoMove,
     };
 
@@ -107,7 +109,9 @@ private:
   std::vector<Action> possible_actions_ = { Action::forward,
 					    Action::backward,
 					    Action::left,
-					    Action::right };
+					    Action::right,
+					    Action::up,
+					    Action::down};
 
   std::uniform_real_distribution<> distribution_;
   std::uniform_int_distribution<> distribution_int_;

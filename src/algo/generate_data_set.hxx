@@ -48,6 +48,11 @@ move_action(std::string label,
   } else if (action == Quadcopter<simulator_t>::Action::backward) {
     quads_.at(quad_number)->backward(speed_);
 
+  } else if (action == Quadcopter<simulator_t>::Action::up) {
+    quads_.at(quad_number)->up(speed_);
+
+  } else if (action == Quadcopter<simulator_t>::Action::down) {
+    quads_.at(quad_number)->down(speed_);
   }
 }
 

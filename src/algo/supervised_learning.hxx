@@ -157,6 +157,12 @@ move_action(std::string label,
 
   } else if (action == Quadcopter<simulator_t>::Action::backward) {
     iris_x_.at(quad_number)->backward(speed_);
+
+  } else if (action == Quadcopter<simulator_t>::Action::up) {
+    iris_x_.at(quad_number)->up(speed_);
+
+  } else if (action == Quadcopter<simulator_t>::Action::down) {
+    iris_x_.at(quad_number)->down(speed_);
   }
 }
 
