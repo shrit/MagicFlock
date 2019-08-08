@@ -322,7 +322,7 @@ run()
     /*  Replace it by a template function  */
     bool takeoff;
     for (auto it : iris_x_) {
-      takeoff = it->takeoff(7);
+      takeoff = it->takeoff(10);
       if(!takeoff)
 	stop_episode = true;
     }
@@ -435,7 +435,7 @@ run()
     for (auto it: iris_x_)
       it->land();
 
-    std::this_thread::sleep_for(std::chrono::seconds(8));
+    std::this_thread::sleep_for(std::chrono::seconds(10));
 
     sim_interface_->reset_models();
 

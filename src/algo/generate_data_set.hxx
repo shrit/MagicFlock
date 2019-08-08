@@ -164,7 +164,7 @@ run()
     /*  Replace it by a template function  */
     bool takeoff;
     for (auto it : quads_){
-      takeoff = it->takeoff(7);
+      takeoff = it->takeoff(10);
       if(!takeoff)
 	stop_episode = true;
     }
@@ -194,7 +194,7 @@ run()
 
       std::vector<lt::triangle<double>> new_triangle;
 
-      while (count_ < 4) {
+      while (count_ < 10) {
 
         typename Quadcopter<simulator_t>::Reward reward =
 	  Quadcopter<simulator_t>::Reward::very_bad;
@@ -283,11 +283,11 @@ run()
     for (auto it: quads_)
       it->land();
 
-    std::this_thread::sleep_for(std::chrono::seconds(6));
+    std::this_thread::sleep_for(std::chrono::seconds(10));
 
     sim_interface_->reset_models();
 
-    std::this_thread::sleep_for(std::chrono::seconds(15));
+    std::this_thread::sleep_for(std::chrono::seconds(17));
 
     /*BIAS accelerometer problem after resetting the models*/
 
