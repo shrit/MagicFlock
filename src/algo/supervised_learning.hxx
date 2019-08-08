@@ -405,7 +405,7 @@ run()
 	typename Quadcopter<simulator_t>::State sp(sim_interface_);
 
 	data_set_.save_csv_data_set(sp.create_printer_struct(*it_state),
-				    mtools_.to_one_hot_encoding(action_follower_.back(), 4),
+				    mtools_.to_one_hot_encoding(action_follower_.back(), 6),
 				    sp.create_printer_struct(states_.back()),
 				    mtools_.to_one_hot_encoding(reward, 4)
 				    );
