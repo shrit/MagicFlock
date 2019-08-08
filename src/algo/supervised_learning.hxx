@@ -435,10 +435,10 @@ run()
     for (auto it: iris_x_)
       it->land();
 
-    std::this_thread::sleep_for(std::chrono::seconds(10));
+    std::this_thread::sleep_for(std::chrono::seconds(12));
 
     sim_interface_->reset_models();
 
-    std::this_thread::sleep_for(std::chrono::seconds(17));
+    std::this_thread::sleep_for(std::chrono::seconds(15));
   }
 }
