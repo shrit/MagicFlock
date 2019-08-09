@@ -305,8 +305,7 @@ run()
 
     /*  Think How we can use threads here */
 
-
-    /* Stop the episode if one of the quad has fallen to takoff */
+    /* Stop the episode if one of the quad has fallen to arm */
     /*  Replace it by a template function  */
     bool arm;
     bool stop_episode = false;

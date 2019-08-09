@@ -62,7 +62,7 @@ template <class flight_controller_t,
 void Generator<flight_controller_t, simulator_t>::
 phase_one(bool random_leader_action)
 {
-  typename Quadcopter<simulator_t>::Action action_leader ;
+  typename Quadcopter<simulator_t>::Action action_leader;
   Quadcopter<simulator_t> robot;
 
   std::vector<std::thread> threads;
@@ -73,7 +73,7 @@ phase_one(bool random_leader_action)
 
   if ( random_leader_action == true) {
 
-    action_leader = robot.randomize_action() ;
+    action_leader = robot.randomize_action();
     saved_leader_action_ = action_leader;
 
   } else {
@@ -112,9 +112,8 @@ phase_one(bool random_leader_action)
   /* Get the next state at time t + 1  */
   typename Quadcopter<simulator_t>::State nextState(sim_interface_);
   states_.push_back(nextState);
-  return ;
+  return;
 }
-
 
 template<class flight_controller_t,
 	 class simulator_t>
@@ -123,7 +122,7 @@ run()
 {
   lt::positions<double> original_positions = sim_interface_->positions();
 
-  LogInfo() << "Starting positions : " << original_positions ;
+  LogInfo() << "Starting positions : " << original_positions;
 
   lt::triangle<double> original_triangle = mtools_.triangle_side_3D(original_positions);
 
@@ -140,21 +139,16 @@ run()
 
     LogInfo() << "Episode : " << episode_ ;
 
-    /*
-     * Step phase, where we update the q table each step
-     * Each episode has a fixed step number.
-     * Note: at the end of each episode, we re-intilize everything
-     */
 
     /*  Think How we can use threads here */
 
-    /* Stop the episode if one of the quad has fallen to takoff */
+    /* Stop the episode if one of the quad has fallen to arm */
     /*  Replace it by a template function  */
     bool arm;
     bool stop_episode = false;
     for (auto it : quads_){
       arm = it->arm();
-      if(!arm)
+      if (!arm)
 	stop_episode = true;
     }
 
@@ -165,7 +159,7 @@ run()
     bool takeoff;
     for (auto it : quads_){
       takeoff = it->takeoff(10);
-      if(!takeoff)
+      if (!takeoff)
 	stop_episode = true;
     }
 
@@ -176,10 +170,13 @@ run()
     }
 
      /*  Switch to offboard mode, Allow the control */
+    /* Stop the episode is the one quadcopter have fallen to set
+       offbaord mode*/
+    
     bool offboard_mode;
     for (auto it : quads_) {
       offboard_mode = it->start_offboard_mode();
-      if(!offboard_mode)
+      if (!offboard_mode)
 	stop_episode = true;
     }
 
@@ -198,20 +195,22 @@ run()
 
         typename Quadcopter<simulator_t>::Reward reward =
 	  Quadcopter<simulator_t>::Reward::very_bad;
+	
+	/* Choose one random trajectory for the leader in the first
+	   count. Then, keep the same action until the end of the
+	   episode */
 
-	/*  if the follower has executed a good action we need to
-	    re-discover the other action in this loop until we get a 0
-	    reward, the other actions are related to exploration and
-	    exploitation note that */
-	/*  Test if the distances are good, if yes continue with the same
-	    action for leader */
-
+	/*  At the end of each phase, quadcopters have already
+	    finished their trajectories. Thus, we need to test the
+	    triangle*/
+	
 	if (count_ == 0 ) {
 	  phase_one(true);
 	} else {
 	  phase_one(false);
 	}
 
+	/*  Get the actual position, test if the triangle is OK*/
 	lt::positions<double> new_positions = sim_interface_->positions();
 
 	LogInfo() << "New positions : " << new_positions ;
