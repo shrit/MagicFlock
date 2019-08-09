@@ -73,8 +73,7 @@ Settings::Settings(int argc, char* argv[])
     generate_ = true;
   }
 
-  if (vm.count("training")) {
-    
+  if (vm.count("training")) {    
     training_ = true;        
   }
 
@@ -100,3 +99,6 @@ bool Settings::training() const
 
 bool Settings::testing() const
 { return testing_; }
+
+std::string Settings::dataset() const
+{ return dataset_file_; }

@@ -3,14 +3,12 @@
 
 Train::Train(){};
 
-double Train::accuracy(arma::Row<size_t> predLabels,
-	        arma::Row<size_t> LabelY)
+double Train::accuracy(const arma::Row<size_t>& predLabels,
+	        const arma::Row<size_t>& LabelY)
 {
   // Calculating how many predicted classes are coincide with real labels.
   size_t success = 0;
   for (size_t j = 0; j < LabelY.n_cols; j++) {
-    //    std::cout << predLabels(j) << std::endl;
-    //  std::cout << LabelY(j) << std::endl;
     if (predLabels(j) == LabelY(j)) {
       ++success;
     }
@@ -34,7 +32,7 @@ arma::Row<size_t> Train::getLabels(const arma::mat& predOut)
   return pred;
 }
 
-void Train::load_data_set()
+void Train::load_data_set(std::string&& dataset_file)
 {
 
   /*  We need to figure a way to load dataset from a file or
@@ -42,19 +40,19 @@ void Train::load_data_set()
 
   // Load the training set.
 
-  mlpack::data::Load("new_sample.csv", dataset_, true);
+  mlpack::data::Load(dataset_file, dataset_, true);
 
+  mlpack::data::Split(dataset_, trainset_, testset_, ratio_);
+  
   // Split the labels from the training set.
-  trainData_ = dataset_.submat(0, 0,
+  trainData_ = trainset_.submat(0, 0,
 			     dataset_.n_rows - 5,
 			     dataset_.n_cols - 1);
 
   // Split the data from the training set.
-  trainlabel_ = dataset_.submat(dataset_.n_rows - 4, 0,
+  trainlabel_ = trainset_.submat(dataset_.n_rows - 4, 0,
 			       dataset_.n_rows - 1, dataset_.n_cols - 1);
 
-
-  mlpack::data::Load("test.csv", testset_, true);
 
   testData_ = testset_.submat(0, 0,
 			    testset_.n_rows - 5,

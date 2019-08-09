@@ -18,6 +18,8 @@ public:
   bool generate() const;
   bool training() const;
   bool testing() const;
+  std::string dataset() const;
+  
 private:
 
   bool generate_;

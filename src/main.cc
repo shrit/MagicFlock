@@ -360,7 +360,7 @@ int main(int argc, char* argv[])
 
   if(settings.training() == true) {
     Train trainer;
-    trainer.load_data_set();
+    trainer.load_data_set(settings.dataset());
     trainer.run();
   }
 
