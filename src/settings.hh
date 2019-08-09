@@ -25,7 +25,6 @@ private:
   bool testing_;
   std::string ini_file_;
   std::string dataset_file_;
-  std::string testset_file_;
 
 };
 

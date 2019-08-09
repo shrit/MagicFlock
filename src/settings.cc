@@ -43,9 +43,9 @@ Settings::Settings(int argc, char* argv[])
     ("help,h", "Print this help message and exit" )
     ("version,v", "Print the current version")
     ("Versbose,V", "Be more verbose")
-    ("ini-file,n", po::value<std::string>(&ini_file_),"Specify the name of the ini file")
-    ("generate-dataset"," Generate data set by doing random actions")
-    ("training", "Train the swarm using an already generated dataset")
+    ("ini-file,n", po::value<std::string>(&ini_file_)->value_name("ini_file"),"Specify the name of the ini file")
+    ("generate-dataset","Generate data set by doing generating random trajectories")
+    ("training", po::value<std::string>(&dataset_file_)->value_name("dataset"), "Train a dataset file using a neural network, 10% of the dataset is used for testing")
     ("testing", "Test an aleardy trained controller on the followers");
 
   po::positional_options_description pos;
@@ -74,24 +74,8 @@ Settings::Settings(int argc, char* argv[])
   }
 
   if (vm.count("training")) {
-
-    po::options_description training_desc("training options");
-    training_desc.add_options()
-      ("dataset-file", po::value<std::string>(&dataset_file_), "Specify the name of the dataset file to train")
-      ("testset-file", po::value<std::string>(&testset_file_), "Specify the name of the testset file to validate the training");
-
-    std::vector<std::string> opts = po::collect_unrecognized(parsed.options, po::include_positional);
-    opts.erase(opts.begin());
-
-    po::store(po::command_line_parser(opts).options(training_desc).run(), vm);
-
-    if (vm.count("dataset-file") &&  vm.count("testset-file")) {
-
-      training_ = true;
-
-    } else {
-      std::cout << "ERROR: You need to enter two files, training and testing files to start training process" << std::endl;
-    }
+    
+    training_ = true;        
   }
 
   if (vm.count("testing")) {
