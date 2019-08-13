@@ -433,16 +433,12 @@ run()
 
     std::vector<std::thread> threads;
 
-    threads.push_back(std::thread([&](){
-				    iris_x_.at(0)->land();		    
-				  }));
-    
-    threads.push_back(std::thread([&](){
-				    iris_x_.at(1)->land();		    
-				  }));
-    
-    threads.push_back(std::thread([&](){
-				    iris_x_.at(2)->land();		    	        	  }));
+    for (auto it : iris_x_) {
+      
+      threads.push_back(std::thread([&](){
+				      it->land();		    
+				    }));
+    }
     
     for(auto& thread : threads) {
       thread.join();
