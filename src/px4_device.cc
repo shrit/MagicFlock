@@ -87,15 +87,19 @@ bool Px4Device::takeoff(float meters)
 }
 
 bool Px4Device::land()
-{
-  LogInfo() << "Landing..." ;
+{  
   const Action::Result land_result = action_->land();
+  
   if (land_result != Action::Result::SUCCESS) {
     LogErr() << ERROR_CONSOLE_TEXT
-	     << "Landing failed:"
+	     << "Landing command has failed:"
 	     << Action::result_str(land_result)
 	     << NORMAL_CONSOLE_TEXT ;
     return false;
+  }
+  while (telemetry_->in_air()) {
+    LogInfo() << "Landing..." ;
+    std::this_thread::sleep_for(std::chrono::seconds(1));
   }
   return true;
 }

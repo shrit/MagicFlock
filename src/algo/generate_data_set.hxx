@@ -279,11 +279,10 @@ run()
     mtools_.histogram(count_);
     data_set_.save_histogram(mtools_.get_histogram<int>());
 
+    /* Landing is blocking untill touching the ground*/
     for (auto it: quads_)
       it->land();
-
-    std::this_thread::sleep_for(std::chrono::seconds(12));
-
+    
     sim_interface_->reset_models();
 
     std::this_thread::sleep_for(std::chrono::seconds(15));
