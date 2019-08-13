@@ -280,8 +280,22 @@ run()
     data_set_.save_histogram(mtools_.get_histogram<int>());
 
     /* Landing is blocking untill touching the ground*/
-    for (auto it: quads_)
-      it->land();
+    std::vector<std::thread> threads;
+
+    threads.push_back(std::thread([&](){
+				    quads_.at(0)->land();		    
+				  }));
+    
+    threads.push_back(std::thread([&](){
+				    quads_.at(1)->land();		    
+				  }));
+    
+    threads.push_back(std::thread([&](){
+				    quads_.at(2)->land();		    	        	  }));
+    
+    for(auto& thread : threads) {
+      thread.join();
+    }
     
     sim_interface_->reset_models();
 

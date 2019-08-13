@@ -431,9 +431,23 @@ run()
 
     step_errors_.clear();
 
-    for (auto it: iris_x_)
-      it->land();
+    std::vector<std::thread> threads;
 
+    threads.push_back(std::thread([&](){
+				    iris_x_.at(0)->land();		    
+				  }));
+    
+    threads.push_back(std::thread([&](){
+				    iris_x_.at(1)->land();		    
+				  }));
+    
+    threads.push_back(std::thread([&](){
+				    iris_x_.at(2)->land();		    	        	  }));
+    
+    for(auto& thread : threads) {
+      thread.join();
+    }
+            
     sim_interface_->reset_models();
 
     std::this_thread::sleep_for(std::chrono::seconds(15));
