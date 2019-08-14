@@ -2,21 +2,19 @@
 
 # include "quadcopter.hh"
 
-template <class simulator_t>
-Quadcopter<simulator_t>::Quadcopter()
+Quadcopter::Quadcopter()
   :distribution_(0.0, 1.0),
    distribution_int_(0, 5),
    generator_(random_dev())
 {}
 
-template <class simulator_t>
-void Quadcopter<simulator_t>::init()
+void Quadcopter::init()
 {
   data_set_.init_dataset_directory();
 }
 
 template <class simulator_t>
-Quadcopter<simulator_t>::State::State(std::shared_ptr<simulator_t> sim_interface):
+Quadcopter::State<simulator_t>::State(std::shared_ptr<simulator_t> sim_interface):
   sim_interface_(std::move(sim_interface)),
   pmodel_(sim_interface_)
 {
@@ -29,50 +27,50 @@ Quadcopter<simulator_t>::State::State(std::shared_ptr<simulator_t> sim_interface
 }
 
 template <class simulator_t>
-lt::rssi<double> Quadcopter<simulator_t>::State::
+lt::rssi<double> Quadcopter::State<simulator_t>::
 signal_strength () const
 {
   return rssi_ ;
 }
 
 template <class simulator_t>
-double Quadcopter<simulator_t>::State::
+double Quadcopter::State<simulator_t>::
 height () const
 {/*  need to make it according to what quad?? */
   return height_;
 }
 
 template <class simulator_t>
-double Quadcopter<simulator_t>::State::
+double Quadcopter::State<simulator_t>::
 orientation () const
 {
   return z_orinetation_;
 }
 
 template <class simulator_t>
-lt::triangle<double> Quadcopter<simulator_t>::State::
+lt::triangle<double> Quadcopter::State<simulator_t>::
 distances_2D () const
 {
   return dists_2D_;
 }
 
 template <class simulator_t>
-lt::triangle<double> Quadcopter<simulator_t>::State::
+lt::triangle<double> Quadcopter::State<simulator_t>::
 distances_3D () const
 {
   return dists_3D_;
 }
 
 template <class simulator_t>
-lt::triangle<double> Quadcopter<simulator_t>::State::
+lt::triangle<double> Quadcopter::State<simulator_t>::
 estimated_distances () const
 {
   return e_dists_;
 }
 
 template <class simulator_t>
-state_printer Quadcopter<simulator_t>::State::
-create_printer_struct(Quadcopter<simulator_t>::State state)
+state_printer Quadcopter::State<simulator_t>::
+create_printer_struct(Quadcopter::State<simulator_t> state)
 {
   state_printer sp;
   sp.rssi = state.signal_strength();
@@ -82,10 +80,9 @@ create_printer_struct(Quadcopter<simulator_t>::State state)
   return sp;
 }
 
-template <class simulator_t>
-typename Quadcopter<simulator_t>::Reward Quadcopter<simulator_t>::
-action_evaluator(lt::triangle<double> old_dist,
-		 lt::triangle<double> new_dist)
+Quadcopter::Reward Quadcopter::
+action_evaluator(const lt::triangle<double>& old_dist,
+		 const lt::triangle<double>& new_dist)
 {
   LogInfo() << "F1 differences: " << std::fabs(old_dist.f1 - new_dist.f1);
   LogInfo() << "F2 differences: " << std::fabs(old_dist.f2 - new_dist.f2);
@@ -110,20 +107,17 @@ action_evaluator(lt::triangle<double> old_dist,
   return reward;
 }
 
-template <class simulator_t>
-void Quadcopter<simulator_t>::
+void Quadcopter::
 save_controller_count(double value)
 {
   data_set_.save_count_file(value);
 }
 
-template <class simulator_t>
-std::vector<typename Quadcopter<simulator_t>::Action> Quadcopter<simulator_t>::
+std::vector<Quadcopter::Action> Quadcopter::
 possible_actions() const
 { return possible_actions_; }
 
-template <class simulator_t>
-typename Quadcopter<simulator_t>::Action Quadcopter<simulator_t>::
+Quadcopter::Action Quadcopter::
 random_action_generator()
 {
   int random_action = distribution_int_(generator_);
@@ -133,13 +127,13 @@ random_action_generator()
   Action action = Action::forward ;
 
   if (random_action == 0) {
-    action = Action::forward ;
+    action = Action::forward;
   } else if (random_action == 1) {
     action = Action::backward ;
   } else if (random_action == 2) {
-    action = Action::left ;
+    action = Action::left;
   } else if (random_action == 3) {
-    action = Action::right ;
+    action = Action::right;
   } else if (random_action == 4) {
     action = Action::up;
   } else if (random_action == 5) {

@@ -35,13 +35,13 @@ inline std::ostream& operator<< (std::ostream& out, const state_printer& s)
   return out;
 }
 
-template <class simulator_t>
 class Quadcopter {
 
 public:
 
   Quadcopter();
-
+  
+  template <class simulator_t>
   class State {
 
   public:
@@ -56,7 +56,7 @@ public:
     double orientation () const;
 
     state_printer
-    create_printer_struct(Quadcopter<simulator_t>::State state);
+    create_printer_struct(Quadcopter::State<simulator_t> state);
 
   private:
 
@@ -94,8 +94,8 @@ public:
 
   void init();
 
-  Reward action_evaluator(lt::triangle<double> old_dist,
-			  lt::triangle<double> new_dist);
+  Reward action_evaluator(const lt::triangle<double>& old_dist,
+			  const lt::triangle<double>& new_dist);
 
   void
   save_controller_count(double value);
