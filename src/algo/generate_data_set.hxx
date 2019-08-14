@@ -281,19 +281,25 @@ run()
 
     /* Landing is blocking untill touching the ground*/
     std::vector<std::thread> threads;
-
-    for (auto it : quads_) {
-      threads.push_back(std::thread([&](){
-				      it->land();		    
-				    }));
-    }
+       
+    threads.push_back(std::thread([&](){
+				    quads_.at(0)->land();		    
+				  }));
     
+    threads.push_back(std::thread([&](){
+				    quads_.at(1)->land();		    
+				  }));
+    
+    threads.push_back(std::thread([&](){
+				    quads_.at(2)->land();		    
+				  }));
+        
     for (auto& thread : threads) {
       thread.join();
     }
     
     sim_interface_->reset_models();
-
+    
     std::this_thread::sleep_for(std::chrono::seconds(15));
 
     /*BIAS accelerometer problem after resetting the models*/

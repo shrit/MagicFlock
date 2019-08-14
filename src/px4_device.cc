@@ -81,14 +81,16 @@ bool Px4Device::takeoff(float meters)
   }
 
   const Action::Result takeoff_result = action_->takeoff();
-  if(takeoff_result != Action::Result::SUCCESS){
+  if (takeoff_result != Action::Result::SUCCESS) {
     LogErr() << ERROR_CONSOLE_TEXT
 	     << "take off failed: "
 	     << Action::result_str(takeoff_result);
     return false;
   }
+
+  LogInfo() << "Flight mode: "<< telemetry_->flight_mode_str(telemetry_->flight_mode());
   
-  while(telemetry_->flight_mode() == Telemetry::FlightMode::TAKEOFF){   
+  while (telemetry_->flight_mode() == Telemetry::FlightMode::TAKEOFF) {   
     LogInfo() << "Taking off..." ;
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
   }
@@ -106,10 +108,14 @@ bool Px4Device::land()
 	     << NORMAL_CONSOLE_TEXT ;
     return false;
   }
+
   while (telemetry_->in_air()) {
     LogInfo() << "Landing..." ;
     std::this_thread::sleep_for(std::chrono::seconds(1));
   }
+  
+  LogInfo() << "Landed." ;
+
   return true;
 }
 
