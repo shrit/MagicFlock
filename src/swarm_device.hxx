@@ -3,8 +3,44 @@
 template<class flight_controller_t>
 SwarmDevice<flight_controller_t>::
 SwarmDevice(std::vector<std::shared_ptr<flight_controller_t>> quads)
-  :iris_x_(std::move(quads))
+  :iris_x_(std::move(quads)),
+   speed_(configs_.speed())   
 {}
+
+template <class flight_controller_t>
+void SwarmDevice<flight_controller_t>::
+one_quad_execute_trajectory(std::string label,
+			    Quadcopter::Action action)
+{
+  int quad_number = 0;
+
+  if (label == "l") {
+    quad_number = 0;
+  } else if (label == "f1") {
+    quad_number = 1;
+  } else if (label == "f2") {
+    quad_number = 2;
+  }
+
+  if (action == Quadcopter::Action::left) {
+    iris_x_.at(quad_number)->left(speed_);
+
+  } else if (action == Quadcopter::Action::right) {
+    iris_x_.at(quad_number)->right(speed_);
+
+  } else if (action == Quadcopter::Action::forward) {
+    iris_x_.at(quad_number)->forward(speed_);
+
+  } else if (action == Quadcopter::Action::backward) {
+    iris_x_.at(quad_number)->backward(speed_);
+
+  } else if (action == Quadcopter::Action::up) {
+    iris_x_.at(quad_number)->up(speed_);
+
+  } else if (action == Quadcopter::Action::down) {
+    iris_x_.at(quad_number)->down(speed_);
+  }
+}
 
 template<class flight_controller_t>
 bool SwarmDevice<flight_controller_t>::
