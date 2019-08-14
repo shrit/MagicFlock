@@ -65,6 +65,11 @@ bool Px4Device::takeoff()
 	     << Action::result_str(takeoff_result);
     return false;
   }
+  
+  while(telemetry_->flight_mode() == Telemetry::FlightMode::TAKEOFF){   
+    LogInfo() << "Taking off..." ;
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+  }
   return true;
 }
 
@@ -75,13 +80,17 @@ bool Px4Device::takeoff(float meters)
     LogWarn() << "Set takeoff altitude has failed, Taking off with default altitude";
   }
 
-  LogInfo() << "taking off..." ;
   const Action::Result takeoff_result = action_->takeoff();
   if(takeoff_result != Action::Result::SUCCESS){
     LogErr() << ERROR_CONSOLE_TEXT
 	     << "take off failed: "
 	     << Action::result_str(takeoff_result);
     return false;
+  }
+  
+  while(telemetry_->flight_mode() == Telemetry::FlightMode::TAKEOFF){   
+    LogInfo() << "Taking off..." ;
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
   }
   return true;
 }
