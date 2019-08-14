@@ -17,6 +17,7 @@
 # include "../log.hh"
 # include "../math_tools.hh"
 # include "quadcopter.hh"
+# include "../swarm_device.hh"
 
 namespace lt = local_types;
 
