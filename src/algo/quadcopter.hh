@@ -102,7 +102,7 @@ public:
 
   std::vector<Action> possible_actions() const;
 
-  Action randomize_action();
+  Action random_action_generator();
 
 private:
 

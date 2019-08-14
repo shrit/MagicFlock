@@ -73,14 +73,14 @@ phase_one(bool random_leader_action)
 
   if ( random_leader_action == true) {
 
-    action_leader = robot.randomize_action();
+    action_leader = robot.random_action_generator();
     saved_leader_action_ = action_leader;
 
   } else {
     action_leader = saved_leader_action_;
   }
 
-  action_follower_.push_back(robot.randomize_action());
+  action_follower_.push_back(robot.random_action_generator());
 
   /*  Threading QuadCopter */
   threads.push_back(std::thread([&](){

@@ -187,7 +187,7 @@ phase_two(bool random_leader_action)
   states_.push_back(state);
 
   if (random_leader_action == true) {
-    action_leader = robot_.randomize_action() ;
+    action_leader = robot_.random_action_generator() ;
     saved_leader_action_ = action_leader;
   } else {
     action_leader = saved_leader_action_;

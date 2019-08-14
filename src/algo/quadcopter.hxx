@@ -124,7 +124,7 @@ possible_actions() const
 
 template <class simulator_t>
 typename Quadcopter<simulator_t>::Action Quadcopter<simulator_t>::
-randomize_action()
+random_action_generator()
 {
   int random_action = distribution_int_(generator_);
 

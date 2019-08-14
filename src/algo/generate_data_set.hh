@@ -34,9 +34,6 @@ public:
 
   void phase_one(bool random_leader_action); /* Find a better name for this function */
 
-  typename Quadcopter<simulator_t>::Action
-  randomize_action();
-
   void run();
 
   Generator(Generator const&) = delete;
