@@ -57,15 +57,24 @@ public:
   bool set_altitude_rtl_max(float meters);
   bool set_takeoff_altitude(float meters);
 
+  /*  Linear trajectories */
   void up(float speed);
   void down(float speed);
   void right(float speed);
   void left(float speed);
   void forward(float speed);
   void backward(float speed);
+
+  /*  Turn around itself */
   void turnToLeft();
   void turnToRight();
 
+  /*  Add circular actions */
+  void forward_left(float speed);
+  void forward_right(float speed);
+  void backward_left(float speed);
+  void backward_right(float speed);
+    
   void init_speed();
   bool start_offboard_mode();
 

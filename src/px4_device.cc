@@ -228,6 +228,26 @@ void Px4Device::forward(float speed)
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
 }
 
+/* Going forward and left at the same time in a circular movement */
+void Px4Device::forward_left(float speed)
+{
+  LogInfo() << " forward !" ;
+  // we need to set it to zero after each keyboard touch
+  offboard_->set_velocity_body({speed, 0.0f, 0.0f, -30.0f});
+  sleep_for(milliseconds(50));
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
+}
+
+/* Going forward and right at the same time in a circular movement */
+void Px4Device::forward_right(float speed)
+{
+  LogInfo() << " forward !" ;
+  // we need to set it to zero after each keyboard touch
+  offboard_->set_velocity_body({speed, 0.0f, 0.0f, 30.0f});
+  sleep_for(milliseconds(50));
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
+}
+
 void Px4Device::backward(float speed)
 {
   LogInfo() << " backward !" ;
@@ -236,6 +256,27 @@ void Px4Device::backward(float speed)
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
 }
+
+/* Going backward and left at the same time in a circular movement */
+void Px4Device::backward_left(float speed)
+{
+  LogInfo() << " backward !" ;
+
+  offboard_->set_velocity_body({-speed, 0.0f, 0.0f, -30.0f});
+  sleep_for(milliseconds(50));
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
+}
+
+/* Going backward and right at the same time in a circular movement */
+void Px4Device::backward_right(float speed)
+{
+  LogInfo() << " backward !" ;
+
+  offboard_->set_velocity_body({-speed, 0.0f, 0.0f, 30.0f});
+  sleep_for(milliseconds(50));
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
+}
+
 // add later the angular yaw speed
 void Px4Device::turnToLeft()
 {
