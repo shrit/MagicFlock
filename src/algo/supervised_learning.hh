@@ -68,25 +68,15 @@ public:
 private:
 
   std::vector<Quadcopter::Action> action_follower_ ;
-  Configs configs_;
   int count_;
   DataSet data_set_;
-  float decay_rate_ ;
-  float discount_rate_ ;
-  std::uniform_real_distribution<> distribution_;
-  std::uniform_int_distribution<> distribution_int_;
   int episode_;
-  float epsilon_;
   std::vector<double> flight_errors_;
-  std::random_device random_dev;
-  std::mt19937 generator_;
-  float learning_rate_ ;
   int max_episode_ ;
   Math_tools mtools_;
   std::vector<std::shared_ptr<flight_controller_t>> iris_x_;
   Quadcopter::Action saved_leader_action_;
   std::shared_ptr<simulator_t> sim_interface_;
-  float speed_;
   std::vector<double> step_errors_;
   std::vector<Quadcopter::State<simulator_t>> states_;
   std::vector<int>  time_step_vector_;

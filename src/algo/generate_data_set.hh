@@ -44,12 +44,8 @@ private:
   int count_;
   DataSet data_set_;
   std::vector<double> drift_f3_;
-  std::uniform_real_distribution<> distribution_;
-  std::uniform_int_distribution<> distribution_int_;
   int episode_;
   std::vector<lt::triangle<double>> f3_side_;
-  std::random_device random_dev;
-  std::mt19937 generator_;
   int max_episode_;
   Math_tools mtools_;
   std::vector<std::shared_ptr<flight_controller_t>> quads_;
