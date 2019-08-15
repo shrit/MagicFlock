@@ -14,64 +14,27 @@ Generator (std::vector<std::shared_ptr<flight_controller_t>> quads,
    generator_(random_dev()),
    max_episode_(10000),
    quads_(std::move(quads)),
-   sim_interface_(std::move(sim_interface)),
-   speed_(configs_.speed())
+   sim_interface_(std::move(sim_interface))
 {
   data_set_.init_dataset_directory();
 }
 
-template <class flight_controller_t,
-	  class simulator_t>
-void Generator<flight_controller_t, simulator_t>::
-move_action(std::string label,
-	    typename Quadcopter<simulator_t>::Action action)
-{
-  int quad_number = 0;
-
-  if (label == "l") {
-    quad_number = 0;
-  } else if (label == "f1") {
-    quad_number = 1;
-  } else if (label == "f2") {
-    quad_number = 2;
-  }
-
-  if (action == Quadcopter<simulator_t>::Action::left) {
-    quads_.at(quad_number)->left(speed_);
-
-  } else if (action == Quadcopter<simulator_t>::Action::right) {
-    quads_.at(quad_number)->right(speed_);
-
-  } else if (action == Quadcopter<simulator_t>::Action::forward) {
-    quads_.at(quad_number)->forward(speed_);
-
-  } else if (action == Quadcopter<simulator_t>::Action::backward) {
-    quads_.at(quad_number)->backward(speed_);
-
-  } else if (action == Quadcopter<simulator_t>::Action::up) {
-    quads_.at(quad_number)->up(speed_);
-
-  } else if (action == Quadcopter<simulator_t>::Action::down) {
-    quads_.at(quad_number)->down(speed_);
-  }
-}
-
-/*  Data Set generation */
+/*  Phase one: Data Set generation */
 template <class flight_controller_t,
 	  class simulator_t>
 void Generator<flight_controller_t, simulator_t>::
 phase_one(bool random_leader_action)
 {
-  typename Quadcopter<simulator_t>::Action action_leader;
-  Quadcopter<simulator_t> robot;
+  Quadcopter::Action action_leader;
+  Quadcopter robot;
 
   std::vector<std::thread> threads;
 
   /* Get the state at time t  */
-  typename Quadcopter<simulator_t>::State state(sim_interface_);
+  Quadcopter::State<simulator_t> state(sim_interface_);
   states_.push_back(state);
 
-  if ( random_leader_action == true) {
+  if (random_leader_action == true) {
 
     action_leader = robot.random_action_generator();
     saved_leader_action_ = action_leader;
@@ -85,19 +48,19 @@ phase_one(bool random_leader_action)
   /*  Threading QuadCopter */
   threads.push_back(std::thread([&](){
 				  for (int i = 0; i < 4; ++i) {
-				    move_action("l" ,  action_leader);
+				    swarm_.one_quad_execute_trajectory("l" ,  action_leader);
 				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
 				  }
 				}));
   threads.push_back(std::thread([&](){
 				  for (int i = 0; i < 4; ++i) {
-				    move_action("f1" , action_leader);
+				    swarm_.one_quad_execute_trajectory("f1" , action_leader);
 				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
 				  }
 				}));
   threads.push_back(std::thread([&](){
 				  for (int i = 0; i < 4; ++i) {
-				    move_action( "f2", action_follower_.back());
+				    swarm_.one_quad_execute_trajectory( "f2", action_follower_.back());
 				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
 				  }
 				}));
@@ -110,7 +73,7 @@ phase_one(bool random_leader_action)
   std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
   /* Get the next state at time t + 1  */
-  typename Quadcopter<simulator_t>::State nextState(sim_interface_);
+  Quadcopter::State<simulator_t> nextState(sim_interface_);
   states_.push_back(nextState);
   return;
 }
@@ -193,8 +156,8 @@ run()
 
       while (count_ < 10) {
 
-        typename Quadcopter<simulator_t>::Reward reward =
-	  Quadcopter<simulator_t>::Reward::very_bad;
+        Quadcopter::Reward reward =
+	  Quadcopter::Reward::very_bad;
 	
 	/* Choose one random trajectory for the leader in the first
 	   count. Then, keep the same action until the end of the
@@ -236,8 +199,8 @@ run()
 	    the original one. But why? Why should this comparison
 	    gives better learning score than the one before */
 
-	Quadcopter<simulator_t> robot;
-
+	Quadcopter robot;
+	
 	if (count_ == 0 ) {
 	  reward = robot.action_evaluator(original_triangle,
 					  new_triangle.at(count_));
@@ -253,14 +216,14 @@ run()
 	}
 	/*  1- problem logging the actions the next action is not
 	    registered before being logged */
-
+	
 	auto it_state = states_.rbegin();
 	auto it_action = action_follower_.rbegin();
 
 	it_state = std::next(it_state, 1);
 	it_action = std::next(it_action, 1);
 
-	typename Quadcopter<simulator_t>::State sp(sim_interface_);
+	Quadcopter::State<simulator_t> sp(sim_interface_);
 
 	data_set_.save_csv_data_set(sp.create_printer_struct(*it_state),
 				    mtools_.to_one_hot_encoding(action_follower_.back(), 6),

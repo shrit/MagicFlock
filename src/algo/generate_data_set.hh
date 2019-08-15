@@ -30,10 +30,7 @@ public:
   Generator(std::vector<std::shared_ptr<flight_controller_t>> quads,
 	    std::shared_ptr<simulator_t> sim_interface);
 
-  void move_action(std::string label,
-		   typename Quadcopter<simulator_t>::Action action);
-
-  void phase_one(bool random_leader_action); /* Find a better name for this function */
+  void phase_one(bool random_leader_action);
 
   void run();
 
@@ -43,8 +40,7 @@ public:
 
 private:
   /*  Intilizate speed with configs settings */
-  std::vector<typename Quadcopter<simulator_t>::Action> action_follower_ ;
-  Configs configs_;
+  std::vector<Quadcopter::Action> action_follower_;
   int count_;
   DataSet data_set_;
   std::vector<double> drift_f3_;
@@ -58,10 +54,10 @@ private:
   Math_tools mtools_;
   std::vector<std::shared_ptr<flight_controller_t>> quads_;
   std::shared_ptr<simulator_t> sim_interface_;
-  float speed_;
-  std::vector<typename Quadcopter<simulator_t>::State> states_;
-  typename Quadcopter<simulator_t>::Action saved_leader_action_;
-
+  std::vector<Quadcopter::State<simulator_t>> states_;
+  Quadcopter::Action saved_leader_action_;
+  SwarmDevice<flight_controller_t> swarm_;
+  
 };
 
 # include "generate_data_set.hxx"

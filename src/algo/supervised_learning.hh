@@ -27,6 +27,7 @@
 # include "../math_tools.hh"
 # include "quadcopter.hh"
 # include "../config_ini.hh"
+# include "../swarm_device.hh"
 
 namespace lt = local_types;
 
@@ -38,25 +39,25 @@ class Supervised_learning
 public:
 
   Supervised_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
-	     std::shared_ptr<simulator_t> gzs);
-
+		      std::shared_ptr<simulator_t> gzs);
+  
   void move_action(std::string label,
-		   typename Quadcopter<simulator_t>::Action action);
+		   Quadcopter::Action action);
 
   void phase_two(bool random_leader_action);
 
   int highest_values(arma::mat matrix);
 
-  typename Quadcopter<simulator_t>::Action randomize_action();
-
-  typename Quadcopter<simulator_t>::Action
+  Quadcopter::Action randomize_action();
+  
+  Quadcopter::Action
   action_follower(arma::mat features, arma::uword index);
 
   arma::mat
-  features_extractor(std::vector<typename Quadcopter<simulator_t>::Action> actions);
+  features_extractor(std::vector<Quadcopter::Action> actions);
 
   arma::mat
-  insert_absolute_features(std::vector<typename Quadcopter<simulator_t>::Action> actions);
+  insert_absolute_features(std::vector<Quadcopter::Action> actions);
 
   void run();
 
@@ -66,7 +67,7 @@ public:
 
 private:
 
-  std::vector<typename Quadcopter<simulator_t>::Action> action_follower_ ;
+  std::vector<Quadcopter::Action> action_follower_ ;
   Configs configs_;
   int count_;
   DataSet data_set_;
@@ -81,18 +82,17 @@ private:
   std::mt19937 generator_;
   float learning_rate_ ;
   int max_episode_ ;
-  float min_epsilon_ ;
   Math_tools mtools_;
   std::vector<std::shared_ptr<flight_controller_t>> iris_x_;
-  typename Quadcopter<simulator_t>::Action saved_leader_action_;
+  Quadcopter::Action saved_leader_action_;
   std::shared_ptr<simulator_t> sim_interface_;
   float speed_;
   std::vector<double> step_errors_;
-  std::vector<typename Quadcopter<simulator_t>::State> states_;
+  std::vector<Quadcopter::State<simulator_t>> states_;
   std::vector<int>  time_step_vector_;
   lt::triangle<double> original_dist_;
-  Quadcopter<simulator_t> robot_;
-
+  Quadcopter robot_;
+  SwarmDevice<flight_controller_t> swarm_;
 };
 
 # include "supervised_learning.hxx"
