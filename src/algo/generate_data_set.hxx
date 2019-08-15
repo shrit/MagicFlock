@@ -103,43 +103,30 @@ run()
     /*  Think How we can use threads here */
 
     /* Stop the episode if one of the quad has fallen to arm */
-    /*  Replace it by a template function  */
-    bool arm;
+    
     bool stop_episode = false;
-    for (auto it : quads_){
-      arm = it->arm();
-      if (!arm)
-	stop_episode = true;
-    }
-
+    bool arm = swarm_.arm();
+    if(!arm)
+      stop_episode = true;
+    
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
     /* Stop the episode if one of the quad has fallen to takoff */
-    /*  Replace it by a template function  */
-    bool takeoff;
-    for (auto it : quads_){
-      takeoff = it->takeoff(10);
-      if (!takeoff)
-	stop_episode = true;
-    }
-
+    bool takeoff = swarm_.takeoff(10);
+    if (!takeoff)
+      stop_episode = true;
+    
     std::this_thread::sleep_for(std::chrono::seconds(3));
     /*  Setting up speed_ is important to switch the mode */
-    for (auto it : quads_){
-      it->init_speed();
-    }
+    swarm_.init_speed();
 
      /*  Switch to offboard mode, Allow the control */
     /* Stop the episode is the one quadcopter have fallen to set
-       offbaord mode*/
+       offbaord mode*/    
+    bool offboard_mode = swarm_.start_offboard_mode();
+    if(!offboard_mode)
+      stop_episode = true;
     
-    bool offboard_mode;
-    for (auto it : quads_) {
-      offboard_mode = it->start_offboard_mode();
-      if (!offboard_mode)
-	stop_episode = true;
-    }
-
     /*  Wait to complete the take off process */
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
@@ -159,7 +146,7 @@ run()
 	/* Choose one random trajectory for the leader in the first
 	   count. Then, keep the same action until the end of the
 	   episode */
-
+	
 	/*  At the end of each phase, quadcopters have already
 	    finished their trajectories. Thus, we need to test the
 	    triangle*/
@@ -202,12 +189,13 @@ run()
 	  reward = robot.action_evaluator(original_triangle,
 					  new_triangle.at(count_));
 
-	} else  {
+	} else {
 	  reward = robot.action_evaluator(new_triangle.at(count_ -1),
 					  new_triangle.at(count_));
 	}
 
-	if (mtools_.is_triangle(mtools_.triangle_side_3D(sim_interface_->positions())) == false) {
+	if (mtools_.is_triangle(mtools_.triangle_side_3D
+				(sim_interface_->positions())) == false) {
 	  LogInfo() << "The triangle is no longer conserved";
 	  break;
 	}
@@ -240,24 +228,8 @@ run()
     data_set_.save_histogram(mtools_.get_histogram<int>());
 
     /* Landing is blocking untill touching the ground*/
-    std::vector<std::thread> threads;
-       
-    threads.push_back(std::thread([&](){
-				    quads_.at(0)->land();		    
-				  }));
-    
-    threads.push_back(std::thread([&](){
-				    quads_.at(1)->land();		    
-				  }));
-    
-    threads.push_back(std::thread([&](){
-				    quads_.at(2)->land();		    
-				  }));
-        
-    for (auto& thread : threads) {
-      thread.join();
-    }
-    
+    swarm_.land();
+	
     sim_interface_->reset_models();
     
     std::this_thread::sleep_for(std::chrono::seconds(15));

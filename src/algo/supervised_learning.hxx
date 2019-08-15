@@ -264,46 +264,36 @@ run()
 
     /*  Think How we can use threads here */
 
-    /* Stop the episode if one of the quad has fallen to arm */
-    /*  Replace it by a template function  */
-    bool arm;
+    /* Stop the episode if one of the quad has fallen to arm */   
     bool stop_episode = false;
-    for (auto it : iris_x_){
-      arm = it->arm();
-      if(!arm)
-	stop_episode = true;
-    }
-
+    bool arm = swarm_.arm();
+    if(!arm)
+      stop_episode = true;
+    
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
     /* Stop the episode if one of the quad has fallen to takoff */
-    /*  Replace it by a template function  */
-    bool takeoff;
-    for (auto it : iris_x_) {
-      takeoff = it->takeoff(10);
-      if(!takeoff)
-	stop_episode = true;
-    }
-
+    bool takeoff = swarm_.takeoff(10);
+    if (!takeoff)
+      stop_episode = true;
+    
+    /*  Replace it with a blocking takeoff state */
     std::this_thread::sleep_for(std::chrono::seconds(3));
+    
     /*  Setting up speed_ is important to switch the mode */
-    for (auto it : iris_x_) {
-      it->init_speed();
-    }
+    swarm_.init_speed();
 
     /*  Switch to offboard mode, Allow the control */
-    bool offboard_mode;
-    for (auto it : iris_x_) {
-      offboard_mode = it->start_offboard_mode();
-      if(!offboard_mode)
-	stop_episode = true;
-    }
+    bool offboard_mode = swarm_.start_offboard_mode();
+    if(!offboard_mode)
+      stop_episode = true;
+    
     /*  Wait to complete the take off process */
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
     if (!stop_episode) {
 
-      count_ = 0 ;
+      count_ = 0;
 
       std::vector<lt::triangle<double>> new_triangle;
 
@@ -390,19 +380,8 @@ run()
 
     step_errors_.clear();
 
-    std::vector<std::thread> threads;
-
-    for (auto it : iris_x_) {
-      
-      threads.push_back(std::thread([&](){
-				      it->land();		    
-				    }));
-    }
+    swarm_.land();
     
-    for(auto& thread : threads) {
-      thread.join();
-    }
-            
     sim_interface_->reset_models();
 
     std::this_thread::sleep_for(std::chrono::seconds(15));

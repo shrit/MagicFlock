@@ -41,14 +41,9 @@ public:
   Supervised_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 		      std::shared_ptr<simulator_t> gzs);
   
-  void move_action(std::string label,
-		   Quadcopter::Action action);
-
   void phase_two(bool random_leader_action);
 
   int highest_values(arma::mat matrix);
-
-  Quadcopter::Action randomize_action();
   
   Quadcopter::Action
   action_follower(arma::mat features, arma::uword index);
@@ -74,7 +69,6 @@ private:
   std::vector<double> flight_errors_;
   int max_episode_ ;
   Math_tools mtools_;
-  std::vector<std::shared_ptr<flight_controller_t>> iris_x_;
   Quadcopter::Action saved_leader_action_;
   std::shared_ptr<simulator_t> sim_interface_;
   std::vector<double> step_errors_;
