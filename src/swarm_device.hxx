@@ -44,8 +44,44 @@ one_quad_execute_trajectory(std::string label,
 
 template<class flight_controller_t>
 bool SwarmDevice<flight_controller_t>::
+arm()
+{
+  bool arm;
+  for (auto it : iris_x_){
+    arm = it->arm();
+    if (!arm)
+      return false;
+  }
+  return true;	
+}
+
+template<class flight_controller_t>
+void SwarmDevice<flight_controller_t>::
+init_speed()
+{
+  for (auto it : iris_x_) {
+    it->init_speed();
+  }
+}
+
+template<class flight_controller_t>
+bool SwarmDevice<flight_controller_t>::
+start_offboard_mode()
+{
+  bool offboard_mode;
+  for (auto it : iris_x_) {
+    offboard_mode = it->start_offboard_mode();
+    if (!offboard_mode)
+      return false;
+  }
+  return true;
+}
+
+template<class flight_controller_t>
+bool SwarmDevice<flight_controller_t>::
 takeoff(float meters)
 {
+  bool takeoff;
   for (auto it : iris_x_) {
     takeoff = it->takeoff(meters);
     if (!takeoff)

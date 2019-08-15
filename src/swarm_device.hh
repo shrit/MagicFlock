@@ -18,10 +18,12 @@ public:
 
   void one_quad_execute_trajectory(std::string label,
 				   Quadcopter::Action action);
-  bool land();
-  bool takeoff(float meters);
 
-  
+  bool arm();
+  void init_speed();
+  bool start_offboard_mode();
+  bool land();
+  bool takeoff(float meters);  
   
   SwarmDevice(SwarmDevice const&) = delete;
   
