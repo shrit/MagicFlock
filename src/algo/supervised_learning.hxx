@@ -6,12 +6,10 @@ Supervised_learning<flight_controller_t, simulator_t>::
 Supervised_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	   std::shared_ptr<simulator_t> gzs)
   :count_(0),
-   distribution_(0.0, 1.0),
-   distribution_int_(0, 3),
    episode_(0),
    max_episode_(10000),
-   swarm_(std::move(iris_x)),
-   sim_interface_(std::move(gzs))
+   sim_interface_(std::move(gzs)),
+   swarm_(std::move(iris_x))
 {
   data_set_.init_dataset_directory();
 }

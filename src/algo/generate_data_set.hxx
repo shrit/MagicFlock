@@ -8,13 +8,10 @@ Generator<flight_controller_t, simulator_t>::
 Generator (std::vector<std::shared_ptr<flight_controller_t>> quads,
 	   std::shared_ptr<simulator_t> sim_interface)
   :count_(0),
-   distribution_(0.0, 1.0),
-   distribution_int_(0, 3),
    episode_(0),
-   generator_(random_dev()),
    max_episode_(10000),
-   quads_(std::move(quads)),
-   sim_interface_(std::move(sim_interface))
+   sim_interface_(std::move(sim_interface)),
+   swarm_(std::move(quads))
 {
   data_set_.init_dataset_directory();
 }
