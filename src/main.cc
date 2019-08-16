@@ -28,9 +28,7 @@
 # include "px4_device.hh"
 # include "settings.hh"
 
-
 namespace lt = local_types;
-
 
 /*
  * Wait for Joystick input, non-blocking implementation using STL
@@ -41,14 +39,12 @@ JoystickEvent joystick_event_handler(Joystick& joystick,
 				     float speed,
 				     bool just_fly)
 {
-
-  while (true)
-  {
+  while (true) {
     // Attempt to read an event from the joystick
     JoystickEvent event;
-
+    
     if (joystick.read_event(&event)) {
-
+      
       if (joystick.ButtonAChanged(event)) {
 	if (!just_fly) {
 	  for (auto it : iris_x) {
@@ -58,10 +54,9 @@ JoystickEvent joystick_event_handler(Joystick& joystick,
 	  iris_x.at(0)->arm();
 	}
         LogInfo() << "arming...";
-
+	
 	std::this_thread::sleep_for(std::chrono::seconds(1));
-      }
-      else if (joystick.ButtonBChanged(event)) {
+      } else if (joystick.ButtonBChanged(event)) {
 	if (!just_fly) {
 	  for (auto it : iris_x) {
 	    it->land();
@@ -69,9 +64,9 @@ JoystickEvent joystick_event_handler(Joystick& joystick,
 	} else {
 	  iris_x.at(0)->land();
 	}
-	LogInfo() << "landing..." ;
-      }
-      else if (joystick.ButtonXChanged(event)) {
+	LogInfo() << "landing...";
+	
+      } else if (joystick.ButtonXChanged(event)) {
 	if (!just_fly) {
 	  for (auto it : iris_x) {
 	    it->takeoff();
@@ -79,10 +74,10 @@ JoystickEvent joystick_event_handler(Joystick& joystick,
 	} else {
 	  iris_x.at(0)->takeoff();
 	}
-	LogInfo() << "taking off..." ;
+	LogInfo() << "taking off...";
 	std::this_thread::sleep_for(std::chrono::seconds(5));
-      }
-      else if (joystick.ButtonYChanged(event)) {
+	
+      } else if (joystick.ButtonYChanged(event)) {
 	if (!just_fly) {
 	  for (auto it : iris_x) {
 	    it->init_speed();
@@ -94,94 +89,90 @@ JoystickEvent joystick_event_handler(Joystick& joystick,
 	  iris_x.at(0)->init_speed();
 	  iris_x.at(0)->start_offboard_mode();
 	}
-
-	LogInfo() << "Start offoard mode..." ;
+	
+	LogInfo() << "Start offoard mode...";
 	std::this_thread::sleep_for(std::chrono::seconds(1));
-
-      }
-      else if (joystick.ButtonL1Changed(event)) {
-	LogInfo() << "L1" ;
-      }
-      else if (joystick.ButtonR1Changed(event)) {
-	LogInfo() << "R1" ;
-      }
-      else if (joystick.ButtonSelectChanged(event)) {
-	LogInfo() << "Select" ;
-      }
-      else if (joystick.ButtonStartChanged(event)) {
-	LogInfo() << "Start" ;
-      }
-      else if (joystick.ButtonGuideChanged(event)) {
-	LogInfo() << "Guide" ;
-      }
-      else if (joystick.RightAxisXChanged(event)) {
-
-	if(joystick.RightAxisXChanged(event) > 0 ){
+	
+      } else if (joystick.ButtonL1Changed(event)) {
+	LogInfo() << "L1";
+	
+      } else if (joystick.ButtonR1Changed(event)) {
+	LogInfo() << "R1";
+	
+      } else if (joystick.ButtonSelectChanged(event)) {
+	LogInfo() << "Select";
+	
+      } else if (joystick.ButtonStartChanged(event)) {
+	LogInfo() << "Start";
+	
+      } else if (joystick.ButtonGuideChanged(event)) {
+	LogInfo() << "Guide";
+	
+      } else if (joystick.RightAxisXChanged(event)) {
+	
+	if (joystick.RightAxisXChanged(event) > 0 ) {
 	  /* Speed should be function of the value of joystick  */
 	  iris_x.at(0)->right(speed);
-	  LogInfo() << "Moving right... " ;
-	}
-	else {
+	  LogInfo() << "Moving right... ";
+	  
+	} else {
 	  /* Speed should be function of the value of joystick  */
 	  iris_x.at(0)->left(speed);
-	  LogInfo() << "Moving left... " ;
+	  LogInfo() << "Moving left... ";
 	}
-      }
-      else if (joystick.RightAxisYChanged(event)) {
-
+      } else if (joystick.RightAxisYChanged(event)) {
+	
 	if (joystick.RightAxisYChanged(event) > 0 ) {
 	  /* Speed should be function of the value of joystick  */
 	  iris_x.at(0)->backward(speed);
-	  LogInfo() << "Moving backward... " ;
-	}
-	else {
+	  LogInfo() << "Moving backward... ";
+	  
+	} else {
 	  /* Speed should be function of the value of joystick  */
 	  /*  Speed should be fixed as the joystick does not move */
 	  iris_x.at(0)->forward(speed);
 	  LogInfo() << "Moving forward... " ;
 	}
-      }
-      else if (joystick.LeftAxisXChanged(event)) {
-
+	
+      } else if (joystick.LeftAxisXChanged(event)) {
+	
 	if (joystick.LeftAxisXChanged(event) > 0 ) {
-
+	  
 	  iris_x.at(0)->turnToLeft();
 	  LogInfo() << "Turn to left... " ;
-	}
-	else {
+	  
+	} else {
 	  iris_x.at(0)->turnToRight();
 	  LogInfo() << "Turn to right... " ;
 	}
-      }
-     else if (joystick.LeftAxisYChanged(event)) {
-
-       if(joystick.LeftAxisYChanged(event) > 0 ){
-	 /* Speed should be function of the value of joystick  */
-	 iris_x.at(0)->down(speed);
-	 LogInfo() << "Moving down...: " ;
-       }
-       else {
-	 /* Speed should be function of the value of joystick  */
+	
+      } else if (joystick.LeftAxisYChanged(event)) {
+	
+	if (joystick.LeftAxisYChanged(event) > 0 ){
+	  /* Speed should be function of the value of joystick  */
+	  iris_x.at(0)->down(speed);
+	  LogInfo() << "Moving down...: " ;
+	  
+	} else {
+	  /* Speed should be function of the value of joystick  */
 	 iris_x.at(0)->up(speed);
 	 LogInfo() << "Moving up...: " ;
        }
-     }
-     else if (joystick.AxisL2Changed(event)) {
-	LogInfo() << "L2: " << joystick.AxisL2Changed(event) ;
-     }
-     else if (joystick.AxisR2Changed(event)) {
-       LogInfo() << "R2: " << joystick.AxisR2Changed(event) ;
-     }
-     else if (joystick.DpadXChanged(event)) {
-       LogInfo() << "Dx: " << joystick.DpadXChanged(event) ;
-     }
-     else if (joystick.DpadYChanged(event)) {
-       LogInfo() << "Dy: " << joystick.DpadYChanged(event) ;
-     }
+      } else if (joystick.AxisL2Changed(event)) {
+	LogInfo() << "L2: " << joystick.AxisL2Changed(event);
+	
+      } else if (joystick.AxisR2Changed(event)) {
+	LogInfo() << "R2: " << joystick.AxisR2Changed(event);
+	
+      } else if (joystick.DpadXChanged(event)) {
+	LogInfo() << "Dx: " << joystick.DpadXChanged(event);
+	
+      } else if (joystick.DpadYChanged(event)) {
+	LogInfo() << "Dy: " << joystick.DpadYChanged(event);
+      }
     }
   }
 }
-
 
 void keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
 			    float speed,
@@ -195,7 +186,7 @@ void keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
     int ch = keyboard.poll_event(STDIN_FILENO);
 
     switch (ch) {
-
+      
     case 'a':
       if (!just_fly) {
 	for (auto it : iris_x) {
@@ -204,7 +195,7 @@ void keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
       } else {
 	iris_x.at(0)->arm();
       }
-      LogInfo() << "arming..." ;
+      LogInfo() << "arming...";
       break;
     case 'l':
       if (!just_fly) {
@@ -214,8 +205,8 @@ void keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
       } else {
 	iris_x.at(0)->land();
       }
-
-      LogInfo() << "landing..." ;
+      
+      LogInfo() << "landing...";
       break;
     case 't':
       if (!just_fly) {
@@ -225,9 +216,9 @@ void keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
       } else {
 	iris_x.at(0)->takeoff();
       }
-
-      LogInfo() << "taking off..." ;
+      LogInfo() << "taking off...";
       std::this_thread::sleep_for(std::chrono::seconds(5));
+      
       break;
     case 's':
       if (!just_fly) {
@@ -241,7 +232,7 @@ void keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	iris_x.at(0)->init_speed();
 	iris_x.at(0)->start_offboard_mode();
       }
-
+      
       LogInfo() << "Start offoard mode..." ;
       std::this_thread::sleep_for(std::chrono::seconds(1));
       break;
@@ -285,10 +276,10 @@ int main(int argc, char* argv[])
     LogErr() << "Please specify if you want to train or test a controller!!" ;
     exit(0);
   }
-
+  
   Settings settings(argc, argv);
   Configs configs;
-
+  
   /*  Init logging system */
   Log log;
   log.init();
@@ -309,7 +300,7 @@ int main(int argc, char* argv[])
   //  /meta/ns-allinone-3.29/ns-3.29/ && /meta/ns-allinone-3.29/ns-3.29/waf --run  \"triangolo --fMode=4 --workDir=/meta/ns-allinone-3.29/ns-3.29 --xmlFilename=/meta/Spider-pig/gazebo/ns3/ns3.world --radioRange=300 --numusers=3\"
 
   std::vector<lt::port_type> ports  =  configs.quads_ports();
-
+  
   /* Create a vector of controllers. Each controller connect to one
    * quadcopters at a time
    */
@@ -342,7 +333,6 @@ int main(int argc, char* argv[])
   gz->publisher(configs.reset_2());
   gz->publisher(configs.reset_3());
 
-
   /* Wait for 10 seconds, Just to finish subscribe to
    * gazebo topics */
 
@@ -353,12 +343,12 @@ int main(int argc, char* argv[])
    *  3: Test the trained model
    */
 
-  if(settings.generate() == true) {
+  if (settings.generate() == true) {
     Generator<Px4Device, Gazebo> generator(iris_x, gz);
     generator.run();
   }
-
-  if(settings.training() == true) {
+  
+  if (settings.training() == true) {
     Train trainer;
     trainer.load_data_set(settings.dataset());
     trainer.run();
@@ -368,7 +358,7 @@ int main(int argc, char* argv[])
     Supervised_learning<Px4Device, Gazebo> slearning(iris_x, gz);
     slearning.run();
   }
-
+  
   auto joystick_handler = [&](){
 			    if (joystick_mode) {
 			      joystick_event_handler(joystick,
@@ -376,16 +366,16 @@ int main(int argc, char* argv[])
 						     configs.speed(),
 						     configs.just_fly());			}
 			  };
-
+  
   auto keyboard_handler = [&](){
   			    keyboard_event_handler(iris_x,
   						   configs.speed(),
   						   configs.just_fly());
-  };
-
+			  };
+  
   auto joystick_events =  std::async(std::launch::async, joystick_handler);
   auto keyboard_events =  std::async(std::launch::async, keyboard_handler);
-
+  
   joystick_events.get();
   keyboard_events.get();
 }
