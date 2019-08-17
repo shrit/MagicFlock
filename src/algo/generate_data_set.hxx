@@ -229,8 +229,11 @@ run()
 
     /* Landing is blocking untill touching the ground*/
     swarm_.land();
-	
+
+    /* Resetting the entire swarm after the end of each episode*/
     sim_interface_->reset_models();
+
+    LogInfo() << "The quadcopters have neen reseted...";
     
     std::this_thread::sleep_for(std::chrono::seconds(15));
 
