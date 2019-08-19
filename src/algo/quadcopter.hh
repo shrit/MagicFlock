@@ -90,8 +90,9 @@ public:
      good,
      bad,
      very_bad,
+     Unknown,
     };
-
+  
   void init();
 
   Reward action_evaluator(const lt::triangle<double>& old_dist,

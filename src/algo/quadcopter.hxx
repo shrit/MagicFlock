@@ -90,7 +90,7 @@ action_evaluator(const lt::triangle<double>& old_dist,
   double diff_f1 = std::fabs(old_dist.f1 - new_dist.f1);
   double diff_f2 = std::fabs(old_dist.f2 - new_dist.f2);
 
-   Reward reward = Reward::very_bad;
+   Reward reward = Reward::Unknown;
 
   if (0.5  > diff_f1 + diff_f2 ) {
     reward = Reward::very_good;
@@ -105,6 +105,50 @@ action_evaluator(const lt::triangle<double>& old_dist,
     reward = Reward::very_bad;
   }
   return reward;
+}
+
+/*  NOT tested yet, Do not use, it requires some verifications */
+int evaluation_score(const lt::triangle<double>& old_dist,
+		     const lt::triangle<double>& new_dist,
+		     const double altitude,
+		     const double old_altitude)
+{  
+  double diff_f1 = std::fabs(old_dist.f1 - new_dist.f1);
+  double diff_f2 = std::fabs(old_dist.f2 - new_dist.f2);
+  double diff_f3 = std::fabs(old_dist.f3 - new_dist.f3);
+  double diff_altitude = std::fabs(altitude - old_altitude);
+  
+  int score = -1;
+
+  /*  Use comparsion and increase the score each time we execute the
+      good action. If the executed action is sitl the same and the
+      score start decreasing we can increase the speed or change the
+      action*/
+  
+  if (0.2 > diff_f1 + diff_f2 + diff_f3 and diff_altitude < 0.2) {
+    score = 10;
+  } else if (0.4 > diff_f1 + diff_f2 + diff_f3 and diff_altitude < 0.4) {
+    score = 9;
+  } else if (0.6 > diff_f1 + diff_f2 + diff_f3 and diff_altitude < 0.6) {
+    score = 8;
+  } else if (0.8 > diff_f1 + diff_f2 + diff_f3 and diff_altitude < 0.8) {
+    score = 7;
+  } else if (1 > diff_f1 + diff_f2 + diff_f3 and diff_altitude < 1) {
+    score = 6;
+  } else if (1.2 > diff_f1 + diff_f2 + diff_f3 and diff_altitude < 1.2) {
+    score = 5;
+  } else if (1.4 > diff_f1 + diff_f2 + diff_f3 and diff_altitude < 1.4) {
+    score = 4;
+  } else if (1.6 > diff_f1 + diff_f2 + diff_f3 and diff_altitude < 1.6) {
+    score = 3;
+  } else if (1.8 > diff_f1 + diff_f2 + diff_f3 and diff_altitude < 1.8) {
+    score = 2;
+  } else if (2.0 > diff_f1 + diff_f2 + diff_f3 and diff_altitude < 2.0) {
+    score = 1;
+  } else if (2.2 > diff_f1 + diff_f2 + diff_f3 and diff_altitude < 2.2) {
+    score = 0; 
+  }
+  return score;
 }
 
 void Quadcopter::
