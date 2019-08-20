@@ -8,6 +8,7 @@
 
 /*  Local includes */
 # include "config_ini.hh"
+# include "global.hh"
 
 template<class flight_controller_t>
 class SwarmDevice {
@@ -18,15 +19,14 @@ public:
 
   void one_quad_execute_trajectory(std::string label,
 				   Quadcopter::Action action);
-
   bool arm();
   void init_speed();
   bool start_offboard_mode();
   bool land();
+  lt::positions<lt::position_GPS<double>> positions_GPS();
   bool takeoff(float meters);  
   
   SwarmDevice(SwarmDevice const&) = delete;
-  
   SwarmDevice(SwarmDevice &&) = default;
   
 private:

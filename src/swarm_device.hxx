@@ -117,3 +117,14 @@ land()
 
   return true;    
 }
+
+template<class flight_controller_t>
+lt::positions<lt::position_GPS<double>> SwarmDevice<flight_controller_t>::
+positions_GPS()
+{
+  lt::positions<lt::position_GPS<double>> positions;
+  positions.leader = iris_x_.at(0)->get_position_GPS();
+  positions.f1 = iris_x_.at(1)->get_position_GPS();
+  positions.f2 = iris_x_.at(2)->get_position_GPS();
+  return positions;
+}

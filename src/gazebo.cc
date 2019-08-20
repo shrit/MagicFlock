@@ -67,7 +67,6 @@ void Gazebo::Parse_rssi_msg_2(ConstVector2dPtr& msg)
 void Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
 {
   /*  Get the model name from the config ini file */
-
   for (int i =0; i < posesStamped->pose_size(); ++i) {
     const ::gazebo::msgs::Pose &pose = posesStamped->pose(i);
     std::string name = pose.name();
@@ -123,7 +122,7 @@ lt::rssi<double> Gazebo::rssi() const
   return _signal;
 }
 
-lt::positions<double> Gazebo::positions() const
+lt::positions<lt::position3D<double>> Gazebo::positions() const
 {
   std::lock_guard<std::mutex> lock(_positions_mutex);
   return _positions;

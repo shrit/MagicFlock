@@ -84,7 +84,7 @@ public:
 
   /*  Position GPS */
   void print_position();
-  Telemetry::Position get_position();
+  lt::position_GPS<double> get_position_GPS();
   void position_async();
 
   /*  Position_ned */

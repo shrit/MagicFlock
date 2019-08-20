@@ -1,5 +1,6 @@
 #pragma once
 
+/*  C++ includes */
 # include <algorithm>
 # include <cmath>
 # include <numeric>
@@ -7,6 +8,7 @@
 # include <vector>
 # include <utility>
 
+/* local includes */
 # include "log.hh"
 # include "global.hh"
 
@@ -45,10 +47,10 @@ public:
   Arg mean(std::vector<Arg> vec);
 
   template <typename T>
-  lt::triangle<double> triangle_side_2D(lt::positions<T> pos);
+  lt::triangle<double> triangle_side_2D(lt::positions<lt::position3D<T>> pos);
 
   template <typename T>
-  lt::triangle<double> triangle_side_3D(lt::positions<T> pos);
+  lt::triangle<double> triangle_side_3D(lt::positions<lt::position3D<T>> pos);
 
   template <typename Arg, typename Arg2>
   std::vector<bool> to_one_hot_encoding(Arg arg,

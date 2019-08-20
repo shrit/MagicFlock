@@ -33,10 +33,12 @@ features_extractor(std::vector<Quadcopter::Action> actions)
 	<< (*it_state).estimated_distances().f3
 	<< (*it_state).orientation()
       /*  Action  */
-	<< mtools_.to_one_hot_encoding(actions.at(i), 4).at(0)
-	<< mtools_.to_one_hot_encoding(actions.at(i), 4).at(1)
-	<< mtools_.to_one_hot_encoding(actions.at(i), 4).at(2)
-	<< mtools_.to_one_hot_encoding(actions.at(i), 4).at(3)
+	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(0)
+	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(1)
+	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(2)
+	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(3)
+	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(4)
+      	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(5)
       /*  nextState */
 	<< states_.back().height()
 	<< states_.back().estimated_distances().f1
@@ -72,10 +74,12 @@ insert_absolute_features(std::vector<Quadcopter::Action> actions)
 	<< (*it_state).distances_3D().f3
 	<< (*it_state).orientation()
       /*  Action  */
-	<< mtools_.to_one_hot_encoding(actions.at(i), 4).at(0)
-	<< mtools_.to_one_hot_encoding(actions.at(i), 4).at(1)
-	<< mtools_.to_one_hot_encoding(actions.at(i), 4).at(2)
-	<< mtools_.to_one_hot_encoding(actions.at(i), 4).at(3)
+	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(0)
+	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(1)
+	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(2)
+	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(3)
+      	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(4)
+      	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(5)
       /*  nextState */
 	<< states_.back().height()
 	<< states_.back().distances_3D().f1
@@ -312,7 +316,7 @@ run()
 	  phase_two(false);
 	}
 
-	lt::positions<double> new_positions = sim_interface_->positions();
+	lt::positions<lt::position3D<double>> new_positions = sim_interface_->positions();
 
 	LogInfo() << "New positions : " << new_positions ;
 

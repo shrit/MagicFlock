@@ -85,9 +85,9 @@ get_histogram()
 
 template <typename T>
 lt::triangle<double> Math_tools::
-triangle_side_2D(lt::positions<T> pos)
+triangle_side_2D(lt::positions<lt::position3D<T>> pos)
 {
-    lt::position<double> dist, dist2, dist3;
+    lt::position3D<double> dist, dist2, dist3;
 
     /*  Distance between leader and FF */
     dist.x =  pos.leader.x - pos.f1.x;
@@ -117,9 +117,9 @@ triangle_side_2D(lt::positions<T> pos)
 
 template <typename T>
 lt::triangle<double> Math_tools::
-triangle_side_3D(lt::positions<T> pos)
+triangle_side_3D(lt::positions<lt::position3D<T>> pos)
 {
-    lt::position<double> dist, dist2, dist3;
+    lt::position3D<double> dist, dist2, dist3;
 
     /*  Distance between leader and FF */
     dist.x =  pos.leader.x - pos.f1.x;
@@ -166,7 +166,6 @@ std::vector<bool> Math_tools::to_one_hot_encoding(Arg arg, Arg2 number_of_class)
   } else {
     LogErr() << "Can not convert to one hot, please add more classes..." ;
   }
-
   return one_hot;
 }
 

@@ -330,8 +330,15 @@ void Px4Device::print_position()
 			     });
 }
 
-Telemetry::Position Px4Device::get_position()
-{  return position_; }
+lt::position_GPS<double> Px4Device::get_position_GPS()
+{
+  lt::position_GPS<double> pos;
+  pos.latitude_deg = position_.latitude_deg;
+  pos.longitude_deg = position_.longitude_deg;
+  pos.absolute_altitude_m = position_.absolute_altitude_m;
+  pos.relative_altitude_m = position_.relative_altitude_m;  
+  return pos;
+}
 
 void Px4Device::position_async()
 {

@@ -80,7 +80,7 @@ template<class flight_controller_t,
 void Generator<flight_controller_t, simulator_t>::
 run()
 {
-  lt::positions<double> original_positions = sim_interface_->positions();
+  lt::positions<lt::position3D<double>> original_positions = sim_interface_->positions();
 
   LogInfo() << "Starting positions : " << original_positions;
 
@@ -141,7 +141,7 @@ run()
       while (count_ < 10) {
 
         Quadcopter::Reward reward =
-	  Quadcopter::Reward::very_bad;
+	  Quadcopter::Reward::Unknown;
 	
 	/* Choose one random trajectory for the leader in the first
 	   count. Then, keep the same action until the end of the
@@ -157,19 +157,21 @@ run()
 	  phase_one(false);
 	}
 
-	/*  Get the actual position, test if the triangle is OK*/
-	lt::positions<double> new_positions = sim_interface_->positions();
+	/* Get the actual position, test if the triangle is OK */
+	lt::positions<lt::position3D<double>> new_positions_gazebo = sim_interface_->positions();
+	lt::positions<lt::position_GPS<double>> new_positions_sdk = swarm_.positions_GPS();
+	  
+	LogInfo() << "New positions Gazebo : " << new_positions_gazebo;
+	LogInfo() << "New positions SDK : "    << new_positions_sdk;
+	
+	/* Get the distance between the TL TF, and FF TF  at time t*/
+	new_triangle.push_back(mtools_.triangle_side_3D(new_positions_gazebo));
 
-	LogInfo() << "New positions : " << new_positions ;
+	/* Keep a copy of the new distance between all of them */
+	f3_side_.push_back(mtools_.triangle_side_3D(new_positions_gazebo));
 
-	/*  Get the distance between the TL TF, and FF TF  at time t*/
-	new_triangle.push_back(mtools_.triangle_side_3D(new_positions));
-
-	/*  Keep a copy of the new distance between all of them */
-	f3_side_.push_back(mtools_.triangle_side_3D(new_positions));
-
-	/*Calculate the noise over the entire trainning session
-	  This will allow to refine exactly the good action */
+	/* Calculate the noise over the entire trainning session
+	   This will allow to refine exactly the good action */
 
 	double noise = mtools_.gaussian_noise(f3_side_,
 					      drift_f3_);
@@ -178,11 +180,11 @@ run()
 
 	/* Calculate the error compare to the starting point */
 	/* Compare with the original at start */
-	/*  We have compared the value of the triangle with the one
-	    before executing this action. Instead of comparing it to
-	    the original one. But why? Why should this comparison
-	    gives better learning score than the one before */
-
+	/* We have compared the value of the triangle with the one
+	   before executing this action. Instead of comparing it to
+	   the original one. But why? Why should this comparison
+	   gives better learning score than the one before */
+	
 	Quadcopter robot;
 	
 	if (count_ == 0 ) {

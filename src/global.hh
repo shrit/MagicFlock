@@ -15,28 +15,34 @@
 */
 namespace local_types {
 
-  template <typename T>
-  struct position {
+  template <class T>
+  struct position3D {
     T x;
     T y;
     T z;
-
   };
-
+  
+  template <class T>
+  struct position_GPS {
+    T latitude_deg ;
+    T longitude_deg ;
+    T absolute_altitude_m;
+    T relative_altitude_m;
+  };
+  
   template <typename T>
   struct orientation {
     T x;
     T y;
     T z;
     T w;
-
   };
 
-  template <typename T>
+  template <class position_t>
   struct positions {
-    position<T> leader;
-    position<T> f2;
-    position<T> f1;
+    position_t leader;
+    position_t f2;
+    position_t f1;
   };
 
   template <typename T>
@@ -93,25 +99,42 @@ namespace local_types {
   using port_type = uint16_t;
   //Type of drone's conncetion socket
   using connection_type = std::string;
-
   using topic_name               = std::string;
-
 }
 
 /*  Overloading the << operator to print local structs, vectors and classes */
 template <typename T>
-std::ostream& operator<< (std::ostream& out, const local_types::position<T>& p)
+std::ostream& operator<< (std::ostream& out, const local_types::position3D<T>& p)
 {
   out << "["<< p.x <<", " << p.y <<", " << p.z <<"]";
   return out;
 }
 
 template <typename T>
-std::ostream& operator<< (std::ostream& out, const local_types::positions<T>& p)
+std::ostream& operator<< (std::ostream& out, const local_types::position_GPS<T>& p)
+{
+  out << "["<< p.latitude_deg <<", "
+      << p.longitude_deg <<", "
+      << p.absolute_altitude_m <<", "
+      << p.relative_altitude_m <<"]";
+  return out;
+}
+
+template <typename T>
+std::ostream& operator<< (std::ostream& out,
+			  const local_types::positions<T>& p)
 {
   out << "[ Leader: "<< p.leader <<",\n Fake F:  " << p.f1 <<",\n True F: " << p.f2 <<"]";
   return out;
 }
+
+// template <typename T>
+// std::ostream& operator<< (std::ostream& out,
+// 			  const local_types::positions<local_types::positionGPS<T> >& p)
+// {
+//   out << "[ Leader: "<< p.leader <<",\n Fake F:  " << p.f1 <<",\n True F: " << p.f2 <<"]";
+//   return out;
+// }
 
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const local_types::rssi<T>& r)

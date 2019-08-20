@@ -30,7 +30,6 @@ public:
   Gazebo(int argc, char* argv[]);
 
   void subscriber(lt::topic_name name);
-
   void publisher(lt::topic_name name);
 
   void reset_models();
@@ -42,7 +41,7 @@ public:
   void Parse_rssi_msg_2(ConstVector2dPtr& msg);
 
   lt::rssi<double> rssi() const;
-  lt::positions<double> positions() const;
+  lt::positions<lt::position3D<double>> positions() const;
   lt::orientations<double> orientations() const;
 
   Gazebo(Gazebo const&) = delete;
@@ -60,7 +59,7 @@ private:
   NodePtr node_;
 
   mutable std::mutex _positions_mutex{};
-  lt::positions<double> _positions;
+  lt::positions<lt::position3D<double>> _positions;
 
   mutable std::mutex _orientations_mutex{};
   lt::orientations<double> _orientations;
