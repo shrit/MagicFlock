@@ -3,7 +3,6 @@
 Px4Device::Px4Device(lt::connection_type socket,
 		     lt::port_type port)
 {
-
   std::string connection_url = socket + "://:" + std::to_string(port);
 
   connect_to_quad(connection_url);
@@ -16,7 +15,7 @@ Px4Device::Px4Device(lt::connection_type socket,
   calibration_ = std::make_shared<mavsdk::Calibration>(system);
 
   set_rate_result();
-  position_ned();
+  position_async();
   //  quad_health();  //Stop testing quad health for some moments
 }
 
@@ -307,7 +306,6 @@ bool Px4Device::arm()
 
 bool Px4Device::reboot()
 {
-
   LogInfo() << "Rebooting..." ;
   Action::Result reboot_result = action_->reboot();
   if(reboot_result != Action::Result::SUCCESS){
@@ -320,8 +318,7 @@ bool Px4Device::reboot()
 
 void Px4Device::print_position()
 {
-
-  telemetry_->position_async([](Telemetry::Position position){
+  telemetry_->position_async([this](Telemetry::Position position){			      
 			       LogInfo() << TELEMETRY_CONSOLE_TEXT
 					 << "Altitude : "
 					 << position.relative_altitude_m
@@ -329,18 +326,27 @@ void Px4Device::print_position()
 					 << "Latitude"
 					 << position.latitude_deg << " deg"
 					 << "Longtitude"
-					 << position.longitude_deg <<" deg"
-				 ;
+					 << position.longitude_deg <<" deg";
 			     });
 }
 
-Telemetry::PositionVelocityNED Px4Device::position() const
-{  return _position_ned;  }
+Telemetry::Position Px4Device::get_position()
+{  return position_; }
+
+void Px4Device::position_async()
+{
+  telemetry_->position_async([this](Telemetry::Position position){
+			       this->position_ = position;
+			     });
+}			    
+
+Telemetry::PositionVelocityNED Px4Device::get_position_ned() const
+{  return _position_ned; }
 
 double Px4Device::DistanceFrom(std::shared_ptr<Px4Device> a)
 {
-  Telemetry::PositionVelocityNED a_position = a->position();
-  Telemetry::PositionVelocityNED my_position = position();
+  Telemetry::PositionVelocityNED a_position = a->get_position_ned();
+  Telemetry::PositionVelocityNED my_position = get_position_ned();
   return CalculateDistance (my_position, a_position);
 }
 
@@ -353,7 +359,7 @@ double Px4Device::CalculateDistance (Telemetry::PositionVelocityNED& a,
 		    );
 }
 
-void Px4Device::position_ned()
+void Px4Device::position_ned_async()
 {
   telemetry_->position_velocity_ned_async([this](Telemetry::PositionVelocityNED pvn){
 					    this->_position_ned = pvn ;

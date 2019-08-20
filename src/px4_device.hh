@@ -81,14 +81,20 @@ public:
   bool discover_system();
   ConnectionResult connect_to_quad(std::string connection_url);
 
+
+  /*  Position GPS */
   void print_position();
-  void position_ned();
+  Telemetry::Position get_position();
+  void position_async();
+
+  /*  Position_ned */
+  Telemetry::PositionVelocityNED get_position_ned() const;
+  void position_ned_async();
 
   Calibration::calibration_callback_t
   create_calibration_callback(std::promise<void> &calibration_promise);
 
   void calibrate_accelerometer();
-  Telemetry::PositionVelocityNED position() const;
 
   double DistanceFrom(std::shared_ptr<Px4Device> a);
 
@@ -113,6 +119,7 @@ private:
   Mavsdk mavsdk_;
 
   Telemetry::PositionVelocityNED _position_ned{{0, 0, 0}, {0, 0, 0}};
+  Telemetry::Position position_{0, 0, 0, 0};
   std::shared_ptr<mavsdk::Telemetry> telemetry_;
   std::shared_ptr<mavsdk::Action> action_;
   std::shared_ptr<mavsdk::Offboard> offboard_;
