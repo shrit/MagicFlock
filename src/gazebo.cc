@@ -9,29 +9,24 @@ Gazebo::Gazebo(int argc, char* argv[])
 
 void Gazebo::subscriber(lt::topic_name name)
 {
-  if(name == "/gazebo/default/1/2" ) {
+  if (name == "/gazebo/default/1/2" ) {
   subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_rssi_msg_0, this));
-  }
-  else if (name == "/gazebo/default/1/3") {
+  } else if (name == "/gazebo/default/1/3") {
     subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_rssi_msg_1, this));
-  }
-  else if(name == "/gazebo/default/2/3"){
+  } else if (name == "/gazebo/default/2/3") {
     subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_rssi_msg_2, this));
-  }
-  else if(name == "/gazebo/default/pose/info"){
+  } else if (name == "/gazebo/default/pose/info") {
     subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_position_msg, this));
   }
 }
 
 void Gazebo::publisher(lt::topic_name name)
 {
-  if (name == "/gazebo/default/iris_1/model_reset"){
+  if (name == "/gazebo/default/iris_1/model_reset") {
     pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));
-  }
-  else if (name == "/gazebo/default/iris_2/model_reset"){
+  } else if (name == "/gazebo/default/iris_2/model_reset") {
     pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));
-  }
-  else if (name == "/gazebo/default/iris_3/model_reset"){
+  } else if (name == "/gazebo/default/iris_3/model_reset") {
     pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));
   }
 }
@@ -50,21 +45,21 @@ void Gazebo::reset_models()
   }
 }
 
+  /*  Parsing the RSSI send by NS3 */
 void Gazebo::Parse_rssi_msg_0(ConstVector2dPtr& msg)
 {
-  /*  Parsing the RSSI send by NS3 */
   _signal.f3(msg->x());
 }
 
+  /*  Parsing the RSSI send by NS3 */
 void Gazebo::Parse_rssi_msg_1(ConstVector2dPtr& msg)
 {
-  /*  Parsing the RSSI send by NS3 */
   _signal.f1 (msg->x());
 }
 
+/*  Parsing the RSSI send by NS3 */
 void Gazebo::Parse_rssi_msg_2(ConstVector2dPtr& msg)
 {
-  /*  Parsing the RSSI send by NS3 */
   _signal.f2 (msg->x());
 }
 
@@ -90,7 +85,7 @@ void Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
       _orientations.leader.z = orientation.z();
       _orientations.leader.w = orientation.w();
 
-    } else if (name == std::string(config_.quad_names().at(1))){
+    } else if (name == std::string(config_.quad_names().at(1))) {
       const ::gazebo::msgs::Vector3d& position = pose.position();
 
       _positions.f1.x = position.x();
@@ -118,7 +113,6 @@ void Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
       _orientations.f2.y = orientation.y();
       _orientations.f2.z = orientation.z();
       _orientations.f2.w = orientation.w();
-
     }
   }
 }
