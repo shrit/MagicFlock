@@ -282,12 +282,9 @@ run()
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
     /* Stop the episode if one of the quad has fallen to takoff */
-    bool takeoff = swarm_.takeoff(10);
+    bool takeoff = swarm_.takeoff(5);
     if (!takeoff)
-      stop_episode = true;
-    
-    /*  Replace it with a blocking takeoff state */
-    std::this_thread::sleep_for(std::chrono::seconds(3));
+      stop_episode = true;    
     
     /*  Setting up speed_ is important to switch the mode */
     swarm_.init_speed();
