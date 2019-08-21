@@ -64,8 +64,10 @@ bool Px4Device::takeoff()
 	     << Action::result_str(takeoff_result);
     return false;
   }
-  
-  while(telemetry_->flight_mode() == Telemetry::FlightMode::TAKEOFF){   
+  /*  Wait untill the landed state change the mode */
+  std::this_thread::sleep_for(std::chrono::milliseconds(900));
+  LogInfo() << "Landed State : "<<telemetry_->landed_state_str(telemetry_->landed_state());
+  while(telemetry_->landed_state() == Telemetry::LandedState::TAKING_OFF){   
     LogInfo() << "Taking off..." ;
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
   }
@@ -78,7 +80,6 @@ bool Px4Device::takeoff(float meters)
   if (!altitude) {
     LogWarn() << "Set takeoff altitude has failed, Taking off with default altitude";
   }
-
   const Action::Result takeoff_result = action_->takeoff();
   if (takeoff_result != Action::Result::SUCCESS) {
     LogErr() << ERROR_CONSOLE_TEXT
@@ -86,10 +87,10 @@ bool Px4Device::takeoff(float meters)
 	     << Action::result_str(takeoff_result);
     return false;
   }
-
-  LogInfo() << "Flight mode: "<< telemetry_->flight_mode_str(telemetry_->flight_mode());
-  
-  while (telemetry_->flight_mode() == Telemetry::FlightMode::TAKEOFF) {   
+    /*  Wait untill the landed state change the mode */
+  std::this_thread::sleep_for(std::chrono::milliseconds(900));
+  LogInfo() << "Landed State : "<<telemetry_->landed_state_str(telemetry_->landed_state());
+  while (telemetry_->landed_state() == Telemetry::LandedState::TAKING_OFF) {   
     LogInfo() << "Taking off..." ;
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
   }
@@ -111,10 +112,8 @@ bool Px4Device::land()
   while (telemetry_->in_air()) {
     LogInfo() << "Landing..." ;
     std::this_thread::sleep_for(std::chrono::seconds(1));
-  }
-  
+  }  
   LogInfo() << "Landed." ;
-
   return true;
 }
 
