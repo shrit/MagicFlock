@@ -25,7 +25,7 @@ features_extractor(std::vector<Quadcopter::Action> actions)
   it_state = std::next(it_state, 1);
 
   arma::rowvec row;
-  for (int i = 0; i < 4; ++i) {
+  for (int i = 0; i < 6; ++i) {
     /*  State */
     row << (*it_state).height()
 	<< (*it_state).estimated_distances().f1
@@ -44,7 +44,7 @@ features_extractor(std::vector<Quadcopter::Action> actions)
 	<< states_.back().estimated_distances().f1
 	<< states_.back().estimated_distances().f2
 	<< states_.back().estimated_distances().f3
-	<< states_.back().orientation() ;
+	<< states_.back().orientation();
 
     features.insert_rows(0, row);
   }
@@ -65,7 +65,7 @@ insert_absolute_features(std::vector<Quadcopter::Action> actions)
   it_state = std::next(it_state, 1);
 
   arma::rowvec row;
-  for (int i = 0; i < 4; ++i) {
+  for (int i = 0; i < 6; ++i) {
 
     /*  State */
     row << (*it_state).height()
@@ -85,7 +85,7 @@ insert_absolute_features(std::vector<Quadcopter::Action> actions)
 	<< states_.back().distances_3D().f1
 	<< states_.back().distances_3D().f2
 	<< states_.back().distances_3D().f3
-	<< states_.back().orientation() ;
+	<< states_.back().orientation();
 
     features.insert_rows(0, row);
   }
@@ -95,6 +95,7 @@ insert_absolute_features(std::vector<Quadcopter::Action> actions)
   return features;
 }
 
+/* Get the best action from the model according to the best values */
 template <class flight_controller_t,
 	  class simulator_t>
 Quadcopter::Action Supervised_learning<flight_controller_t,
@@ -112,6 +113,10 @@ action_follower(arma::mat features, arma::uword index)
     action =  Quadcopter::Action::left;
   } else if (features(index, 8) == 1) {
     action =  Quadcopter::Action::right;
+  } else if (features(index, 9) == 1) {
+    action =  Quadcopter::Action::up;
+  } else if (features(index, 10) == 1) {
+    action =  Quadcopter::Action::down;
   }
   return action;
 }
