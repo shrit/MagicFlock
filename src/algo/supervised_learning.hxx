@@ -73,7 +73,7 @@ insert_absolute_features(std::vector<Quadcopter::Action> actions)
 	<< (*it_state).distances_3D().f2
 	<< (*it_state).distances_3D().f3
 	<< (*it_state).orientation()
-      /*  Action  */
+      /*  Action encoded as 1, and 0, add 6 times to represent 6 actions */
 	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(0)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(1)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(2)
@@ -86,12 +86,13 @@ insert_absolute_features(std::vector<Quadcopter::Action> actions)
 	<< states_.back().distances_3D().f2
 	<< states_.back().distances_3D().f3
 	<< states_.back().orientation();
-
+    /*  Create a matrix of several rows, each one is added to on the top */
     features.insert_rows(0, row);
   }
   /*  We need to transpose the matrix, since mlpack is column major */
   features = features.t();
-
+  /*  The return features need to be used in the model in order to
+      give back the best action with highest score */
   return features;
 }
 
@@ -104,7 +105,10 @@ action_follower(arma::mat features, arma::uword index)
 {
   /*  just a HACK, need to find a dynamic solution later */
   Quadcopter::Action action = Quadcopter::Action::NoMove;
-
+  /*  Access matrix values according to a given index  */
+  /*  Only one action exist that equal 1 in each row of 
+   a matrix */
+  
   if (features(index, 5) == 1) {
     action =  Quadcopter::Action::forward;
   } else if (features(index, 6) == 1) {
