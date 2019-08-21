@@ -81,12 +81,27 @@ template<class flight_controller_t>
 bool SwarmDevice<flight_controller_t>::
 takeoff(float meters)
 {
-  bool takeoff;
-  for (auto it : iris_x_) {
-    takeoff = it->takeoff(meters);
-    if (!takeoff)
-      return false;
+  bool takeoff = true;
+  std::vector<std::thread> threads;
+
+  threads.push_back(std::thread([&](){
+				  takeoff = iris_x_.at(0)->takeoff(meters);		    
+				}));		        
+  							
+  threads.push_back(std::thread([&](){			
+				  takeoff = iris_x_.at(1)->takeoff(meters);		    
+				}));			
+  							
+  threads.push_back(std::thread([&](){			
+				  takeoff = iris_x_.at(2)->takeoff(meters);		    
+				}));
+  
+  for (auto& thread : threads) {
+    thread.join();
   }
+  if (!takeoff)
+      return false;
+
   return true;
 }
 
@@ -108,7 +123,7 @@ land()
   threads.push_back(std::thread([&](){
 				  land = iris_x_.at(2)->land();		    
 				}));
-  
+    
   for (auto& thread : threads) {
     thread.join();
   }
