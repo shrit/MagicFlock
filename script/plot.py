@@ -97,9 +97,10 @@ def plot_cumulative_histogram(histogram_file_name):
     x = data[:, 0:1]
     y = data[:, 1:2]
     print(type(y))
+    frequency_sum = np.sum(y)
     z = []
     for i in range(1, len(y)+1):
-        z.append(np.sum(y[0:i]))
+        z.append(np.sum(y[0:i]) / frequency_sum)
 
     
     print(len(x))    
