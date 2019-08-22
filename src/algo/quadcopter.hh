@@ -98,6 +98,13 @@ public:
   Reward action_evaluator(const lt::triangle<double>& old_dist,
 			  const lt::triangle<double>& new_dist);
 
+  double true_score(const lt::triangle<double>& old_dist,
+		    const lt::triangle<double>& new_dist);
+  
+  int evaluation_score(const lt::triangle<double>& old_dist,
+		       const lt::triangle<double>& new_dist,
+		       const double altitude,
+		       const double old_altitude);
   void
   save_controller_count(double value);
 

@@ -107,8 +107,16 @@ action_evaluator(const lt::triangle<double>& old_dist,
   return reward;
 }
 
+double Quadcopter::true_score(const lt::triangle<double>& old_dist,
+			      const lt::triangle<double>& new_dist)
+{
+  double diff_f1 = std::fabs(old_dist.f1 - new_dist.f1);
+  double diff_f2 = std::fabs(old_dist.f2 - new_dist.f2);
+
+  return diff_f1 + diff_f2;
+}
 /*  NOT tested yet, Do not use, it requires some verifications */
-int evaluation_score(const lt::triangle<double>& old_dist,
+int Quadcopter::evaluation_score(const lt::triangle<double>& old_dist,
 		     const lt::triangle<double>& new_dist,
 		     const double altitude,
 		     const double old_altitude)
