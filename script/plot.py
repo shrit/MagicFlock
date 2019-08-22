@@ -92,6 +92,30 @@ def plot_histogram_2d(histogram_file_name):
 
     plt.savefig(histogram_file_name + ".png", dpi=100)
 
+def plot_cumulative_histogram(histogram_file_name):
+    data = genfromtxt(histogram_file_name, delimiter=' ')
+    x = data[:, 0:1]
+    y = data[:, 1:2]
+    print(type(y))
+    z = []
+    for i in range(1, len(y)+1):
+        z.append(np.sum(y[0:i]))
+
+    
+    print(len(x))    
+    print(len(z))    
+    cdf = np.column_stack((x,z))
+    np.savetxt(histogram_file_name + "cdf.csv", cdf, delimiter=" ")
+
+    df = pd.read_csv(histogram_file_name + "cdf.csv", sep=' ',header=None, index_col =0)
+    print (df)
+    df.plot()
+    plt.xlabel('Number of time steps')
+    plt.ylabel('cdf')
+    figure = plt.gcf() # get current figure
+    figure.set_size_inches(25, 6)    
+    plt.savefig(histogram_file_name + "cumulative_.png", dpi=100)
+    
     
 if __name__ == '__main__':
 
@@ -126,7 +150,8 @@ if __name__ == '__main__':
         plot_flight_count(args.count_file_name)
 
     elif args.histogram_file_name:   
-        plot_histogram_2d(args.histogram_file_name)
+        #plot_histogram_2d(args.histogram_file_name)
+        plot_cumulative_histogram(args.histogram_file_name)
 
 
     
