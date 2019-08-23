@@ -83,7 +83,7 @@ void Train::run()
 
   // Train the model.
   for (int i = 0; i < 1000; ++i) {
-    std::cout << "training..." << std::endl;
+    LogInfo() << "training...";
     model.Train(trainData_,
 		trainlabel_,
 		optimizer);
@@ -100,7 +100,7 @@ void Train::run()
 
     LogInfo() << "Epoch " << i
 	      << ":\tTraining Accuracy = "<< trainAccuracy
-	      << "%" ;
+	      << "%";
   }
 
   LogInfo() << "Training Finished...";
@@ -112,17 +112,12 @@ void Train::run()
 
   arma::Row<size_t> predtestlabel = getLabels(predtest);
 
-  std::cout << predtestlabel.n_cols << std::endl;
-
   arma::Row<size_t> YTestlabels = getLabels(testlabel_);
-
-  std::cout << YTestlabels.n_cols << std::endl;
 
   double testAccuracy = accuracy(predtestlabel, YTestlabels);
 
-  std::cout << "Testing Accuracy = "<< testAccuracy<< "%,"
-	      << std::endl;
-
+  LogInfo() << "Testing Accuracy = "<< testAccuracy<< "%,";
+ 
   predtest = predtest.t();
   predtest.save("result.csv", arma::raw_ascii);
 
