@@ -139,8 +139,8 @@ run()
 
       while (count_ < 10) {
 
-        Quadcopter::Reward reward =
-	  Quadcopter::Reward::Unknown;
+        // Quadcopter::Reward reward =
+	//   Quadcopter::Reward::Unknown;
 	
 	/* Choose one random trajectory for the leader in the first
 	   count. Then, keep the same action until the end of the
@@ -185,16 +185,31 @@ run()
 	   gives better learning score than the one before */
 	
 	Quadcopter robot;
-	
+	/*  This problem is formulated as a classification problem, we
+	 will try using regression rather than classification to see
+	 if the produced result are better */
+
+	/*  Classification */
+	// if (count_ == 0 ) {
+	//   reward = robot.action_evaluator(original_triangle,
+	// 				  new_triangle.at(count_));
+
+	// } else {
+	//   reward = robot.action_evaluator(new_triangle.at(count_ -1),
+	// 				  new_triangle.at(count_));
+	// }
+
+	double score;
+	/*  Regression */
 	if (count_ == 0 ) {
-	  reward = robot.action_evaluator(original_triangle,
-					  new_triangle.at(count_));
-
+	  score = robot.true_score(original_triangle,
+				   new_triangle.at(count_));
+	  
 	} else {
-	  reward = robot.action_evaluator(new_triangle.at(count_ -1),
-					  new_triangle.at(count_));
+	  score = robot.true_score(new_triangle.at(count_ -1),
+				   new_triangle.at(count_));
 	}
-
+	
 	if (mtools_.is_triangle(mtools_.triangle_side_3D
 				(sim_interface_->positions())) == false) {
 	  LogInfo() << "The triangle is no longer conserved";
@@ -211,18 +226,24 @@ run()
 
 	Quadcopter::State<simulator_t> sp(sim_interface_);
 
+	// data_set_.save_csv_data_set(sp.create_printer_struct(*it_state),
+	// 			    mtools_.to_one_hot_encoding(action_follower_.back(), 6),
+	// 			    sp.create_printer_struct(states_.back()),
+	// 			    mtools_.to_one_hot_encoding(reward, 4)
+	// 			    );
+
 	data_set_.save_csv_data_set(sp.create_printer_struct(*it_state),
 				    mtools_.to_one_hot_encoding(action_follower_.back(), 6),
 				    sp.create_printer_struct(states_.back()),
-				    mtools_.to_one_hot_encoding(reward, 4)
+				    score
 				    );
 
 	std::this_thread::sleep_for(std::chrono::seconds(1));
-
 	++count_;
       }
     }
-
+    /*  Time step equal one, mean the quadcopters have laneded before
+	doing any actions */
     count_ = count_ + 1;
     /*  Save a version of the time steps to create a histogram */
     mtools_.histogram(count_);
