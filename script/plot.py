@@ -92,32 +92,45 @@ def plot_histogram_2d(histogram_file_name):
 
     plt.savefig(histogram_file_name + ".png", dpi=100)
 
-def plot_cumulative_histogram(histogram_file_name):
-    data = genfromtxt(histogram_file_name, delimiter=' ')
+def cumulative_histogram(filename):
+    data = genfromtxt(filename, delimiter=' ')
     x = data[:, 0:1]
     y = data[:, 1:2]
-    print(type(y))
     frequency_sum = np.sum(y)
     z = []
     for i in range(1, len(y)+1):
         z.append(np.sum(y[0:i]) / frequency_sum)
 
+    return x, z    
     
-    print(len(x))    
-    print(len(z))    
-    cdf = np.column_stack((x,z))
-    np.savetxt(histogram_file_name + "cdf.csv", cdf, delimiter=" ")
-
-    df = pd.read_csv(histogram_file_name + "cdf.csv", sep=' ',header=None, index_col =0)
-    print (df)
-    df.plot()
+def plot_one_cumulative_histogram(histogram_file_name):
+    x, z = cumulative_histogram(histogram_file_name)
+    
+    plt.plot(x, z, color='blue')
     plt.xlabel('Number of time steps')
     plt.ylabel('cdf')
+    plt.grid()
     figure = plt.gcf() # get current figure
     figure.set_size_inches(25, 6)    
-    plt.savefig(histogram_file_name + "cumulative_.png", dpi=100)
+    plt.savefig(histogram_file_name + "one_cumulative_.png", dpi=100)
     
-    
+def plot_two_cumulative_histogram(histogram_file_name,
+                                  histogram_file_name_2):
+    x, y = cumulative_histogram(histogram_file_name)
+    i, j = cumulative_histogram(histogram_file_name_2)
+        
+    plt.plot(x, y, color='blue', label="Trained controller")
+    plt.plot(x, j, color='green', label="Random controller")
+
+    plt.title("Cumulative histogram of two controllers")
+    plt.xlabel('Number of time steps')
+    plt.ylabel('cdf')
+    plt.legend()
+    plt.grid()
+    figure = plt.gcf() # get current figure
+    figure.set_size_inches(25, 6)    
+    plt.savefig(histogram_file_name + "two_cumulative_.png", dpi=100)
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(
@@ -135,15 +148,15 @@ if __name__ == '__main__':
     
     parser.add_argument('--error_file_name', metavar="error file name", type=str, help="Enter error file name that has the mean value of each flight")
     parser.add_argument('--count_file_name', metavar="count file name", type=str, help="Enter flight count file name  ")
-    parser.add_argument('--histogram_file_name', metavar="histogtam file name", type=str, help="Enter histogram file name, two column file name, nuumber of steps and frequency")
+    parser.add_argument('--histogram_file_name', metavar="histogram file name", type=str, help="Enter a histogram file name, two column file name, nuumber of steps and frequency")
+    parser.add_argument('--cumulative_histogram_files_name', metavar=" histogram file name", type=str, nargs="+" ,help="Enter one or more histogram file name, each file is a two column file name, number of steps and frequency, the script will generate automatically the cumulative histogram")
     
     args = parser.parse_args()
 
     if len(sys.argv)==1:
         parser.print_help(sys.stderr)
         sys.exit(1)
-
-    
+ 
     if args.error_file_name:
         plot_flight_error(args.error_file_name)
 
@@ -151,8 +164,13 @@ if __name__ == '__main__':
         plot_flight_count(args.count_file_name)
 
     elif args.histogram_file_name:   
-        #plot_histogram_2d(args.histogram_file_name)
+        plot_histogram_2d(args.histogram_file_name)
         plot_cumulative_histogram(args.histogram_file_name)
 
-
+    elif args.cumulative_histogram_files_name:
+        if isinstance(args.cumulative_histogram_files_name, int):
+            plot_one_cumulative_histogram(args.cumulative_histogram_files_name)
+        elif isinstance(args.cumulative_histogram_files_name, list):
+            plot_two_cumulative_histogram(args.cumulative_histogram_files_name[0],
+                                          args.cumulative_histogram_files_name[1])
     
