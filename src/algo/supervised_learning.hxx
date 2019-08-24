@@ -51,7 +51,6 @@ insert_estimated_features(std::vector<Quadcopter::Action> actions)
   }
   /*  We need to transpose the matrix, since mlpack is column major */
   features = features.t();
-
   return features;
 }
 
@@ -67,7 +66,6 @@ insert_absolute_features(std::vector<Quadcopter::Action> actions)
 
   arma::rowvec row;
   for (int i = 0; i < 6; ++i) {
-
     /*  State */
     row << (*it_state).height()
 	<< (*it_state).distances_3D().f1
@@ -118,30 +116,18 @@ phase_two(bool random_leader_action)
 {
   mlpack::ann::FFN<mlpack::ann::SigmoidCrossEntropyError<>,
 		   mlpack::ann::RandomInitialization> model;
-
   mlpack::data::Load("model.txt", "model", model, true);
 
-  /*  we need to pass State ,and nextState, and try possible a */
+  /* We need to pass State ,and nextState, and try possible a */
   Quadcopter::Action action_leader ;
 
   std::vector<std::thread> threads;
-
-  /* Get the state at time t  */
-  Quadcopter::State<simulator_t> state(sim_interface_);
-  states_.push_back(state);
-
+  
   if (random_leader_action == true) {
     action_leader = robot_.random_action_generator() ;
     saved_leader_action_ = action_leader;
   } else {
     action_leader = saved_leader_action_;
-  }
-
-  LogInfo() << "Z height: "<< sim_interface_->positions().f1.z;
-
-  if (sim_interface_->positions().f1.z < 6 or
-      sim_interface_->positions().f2.z < 6 ) {
-    return ;
   }
 
   /*  Threading QuadCopter */
@@ -162,11 +148,10 @@ phase_two(bool random_leader_action)
   std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
   /* Get the next state at time t + 1  */
-  Quadcopter::State<simulator_t> nextState(sim_interface_);
-  states_.push_back(nextState);
+  Quadcopter::State<simulator_t> state(sim_interface_);
+  states_.push_back(state);
 
-  /*  we need to predict the action for the follower using h(S)*/
-
+  /*  We need to predict the action for the follower using h(S)*/
   /*  Extract state and push it into the model with several actions */
   /*  Take the action index for the highest class
       given back by the model */
@@ -181,7 +166,8 @@ phase_two(bool random_leader_action)
 
   model.Predict(features, label);
 
-  controller_predictions_.push_back(label.row(0));
+  /* Log the controler prediction to improve accuracy*/
+  controller_predictions_ = label.row(0);
   /* Transpose to the original format */
   features = features.t();
   label = label.t();
@@ -192,7 +178,6 @@ phase_two(bool random_leader_action)
   LogInfo() << label;
 
   int values = index_of_best_action(label);
-
   LogInfo() << values;
 
   /*  Get the follower action now !! and store it directly */
@@ -211,11 +196,11 @@ phase_two(bool random_leader_action)
 
   /*  Get error of deformation to improve percision later and to
       verify the model accuracy */
-  Quadcopter::State<simulator_t> ObserverState(sim_interface_);
-  states_.push_back(ObserverState);
+  Quadcopter::State<simulator_t> nextState(sim_interface_);
+  states_.push_back(nextState);
 
   step_errors_.push_back(mtools_.deformation_error_one_follower
-			(original_dist_, ObserverState.distances_3D()));
+			(original_dist_, nextState.distances_3D()));
   return;
 }
 
@@ -224,7 +209,6 @@ template <class flight_controller_t,
 void Supervised_learning<flight_controller_t, simulator_t>::
 run()
 {
-
   robot_.init();
 
   Quadcopter::State<simulator_t> ObserverState(sim_interface_);
@@ -238,15 +222,12 @@ run()
      * Arm + takeoff + offboard mode + moving + land
      * Then: repeat each episode.
      */
-
     LogInfo() << "Episode : " << episode_ ;
-
-    /*  Think How we can use threads here */
 
     /* Stop the episode if one of the quad has fallen to arm */   
     bool stop_episode = false;
     bool arm = swarm_.arm();
-    if(!arm)
+    if (!arm)
       stop_episode = true;
     
     std::this_thread::sleep_for(std::chrono::seconds(2));
@@ -261,7 +242,7 @@ run()
 
     /*  Switch to offboard mode, Allow the control */
     bool offboard_mode = swarm_.start_offboard_mode();
-    if(!offboard_mode)
+    if (!offboard_mode)
       stop_episode = true;
     
     /*  Wait to complete the take off process */
@@ -270,7 +251,6 @@ run()
     if (!stop_episode) {
 
       count_ = 0;
-
       std::vector<lt::triangle<double>> new_triangle;
 
       while (count_ < 300) {
@@ -321,7 +301,7 @@ run()
 	data_set_.save_csv_data_set(sp.create_printer_struct(*it_state),
 				    mtools_.to_one_hot_encoding(action_follower_.back(), 6),
 				    sp.create_printer_struct(states_.back()),
-				    controller_predictions_.back(),
+				    controller_predictions_,
 				    mtools_.to_one_hot_encoding(reward, 4)
 				    );
 	
@@ -341,11 +321,12 @@ run()
     /*  Get the flight error as the mean of the step error */
     double mean_error = mtools_.mean(step_errors_);
 
-    if(mean_error != -1) {
+    if (mean_error != -1) {
       data_set_.save_error_file(mean_error);
       flight_errors_.push_back(mean_error);
     }
-
+    
+    states_.clear();
     step_errors_.clear();
 
     swarm_.land();
@@ -353,8 +334,7 @@ run()
     /* Resetting the entire swarm after the end of each episode*/
     sim_interface_->reset_models();
     
-    LogInfo() << "The quadcopters have been resetted...";
-    
+    LogInfo() << "The quadcopters have been resetted...";    
     std::this_thread::sleep_for(std::chrono::seconds(15));
   }
 }

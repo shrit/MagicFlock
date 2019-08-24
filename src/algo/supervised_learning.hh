@@ -74,7 +74,7 @@ private:
   lt::triangle<double> original_dist_;
   Quadcopter robot_;
   SwarmDevice<flight_controller_t> swarm_;
-  std::vector<arma::rowvec> controller_predictions_;
+  arma::rowvec controller_predictions_;
 };
 
 # include "supervised_learning.hxx"
