@@ -68,18 +68,6 @@ estimated_distances () const
   return e_dists_;
 }
 
-template <class simulator_t>
-state_printer Quadcopter::State<simulator_t>::
-create_printer_struct(Quadcopter::State<simulator_t> state)
-{
-  state_printer sp;
-  sp.rssi = state.signal_strength();
-  sp.height = state.height();
-  sp.distances = state.distances_3D();
-  sp.orientation = state.orientation();
-  return sp;
-}
-
 Quadcopter::Reward Quadcopter::
 action_evaluator(const lt::triangle<double>& old_dist,
 		 const lt::triangle<double>& new_dist)
@@ -219,4 +207,13 @@ random_action_generator()
   }
       
    return action;
+}
+
+template <class simulator_t>
+inline std::ostream& operator<< (std::ostream& out, const Quadcopter::State<simulator_t>& s)
+{
+  out << s.height() << ","
+      << s.distances_3D() << ","
+      << s.orientation() ;
+  return out;
 }

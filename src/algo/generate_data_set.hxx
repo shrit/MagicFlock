@@ -217,20 +217,18 @@ run(const Settings& settings)
 
 	it_state = std::next(it_state, 1);
 	it_action = std::next(it_action, 1);
-
-	Quadcopter::State<simulator_t> sp(sim_interface_);
 	
 	if (settings.classification()) {
-	data_set_.save_csv_data_set(sp.create_printer_struct(*it_state),
+	data_set_.save_csv_data_set((*it_state),
 				    mtools_.to_one_hot_encoding(action_follower_.back(), 6),
-				    sp.create_printer_struct(states_.back()),
+				    (states_.back()),
 				    mtools_.to_one_hot_encoding(reward, 4)
 				    );
 	}
 	if (settings.regression()) {
-	  data_set_.save_csv_data_set(sp.create_printer_struct(*it_state),
+	  data_set_.save_csv_data_set((*it_state),
 				      mtools_.to_one_hot_encoding(action_follower_.back(), 6),
-				      sp.create_printer_struct(states_.back()),
+				      states_.back(),
 				      score
 				      );
 	}

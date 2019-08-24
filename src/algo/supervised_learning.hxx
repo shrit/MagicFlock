@@ -295,12 +295,9 @@ run()
 	auto it_state = states_.rbegin();
 	it_state = std::next(it_state, 1);
 
-	/*  Save the generated data during the testing to improve the model later*/
-	Quadcopter::State<simulator_t> sp(sim_interface_);
-
-	data_set_.save_csv_data_set(sp.create_printer_struct(*it_state),
+	data_set_.save_csv_data_set((*it_state),
 				    mtools_.to_one_hot_encoding(action_follower_.back(), 6),
-				    sp.create_printer_struct(states_.back()),
+				    states_.back(),
 				    controller_predictions_,
 				    mtools_.to_one_hot_encoding(reward, 4)
 				    );

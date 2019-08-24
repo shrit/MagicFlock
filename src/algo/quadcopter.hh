@@ -13,28 +13,13 @@
 /*  Armadillo includes  */
 # include <armadillo>
 
+
 # include "../data_set.hh"
 # include "../global.hh"
 # include "../math_tools.hh"
 # include "propagation_model.hh"
 
 namespace lt = local_types;
-
-struct state_printer {
-  lt::rssi<double> rssi   ;
-  double  height   ;
-  lt::triangle<double>  distances  ;
-  double  orientation   ;
-};
-
-inline std::ostream& operator<< (std::ostream& out, const state_printer& s)
-{
-  // << s.rssi <<","
-  out << s.height << ","
-      << s.distances << ","
-      << s.orientation ;
-  return out;
-}
 
 class Quadcopter {
 
@@ -55,9 +40,6 @@ public:
     lt::triangle<double> distances_3D () const;
     lt::triangle<double> estimated_distances () const;
     double orientation () const;
-
-    state_printer
-    create_printer_struct(Quadcopter::State<simulator_t> state);
 
   private:
 
