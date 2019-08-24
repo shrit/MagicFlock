@@ -211,8 +211,6 @@ run(const Settings& settings)
 	  LogInfo() << "The triangle is no longer conserved";
 	  break;
 	}
-	/*  1- problem logging the actions the next action is not
-	    registered before being logged */
 	
 	auto it_state = states_.rbegin();
 	auto it_action = action_follower_.rbegin();
@@ -261,12 +259,12 @@ run(const Settings& settings)
     /*BIAS accelerometer problem after resetting the models*/
 
     /*  The only possible solution was to change the upper limit value
-     * for the bias inside thee code of te firmware direclty. The
+     * for the bias inside thee code of the firmware directly. The
      * solution can be found at this link:
      * https://github.com/PX4/Firmware/issues/10833 Where they propose
      * to increase the value of COM_ARM_EKF_AB. Note that, the default
      * value is 0.00024 I have increased it to 0.00054 which is very
-     * high to the usual stadard. Other wise there is no way to do the
+     * high to the usual stadard. Otherwise there is no way to do the
      * simulation. Remember, the reboot() function in the action class
      * is not implemented at the time of writing this comment, and
      * maybe it will never be implemented as it is quite complicated
@@ -276,7 +274,7 @@ run(const Settings& settings)
      * accelerometer values without any problems!
      */
 
-    /*  I have quite tested a lot of different solution, if I am going
+    /*  I have quite tested a lot of different solution. Frankly,if I am going
      * to find a better one, I will replace it directly. */
   }
 }

@@ -5,17 +5,18 @@
  *
  *
 */
-
 #pragma once
 
 # include <random>
 # include <utility>
 
+/*  Armadillo includes  */
+# include <armadillo>
+
 # include "../data_set.hh"
 # include "../global.hh"
 # include "../math_tools.hh"
 # include "propagation_model.hh"
-
 
 namespace lt = local_types;
 
@@ -97,7 +98,10 @@ public:
 
   Reward action_evaluator(const lt::triangle<double>& old_dist,
 			  const lt::triangle<double>& new_dist);
-
+        
+  Action
+  action_follower(arma::mat features, arma::uword index);
+  
   double true_score(const lt::triangle<double>& old_dist,
 		    const lt::triangle<double>& new_dist);
   

@@ -107,6 +107,32 @@ action_evaluator(const lt::triangle<double>& old_dist,
   return reward;
 }
 
+/* Get the best action from the model according to the best values */
+Quadcopter::Action Quadcopter::
+action_follower(arma::mat features, arma::uword index)
+{
+  /*  just a HACK, need to find a dynamic solution later */
+  Quadcopter::Action action = Quadcopter::Action::NoMove;
+  /*  Access matrix values according to a given index  */
+  /*  Only one action exist that equal 1 in each row of 
+   a matrix */
+  
+  if (features(index, 5) == 1) {
+    action =  Quadcopter::Action::forward;
+  } else if (features(index, 6) == 1) {
+    action =  Quadcopter::Action::backward;
+  } else if (features(index, 7) == 1) {
+    action =  Quadcopter::Action::left;
+  } else if (features(index, 8) == 1) {
+    action =  Quadcopter::Action::right;
+  } else if (features(index, 9) == 1) {
+    action =  Quadcopter::Action::up;
+  } else if (features(index, 10) == 1) {
+    action =  Quadcopter::Action::down;
+  }
+  return action;
+}
+
 double Quadcopter::true_score(const lt::triangle<double>& old_dist,
 			      const lt::triangle<double>& new_dist)
 {
