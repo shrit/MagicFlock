@@ -212,21 +212,15 @@ run(const Settings& settings)
 	  break;
 	}
 	
-	auto it_state = states_.rbegin();
-	auto it_action = action_follower_.rbegin();
-
-	it_state = std::next(it_state, 1);
-	it_action = std::next(it_action, 1);
-	
 	if (settings.classification()) {
-	data_set_.save_csv_data_set((*it_state),
+	  data_set_.save_csv_data_set(states_.front(),
 				    mtools_.to_one_hot_encoding(action_follower_.back(), 6),
 				    (states_.back()),
 				    mtools_.to_one_hot_encoding(reward, 4)
 				    );
 	}
 	if (settings.regression()) {
-	  data_set_.save_csv_data_set((*it_state),
+	  data_set_.save_csv_data_set(states_.front(),
 				      mtools_.to_one_hot_encoding(action_follower_.back(), 6),
 				      states_.back(),
 				      score

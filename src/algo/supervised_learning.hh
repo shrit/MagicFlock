@@ -49,7 +49,7 @@ public:
   arma::mat
   insert_estimated_features(std::vector<Quadcopter::Action> actions);
   
-  void run();
+  void run(const Settings& settings);
 
   void phase_two(bool random_leader_action);
 
@@ -61,11 +61,13 @@ private:
 
   std::vector<Quadcopter::Action> action_follower_ ;
   int count_;
+  bool classification_;
   DataSet data_set_;
   int episode_;
   std::vector<double> flight_errors_;
   int max_episode_ ;
   Math_tools mtools_;
+  bool regression_;
   Quadcopter::Action saved_leader_action_;
   std::shared_ptr<simulator_t> sim_interface_;
   std::vector<double> step_errors_;

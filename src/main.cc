@@ -354,7 +354,7 @@ int main(int argc, char* argv[])
     
   } else if (settings.testing() == true) {
     Supervised_learning<Px4Device, Gazebo> slearning(iris_x, gz);
-    slearning.run();
+    slearning.run(settings);
   }
   
   auto joystick_handler = [&](){

@@ -114,17 +114,24 @@ void Supervised_learning<flight_controller_t,
 		simulator_t>::
 phase_two(bool random_leader_action)
 {
-  mlpack::ann::FFN<mlpack::ann::SigmoidCrossEntropyError<>,
-		   mlpack::ann::RandomInitialization> model;
-  mlpack::data::Load("model.txt", "model", model, true);
+    mlpack::ann::FFN<mlpack::ann::SigmoidCrossEntropyError<>,
+		   mlpack::ann::RandomInitialization> classification_model;
 
-  /* We need to pass State ,and nextState, and try possible a */
+    mlpack::ann::FFN<mlpack::ann::MeanSquaredError<>,
+		     mlpack::ann::RandomInitialization> regression_model;
+    
+    if (classification_) {  
+      mlpack::data::Load("model.txt", "model", classification_model, true);
+    } else if(regression_) {
+      mlpack::data::Load("model.txt", "model", regression_model, true);
+    }
+    
+  /* We need to pass State, nextState, and all possible action */
   Quadcopter::Action action_leader ;
-
   std::vector<std::thread> threads;
   
   if (random_leader_action == true) {
-    action_leader = robot_.random_action_generator() ;
+    action_leader = robot_.random_action_generator();
     saved_leader_action_ = action_leader;
   } else {
     action_leader = saved_leader_action_;
@@ -161,11 +168,13 @@ phase_two(bool random_leader_action)
 
   /*  Test the trained model using the absolute gazebo distance feature */
   arma::mat features = insert_absolute_features(possible_action);
-
   arma::mat label;
-
-  model.Predict(features, label);
-
+  
+  if (classification_) {
+    classification_model.Predict(features, label);  
+  } else if (regression_) {
+    regression_model.Predict(features, label);
+  }
   /* Log the controler prediction to improve accuracy*/
   controller_predictions_ = label.row(0);
   /* Transpose to the original format */
@@ -207,10 +216,12 @@ phase_two(bool random_leader_action)
 template <class flight_controller_t,
 	  class simulator_t>
 void Supervised_learning<flight_controller_t, simulator_t>::
-run()
+run(const Settings& settings)
 {
   robot_.init();
-
+  bool classification_ = settings.classification();
+  bool regression_ = settings.regression();
+  
   Quadcopter::State<simulator_t> ObserverState(sim_interface_);
   original_dist_ = ObserverState.distances_3D();
 
@@ -270,19 +281,33 @@ run()
 
 	lt::positions<lt::position3D<double>> new_positions = sim_interface_->positions();
 
-	LogInfo() << "New positions : " << new_positions ;
+	LogInfo() << "New positions : " << new_positions;
 
 	new_triangle.push_back(mtools_.triangle_side_3D(new_positions));
-
-	if (count_ == 0 ) {
-	  reward = robot_.action_evaluator(original_dist_,
-					  new_triangle.at(count_));
-
-	} else  {
-	  reward = robot_.action_evaluator(new_triangle.at(count_ -1),
-					  new_triangle.at(count_));
+	
+	if (classification_) {
+	  if (count_ == 0 ) {
+	    reward = robot_.action_evaluator(original_dist_,
+					     new_triangle.at(count_));
+	    
+	  } else {
+	    reward = robot_.action_evaluator(new_triangle.at(count_ -1),
+					     new_triangle.at(count_));
+	  }
 	}
 
+	double score = -1;
+	if (regression_) {
+	  /*  Regression */
+	  if (count_ == 0 ) {
+	    score = robot_.true_score(original_dist_,
+				     new_triangle.at(count_));	  
+	  } else {
+	    score = robot_.true_score(new_triangle.at(count_ -1),
+				     new_triangle.at(count_));
+	  }
+	}	
+	
 	/*  Need to verify that the controller is working,
 	 use the triangle test to figure out after each iteration*/
 	if (mtools_.is_triangle(mtools_.triangle_side_3D(sim_interface_->positions())) == false) {
@@ -291,17 +316,24 @@ run()
 	  break;
 	}
 
-	/* Log online dataset */
-	auto it_state = states_.rbegin();
-	it_state = std::next(it_state, 1);
-
-	data_set_.save_csv_data_set((*it_state),
-				    mtools_.to_one_hot_encoding(action_follower_.back(), 6),
-				    states_.back(),
-				    controller_predictions_,
-				    mtools_.to_one_hot_encoding(reward, 4)
-				    );
+	/* Log online dataset */	
+	if (classification_) {
+	  data_set_.save_csv_data_set(states_.front(),
+				      mtools_.to_one_hot_encoding(action_follower_.back(), 6),
+				      states_.back(),
+				      controller_predictions_,
+				      mtools_.to_one_hot_encoding(reward, 4)
+				      );
+	}
 	
+	if (settings.regression()) {
+	  data_set_.save_csv_data_set(states_.front(),
+				      mtools_.to_one_hot_encoding(action_follower_.back(), 6),
+				      states_.back(),
+				      score
+				      );
+	}
+
 	time_step_vector_.push_back(count_);
 
 	/* Check why we need this sleep ! ??*/
