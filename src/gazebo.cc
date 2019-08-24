@@ -1,7 +1,7 @@
 # include "gazebo.hh"
 
 Gazebo::Gazebo(int argc, char* argv[])
-  :  node_(new gazebo::transport::Node())
+  : node_(new gazebo::transport::Node())
 {
   gazebo::client::setup(argc, argv);
   node_->Init();

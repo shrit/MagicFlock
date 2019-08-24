@@ -15,12 +15,9 @@
 
 namespace lt = local_types;
 
-
 class configs;
-
 class Gazebo
 {
-
 public:
 
   using SubPtr                   = gazebo::transport::SubscriberPtr;
@@ -31,11 +28,9 @@ public:
 
   void subscriber(lt::topic_name name);
   void publisher(lt::topic_name name);
-
   void reset_models();
 
   void Parse_position_msg(ConstPosesStampedPtr& posesStamped);
-
   void Parse_rssi_msg_0(ConstVector2dPtr& msg);
   void Parse_rssi_msg_1(ConstVector2dPtr& msg);
   void Parse_rssi_msg_2(ConstVector2dPtr& msg);
@@ -51,11 +46,8 @@ public:
 private:
 
   double rssi_;
-
   std::vector<SubPtr> subs_;
-
   std::vector<PubPtr> pubs_;
-
   NodePtr node_;
 
   mutable std::mutex _positions_mutex{};
@@ -68,7 +60,6 @@ private:
   lt::rssi<double> _signal;
 
   Configs config_;
-
 };
 
 #endif
