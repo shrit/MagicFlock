@@ -14,11 +14,12 @@ Supervised_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
   data_set_.init_dataset_directory();
 }
 
+/* Estimate the features (distances) using propagation model from RSSI */
 template <class flight_controller_t,
 	  class simulator_t>
 arma::mat Supervised_learning<flight_controller_t,
 		     simulator_t>::
-features_extractor(std::vector<Quadcopter::Action> actions)
+insert_estimated_features(std::vector<Quadcopter::Action> actions)
 {
   arma::mat features;
   auto it_state = states_.rbegin();
@@ -96,40 +97,11 @@ insert_absolute_features(std::vector<Quadcopter::Action> actions)
   return features;
 }
 
-/* Get the best action from the model according to the best values */
-template <class flight_controller_t,
-	  class simulator_t>
-Quadcopter::Action Supervised_learning<flight_controller_t,
-				       simulator_t>::
-action_follower(arma::mat features, arma::uword index)
-{
-  /*  just a HACK, need to find a dynamic solution later */
-  Quadcopter::Action action = Quadcopter::Action::NoMove;
-  /*  Access matrix values according to a given index  */
-  /*  Only one action exist that equal 1 in each row of 
-   a matrix */
-  
-  if (features(index, 5) == 1) {
-    action =  Quadcopter::Action::forward;
-  } else if (features(index, 6) == 1) {
-    action =  Quadcopter::Action::backward;
-  } else if (features(index, 7) == 1) {
-    action =  Quadcopter::Action::left;
-  } else if (features(index, 8) == 1) {
-    action =  Quadcopter::Action::right;
-  } else if (features(index, 9) == 1) {
-    action =  Quadcopter::Action::up;
-  } else if (features(index, 10) == 1) {
-    action =  Quadcopter::Action::down;
-  }
-  return action;
-}
-
 template <class flight_controller_t,
 	  class simulator_t>
 int Supervised_learning<flight_controller_t,
 	       simulator_t>::
-highest_values(arma::mat matrix)
+index_of_best_action(arma::mat matrix)
 {
   int value = 0;
   for (arma::uword i = 0; i < matrix.n_rows; ++i) {
@@ -195,16 +167,12 @@ phase_two(bool random_leader_action)
 
   /*  we need to predict the action for the follower using h(S)*/
 
-  /*  Extract state and push it into the model with several H */
-  /*  take the highest value for the highest reward
+  /*  Extract state and push it into the model with several actions */
+  /*  Take the action index for the highest class
       given back by the model */
 
   std::vector<Quadcopter::Action> possible_action  =
     robot_.possible_actions();
-
-  /*  Now we need to estimate the features using propagation model */
-
-  //  arma::mat features = features_extractor(possible_action);
 
   /*  Test the trained model using the absolute gazebo distance feature */
   arma::mat features = insert_absolute_features(possible_action);
@@ -213,23 +181,22 @@ phase_two(bool random_leader_action)
 
   model.Predict(features, label);
 
+  controller_predictions_.push_back(label.row(0));
   /* Transpose to the original format */
-
   features = features.t();
   label = label.t();
 
   LogInfo() << "True 3D distance: " << states_.back().distances_3D();
-
   LogInfo() << "Size of features: " << arma::size(features);
   LogInfo() << features;
   LogInfo() << label;
 
-  int values = highest_values(label);
+  int values = index_of_best_action(label);
 
   LogInfo() << values;
 
   /*  Get the follower action now !! and store it directly */
-  action_follower_.push_back(action_follower(features, values));
+  action_follower_.push_back(robot_.action_follower(features, values));
 
   threads.push_back(std::thread([&](){
   				  for (int i = 0; i < 4; ++i) {
@@ -242,14 +209,13 @@ phase_two(bool random_leader_action)
     thread.join();
   }
 
-  /*  Get error of deformation to improve persicion later and to
+  /*  Get error of deformation to improve percision later and to
       verify the model accuracy */
   Quadcopter::State<simulator_t> ObserverState(sim_interface_);
   states_.push_back(ObserverState);
 
   step_errors_.push_back(mtools_.deformation_error_one_follower
 			(original_dist_, ObserverState.distances_3D()));
-
   return;
 }
 
@@ -337,18 +303,8 @@ run()
 					  new_triangle.at(count_));
 	}
 
-	LogInfo() << "Z height: "<< new_positions.f1.z;
-
-	if (new_positions.f1.z < 6 or
-	    new_positions.f2.z < 6 ) {
-
-	  robot_.save_controller_count(count_);
-	  break;
-	}
-
 	/*  Need to verify that the controller is working,
 	 use the triangle test to figure out after each iteration*/
-
 	if (mtools_.is_triangle(mtools_.triangle_side_3D(sim_interface_->positions())) == false) {
 	  LogInfo() << "The triangle is no longer conserved";
 	  robot_.save_controller_count(count_);
@@ -365,8 +321,10 @@ run()
 	data_set_.save_csv_data_set(sp.create_printer_struct(*it_state),
 				    mtools_.to_one_hot_encoding(action_follower_.back(), 6),
 				    sp.create_printer_struct(states_.back()),
+				    controller_predictions_.back(),
 				    mtools_.to_one_hot_encoding(reward, 4)
 				    );
+	
 	time_step_vector_.push_back(count_);
 
 	/* Check why we need this sleep ! ??*/
