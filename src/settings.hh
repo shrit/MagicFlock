@@ -2,7 +2,6 @@
 #define SETTINGS_HH_
 
 # include <iostream>
-
 # include <boost/program_options.hpp>
 
 # include "global.hh"
@@ -18,16 +17,19 @@ public:
   bool generate() const;
   bool training() const;
   bool testing() const;
+  bool classification() const;
+  bool regression() const;
   std::string dataset() const;
   
 private:
 
   bool generate_;
-  bool training_;
+  bool training_;  
   bool testing_;
+  bool classification_;
+  bool regression_;
   std::string ini_file_;
   std::string dataset_file_;
-
 };
 
 

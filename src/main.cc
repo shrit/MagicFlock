@@ -346,15 +346,13 @@ int main(int argc, char* argv[])
   if (settings.generate() == true) {
     Generator<Px4Device, Gazebo> generator(iris_x, gz);
     generator.run();
-  }
-  
-  if (settings.training() == true) {
+    
+  } else if (settings.training() == true) {
     Train trainer;
     trainer.load_data_set(settings.dataset());
-    trainer.run();
-  }
-
-  if (settings.testing() == true) {
+    trainer.run(settings);
+    
+  } else if (settings.testing() == true) {
     Supervised_learning<Px4Device, Gazebo> slearning(iris_x, gz);
     slearning.run();
   }

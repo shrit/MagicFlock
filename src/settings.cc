@@ -46,6 +46,8 @@ Settings::Settings(int argc, char* argv[])
     ("ini-file,n", po::value<std::string>(&ini_file_)->value_name("ini_file"),"Specify the name of the ini file")
     ("generate-dataset","Generate data set by doing generating random trajectories")
     ("training", po::value<std::string>(&dataset_file_)->value_name("dataset"), "Train a dataset file using a neural network, 10% of the dataset is used for testing")
+    ("classification", "Treat the problem as classification problem, labels are classed into classes ")
+    ("regression", "Treat the problem as regression problem ")
     ("testing", "Test an aleardy trained controller on the followers");
 
   po::positional_options_description pos;
@@ -81,6 +83,14 @@ Settings::Settings(int argc, char* argv[])
     testing_ = true;
   }
 
+  if (vm.count("classification")) {
+    classification_ = true;
+  }
+
+  if (vm.count("regression")) {
+    regression_ = true;
+  }
+
   if (vm.count("version")) {
     std::cout << "0.9v ";
     exit(0);
@@ -99,6 +109,12 @@ bool Settings::training() const
 
 bool Settings::testing() const
 { return testing_; }
+
+bool Settings::classification() const
+{ return classification_; }
+
+bool Settings::regression() const
+{ return regression_; }
 
 std::string Settings::dataset() const
 { return dataset_file_; }
