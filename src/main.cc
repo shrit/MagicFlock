@@ -345,7 +345,7 @@ int main(int argc, char* argv[])
 
   if (settings.generate() == true) {
     Generator<Px4Device, Gazebo> generator(iris_x, gz);
-    generator.run();
+    generator.run(settings);
     
   } else if (settings.training() == true) {
     Train trainer;

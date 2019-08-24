@@ -57,7 +57,7 @@ phase_one(bool random_leader_action)
 				}));
   threads.push_back(std::thread([&](){
 				  for (int i = 0; i < 4; ++i) {
-				    swarm_.one_quad_execute_trajectory( "f2", action_follower_.back());
+				    swarm_.one_quad_execute_trajectory("f2", action_follower_.back());
 				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
 				  }
 				}));
@@ -78,7 +78,7 @@ phase_one(bool random_leader_action)
 template<class flight_controller_t,
 	 class simulator_t>
 void Generator<flight_controller_t, simulator_t>::
-run()
+run(const Settings& settings)
 {
   lt::positions<lt::position3D<double>> original_positions = sim_interface_->positions();
 
@@ -99,39 +99,35 @@ run()
 
     LogInfo() << "Episode : " << episode_ ;
 
-
-    /*  Think How we can use threads here */
-
-    /* Stop the episode if one of the quad has fallen to arm */
-    
-    bool stop_episode = false;
+    /* Stop the episode if one of the quad has fallen to arm */    
+    stop_episode_ = false;
     bool arm = swarm_.arm();
     if(!arm)
-      stop_episode = true;
+      stop_episode_ = true;
     
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
     /* Stop the episode if one of the quad has fallen to takoff */
     bool takeoff = swarm_.takeoff(5);
     if (!takeoff)
-      stop_episode = true;
+      stop_episode_ = true;
     
     /*  Setting up speed_ is important to switch the mode */
     swarm_.init_speed();
 
      /*  Switch to offboard mode, Allow the control */
     /* Stop the episode is the one quadcopter have fallen to set
-       offbaord mode*/    
+       offbaord mode */    
     bool offboard_mode = swarm_.start_offboard_mode();
     if(!offboard_mode)
-      stop_episode = true;
+      stop_episode_ = true;
     
     /*  Wait to complete the take off process */
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
     /*  Start the First phase */
 
-    if (!stop_episode) {
+    if (!stop_episode_) {
 
       count_ = 0 ;
 
@@ -139,8 +135,7 @@ run()
 
       while (count_ < 10) {
 
-        // Quadcopter::Reward reward =
-	//   Quadcopter::Reward::Unknown;
+	Quadcopter::Reward reward = Quadcopter::Reward::Unknown;
 	
 	/* Choose one random trajectory for the leader in the first
 	   count. Then, keep the same action until the end of the
@@ -188,26 +183,27 @@ run()
 	/*  This problem is formulated as a classification problem, we
 	 will try using regression rather than classification to see
 	 if the produced result are better */
-
-	/*  Classification */
-	// if (count_ == 0 ) {
-	//   reward = robot.action_evaluator(original_triangle,
-	// 				  new_triangle.at(count_));
-
-	// } else {
-	//   reward = robot.action_evaluator(new_triangle.at(count_ -1),
-	// 				  new_triangle.at(count_));
-	// }
-
-	double score;
+	if (settings.classification()) {
+	  /*  Classification */
+	  if (count_ == 0 ) {
+	    reward = robot.action_evaluator(original_triangle,
+					    new_triangle.at(count_));	    
+	  } else {
+	    reward = robot.action_evaluator(new_triangle.at(count_ -1),
+					    new_triangle.at(count_));
+	  }
+	}
+	
+	double score = -1;
+	if (settings.regression()) {
 	/*  Regression */
-	if (count_ == 0 ) {
-	  score = robot.true_score(original_triangle,
-				   new_triangle.at(count_));
-	  
-	} else {
-	  score = robot.true_score(new_triangle.at(count_ -1),
-				   new_triangle.at(count_));
+	  if (count_ == 0 ) {
+	    score = robot.true_score(original_triangle,
+				     new_triangle.at(count_));	  
+	  } else {
+	    score = robot.true_score(new_triangle.at(count_ -1),
+				     new_triangle.at(count_));
+	  }
 	}
 	
 	if (mtools_.is_triangle(mtools_.triangle_side_3D
@@ -225,26 +221,29 @@ run()
 	it_action = std::next(it_action, 1);
 
 	Quadcopter::State<simulator_t> sp(sim_interface_);
-
-	// data_set_.save_csv_data_set(sp.create_printer_struct(*it_state),
-	// 			    mtools_.to_one_hot_encoding(action_follower_.back(), 6),
-	// 			    sp.create_printer_struct(states_.back()),
-	// 			    mtools_.to_one_hot_encoding(reward, 4)
-	// 			    );
-
+	
+	if (settings.classification()) {
 	data_set_.save_csv_data_set(sp.create_printer_struct(*it_state),
 				    mtools_.to_one_hot_encoding(action_follower_.back(), 6),
 				    sp.create_printer_struct(states_.back()),
-				    score
+				    mtools_.to_one_hot_encoding(reward, 4)
 				    );
-
+	}
+	if (settings.regression()) {
+	  data_set_.save_csv_data_set(sp.create_printer_struct(*it_state),
+				      mtools_.to_one_hot_encoding(action_follower_.back(), 6),
+				      sp.create_printer_struct(states_.back()),
+				      score
+				      );
+	}
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	++count_;
       }
     }
-    /*  Time step equal one, mean the quadcopters have laneded before
-	doing any actions */
-    count_ = count_ + 1;
+    /*  Add one count to have the exact number of time steps */
+    if (!stop_episode_) {
+      count_ = count_ + 1;
+    }
     /*  Save a version of the time steps to create a histogram */
     mtools_.histogram(count_);
     data_set_.save_histogram(mtools_.get_histogram<int>());

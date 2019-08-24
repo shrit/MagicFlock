@@ -10,13 +10,13 @@
 # include <vector>
 
 /* local includes  */
-# include "../config_ini.hh"
 # include "../data_set.hh"
 # include "../global.hh"
 # include "../gazebo.hh"
 # include "../log.hh"
 # include "../math_tools.hh"
 # include "quadcopter.hh"
+# include "../settings.hh"
 # include "../swarm_device.hh"
 
 namespace lt = local_types;
@@ -32,14 +32,14 @@ public:
 
   void phase_one(bool random_leader_action);
 
-  void run();
+  void run(const Settings& settings);
 
   Generator(Generator const&) = delete;
 
   Generator(Generator &&) = default;
 
 private:
-  /*  Intilizate speed with configs settings */
+  
   std::vector<Quadcopter::Action> action_follower_;
   int count_;
   DataSet data_set_;
@@ -51,6 +51,7 @@ private:
   std::shared_ptr<simulator_t> sim_interface_;
   std::vector<Quadcopter::State<simulator_t>> states_;
   Quadcopter::Action saved_leader_action_;
+  bool stop_episode_;
   SwarmDevice<flight_controller_t> swarm_;
   
 };
