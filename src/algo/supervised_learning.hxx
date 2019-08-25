@@ -61,17 +61,15 @@ arma::mat Supervised_learning<flight_controller_t,
 insert_absolute_features(std::vector<Quadcopter::Action> actions)
 {
   arma::mat features;
-  auto it_state = states_.rbegin();
-  it_state = std::next(it_state, 1);
-
   arma::rowvec row;
+  
   for (int i = 0; i < 6; ++i) {
     /*  State */
-    row << (*it_state).height()
-	<< (*it_state).distances_3D().f1
-	<< (*it_state).distances_3D().f2
-	<< (*it_state).distances_3D().f3
-	<< (*it_state).orientation()
+    row << states_.front().height()
+	<< states_.front().distances_3D().f1
+	<< states_.front().distances_3D().f2
+	<< states_.front().distances_3D().f3
+	<< states_.front().orientation()
       /*  Action encoded as 1, and 0, add 6 times to represent 6 actions */
 	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(0)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(1)
