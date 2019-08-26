@@ -183,6 +183,7 @@ std::vector<double> Math_tools::to_std_vector(Arg arg)
     vec.resize(arg.n_rows);
     vec = arma::conv_to<std::vector<double>>::from(arg);
   }
+  std::reverse(vec.begin(), vec.end());
   LogInfo() << "Vector control_prediction: " << vec;
   return vec;
 }
