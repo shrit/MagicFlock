@@ -328,10 +328,11 @@ run(const Settings& settings)
 	  data_set_.save_csv_data_set(states_.front(),
 				      mtools_.to_one_hot_encoding(action_follower_.back(), 6),
 				      states_.back(),
+				      controller_predictions_,
 				      score
 				      );
 	}
-
+	states_.clear();
 	time_step_vector_.push_back(count_);
 
 	/* Check why we need this sleep ! ??*/
@@ -352,8 +353,7 @@ run(const Settings& settings)
       data_set_.save_error_file(mean_error);
       flight_errors_.push_back(mean_error);
     }
-    
-    states_.clear();
+   
     step_errors_.clear();
 
     swarm_.land();

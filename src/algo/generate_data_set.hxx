@@ -226,6 +226,8 @@ run(const Settings& settings)
 				      score
 				      );
 	}
+	
+	states_.clear();
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	++count_;
       }
