@@ -97,11 +97,24 @@ template <class flight_controller_t,
 	  class simulator_t>
 int Supervised_learning<flight_controller_t,
 	       simulator_t>::
-index_of_best_action(arma::mat matrix)
+index_of_best_action_classification(arma::mat matrix)
 {
   int value = 0;
   for (arma::uword i = 0; i < matrix.n_rows; ++i) {
     value = arma::index_max(matrix.col(0));
+  }
+  return value;
+}
+
+template <class flight_controller_t,
+	  class simulator_t>
+int Supervised_learning<flight_controller_t,
+	       simulator_t>::
+index_of_best_action_regression(arma::mat matrix)
+{
+  int value = 0;
+  for (arma::uword i = 0; i < matrix.n_rows; ++i) {
+    value = arma::index_min(matrix.col(0));
   }
   return value;
 }
@@ -176,7 +189,6 @@ phase_two(bool random_leader_action)
   /* Log the controler prediction to improve accuracy*/
   arma::rowvec vec  = label.row(0);
   controller_predictions_ = mtools_.to_std_vector(vec);
-  LogInfo() << "Controller Predictions: " << controller_predictions_;
   
   /* Transpose to the original format */
   features = features.t();
@@ -187,7 +199,7 @@ phase_two(bool random_leader_action)
   LogInfo() << features;
   LogInfo() << label;
 
-  int values = index_of_best_action(label);
+  int values = index_of_best_action_regression(label);
   LogInfo() << values;
 
   /*  Get the follower action now !! and store it directly */

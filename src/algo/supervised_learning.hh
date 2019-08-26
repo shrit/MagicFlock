@@ -41,8 +41,9 @@ public:
   Supervised_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 		      std::shared_ptr<simulator_t> gzs);
   
-  int index_of_best_action(arma::mat matrix);
-
+  int index_of_best_action_classification(arma::mat matrix);
+  int index_of_best_action_regression(arma::mat matrix);
+  
   arma::mat
   insert_absolute_features(std::vector<Quadcopter::Action> actions);
 
