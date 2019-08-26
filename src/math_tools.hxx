@@ -169,6 +169,24 @@ std::vector<bool> Math_tools::to_one_hot_encoding(Arg arg, Arg2 number_of_class)
   return one_hot;
 }
 
+template <typename Arg>
+std::vector<double> Math_tools::to_std_vector(Arg arg)
+{
+  std::vector<double> vec;
+  if (arg.is_empty()) {
+    LogInfo() << "Can not convert empty vector to std vector";
+  }
+  if (std::is_same<Arg, arma::rowvec>::value) {
+    vec.resize(arg.n_cols);
+    vec = arma::conv_to<std::vector<double>>::from(arg);    
+  } else if (std::is_same<Arg, arma::colvec>::value) {
+    vec.resize(arg.n_rows);
+    vec = arma::conv_to<std::vector<double>>::from(arg);
+  }
+  LogInfo() << "Vector control_prediction: " << vec;
+  return vec;
+}
+
 template <typename T>
 T Math_tools::pythagore_leg(T leg, T hypotenuse)
 {

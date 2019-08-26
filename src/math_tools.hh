@@ -8,6 +8,7 @@
 # include <vector>
 # include <utility>
 
+# include <armadillo>
 /* local includes */
 # include "log.hh"
 # include "global.hh"
@@ -56,6 +57,9 @@ public:
   std::vector<bool> to_one_hot_encoding(Arg arg,
 			  Arg2 number_of_class);
 
+  template <typename Arg>
+  std::vector<double> to_std_vector(Arg arg);
+  
   template <typename T>
   T pythagore_leg(T leg, T hypotenuse);
 
@@ -63,7 +67,7 @@ public:
   T pythagore_hypotenuse(T leg_1, T leg_2);
 
   template <typename Arg>
-  Arg variance(std::vector<Arg> vec);
+  Arg variance(std::vector<Arg> vec);  
 
 private:
 

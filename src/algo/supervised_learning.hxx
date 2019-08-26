@@ -174,7 +174,10 @@ phase_two(bool random_leader_action)
     regression_model.Predict(features, label);
   }
   /* Log the controler prediction to improve accuracy*/
-  controller_predictions_ = label.row(0);
+  arma::rowvec vec  = label.row(0);
+  controller_predictions_ = mtools_.to_std_vector(vec);
+  LogInfo() << "Controller Predictions: " << controller_predictions_;
+  
   /* Transpose to the original format */
   features = features.t();
   label = label.t();
@@ -332,7 +335,8 @@ run(const Settings& settings)
 				      score
 				      );
 	}
-	states_.clear();
+	controller_predictions_.clear();
+	states_.clear();	
 	time_step_vector_.push_back(count_);
 
 	/* Check why we need this sleep ! ??*/
