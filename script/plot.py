@@ -165,7 +165,6 @@ if __name__ == '__main__':
 
     elif args.histogram_file_name:   
         plot_histogram_2d(args.histogram_file_name)
-        plot_cumulative_histogram(args.histogram_file_name)
 
     elif args.cumulative_histogram_files_name:
         if isinstance(args.cumulative_histogram_files_name, int):
