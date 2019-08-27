@@ -1,4 +1,5 @@
 from numpy import genfromtxt
+import math
 import textwrap 
 import argparse
 import matplotlib.pyplot as plt
@@ -6,12 +7,23 @@ import numpy as np
 import pandas as pd
 import sys
 
+def modify_labels(dataset_file_name):
+    dataset = genfromtxt(dataset_file_name, delimiter=',')
+    y = dataset[:, -1]
+    dataset = dataset[:, :-1]
+    print(y)
+    z =[]
+    for i in y:
+        z.append(math.log10(i + 1e-7))
+
+    new_data_set = np.column_stack((dataset, z))        
+    np.savetxt(dataset_file_name, new_data_set, delimiter=",")
+     
 """
 Error files need to be formated as one column file
 This column contain the mean error of each flight
 
 """
-
 def plot_flight_error(error_file_name):
     num_lines = sum(1 for line in open(error_file_name))
     print (num_lines)
@@ -145,7 +157,8 @@ if __name__ == '__main__':
         or all of them at the same time.
         You have to provide the file format as described in the above comments.
         '''))
-    
+
+    parser.add_argument('--dataset_file_name', metavar="dataset file name", type=str, help="Enter error file name that has the dataset to modify the labels")
     parser.add_argument('--error_file_name', metavar="error file name", type=str, help="Enter error file name that has the mean value of each flight")
     parser.add_argument('--count_file_name', metavar="count file name", type=str, help="Enter flight count file name  ")
     parser.add_argument('--histogram_file_name', metavar="histogram file name", type=str, help="Enter a histogram file name, two column file name, nuumber of steps and frequency")
@@ -162,12 +175,15 @@ if __name__ == '__main__':
 
     elif args.count_file_name:    
         plot_flight_count(args.count_file_name)
-
+        
+    elif args.dataset_file_name:
+        modify_labels(args.dataset_file_name)
+        
     elif args.histogram_file_name:   
         plot_histogram_2d(args.histogram_file_name)
 
     elif args.cumulative_histogram_files_name:
-        if isinstance(args.cumulative_histogram_files_name, int):
+        if isinstance(args.cumulative_histogram_files_name, str):
             plot_one_cumulative_histogram(args.cumulative_histogram_files_name)
         elif isinstance(args.cumulative_histogram_files_name, list):
             plot_two_cumulative_histogram(args.cumulative_histogram_files_name[0],
