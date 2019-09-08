@@ -13,7 +13,6 @@
 /*  Armadillo includes  */
 # include <armadillo>
 
-
 # include "../data_set.hh"
 # include "../global.hh"
 # include "../math_tools.hh"
@@ -87,6 +86,15 @@ public:
   double true_score(const lt::triangle<double>& old_dist,
 		    const lt::triangle<double>& new_dist);
   
+  double true_score_log(const lt::triangle<double>& old_dist,
+			const lt::triangle<double>& new_dist);
+  
+  double true_score_square(const lt::triangle<double>& old_dist,
+			   const lt::triangle<double>& new_dist);
+  
+  double true_score_square_log(const lt::triangle<double>& old_dist,
+			       const lt::triangle<double>& new_dist);
+
   int evaluation_score(const lt::triangle<double>& old_dist,
 		       const lt::triangle<double>& new_dist,
 		       const double altitude,

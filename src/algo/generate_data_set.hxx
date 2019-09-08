@@ -195,14 +195,29 @@ run(const Settings& settings)
 	}
 	
 	double score = -1;
+	double score_log = -20;
+	double score_square = -1;
+	double score_square_log = -1;	
 	if (settings.regression()) {
 	/*  Regression */
 	  if (count_ == 0 ) {
 	    score = robot.true_score(original_triangle,
-				     new_triangle.at(count_));	  
+				     new_triangle.at(count_));
+	    score_log= robot.true_score_log(original_triangle,
+					    new_triangle.at(count_));
+	    score_square = robot.true_score_square(original_triangle,
+						   new_triangle.at(count_));
+	    score_square_log = robot.true_score_square_log(original_triangle,
+							   new_triangle.at(count_));
 	  } else {
 	    score = robot.true_score(new_triangle.at(count_ -1),
 				     new_triangle.at(count_));
+	    score_log = robot.true_score_log(new_triangle.at(count_ -1),
+					     new_triangle.at(count_));
+	    score_square = robot.true_score_square(new_triangle.at(count_ -1),
+						   new_triangle.at(count_));
+	    score_square_log = robot.true_score_square_log(new_triangle.at(count_ -1),
+							   new_triangle.at(count_));
 	  }
 	}
 	
@@ -223,7 +238,10 @@ run(const Settings& settings)
 	  data_set_.save_csv_data_set(states_.front(),
 				      mtools_.to_one_hot_encoding(action_follower_.back(), 6),
 				      states_.back(),
-				      score
+				      score,
+				      score_log,
+				      score_square,
+				      score_square_log
 				      );
 	}
 	

@@ -129,6 +129,33 @@ double Quadcopter::true_score(const lt::triangle<double>& old_dist,
 
   return diff_f1 + diff_f2;
 }
+
+double Quadcopter::true_score_log(const lt::triangle<double>& old_dist,
+				  const lt::triangle<double>& new_dist)
+{
+  double diff_f1 = std::fabs(old_dist.f1 - new_dist.f1);
+  double diff_f2 = std::fabs(old_dist.f2 - new_dist.f2);
+  
+  return std::log(diff_f1 + diff_f2 + 1e-7);
+}
+
+double Quadcopter::true_score_square(const lt::triangle<double>& old_dist,
+				     const lt::triangle<double>& new_dist)
+{
+  double diff_f1 = std::fabs(old_dist.f1 - new_dist.f1);
+  double diff_f2 = std::fabs(old_dist.f2 - new_dist.f2);
+  
+  return std::pow(diff_f1, 2) + std::pow(diff_f2, 2);
+}
+
+double Quadcopter::true_score_square_log(const lt::triangle<double>& old_dist,
+					 const lt::triangle<double>& new_dist)
+{
+  double diff_f1 = std::fabs(old_dist.f1 - new_dist.f1);
+  double diff_f2 = std::fabs(old_dist.f2 - new_dist.f2);
+  return std::log(std::pow(diff_f1, 2) + std::pow(diff_f2, 2) + 1e-7);
+}
+
 /*  NOT tested yet, Do not use, it requires some verifications */
 int Quadcopter::evaluation_score(const lt::triangle<double>& old_dist,
 		     const lt::triangle<double>& new_dist,
