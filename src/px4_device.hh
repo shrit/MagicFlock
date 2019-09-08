@@ -2,7 +2,7 @@
 
 /**
  * @file px4_device.hh
- * @brief An interface to dronecodesdk, that allow user to handle the quadcopters
+ * @brief An interface to MAVSDK, it allows users to handle quadcopters
  * using keyboard or joystick
  * @author: Omar Shrit <shrit@lri.fr>
  * @date 2018-06-13
@@ -117,7 +117,7 @@ private:
 			    Telemetry::PositionVelocityNED& b);
 
   Mavsdk mavsdk_;
-
+  Telemetry::Health health_;
   Telemetry::PositionVelocityNED _position_ned{{0, 0, 0}, {0, 0, 0}};
   Telemetry::Position position_{0, 0, 0, 0};
   std::shared_ptr<mavsdk::Telemetry> telemetry_;

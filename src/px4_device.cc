@@ -16,7 +16,7 @@ Px4Device::Px4Device(lt::connection_type socket,
 
   set_rate_result();
   position_async();
-  //  quad_health();  //Stop testing quad health for some moments
+  quad_health();  //Stop testing quad health for some moments
 }
 
 ConnectionResult Px4Device::connect_to_quad(std::string connection_url)
@@ -414,10 +414,24 @@ void Px4Device::calibrate_accelerometer()
 
 void Px4Device::quad_health()
 {
-
-  while (telemetry_->health_all_ok() != true) {
-    LogInfo() << "Vehicle is getting ready to arm" ;
-    sleep_for(seconds(1));
+  telemetry_->health_async([this](Telemetry::Health health){
+			     this->health_ = health;
+			   });
+  
+  if (health_.gyrometer_calibration_ok == false) {
+    LogErr() << "Gyrometer is not calibrated please calibrate the gyrometer and try later ";
+  } else if (health_.accelerometer_calibration_ok == false) {
+    LogErr() << "Accelerometer is not calibrated please calibrate the accelerometer and try later";
+  } else if (health_.magnetometer_calibration_ok == false) {
+    LogErr() << "magnetometer is not calibrated please calibrate the magnetometer and try later";
+  } else if (health_.level_calibration_ok == false) {
+    LogErr() << "Please check the caibration level of the vehicle";
+  } else if (health_.local_position_ok == false) {
+    LogErr() << "NO local position, can not fly in position mode";
+  } else if (health_.global_position_ok == false) {
+    LogErr() << "No GPS position, can not fly in position mode";
+  } else if (health_.home_position_ok == false) {
+    LogErr() << "Home position is not initialized properly";
   }
 }
 
