@@ -47,32 +47,30 @@
     <include>
       <name>city_terrain_1</name>
       <pose>
-	0
-	0
-	5.01
-	0
-	0
-	0
+    	0
+    	0
+    	5.01
+    	0
+    	0
+    	0
       </pose>
       <uri>model://city_terrain</uri>
     </include>
 
-    <!-- Need a descent graphic card to run ocean -->
+    <!-- <!-\- Need a descent graphic card to run ocean -\-> -->
 
-    <!-- <include> -->
-    <!--   <name>ocean_2</name> -->
-    <!--   <pose> -->
-    <!--   40 -->
-    <!--   -20 -->
-    <!--   3.0 -->
-    <!--   0 -->
-    <!--   0 -->
-    <!--   0 -->
-    <!--   </pose> -->
-    <!--   <uri>model://ocean</uri> -->
-    <!-- </include> -->
-
-
+    <!-- <!-\- <include> -\-> -->
+    <!-- <!-\-   <name>ocean_2</name> -\-> -->
+    <!-- <!-\-   <pose> -\-> -->
+    <!-- <!-\-   40 -\-> -->
+    <!-- <!-\-   -20 -\-> -->
+    <!-- <!-\-   3.0 -\-> -->
+    <!-- <!-\-   0 -\-> -->
+    <!-- <!-\-   0 -\-> -->
+    <!-- <!-\-   0 -\-> -->
+    <!-- <!-\-   </pose> -\-> -->
+    <!-- <!-\-   <uri>model://ocean</uri> -\-> -->
+    <!-- <!-\- </include> -\-> -->
     
     <!-- QuadCopters -->
     <include>
@@ -89,7 +87,6 @@
     </include>
     
     <physics name='default_physics' default='0' type='ode'>
-      <gravity>0 0 -9.8066</gravity>
       <ode>
         <solver>
           <type>quick</type>
@@ -107,8 +104,6 @@
       <max_step_size>0.004</max_step_size>
       <real_time_factor>1</real_time_factor>
       <real_time_update_rate>250</real_time_update_rate>
-      <magnetic_field>6.0e-6 2.3e-5 -4.2e-5</magnetic_field>
-    </physics>
-    
+    </physics>    
   </world>
 </sdf>
