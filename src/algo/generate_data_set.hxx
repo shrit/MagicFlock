@@ -44,19 +44,19 @@ phase_one(bool random_leader_action)
 
   /*  Threading QuadCopter */
   threads.push_back(std::thread([&](){
-				  for (int i = 0; i < 4; ++i) {
+				  for (int i = 0; i < 12; ++i) {
 				    swarm_.one_quad_execute_trajectory("l" ,  action_leader);
 				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
 				  }
 				}));
   threads.push_back(std::thread([&](){
-				  for (int i = 0; i < 4; ++i) {
+				  for (int i = 0; i < 12; ++i) {
 				    swarm_.one_quad_execute_trajectory("f1" , action_leader);
 				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
 				  }
 				}));
   threads.push_back(std::thread([&](){
-				  for (int i = 0; i < 4; ++i) {
+				  for (int i = 0; i < 12; ++i) {
 				    swarm_.one_quad_execute_trajectory("f2", action_follower_.back());
 				    std::this_thread::sleep_for(std::chrono::milliseconds(35));
 				  }
@@ -69,6 +69,10 @@ phase_one(bool random_leader_action)
   /* We need to wait until the quadcopters finish their actions */
   std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
+  if (sim_interface_->positions().f1.z < 6  or sim_interface_->positions().f2.z < 6) {
+    swarm_.land();
+  } 
+    
   /* Get the next state at time t + 1  */
   Quadcopter::State<simulator_t> nextState(sim_interface_);
   states_.push_back(nextState);
