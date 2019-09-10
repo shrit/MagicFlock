@@ -67,10 +67,6 @@ phase_one(bool random_leader_action)
 
   /* We need to wait until the quadcopters finish their actions */
   std::this_thread::sleep_for(std::chrono::milliseconds(300));
-
-  if (sim_interface_->positions().f1.z < 6  or sim_interface_->positions().f2.z < 6) {
-    swarm_.land();
-  } 
     
   /* Get the next state at time t + 1  */
   Quadcopter::State<simulator_t> nextState(sim_interface_);
@@ -136,7 +132,7 @@ run(const Settings& settings)
 
       std::vector<lt::triangle<double>> new_triangle;
 
-      while (count_ < 10) {
+      while (count_ < 10 and !stop_episode_) {
 
 	Quadcopter::Reward reward = Quadcopter::Reward::Unknown;
 	
@@ -175,6 +171,11 @@ run(const Settings& settings)
 
 	LogInfo() << "Noise: " << noise ;
 
+	/*  Handle fake takeoff.. */
+	if (sim_interface_->positions().f1.z < 6  or sim_interface_->positions().f2.z < 6) {
+	  stop_episode_ = true;
+	} 
+  
 	/* Calculate the error compare to the starting point */
 	/* Compare with the original at start */
 	/* We have compared the value of the triangle with the one

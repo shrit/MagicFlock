@@ -295,7 +295,13 @@ run(const Settings& settings)
 	lt::positions<lt::position3D<double>> new_positions = sim_interface_->positions();
 
 	LogInfo() << "New positions : " << new_positions;
+		/*  Handle fake takeoff.. */
 
+	if (sim_interface_->positions().f1.z < 6
+	    or sim_interface_->positions().f2.z < 6) {
+	  //stop_episode_ = true;
+	} 
+		
 	new_triangle.push_back(mtools_.triangle_side_3D(new_positions));
 	
 	if (classification_) {
