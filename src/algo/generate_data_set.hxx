@@ -239,6 +239,7 @@ run(const Settings& settings)
 				    );
 	}
 	if (settings.regression()) {
+	  if (states_.front().height() > 7.5) {
 	  data_set_.save_csv_data_set(states_.front(),
 				      mtools_.to_one_hot_encoding(action_follower_.back(), 6),
 				      states_.back(),
@@ -247,8 +248,8 @@ run(const Settings& settings)
 				      score_square,
 				      score_square_log
 				      );
+	  }
 	}
-	
 	states_.clear();
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 	++count_;
