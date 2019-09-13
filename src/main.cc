@@ -294,6 +294,13 @@ int main(int argc, char* argv[])
     joystick_mode = false;
   }
 
+  if (settings.training() == true) {
+    LogInfo() << "Start training...";
+    Train trainer;    
+    trainer.load_data_set(settings.dataset());
+    trainer.run(settings);
+  }
+  
   /*
    * The ns3 Command commented inside the code, A good way to remember it :)
    */
@@ -346,11 +353,6 @@ int main(int argc, char* argv[])
   if (settings.generate() == true) {
     Generator<Px4Device, Gazebo> generator(iris_x, gz);
     generator.run(settings);
-    
-  } else if (settings.training() == true) {
-    Train trainer;
-    trainer.load_data_set(settings.dataset());
-    trainer.run(settings);
     
   } else if (settings.testing() == true) {
     Supervised_learning<Px4Device, Gazebo> slearning(iris_x, gz);

@@ -61,19 +61,19 @@ void Train::load_data_set(std::string&& dataset_file)
 void Train::define_label_column_size(int x) {
   // Split the labels from the training set.
   train_features_ = trainset_.submat(0, 0,
-				     dataset_.n_rows - ( x + 1),
-				     dataset_.n_cols - 1);
+				     trainset_.n_rows - (x + 1),
+				     trainset_.n_cols - 1);
   
   // Split the data from the training set.
-  train_labels_ = trainset_.submat(dataset_.n_rows - x, 0,
-				  dataset_.n_rows - 1, dataset_.n_cols - 1);
+  train_labels_ = trainset_.submat(trainset_.n_rows - x, 0,
+				  trainset_.n_rows - x, trainset_.n_cols - 1);
   
   test_features_ = testset_.submat(0, 0,
 				   testset_.n_rows - (x + 1),
 				   testset_.n_cols - 1);
   
   test_labels_ = testset_.submat(testset_.n_rows - x, 0,
-				 testset_.n_rows - 1, testset_.n_cols - 1);
+				 testset_.n_rows - x, testset_.n_cols - 1);
 }
 
 void Train::classification()
@@ -154,7 +154,7 @@ void Train::regression()
   ens::AdamType<ens::AdamUpdate> optimizer;
 
   // Train the model.
-  for (int i = 0; i < 100; ++i) {
+  for (int i = 0; i < 1000; ++i) {
     std::cout << "training..." << std::endl;
     model.Train(train_features_,
 		train_labels_,
