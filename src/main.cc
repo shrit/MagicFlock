@@ -299,6 +299,8 @@ int main(int argc, char* argv[])
     Train trainer;    
     trainer.load_data_set(settings.dataset());
     trainer.run(settings);
+    LogInfo() << "Finished training...";
+    exit(0);
   }
   
   /*
