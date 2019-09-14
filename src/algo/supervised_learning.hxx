@@ -249,17 +249,17 @@ run(const Settings& settings)
     LogInfo() << "Episode : " << episode_ ;
 
     /* Stop the episode if one of the quad has fallen to arm */   
-    bool stop_episode = false;
+    stop_episode_ = false;
     bool arm = swarm_.arm();
     if (!arm)
-      stop_episode = true;
+      stop_episode_ = true;
     
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
     /* Stop the episode if one of the quad has fallen to takoff */
     bool takeoff = swarm_.takeoff(5);
     if (!takeoff)
-      stop_episode = true;    
+      stop_episode_ = true;    
     
     /*  Setting up speed_ is important to switch the mode */
     swarm_.init_speed();
@@ -267,12 +267,12 @@ run(const Settings& settings)
     /*  Switch to offboard mode, Allow the control */
     bool offboard_mode = swarm_.start_offboard_mode();
     if (!offboard_mode)
-      stop_episode = true;
+      stop_episode_ = true;
     
     /*  Wait to complete the take off process */
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    if (!stop_episode) {
+    if (!stop_episode_) {
 
       count_ = 0;
       std::vector<lt::triangle<double>> new_triangle;
@@ -299,7 +299,7 @@ run(const Settings& settings)
 
 	if (sim_interface_->positions().f1.z < 6
 	    or sim_interface_->positions().f2.z < 6) {
-	  //stop_episode_ = true;
+	  stop_episode_ = true;
 	} 
 		
 	new_triangle.push_back(mtools_.triangle_side_3D(new_positions));

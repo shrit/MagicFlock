@@ -78,6 +78,7 @@ private:
   Quadcopter robot_;
   SwarmDevice<flight_controller_t> swarm_;
   std::vector<double> controller_predictions_;
+  bool stop_episode_;
 };
 
 # include "supervised_learning.hxx"
