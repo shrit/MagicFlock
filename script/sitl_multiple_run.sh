@@ -35,7 +35,7 @@ pkill -x gzserver || true
 # need to find out how much
 sleep 1
 
-export PX4_SIM_MODEL=$2
+export PX4_SIM_MODEL=iris
 
 n=0
 while [ $n -lt $sitl_num ]; do

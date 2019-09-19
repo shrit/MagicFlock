@@ -7,6 +7,16 @@ import numpy as np
 import pandas as pd
 import sys
 
+def drop_columns(dataset_file_name, column_nubmer):
+    df = pd.read_csv(dataset_file_name)
+
+    df.drop([df.columns[0],
+             df.columns[9]],
+            axis = 1, inplace = True)
+    
+    df.to_csv(dataset_file_name_dropped, index = False)
+
+
 def modify_labels(dataset_file_name):
     dataset = genfromtxt(dataset_file_name, delimiter=',')
     y = dataset[:, -1]
@@ -163,7 +173,7 @@ if __name__ == '__main__':
     parser.add_argument('--count_file_name', metavar="count file name", type=str, help="Enter flight count file name  ")
     parser.add_argument('--histogram_file_name', metavar="histogram file name", type=str, help="Enter a histogram file name, two column file name, nuumber of steps and frequency")
     parser.add_argument('--cumulative_histogram_files_name', metavar=" histogram file name", type=str, nargs="+" ,help="Enter one or more histogram file name, each file is a two column file name, number of steps and frequency, the script will generate automatically the cumulative histogram")
-    
+    parser.add_argument('--drop_columns', metavar=" drop column", type=int ,help="Enter column number to delete from dataset")
     args = parser.parse_args()
 
     if len(sys.argv)==1:
@@ -180,7 +190,7 @@ if __name__ == '__main__':
         modify_labels(args.dataset_file_name)
         
     elif args.histogram_file_name:   
-        plot_histogram_2d(args.histogram_file_name)
+        plot_histogram_2d(args.histogram_file_name)        
 
     elif args.cumulative_histogram_files_name:
         if isinstance(args.cumulative_histogram_files_name, str):
