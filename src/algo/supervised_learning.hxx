@@ -319,13 +319,13 @@ run(const Settings& settings)
 	if (regression_) {
 	  /*  Regression */
 	  if (count_ == 0 ) {
-	    score = robot_.true_score(original_dist_,
+	    score = robot_.true_score_square(original_dist_,
 				     new_triangle.at(count_));	  
 	  } else {
-	    score = robot_.true_score(new_triangle.at(count_ -1),
+	    score = robot_.true_score_square(new_triangle.at(count_ -1),
 				     new_triangle.at(count_));
 	  }
-	}	
+	}
 	
 	/*  Need to verify that the controller is working,
 	 use the triangle test to figure out after each iteration*/

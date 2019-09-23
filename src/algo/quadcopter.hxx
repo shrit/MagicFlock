@@ -28,14 +28,14 @@ Quadcopter::State<simulator_t>::State(std::shared_ptr<simulator_t> sim_interface
 
 template <class simulator_t>
 lt::rssi<double> Quadcopter::State<simulator_t>::
-signal_strength () const
+signal_strength() const
 {
   return rssi_ ;
 }
 
 template <class simulator_t>
 double Quadcopter::State<simulator_t>::
-height () const
+height() const
 {/*  need to make it according to what quad?? */
   return height_;
 }
