@@ -152,10 +152,9 @@ run(const Settings& settings)
 
 	/* Get the actual position, test if the triangle is OK */
 	lt::positions<lt::position3D<double>> new_positions_gazebo = sim_interface_->positions();
-	lt::positions<lt::position_GPS<double>> new_positions_sdk = swarm_.positions_GPS();
 	  
 	LogInfo() << "New positions Gazebo : " << new_positions_gazebo;
-	LogInfo() << "New positions SDK : "    << new_positions_sdk;
+	LogInfo() << "Travelled Distance : " << mtools_.travelled_distances(original_positions, new_positions_gazebo); 
 	
 	/* Get the distance between the TL TF, and FF TF  at time t*/
 	new_triangle.push_back(mtools_.triangle_side_3D(new_positions_gazebo));

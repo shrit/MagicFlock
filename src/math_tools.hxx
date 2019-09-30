@@ -189,6 +189,50 @@ std::vector<double> Math_tools::to_std_vector(Arg arg)
 }
 
 template <typename T>
+lt::dist3D<double> Math_tools::travelled_distances(lt::positions<lt::position3D<T>> pos_t,
+						     lt::positions<lt::position3D<T>> pos_t_1)
+{
+  lt::position3D<double> dist_leader, dist_f1, dist_f2;
+
+    /* Travelled distance between time steps for leader  */
+  dist_leader.x =  pos_t.leader.x - pos_t_1.leader.x;
+  dist_leader.y =  pos_t.leader.y - pos_t_1.leader.y;
+  dist_leader.z =  pos_t.leader.z - pos_t_1.leader.z;
+  
+  /* Travelled distance between time steps for f1  */
+  dist_f1.x = pos_t.f1.x - pos_t_1.f1.x;
+  dist_f1.y = pos_t.f1.y - pos_t_1.f1.y;
+  dist_f1.z = pos_t.f1.z - pos_t_1.f1.z;
+  
+  /* Travelled distance between time steps for f2  */
+  dist_f2.x = pos_t.f2.x - pos_t_1.f2.x;
+  dist_f2.y = pos_t.f2.y - pos_t_1.f2.y;
+  dist_f2.z = pos_t.f2.z - pos_t_1.f2.z;
+
+  lt::dist3D<double> distance3D;
+
+  /*  Summing up vectors, the total is the distance travelled by each
+      agent during each trajectory */
+  
+  /*  Distance travelled by the leader */
+  distance3D.d1 = std::sqrt(std::pow((dist_leader.x), 2) +
+			    std::pow((dist_leader.y), 2) +
+			    std::pow((dist_leader.z), 2));
+
+  /*  Distance travelled by the f1 */
+  distance3D.d2 = std::sqrt(std::pow((dist_f1.x), 2) +
+			    std::pow((dist_f1.y), 2) +
+			    std::pow((dist_f1.z), 2));
+
+  /*  Distance travelled by the f2 */
+  distance3D.d3 = std::sqrt(std::pow((dist_f2.x), 2) +
+			    std::pow((dist_f2.y), 2) +
+			    std::pow((dist_f2.z), 2));
+  
+  return distance3D;
+}
+
+template <typename T>
 T Math_tools::pythagore_leg(T leg, T hypotenuse)
 {
   T leg_2 = std::sqrt( std::pow(hypotenuse, 2)
@@ -200,7 +244,7 @@ template <typename T>
 T Math_tools::pythagore_hypotenuse(T leg_1, T leg_2)
 {
   T hypotenuse = std::sqrt( std::pow(leg_1, 2)
-		       + std::pow(leg_2, 2) ) ;
+			    + std::pow(leg_2, 2) ) ;
   return hypotenuse;
 }
 

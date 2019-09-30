@@ -16,6 +16,13 @@
 namespace local_types {
 
   template <class T>
+  struct dist3D {
+    T d1;
+    T d2;
+    T d3;
+  };
+ 
+  template <class T>
   struct position3D {
     T x;
     T y;
@@ -100,6 +107,14 @@ namespace local_types {
   //Type of drone's conncetion socket
   using connection_type = std::string;
   using topic_name               = std::string;
+}
+
+/*  Overloading the << operator to print local structs, vectors and classes */
+template <typename T>
+std::ostream& operator<< (std::ostream& out, const local_types::dist3D<T>& v)
+{
+  out << "["<< v.d1 <<", " << v.d2 <<", " << v.d3 <<"]";
+  return out;
 }
 
 /*  Overloading the << operator to print local structs, vectors and classes */
