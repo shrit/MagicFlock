@@ -18,7 +18,8 @@ public:
   SwarmDevice(std::vector<std::shared_ptr<flight_controller_t>> quads);
 
   void one_quad_execute_trajectory(std::string label,
-				   Quadcopter::Action action);
+				   Quadcopter::Action action,
+				   unsigned int milliseconds);
   bool arm();
   void init_speed();
   bool start_offboard_mode();

@@ -150,16 +150,15 @@ phase_two(bool random_leader_action)
 
   /*  Threading QuadCopter */
   threads.push_back(std::thread([&](){
-				  for (int i = 0; i < 16; ++i) {
-				    swarm_.one_quad_execute_trajectory("l", action_leader);
-				    std::this_thread::sleep_for(std::chrono::milliseconds(45));
-				  }
+				  swarm_.one_quad_execute_trajectory("l",
+								     action_leader,
+								     2000);
 				}));
   threads.push_back(std::thread([&](){
-				  for (int i = 0; i < 16; ++i) {
-				    swarm_.one_quad_execute_trajectory("f1", action_leader);
-				    std::this_thread::sleep_for(std::chrono::milliseconds(45));
-				  }
+				  swarm_.one_quad_execute_trajectory("f1",
+								     action_leader,
+								     2000);
+				  
 				}));
 
   /* We need to wait until the quadcopters finish their actions */
@@ -206,10 +205,10 @@ phase_two(bool random_leader_action)
   action_follower_.push_back(robot_.action_follower(features, values));
 
   threads.push_back(std::thread([&](){
-  				  for (int i = 0; i < 16; ++i) {
-  				    swarm_.one_quad_execute_trajectory("f2", action_follower_.back());
-  				    std::this_thread::sleep_for(std::chrono::milliseconds(45));
-  				  }
+				  swarm_.one_quad_execute_trajectory("f2",
+								     action_follower_.back(),
+								     2000);
+  				   
   				}));
   
   for (auto& thread : threads) {
