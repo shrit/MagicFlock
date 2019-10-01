@@ -65,6 +65,14 @@ public:
   void forward(float speed);
   void backward(float speed);
 
+    /*  Linear trajectories with a specific duaration */
+  void up(float speed, unsigned int milliseconds_);
+  void down(float speed, unsigned int milliseconds_);
+  void right(float speed, unsigned int milliseconds_);
+  void left(float speed, unsigned int milliseconds_);
+  void forward(float speed, unsigned int milliseconds_);
+  void backward(float speed, unsigned int milliseconds_);
+  
   /*  Turn around itself */
   void turnToLeft();
   void turnToRight();

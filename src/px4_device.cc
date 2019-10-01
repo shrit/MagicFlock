@@ -169,9 +169,94 @@ bool Px4Device::set_altitude_rtl_max(float meters)
   return true;
 }
 
+void Px4Device::init_speed()
+{
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
+}
+
+bool Px4Device::start_offboard_mode()
+{
+
+  Offboard::Result offboard_result = offboard_->start();
+
+  if (offboard_result != Offboard::Result::SUCCESS) {
+    std::cerr << "Offboard::start() failed: "
+  	      << Offboard::result_str(offboard_result) ;
+
+    return false;
+  }
+  return true;
+}
+
+/*  Use the following functions set in order to generate trajectory
+    or a dataset */
+
+void Px4Device::up(float speed, unsigned int milliseconds_)
+{
+  LogInfo() << "Up !";
+
+  offboard_->set_velocity_body({0.0f, 0.0f, -speed, 0.0f});
+  sleep_for(milliseconds(milliseconds_));
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
+}
+
+void Px4Device::down(float speed, unsigned int milliseconds_)
+{
+  LogInfo() << "Down !";
+
+  offboard_->set_velocity_body({0.0f, 0.0f, +speed, 0.0f});
+  sleep_for(milliseconds(milliseconds_));
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
+}
+
+void Px4Device::right(float speed, unsigned int milliseconds_)
+{
+  LogInfo() << "Right now !";
+
+  offboard_->set_velocity_body({0.0f, +speed, 0.0f, 0.0f});
+  sleep_for(milliseconds(milliseconds_));
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
+}
+
+void Px4Device::left(float speed, unsigned int milliseconds_)
+{
+  LogInfo() << "Left now !";
+
+  offboard_->set_velocity_body({0.0f, -speed, 0.0f, 0.0f});
+  sleep_for(milliseconds(milliseconds_));
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
+}
+
+void Px4Device::forward(float speed, unsigned int milliseconds_)
+{
+  LogInfo() << " forward !";
+  
+  offboard_->set_velocity_body({speed, 0.0f, 0.0f, 0.0f});
+  sleep_for(milliseconds(milliseconds_));
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
+}
+
+void Px4Device::backward(float speed, unsigned int milliseconds_)
+{
+  LogInfo() << " backward !";
+
+  offboard_->set_velocity_body({-speed, 0.0f, 0.0f, 0.0f});
+  sleep_for(milliseconds(milliseconds_));
+  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
+}
+
+/*  The following function should only be used with a keyboard control
+ or a joystick control. DO NOT use these function to generate
+ trajectories or a dataset of any kind. There is no garantie that
+ these function are going to be executed at the requested number of
+ times. If you would like to generate trajectory or a dataset, use the
+ function with a timers that indicate the number of seconds you would
+ like the quadcopter to move more precisely. Otherwise it would be
+ impossible to ensure the distances between the quadrotors*/
+
 void Px4Device::up(float speed)
 {
-  LogInfo() << "To the sky !" ;
+  LogInfo() << "Up !";
 
   offboard_->set_velocity_body({0.0f, 0.0f, -speed, 0.0f});
   sleep_for(milliseconds(50));
@@ -180,7 +265,7 @@ void Px4Device::up(float speed)
 
 void Px4Device::down(float speed)
 {
-  LogInfo() << "To the Earth !" ;
+  LogInfo() << "Down !";
 
   offboard_->set_velocity_body({0.0f, 0.0f, +speed, 0.0f});
   sleep_for(milliseconds(50));
@@ -203,25 +288,6 @@ void Px4Device::left(float speed)
   offboard_->set_velocity_body({0.0f, -speed, 0.0f, 0.0f});
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
-}
-
-void Px4Device::init_speed()
-{
-  offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
-}
-
-bool Px4Device::start_offboard_mode()
-{
-
-  Offboard::Result offboard_result = offboard_->start();
-
-  if (offboard_result != Offboard::Result::SUCCESS) {
-    std::cerr << "Offboard::start() failed: "
-  	      << Offboard::result_str(offboard_result) ;
-
-    return false;
-  }
-  return true;
 }
 
 /*  Speed in m/s */
