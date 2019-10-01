@@ -144,7 +144,7 @@ run(const Settings& settings)
 	    finished their trajectories. Thus, we need to test the
 	    triangle*/
 	
-	if (count_ == 0 ) {
+	if (count_ == 0) {
 	  phase_one(true);
 	} else {
 	  phase_one(false);
@@ -152,9 +152,15 @@ run(const Settings& settings)
 
 	/* Get the actual position, test if the triangle is OK */
 	lt::positions<lt::position3D<double>> new_positions_gazebo = sim_interface_->positions();
-	  
+	
 	LogInfo() << "New positions Gazebo : " << new_positions_gazebo;
-	LogInfo() << "Travelled Distance : " << mtools_.travelled_distances(original_positions, new_positions_gazebo); 
+	if (count_ == 0) {
+	  LogInfo() << "Travelled Distance : " << mtools_.travelled_distances(original_positions, new_positions_gazebo); 
+	} else {
+	LogInfo() << "Travelled Distance : " << mtools_.travelled_distances(saved_positions_, new_positions_gazebo);
+	}
+
+	saved_positions_ = new_positions_gazebo; 
 	
 	/* Get the distance between the TL TF, and FF TF  at time t*/
 	new_triangle.push_back(mtools_.triangle_side_3D(new_positions_gazebo));

@@ -51,6 +51,7 @@ private:
   std::shared_ptr<simulator_t> sim_interface_;
   std::vector<Quadcopter::State<simulator_t>> states_;
   Quadcopter::Action saved_leader_action_;
+  lt::positions<lt::position3D<double>> saved_positions_;
   bool stop_episode_;
   SwarmDevice<flight_controller_t> swarm_;
   
