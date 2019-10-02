@@ -143,6 +143,8 @@ run(const Settings& settings)
 	lt::positions<lt::position3D<double>> positions_before_action =
 	  sim_interface_->positions();
 	
+	LogInfo() << "Positions before action : " << positions_before_action;
+	
 	lt::triangle<double> triangle_before_action =
 	  mtools_.triangle_side_3D(positions_before_action);
 	
@@ -151,10 +153,12 @@ run(const Settings& settings)
 	} else {
 	  phase_one(false);
 	}
-
+	
 	/* Get the actual position, test if the triangle is OK */
 	lt::positions<lt::position3D<double>> positions_after_action = sim_interface_->positions();
-	               
+
+	LogInfo() << "Positions After action : " << positions_after_action;
+
 	LogInfo() << "Travelled Distance : " <<
 	  mtools_.travelled_distances(positions_before_action,
 				      positions_after_action); 

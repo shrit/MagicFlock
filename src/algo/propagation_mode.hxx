@@ -60,8 +60,6 @@ friis_convert_dbm_to_distance(T receiver_power)
 		  transmitter_gain_ - receiver_gain_) / 20 ;
   double D_log = std::log10(wave_length_) - std::log10(4*PI) - value;
   T distance = std::pow(10, D_log);
-  LogInfo () << "distance 3D: " << distance;
-
   double total_heights = sim_interface_->positions().f2.z;
   double original_heights = sim_interface_->positions().f1.z;
 
