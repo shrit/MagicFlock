@@ -140,6 +140,11 @@ run(const Settings& settings)
 	/*  At the end of each phase, quadcopters have already
 	    finished their trajectories. Thus, we need to test the
 	    triangle*/
+	lt::positions<lt::position3D<double>> positions_before_action =
+	  sim_interface_->positions();
+	
+	lt::triangle<double> triangle_before_action =
+	  mtools_.triangle_side_3D(positions_before_action);
 	
 	if (count_ == 0) {
 	  phase_one(true);
@@ -148,22 +153,21 @@ run(const Settings& settings)
 	}
 
 	/* Get the actual position, test if the triangle is OK */
-	lt::positions<lt::position3D<double>> new_positions_gazebo = sim_interface_->positions();
-	
-	LogInfo() << "New positions Gazebo : " << new_positions_gazebo;
-	if (count_ == 0) {
-	  LogInfo() << "Travelled Distance : " << mtools_.travelled_distances(original_positions, new_positions_gazebo); 
-	} else {
-	LogInfo() << "Travelled Distance : " << mtools_.travelled_distances(saved_positions_, new_positions_gazebo);
-	}
-
-	saved_positions_ = new_positions_gazebo; 
+	lt::positions<lt::position3D<double>> positions_after_action = sim_interface_->positions();
+	               
+	LogInfo() << "Travelled Distance : " <<
+	  mtools_.travelled_distances(positions_before_action,
+				      positions_after_action); 
+		
+	/*  Change the of calculate te error of triangle untill they
+	    are in the air because the difference in z is adding in error on the
+	    entire calcualtion */
 	
 	/* Get the distance between the TL TF, and FF TF  at time t*/
-	new_triangle.push_back(mtools_.triangle_side_3D(new_positions_gazebo));
+	new_triangle.push_back(mtools_.triangle_side_3D(positions_after_action));
 
 	/* Keep a copy of the new distance between all of them */
-	f3_side_.push_back(mtools_.triangle_side_3D(new_positions_gazebo));
+	f3_side_.push_back(mtools_.triangle_side_3D(positions_after_action));
 
 	/* Calculate the noise over the entire trainning session
 	   This will allow to refine exactly the good action */
@@ -192,8 +196,8 @@ run(const Settings& settings)
 	if (settings.classification()) {
 	  /*  Classification */
 	  if (count_ == 0 ) {
-	    reward = robot.action_evaluator(original_triangle,
-					    new_triangle.at(count_));	    
+	    reward = robot.action_evaluator(triangle_before_action,
+					    new_triangle.at(count_));
 	  } else {
 	    reward = robot.action_evaluator(new_triangle.at(count_ -1),
 					    new_triangle.at(count_));
@@ -207,13 +211,13 @@ run(const Settings& settings)
 	if (settings.regression()) {
 	/*  Regression */
 	  if (count_ == 0 ) {
-	    score = robot.true_score(original_triangle,
+	    score = robot.true_score(triangle_before_action,
 				     new_triangle.at(count_));
-	    score_log= robot.true_score_log(original_triangle,
+	    score_log= robot.true_score_log(triangle_before_action,
 					    new_triangle.at(count_));
-	    score_square = robot.true_score_square(original_triangle,
+	    score_square = robot.true_score_square(triangle_before_action,
 						   new_triangle.at(count_));
-	    score_square_log = robot.true_score_square_log(original_triangle,
+	    score_square_log = robot.true_score_square_log(triangle_before_action,
 							   new_triangle.at(count_));
 	  } else {
 	    score = robot.true_score(new_triangle.at(count_ -1),

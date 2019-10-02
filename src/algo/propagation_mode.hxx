@@ -37,9 +37,9 @@ friis_convert_watt_to_distance(T receiver_power)
     std::sqrt(transmitter_power_ * transmitter_gain_ * receiver_gain_
 	      / receiver_power * system_loss_);
   /*  Now we have the 3D disance between two points, So far we need to
-   convert it to 2D since our nn model take on account only 2D
-   distances */
-  LogInfo () << "distance 3D: " << distance;
+      convert it to 2D since our nn model take on account only 2D
+      distances */
+  //LogInfo () << "distance 3D: " << distance;
   double total_heights = sim_interface_->positions().f2.z;
   double original_heights = sim_interface_->positions().f1.z;
 
@@ -101,14 +101,10 @@ distances_2D()
 {
   lt::triangle<double> dist;
   lt::rssi signal = sim_interface_->rssi();
-  LogInfo() << "Signal received in PropModel: "
-	    << signal ;
 
   dist.f1 = friis_convert_dbm_to_distance (signal.f1()) ;
   dist.f2 = friis_convert_dbm_to_distance (signal.f2()) ;
   dist.f3 = friis_convert_dbm_to_distance (signal.f3()) ;
-  LogInfo() << "Distance from the PropModel: "
-	    << dist ;
 
   return dist;
 }
