@@ -12,7 +12,6 @@
 /* local includes  */
 # include "../data_set.hh"
 # include "../global.hh"
-# include "../gazebo.hh"
 # include "../log.hh"
 # include "../math_tools.hh"
 # include "quadcopter.hh"
