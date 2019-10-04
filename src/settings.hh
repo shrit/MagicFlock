@@ -19,6 +19,7 @@ public:
   bool testing() const;
   bool classification() const;
   bool regression() const;
+  bool trajectory() const;
   std::string dataset() const;
   
 private:
@@ -28,6 +29,7 @@ private:
   bool testing_;
   bool classification_;
   bool regression_;
+  bool trajectory_noise_;
   std::string ini_file_;
   std::string dataset_file_;
 };

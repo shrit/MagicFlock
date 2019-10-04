@@ -48,7 +48,8 @@ Settings::Settings(int argc, char* argv[])
     ("training", po::value<std::string>(&dataset_file_)->value_name("dataset"), "Train a dataset file using a neural network, 10% of the dataset is used for testing")
     ("classification", "Treat the problem as classification problem, labels are classed into classes ")
     ("regression", "Treat the problem as regression problem ")
-    ("testing", "Test an aleardy trained controller on the followers");
+    ("testing", "Test an aleardy trained controller on the followers")
+    ("trajectory-noise", "Create an estimator to estimate the noise in trajectory");
 
   po::positional_options_description pos;
   pos.add("training", 2);
@@ -91,6 +92,10 @@ Settings::Settings(int argc, char* argv[])
     regression_ = true;
   }
 
+  if (vm.count("trajectory-noise")) {
+    trajectory_noise_ = true;
+  }
+
   if (vm.count("version")) {
     std::cout << "0.9v ";
     exit(0);
@@ -116,5 +121,11 @@ bool Settings::classification() const
 bool Settings::regression() const
 { return regression_; }
 
+bool Settings::trajectory() const
+{ return trajectory_noise_; }
+
 std::string Settings::dataset() const
 { return dataset_file_; }
+
+
+
