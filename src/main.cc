@@ -18,6 +18,7 @@
 # include "algo/training.hh"
 # include "algo/generate_data_set.hh"
 # include "algo/supervised_learning.hh"
+# include "algo/trajectory_noise.hxx"
 # include "config_ini.hh"
 # include "data_set.hh"
 # include "gazebo.hh"
@@ -359,7 +360,11 @@ int main(int argc, char* argv[])
   } else if (settings.testing() == true) {
     Supervised_learning<Px4Device, Gazebo> slearning(iris_x, gz);
     slearning.run(settings);
+  } else if (settings.trajectory() == true) {
+    TrajectoryNoise<Px4Device, Gazebo> tnoise(iris_x, gz);
+    tnoise.run();
   }
+  
   
   auto joystick_handler = [&](){
 			    if (joystick_mode) {

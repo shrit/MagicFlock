@@ -4,7 +4,7 @@ template <class flight_controller_t,
 	  class simulator_t>
 Supervised_learning<flight_controller_t, simulator_t>::
 Supervised_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
-	   std::shared_ptr<simulator_t> gzs)
+		    std::shared_ptr<simulator_t> gzs)
   :count_(0),
    episode_(0),
    max_episode_(10000),
