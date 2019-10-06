@@ -52,7 +52,6 @@ private:
   Quadcopter::Action saved_leader_action_;
   bool stop_episode_;
   SwarmDevice<flight_controller_t> swarm_;
-  
 };
 
 # include "generate_data_set.hxx"

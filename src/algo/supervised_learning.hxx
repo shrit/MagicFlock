@@ -1,3 +1,5 @@
+#pragma once
+
 # include "supervised_learning.hh"
 
 template <class flight_controller_t,

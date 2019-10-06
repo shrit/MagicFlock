@@ -1,3 +1,5 @@
+#pragma once
+
 # include "swarm_device.hh"
 
 template<class flight_controller_t>

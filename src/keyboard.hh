@@ -1,3 +1,5 @@
+#pragma once
+
 /*  C includes */
 extern "C" {
 #include <termios.h>

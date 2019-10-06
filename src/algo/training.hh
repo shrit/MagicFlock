@@ -1,3 +1,5 @@
+#pragma once
+
 #include <mlpack/core.hpp>
 #include <mlpack/core/data/split_data.hpp>
 #include <mlpack/methods/ann/layer/layer.hpp>

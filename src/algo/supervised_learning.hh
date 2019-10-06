@@ -9,7 +9,7 @@
 # include <thread>
 # include <vector>
 
-/*  MLPack ncludes */
+/*  MLPack includes */
 #include <mlpack/core.hpp>
 #include <mlpack/methods/ann/layer/layer.hpp>
 #include <mlpack/methods/ann/loss_functions/sigmoid_cross_entropy_error.hpp>
