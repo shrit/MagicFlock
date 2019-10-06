@@ -18,7 +18,7 @@
 # include "algo/training.hh"
 # include "algo/generate_data_set.hh"
 # include "algo/supervised_learning.hh"
-# include "algo/trajectory_noise.hxx"
+# include "algo/trajectory_noise.hh"
 # include "config_ini.hh"
 # include "data_set.hh"
 # include "gazebo.hh"
