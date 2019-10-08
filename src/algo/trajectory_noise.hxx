@@ -25,8 +25,30 @@ test_trajectory(bool random_action)
 
   if (random_action == true) {   
     action_ = robot.random_action_generator();
+
+    if (action_ == saved_action_) {
+      action_ = robot.random_action_generator();
+      if (action_ == Quadcopter::Action::forward and
+	  saved_action_ == Quadcopter::Action::backward)
+	action_ = robot.random_action_generator();
+    } else if (action_ == Quadcopter::Action::up and
+	  saved_action_ == Quadcopter::Action::down) {
+      action_ = robot.random_action_generator();
+    } else if (action_ == Quadcopter::Action::down and
+	       saved_action_ == Quadcopter::Action::up) {
+      action_ = robot.random_action_generator();
+    } else if (action_ == Quadcopter::Action::backward and
+	       saved_action_ == Quadcopter::Action::forward) {
+      action_ = robot.random_action_generator();
+    } else if (action_ == Quadcopter::Action::left and
+	       saved_action_ == Quadcopter::Action::right) {
+      action_ = robot.random_action_generator();
+      } else if (action_ == Quadcopter::Action::right and
+	       saved_action_ == Quadcopter::Action::left) {
+      action_ = robot.random_action_generator();
+    }    
     saved_action_ = action_;
-    
+        
   } else {
     action_ = saved_action_;
   }
@@ -267,17 +289,44 @@ void TrajectoryNoise<flight_controller_t, simulator_t>::run(/*  enter quadcopter
 	    down_action_vec_.push_back(quadrotor_distance.d1);
 	    d_k_l_action_vec_.push_back(quadrotor_distance.d1);	    
 	    d_k_l_action_vec_.push_back(saved_quadrotor_distance_.d1);
-	  }
-	  
+	  }	  
 	}
-	
-	/*  Calculate the mean value */
-	/*  Calculate the mean value and variance of the above random variable */
 	
 	saved_quadrotor_distance_ = quadrotor_distance;
 	
 	++count_ ;
       }
+      /*  Calculate the mean value */
+      LogInfo() << "Mean of Forward: " <<  mtools_.mean(forward_action_vec_);
+      LogInfo() << "Mean of Backward: " <<  mtools_.mean(backward_action_vec_);
+      LogInfo() << "Mean of Left: " <<  mtools_.mean(left_action_vec_);
+      LogInfo() << "Mean of Right: " <<  mtools_.mean(right_action_vec_);
+      LogInfo() << "Mean of up: " <<  mtools_.mean(up_action_vec_);
+      LogInfo() << "Mean of down: " <<  mtools_.mean(down_action_vec_);
+      
+      LogInfo() << "Mean of Forward knowing left" <<  mtools_.mean(f_k_l_action_vec_);
+      LogInfo() << "Mean of Forward knowing right" <<  mtools_.mean(f_k_r_action_vec_);
+      LogInfo() << "Mean of Forward knowing up" <<  mtools_.mean(f_k_u_action_vec_);
+      LogInfo() << "Mean of Forward knowing down" <<  mtools_.mean(f_k_d_action_vec_);
+
+      LogInfo() << "Mean of backward knowing left" <<  mtools_.mean(b_k_l_action_vec_);
+      LogInfo() << "Mean of backward knowing right" <<  mtools_.mean(b_k_r_action_vec_);
+      LogInfo() << "Mean of backward knowing up" <<  mtools_.mean(b_k_u_action_vec_);
+      LogInfo() << "Mean of backward knowing down" <<  mtools_.mean(b_k_d_action_vec_);
+
+      LogInfo() << "Mean of left knowing forward" <<  mtools_.mean(l_k_f_action_vec_);
+      LogInfo() << "Mean of left knowing backward" <<  mtools_.mean(l_k_b_action_vec_);
+      LogInfo() << "Mean of left knowing up" <<  mtools_.mean(l_k_u_action_vec_);
+      LogInfo() << "Mean of left knowing down" <<  mtools_.mean(l_k_d_action_vec_);
+
+      
+
+      
+      
+      /*  Calculate the mean value and variance of the above random variable */
+      
+      
+      
     }
     
     /*  Logging */
