@@ -160,8 +160,8 @@ run(const Settings& settings)
 	LogInfo() << "Positions After action : " << positions_after_action;
 
 	LogInfo() << "Travelled Distance : " <<
-	  mtools_.travelled_distances(positions_before_action,
-				      positions_after_action); 
+	  mtools_.traveled_distances(positions_before_action,
+				     positions_after_action); 
 		
 	/*  Change the of calculate te error of triangle untill they
 	    are in the air because the difference in z is adding in error on the

@@ -360,9 +360,10 @@ int main(int argc, char* argv[])
   } else if (settings.testing() == true) {
     Supervised_learning<Px4Device, Gazebo> slearning(iris_x, gz);
     slearning.run(settings);
+    
   } else if (settings.trajectory() == true) {
-    TrajectoryNoise<Px4Device, Gazebo> tnoise(iris_x, gz);
-    tnoise.run();
+    TrajectoryNoise<Px4Device, Gazebo> trajectory_noise(iris_x, gz);
+    trajectory_noise.run();
   }
   
   

@@ -189,7 +189,7 @@ std::vector<double> Math_tools::to_std_vector(Arg arg)
 }
 
 template <typename T>
-lt::dist3D<double> Math_tools::travelled_distances(lt::positions<lt::position3D<T>> pos_t,
+lt::dist3D<double> Math_tools::traveled_distances(lt::positions<lt::position3D<T>> pos_t,
 						     lt::positions<lt::position3D<T>> pos_t_1)
 {
   lt::position3D<double> dist_leader, dist_f1, dist_f2;

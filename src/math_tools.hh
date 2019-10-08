@@ -61,8 +61,8 @@ public:
   std::vector<double> to_std_vector(Arg arg);
 
   template <typename T>
-  lt::dist3D<double> travelled_distances(lt::positions<lt::position3D<T>> pos_t,
-					 lt::positions<lt::position3D<T>> pos_t_1);
+  lt::dist3D<double> traveled_distances(lt::positions<lt::position3D<T>> pos_t,
+					lt::positions<lt::position3D<T>> pos_t_1);
   
   template <typename T>
   T pythagore_leg(T leg, T hypotenuse);
