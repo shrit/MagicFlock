@@ -9,7 +9,7 @@ TrajectoryNoise(std::vector<std::shared_ptr<flight_controller_t>> quads,
 		std::shared_ptr<simulator_t> sim_interface)
   :count_(0),
    episode_(0),
-   max_episode_(10000),
+   max_episode_(1),
    sim_interface_(std::move(sim_interface)),
    swarm_(std::move(quads))
 {
@@ -93,7 +93,7 @@ void TrajectoryNoise<flight_controller_t, simulator_t>::run(/*  enter quadcopter
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
     /* Stop the episode if one of the quad has fallen to takoff */
-    bool takeoff = swarm_.takeoff_specific_quadrotor(5, "l");
+    bool takeoff = swarm_.takeoff_specific_quadrotor(20, "l");
     if (!takeoff)
       stop_episode_ = true;
     
