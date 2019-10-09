@@ -104,7 +104,7 @@ public:
 
   std::vector<Action> possible_actions() const;
 
-  Action random_action_generator();
+  Action random_action_generator();  
 
 private:
 
@@ -114,8 +114,7 @@ private:
 					    Action::right,
 					    Action::up,
 					    Action::down};
-
-  std::uniform_real_distribution<> distribution_;
+  
   std::uniform_int_distribution<> distribution_int_;
   std::random_device random_dev;
   std::mt19937 generator_;

@@ -3,8 +3,7 @@
 # include "quadcopter.hh"
 
 Quadcopter::Quadcopter()
-  :distribution_(0.0, 1.0),
-   distribution_int_(0, 5),
+  :distribution_int_(0, 5),
    generator_(random_dev())
 {}
 
@@ -217,23 +216,9 @@ random_action_generator()
 
   LogInfo() << "Random action value: " << random_action ;
 
-  Action action = Action::forward ;
-
-  if (random_action == 0) {
-    action = Action::forward;
-  } else if (random_action == 1) {
-    action = Action::backward ;
-  } else if (random_action == 2) {
-    action = Action::left;
-  } else if (random_action == 3) {
-    action = Action::right;
-  } else if (random_action == 4) {
-    action = Action::up;
-  } else if (random_action == 5) {
-    action = Action::down;
-  }
-      
-   return action;
+  Action action = static_cast<Action>(random_action);
+  
+  return action;
 }
 
 template <class simulator_t>
