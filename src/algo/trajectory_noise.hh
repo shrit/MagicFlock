@@ -20,7 +20,7 @@ public:
 		  std::shared_ptr<simulator_t> sim_interface);  
   void run();
 
-  void test_trajectory(bool random_action);
+  void test_trajectory();
   
   TrajectoryNoise(TrajectoryNoise const&) = delete;
   

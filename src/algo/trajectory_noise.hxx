@@ -19,40 +19,49 @@ TrajectoryNoise(std::vector<std::shared_ptr<flight_controller_t>> quads,
 template<class flight_controller_t,
 	 class simulator_t>
 void TrajectoryNoise<flight_controller_t, simulator_t>::
-test_trajectory(bool random_action)
+test_trajectory()
 {
   Quadcopter robot;
 
-  if (random_action == true) {   
+  action_ = robot.random_action_generator();
+  
+  if (saved_action_ == Quadcopter::Action::backward) {
     action_ = robot.random_action_generator();
-
-    if (action_ == saved_action_) {
+    while (action_ == Quadcopter::Action::forward or
+	   action_ == Quadcopter::Action::backward ) {
       action_ = robot.random_action_generator();
-      if (action_ == Quadcopter::Action::forward and
-	  saved_action_ == Quadcopter::Action::backward)
-	action_ = robot.random_action_generator();
-    } else if (action_ == Quadcopter::Action::up and
-	  saved_action_ == Quadcopter::Action::down) {
+    }
+  } else if (saved_action_ == Quadcopter::Action::down) {
+    action_ = robot.random_action_generator();
+    while (action_ == Quadcopter::Action::up or
+	   action_ == Quadcopter::Action::down) {
       action_ = robot.random_action_generator();
-    } else if (action_ == Quadcopter::Action::down and
-	       saved_action_ == Quadcopter::Action::up) {
+    }
+  } else if (saved_action_ == Quadcopter::Action::up) {
+    action_ = robot.random_action_generator();
+    while (action_ == Quadcopter::Action::down or
+	   action_ == Quadcopter::Action::up) {
       action_ = robot.random_action_generator();
-    } else if (action_ == Quadcopter::Action::backward and
-	       saved_action_ == Quadcopter::Action::forward) {
+    }
+  } else if (saved_action_ == Quadcopter::Action::forward) {
+    action_ = robot.random_action_generator();
+    while (action_ == Quadcopter::Action::backward or
+	   action_ == Quadcopter::Action::forward) {
       action_ = robot.random_action_generator();
-    } else if (action_ == Quadcopter::Action::left and
-	       saved_action_ == Quadcopter::Action::right) {
+    }
+  } else if (saved_action_ == Quadcopter::Action::right) {
+    action_ = robot.random_action_generator();
+    while (action_ == Quadcopter::Action::left or
+	   action_ == Quadcopter::Action::right) {
       action_ = robot.random_action_generator();
-      } else if (action_ == Quadcopter::Action::right and
-	       saved_action_ == Quadcopter::Action::left) {
+    }
+  } else if (saved_action_ == Quadcopter::Action::left) {
+    action_ = robot.random_action_generator();
+    while (action_ == Quadcopter::Action::right or
+	   action_ == Quadcopter::Action::left) {
       action_ = robot.random_action_generator();
-    }    
-    saved_action_ = action_;
-        
-  } else {
-    action_ = saved_action_;
+    }
   }
-
   /*  Execute a trajectory for 1 seconds */
   swarm_.one_quad_execute_trajectory("l" ,
 				     action_,
@@ -104,11 +113,11 @@ void TrajectoryNoise<flight_controller_t, simulator_t>::run(/*  enter quadcopter
     if (!stop_episode_) {
       
       count_ = 0;      
-      while (count_  < 300 ) {
+      while (count_  < 1000 ) {
 	lt::positions<lt::position3D<double>> positions_before_action =
 	  sim_interface_->positions();
 	
-	test_trajectory(true);
+	test_trajectory();
 	/* Get the actual position, test if the triangle is OK */
 	lt::positions<lt::position3D<double>> positions_after_action =
 	  sim_interface_->positions();
@@ -117,8 +126,8 @@ void TrajectoryNoise<flight_controller_t, simulator_t>::run(/*  enter quadcopter
 	lt::dist3D<double> quadrotor_distance = mtools_.traveled_distances(positions_before_action,
 									   positions_after_action);
 	
-	LogInfo() << "Travelled Distance by the leader : " << quadrotor_distance.d1;
-	if (count_ == 1) {
+	LogInfo() << "Traveled Distance by the leader : " << quadrotor_distance.d1;
+	if (count_ > 0) {
 
 	  /* Construct the experinces vector, Study the distribution
 	     law for the each action over time. This is essential as
@@ -129,111 +138,112 @@ void TrajectoryNoise<flight_controller_t, simulator_t>::run(/*  enter quadcopter
 	  
 	  if (action_ == Quadcopter::Action::forward and
 	      saved_action_ == Quadcopter::Action::left) {
-
+	    LogInfo() << "F + L";
 	    forward_action_vec_.push_back(quadrotor_distance.d1);
 	    f_k_l_action_vec_.push_back(quadrotor_distance.d1);
 	    f_k_l_action_vec_.push_back(saved_quadrotor_distance_.d1);
 
 	  } else if (action_ == Quadcopter::Action::forward and
 		     saved_action_ == Quadcopter::Action::right) {
+	    LogInfo() << "F + R";
 	    forward_action_vec_.push_back(quadrotor_distance.d1);
 	    f_k_r_action_vec_.push_back(quadrotor_distance.d1);
 	    f_k_r_action_vec_.push_back(saved_quadrotor_distance_.d1);
 	    
 	  } else if (action_ == Quadcopter::Action::forward and
 		     saved_action_ == Quadcopter::Action::up) {
-	    
+	    LogInfo() << "F + U";
 	    forward_action_vec_.push_back(quadrotor_distance.d1);
 	    f_k_u_action_vec_.push_back(quadrotor_distance.d1);	    
 	    f_k_u_action_vec_.push_back(saved_quadrotor_distance_.d1);
 
 	  } else if (action_ == Quadcopter::Action::forward and 
 	    	     saved_action_ == Quadcopter::Action::down) {
-	    
+	    LogInfo() << "F + D";
 	    forward_action_vec_.push_back(quadrotor_distance.d1);
 	    f_k_d_action_vec_.push_back(quadrotor_distance.d1);	    
 	    f_k_d_action_vec_.push_back(saved_quadrotor_distance_.d1);
 	    
 	  } else if (action_ == Quadcopter::Action::backward and
 		     saved_action_ == Quadcopter::Action::left) {
-
+	    LogInfo() << "B + L";
 	    backward_action_vec_.push_back(quadrotor_distance.d1);
 	    b_k_l_action_vec_.push_back(quadrotor_distance.d1);	    
 	    b_k_l_action_vec_.push_back(saved_quadrotor_distance_.d1);
 
 	  } else if (action_ == Quadcopter::Action::backward and
 	    	     saved_action_ == Quadcopter::Action::right) {
-
+	    LogInfo() << "B + R";
 	    backward_action_vec_.push_back(quadrotor_distance.d1);
 	    b_k_r_action_vec_.push_back(quadrotor_distance.d1);	    
 	    b_k_r_action_vec_.push_back(saved_quadrotor_distance_.d1);
 
 	  } else if (action_ == Quadcopter::Action::backward and
 		     saved_action_ == Quadcopter::Action::up) {
-	    
+	    LogInfo() << "B + U";
 	    backward_action_vec_.push_back(quadrotor_distance.d1);
 	    b_k_u_action_vec_.push_back(quadrotor_distance.d1);	    
 	    b_k_u_action_vec_.push_back(saved_quadrotor_distance_.d1);
 
 	  } else if (action_ == Quadcopter::Action::backward and
 	    	     saved_action_ == Quadcopter::Action::down) {
-
+	    LogInfo() << "B + D";
 	    backward_action_vec_.push_back(quadrotor_distance.d1);
 	    b_k_d_action_vec_.push_back(quadrotor_distance.d1);	    
 	    b_k_d_action_vec_.push_back(saved_quadrotor_distance_.d1);
 	    
 	  } else if (action_ == Quadcopter::Action::left and
 		     saved_action_ == Quadcopter::Action::forward) {
-
+	    LogInfo() << "L + F";
 	    left_action_vec_.push_back(quadrotor_distance.d1);
 	    l_k_f_action_vec_.push_back(quadrotor_distance.d1);	    
 	    l_k_f_action_vec_.push_back(saved_quadrotor_distance_.d1);
 
 	  } else if (action_ == Quadcopter::Action::left and
 		     saved_action_ == Quadcopter::Action::backward) {
-	    
+	    LogInfo() << "L + B";
 	    left_action_vec_.push_back(quadrotor_distance.d1);
 	    l_k_b_action_vec_.push_back(quadrotor_distance.d1);	    
 	    l_k_b_action_vec_.push_back(saved_quadrotor_distance_.d1);
 
 	  } else if (action_ == Quadcopter::Action::left and
 		     saved_action_ == Quadcopter::Action::up) {
-	    
+	    LogInfo() << "L + U";
 	    left_action_vec_.push_back(quadrotor_distance.d1);
 	    l_k_u_action_vec_.push_back(quadrotor_distance.d1);	    
 	    l_k_u_action_vec_.push_back(saved_quadrotor_distance_.d1);
 
 	  } else if (action_ == Quadcopter::Action::left and
 		     saved_action_ == Quadcopter::Action::down) {
-	    
+	    LogInfo() << "L + D";
 	    left_action_vec_.push_back(quadrotor_distance.d1);
 	    l_k_d_action_vec_.push_back(quadrotor_distance.d1);	    
 	    l_k_d_action_vec_.push_back(saved_quadrotor_distance_.d1);	  
 	  
 	  } else if (action_ == Quadcopter::Action::right and
 		     saved_action_ == Quadcopter::Action::forward) {
-	    
+	    LogInfo() << "R + F";
 	    right_action_vec_.push_back(quadrotor_distance.d1);
 	    r_k_f_action_vec_.push_back(quadrotor_distance.d1);	    
 	    r_k_f_action_vec_.push_back(saved_quadrotor_distance_.d1);
 	    
 	  } else if (action_ == Quadcopter::Action::right and
 		     saved_action_ == Quadcopter::Action::backward) {
-	    
+	    LogInfo() << "R + B";
 	    right_action_vec_.push_back(quadrotor_distance.d1);
 	    r_k_b_action_vec_.push_back(quadrotor_distance.d1);	    
 	    r_k_b_action_vec_.push_back(saved_quadrotor_distance_.d1);
 
 	  } else if (action_ == Quadcopter::Action::right and
 		     saved_action_ == Quadcopter::Action::up) {
-	    
+	    LogInfo() << "R + U";
 	    right_action_vec_.push_back(quadrotor_distance.d1);
 	    r_k_u_action_vec_.push_back(quadrotor_distance.d1);	    
 	    r_k_u_action_vec_.push_back(saved_quadrotor_distance_.d1);
 
 	  } else if (action_ == Quadcopter::Action::right and
 		     saved_action_ == Quadcopter::Action::down) {
-	    
+	    LogInfo() << "R + D";
 	    right_action_vec_.push_back(quadrotor_distance.d1);
 	    r_k_d_action_vec_.push_back(quadrotor_distance.d1);	    
 	    r_k_d_action_vec_.push_back(saved_quadrotor_distance_.d1);
@@ -291,7 +301,7 @@ void TrajectoryNoise<flight_controller_t, simulator_t>::run(/*  enter quadcopter
 	    d_k_l_action_vec_.push_back(saved_quadrotor_distance_.d1);
 	  }	  
 	}
-	
+	saved_action_ = action_;
 	saved_quadrotor_distance_ = quadrotor_distance;
 	
 	++count_ ;
@@ -319,14 +329,27 @@ void TrajectoryNoise<flight_controller_t, simulator_t>::run(/*  enter quadcopter
       LogInfo() << "Mean of left knowing up" <<  mtools_.mean(l_k_u_action_vec_);
       LogInfo() << "Mean of left knowing down" <<  mtools_.mean(l_k_d_action_vec_);
 
-      
+      LogInfo() << "Variance of Forward: " <<  mtools_.variance(forward_action_vec_);
+      LogInfo() << "Variance of Backward: " <<  mtools_.variance(backward_action_vec_);
+      LogInfo() << "Variance of Left: " <<  mtools_.variance(left_action_vec_);
+      LogInfo() << "Variance of Right: " <<  mtools_.variance(right_action_vec_);
+      LogInfo() << "Variance of up: " <<  mtools_.variance(up_action_vec_);
+      LogInfo() << "Variance of down: " <<  mtools_.variance(down_action_vec_);
 
-      
-      
-      /*  Calculate the mean value and variance of the above random variable */
-      
-      
-      
+      LogInfo() << "Variance of Forward knowing left" <<  mtools_.variance(f_k_l_action_vec_);
+      LogInfo() << "Variance of Forward knowing right" <<  mtools_.variance(f_k_r_action_vec_);
+      LogInfo() << "Variance of Forward knowing up" <<  mtools_.variance(f_k_u_action_vec_);
+      LogInfo() << "Variance of Forward knowing down" <<  mtools_.variance(f_k_d_action_vec_);
+
+      LogInfo() << "Variance of backward knowing left" <<  mtools_.variance(b_k_l_action_vec_);
+      LogInfo() << "Variance of backward knowing right" <<  mtools_.variance(b_k_r_action_vec_);
+      LogInfo() << "Variance of backward knowing up" <<  mtools_.variance(b_k_u_action_vec_);
+      LogInfo() << "Variance of backward knowing down" <<  mtools_.variance(b_k_d_action_vec_);
+
+      LogInfo() << "Variance of left knowing forward" <<  mtools_.variance(l_k_f_action_vec_);
+      LogInfo() << "Variance of left knowing backward" <<  mtools_.variance(l_k_b_action_vec_);
+      LogInfo() << "Variance of left knowing up" <<  mtools_.variance(l_k_u_action_vec_);
+      LogInfo() << "Variance of left knowing down" <<  mtools_.variance(l_k_d_action_vec_);                                    
     }
     
     /*  Logging */
