@@ -364,26 +364,27 @@ int main(int argc, char* argv[])
   } else if (settings.trajectory() == true) {
     TrajectoryNoise<Px4Device, Gazebo> trajectory_noise(iris_x, gz);
     trajectory_noise.run();
-  }
+
+  } else if (settings.flying() == true) {
+        
+    auto joystick_handler = [&](){
+			      if (joystick_mode) {
+				joystick_event_handler(joystick,
+						       iris_x,
+						       configs.speed(),
+						       configs.just_fly());			}
+			    };
   
-  
-  auto joystick_handler = [&](){
-			    if (joystick_mode) {
-			      joystick_event_handler(joystick,
-						     iris_x,
+    auto keyboard_handler = [&](){
+			      keyboard_event_handler(iris_x,
 						     configs.speed(),
-						     configs.just_fly());			}
-			  };
+						     configs.just_fly());
+			    };
   
-  auto keyboard_handler = [&](){
-  			    keyboard_event_handler(iris_x,
-  						   configs.speed(),
-  						   configs.just_fly());
-			  };
+    auto joystick_events = std::async(std::launch::async, joystick_handler);
+    auto keyboard_events = std::async(std::launch::async, keyboard_handler);
   
-  auto joystick_events =  std::async(std::launch::async, joystick_handler);
-  auto keyboard_events =  std::async(std::launch::async, keyboard_handler);
-  
-  joystick_events.get();
-  keyboard_events.get();
+    joystick_events.get();
+    keyboard_events.get();
+  }
 }

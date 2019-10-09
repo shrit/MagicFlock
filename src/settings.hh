@@ -14,6 +14,7 @@ public:
 
   Settings(int argc, char* argv[]);
 
+  bool flying() const;
   bool generate() const;
   bool training() const;
   bool testing() const;
@@ -23,7 +24,7 @@ public:
   std::string dataset() const;
   
 private:
-
+  bool flying_;
   bool generate_;
   bool training_;  
   bool testing_;
@@ -33,7 +34,5 @@ private:
   std::string ini_file_;
   std::string dataset_file_;
 };
-
-
 
 #endif

@@ -6,6 +6,7 @@ void usage(std::ostream& out)
 {
 
   out<< "Usage : " << std ::endl
+     << "To fly a quadrotor manually you need to start the software with flying option" << std::endl
      << "To control the quadcopter using keyboard use : " << std::endl
      << " a : arm" << std::endl
      << " t : takoff" << std::endl
@@ -44,6 +45,7 @@ Settings::Settings(int argc, char* argv[])
     ("version,v", "Print the current version")
     ("Versbose,V", "Be more verbose")
     ("ini-file,n", po::value<std::string>(&ini_file_)->value_name("ini_file"),"Specify the name of the ini file")
+    ("flying", "FLy a quadrotor using keyboard or joystick.")
     ("generate-dataset","Generate data set by doing generating random trajectories")
     ("training", po::value<std::string>(&dataset_file_)->value_name("dataset"), "Train a dataset file using a neural network, 10% of the dataset is used for testing")
     ("classification", "Treat the problem as classification problem, labels are classed into classes ")
@@ -96,6 +98,10 @@ Settings::Settings(int argc, char* argv[])
     trajectory_noise_ = true;
   }
 
+  if (vm.count("flying")) {
+    flying_ = true;
+  }
+
   if (vm.count("version")) {
     std::cout << "0.9v ";
     exit(0);
@@ -123,6 +129,9 @@ bool Settings::regression() const
 
 bool Settings::trajectory() const
 { return trajectory_noise_; }
+
+bool Settings::flying() const
+{ return flying_; }
 
 std::string Settings::dataset() const
 { return dataset_file_; }
