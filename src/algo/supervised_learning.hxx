@@ -154,12 +154,12 @@ phase_two(bool random_leader_action)
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("l",
 								     action_leader,
-								     2000);
+								     1000);
 				}));
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("f1",
 								     action_leader,
-								     2000);
+								     1000);
 				  
 				}));
 
@@ -209,7 +209,7 @@ phase_two(bool random_leader_action)
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("f2",
 								     action_follower_.back(),
-								     2000);
+								     1000);
   				   
   				}));
   
