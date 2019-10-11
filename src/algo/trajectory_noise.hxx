@@ -121,8 +121,7 @@ void TrajectoryNoise<flight_controller_t, simulator_t>::run(/*  enter quadcopter
 	/* Get the actual position, test if the triangle is OK */
 	lt::positions<lt::position3D<double>> positions_after_action =
 	  sim_interface_->positions();
-	
-	
+		
 	lt::dist3D<double> quadrotor_distance = mtools_.traveled_distances(positions_before_action,
 									   positions_after_action);
 	
@@ -314,20 +313,20 @@ void TrajectoryNoise<flight_controller_t, simulator_t>::run(/*  enter quadcopter
       LogInfo() << "Mean of up: " <<  mtools_.mean(up_action_vec_);
       LogInfo() << "Mean of down: " <<  mtools_.mean(down_action_vec_);
       
-      LogInfo() << "Mean of Forward knowing left" <<  mtools_.mean(f_k_l_action_vec_);
-      LogInfo() << "Mean of Forward knowing right" <<  mtools_.mean(f_k_r_action_vec_);
-      LogInfo() << "Mean of Forward knowing up" <<  mtools_.mean(f_k_u_action_vec_);
-      LogInfo() << "Mean of Forward knowing down" <<  mtools_.mean(f_k_d_action_vec_);
+      LogInfo() << "Mean of Forward knowing left: " <<  mtools_.mean(f_k_l_action_vec_);
+      LogInfo() << "Mean of Forward knowing right: " <<  mtools_.mean(f_k_r_action_vec_);
+      LogInfo() << "Mean of Forward knowing up: " <<  mtools_.mean(f_k_u_action_vec_);
+      LogInfo() << "Mean of Forward knowing down: " <<  mtools_.mean(f_k_d_action_vec_);
 
-      LogInfo() << "Mean of backward knowing left" <<  mtools_.mean(b_k_l_action_vec_);
-      LogInfo() << "Mean of backward knowing right" <<  mtools_.mean(b_k_r_action_vec_);
-      LogInfo() << "Mean of backward knowing up" <<  mtools_.mean(b_k_u_action_vec_);
-      LogInfo() << "Mean of backward knowing down" <<  mtools_.mean(b_k_d_action_vec_);
+      LogInfo() << "Mean of backward knowing left: " <<  mtools_.mean(b_k_l_action_vec_);
+      LogInfo() << "Mean of backward knowing right: " <<  mtools_.mean(b_k_r_action_vec_);
+      LogInfo() << "Mean of backward knowing up: " <<  mtools_.mean(b_k_u_action_vec_);
+      LogInfo() << "Mean of backward knowing down: " <<  mtools_.mean(b_k_d_action_vec_);
 
-      LogInfo() << "Mean of left knowing forward" <<  mtools_.mean(l_k_f_action_vec_);
-      LogInfo() << "Mean of left knowing backward" <<  mtools_.mean(l_k_b_action_vec_);
-      LogInfo() << "Mean of left knowing up" <<  mtools_.mean(l_k_u_action_vec_);
-      LogInfo() << "Mean of left knowing down" <<  mtools_.mean(l_k_d_action_vec_);
+      LogInfo() << "Mean of left knowing forward: " <<  mtools_.mean(l_k_f_action_vec_);
+      LogInfo() << "Mean of left knowing backward: " <<  mtools_.mean(l_k_b_action_vec_);
+      LogInfo() << "Mean of left knowing up: " <<  mtools_.mean(l_k_u_action_vec_);
+      LogInfo() << "Mean of left knowing down: " <<  mtools_.mean(l_k_d_action_vec_);
 
       LogInfo() << "Variance of Forward: " <<  mtools_.variance(forward_action_vec_);
       LogInfo() << "Variance of Backward: " <<  mtools_.variance(backward_action_vec_);
@@ -336,20 +335,20 @@ void TrajectoryNoise<flight_controller_t, simulator_t>::run(/*  enter quadcopter
       LogInfo() << "Variance of up: " <<  mtools_.variance(up_action_vec_);
       LogInfo() << "Variance of down: " <<  mtools_.variance(down_action_vec_);
 
-      LogInfo() << "Variance of Forward knowing left" <<  mtools_.variance(f_k_l_action_vec_);
-      LogInfo() << "Variance of Forward knowing right" <<  mtools_.variance(f_k_r_action_vec_);
-      LogInfo() << "Variance of Forward knowing up" <<  mtools_.variance(f_k_u_action_vec_);
-      LogInfo() << "Variance of Forward knowing down" <<  mtools_.variance(f_k_d_action_vec_);
+      LogInfo() << "Variance of Forward knowing left: " <<  mtools_.variance(f_k_l_action_vec_);
+      LogInfo() << "Variance of Forward knowing right: " <<  mtools_.variance(f_k_r_action_vec_);
+      LogInfo() << "Variance of Forward knowing up: " <<  mtools_.variance(f_k_u_action_vec_);
+      LogInfo() << "Variance of Forward knowing down: " <<  mtools_.variance(f_k_d_action_vec_);
 
-      LogInfo() << "Variance of backward knowing left" <<  mtools_.variance(b_k_l_action_vec_);
-      LogInfo() << "Variance of backward knowing right" <<  mtools_.variance(b_k_r_action_vec_);
-      LogInfo() << "Variance of backward knowing up" <<  mtools_.variance(b_k_u_action_vec_);
-      LogInfo() << "Variance of backward knowing down" <<  mtools_.variance(b_k_d_action_vec_);
+      LogInfo() << "Variance of backward knowing left: " <<  mtools_.variance(b_k_l_action_vec_);
+      LogInfo() << "Variance of backward knowing right: " <<  mtools_.variance(b_k_r_action_vec_);
+      LogInfo() << "Variance of backward knowing up: " <<  mtools_.variance(b_k_u_action_vec_);
+      LogInfo() << "Variance of backward knowing down: " <<  mtools_.variance(b_k_d_action_vec_);
 
-      LogInfo() << "Variance of left knowing forward" <<  mtools_.variance(l_k_f_action_vec_);
-      LogInfo() << "Variance of left knowing backward" <<  mtools_.variance(l_k_b_action_vec_);
-      LogInfo() << "Variance of left knowing up" <<  mtools_.variance(l_k_u_action_vec_);
-      LogInfo() << "Variance of left knowing down" <<  mtools_.variance(l_k_d_action_vec_);                                    
+      LogInfo() << "Variance of left knowing forward: " <<  mtools_.variance(l_k_f_action_vec_);
+      LogInfo() << "Variance of left knowing backward: " <<  mtools_.variance(l_k_b_action_vec_);
+      LogInfo() << "Variance of left knowing up: " <<  mtools_.variance(l_k_u_action_vec_);
+      LogInfo() << "Variance of left knowing down: " <<  mtools_.variance(l_k_d_action_vec_);                                    
     }
     
     /*  Logging */
@@ -360,7 +359,7 @@ void TrajectoryNoise<flight_controller_t, simulator_t>::run(/*  enter quadcopter
     /*  Resetting */
     sim_interface_->reset_models();
 
-    LogInfo() << "The quadcopters have been resetted...";
+    LogInfo() << "All quadrotors have been reset...";
     
     std::this_thread::sleep_for(std::chrono::seconds(15));
   }
