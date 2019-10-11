@@ -221,6 +221,100 @@ random_action_generator()
   return action;
 }
 
+/*  The condition is to generate an action that is not the same to the
+    parameter action and not opposed to this action. This is more
+    comfortable since the opposed action apply high noise on traveled
+    distance. Also this is more logic, since allow more variability in
+    the data set */
+Quadcopter::Action Quadcopter::
+random_action_generator_with_all_conditions(Action action)
+{
+  Action action_ = Action::NoMove;
+  
+  if (action == Action::backward) {
+    action_ = random_action_generator();
+    while (action_ == Action::forward or
+	   action_ == Action::backward ) {
+      action_ = random_action_generator();
+    }
+  } else if (action == Action::down) {
+    action_ = random_action_generator();
+    while (action_ == Action::up or
+	   action_ == Action::down) {
+      action_ = random_action_generator();
+    }
+  } else if (action == Action::up) {
+    action_ = random_action_generator();
+    while (action_ == Action::down or
+	   action_ == Action::up) {
+      action_ = random_action_generator();
+    }
+  } else if (action == Action::forward) {
+    action_ = random_action_generator();
+    while (action_ == Action::backward or
+	   action_ == Action::forward) {
+      action_ = random_action_generator();
+    }
+  } else if (action == Action::right) {
+    action_ = random_action_generator();
+    while (action_ == Action::left or
+	   action_ == Action::right) {
+      action_ = random_action_generator();
+    }
+  } else if (action == Action::left) {
+    action_ = random_action_generator();
+    while (action_ == Action::right or
+	   action_ == Action::left) {
+      action_ = random_action_generator();
+    }
+  }
+  return action_;
+}
+
+/*  The condition is to generate an action that not opposed to this
+    action. This is more comfortable since the opposed action apply
+    high noise on traveled distance. Also this is more logic, since
+    allow more variability in the data set */
+
+Quadcopter::Action Quadcopter::
+random_action_generator_with_only_opposed_condition(Action action)
+{
+  Action action_ = Action::NoMove;
+  
+  if (action == Action::backward) {
+    action_ = random_action_generator();
+    while (action_ == Action::forward) {
+      action_ = random_action_generator();
+    }
+  } else if (action == Action::down) {
+    action_ = random_action_generator();
+    while (action_ == Action::up) {
+      action_ = random_action_generator();
+    }
+  } else if (action == Action::up) {
+    action_ = random_action_generator();
+    while (action_ == Action::down) {
+      action_ = random_action_generator();
+    }
+  } else if (action == Action::forward) {
+    action_ = random_action_generator();
+    while (action_ == Action::backward) {
+      action_ = random_action_generator();
+    }
+  } else if (action == Action::right) {
+    action_ = random_action_generator();
+    while (action_ == Action::left) {
+      action_ = random_action_generator();
+    }
+  } else if (action == Action::left) {
+    action_ = random_action_generator();
+    while (action_ == Action::right) {
+      action_ = random_action_generator();
+    }
+  }
+  return action_;
+}
+
 template <class simulator_t>
 inline std::ostream& operator<< (std::ostream& out, const Quadcopter::State<simulator_t>& s)
 {

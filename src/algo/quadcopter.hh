@@ -104,7 +104,13 @@ public:
 
   std::vector<Action> possible_actions() const;
 
-  Action random_action_generator();  
+  Action random_action_generator();
+
+  Action 
+  random_action_generator_with_only_opposed_condition(Action action);
+
+  Action
+  random_action_generator_with_all_conditions(Action action);
 
 private:
 
