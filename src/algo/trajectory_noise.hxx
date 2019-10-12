@@ -23,45 +23,9 @@ test_trajectory()
 {
   Quadcopter robot;
 
-  action_ = robot.random_action_generator();
+  action_ =
+   robot.random_action_generator_with_all_conditions(saved_action_);
   
-  if (saved_action_ == Quadcopter::Action::backward) {
-    action_ = robot.random_action_generator();
-    while (action_ == Quadcopter::Action::forward or
-	   action_ == Quadcopter::Action::backward ) {
-      action_ = robot.random_action_generator();
-    }
-  } else if (saved_action_ == Quadcopter::Action::down) {
-    action_ = robot.random_action_generator();
-    while (action_ == Quadcopter::Action::up or
-	   action_ == Quadcopter::Action::down) {
-      action_ = robot.random_action_generator();
-    }
-  } else if (saved_action_ == Quadcopter::Action::up) {
-    action_ = robot.random_action_generator();
-    while (action_ == Quadcopter::Action::down or
-	   action_ == Quadcopter::Action::up) {
-      action_ = robot.random_action_generator();
-    }
-  } else if (saved_action_ == Quadcopter::Action::forward) {
-    action_ = robot.random_action_generator();
-    while (action_ == Quadcopter::Action::backward or
-	   action_ == Quadcopter::Action::forward) {
-      action_ = robot.random_action_generator();
-    }
-  } else if (saved_action_ == Quadcopter::Action::right) {
-    action_ = robot.random_action_generator();
-    while (action_ == Quadcopter::Action::left or
-	   action_ == Quadcopter::Action::right) {
-      action_ = robot.random_action_generator();
-    }
-  } else if (saved_action_ == Quadcopter::Action::left) {
-    action_ = robot.random_action_generator();
-    while (action_ == Quadcopter::Action::right or
-	   action_ == Quadcopter::Action::left) {
-      action_ = robot.random_action_generator();
-    }
-  }
   /*  Execute a trajectory for 1 seconds */
   swarm_.one_quad_execute_trajectory("l" ,
 				     action_,
