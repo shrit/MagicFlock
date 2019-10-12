@@ -29,7 +29,7 @@ public:
   Generator(std::vector<std::shared_ptr<flight_controller_t>> quads,
 	    std::shared_ptr<simulator_t> sim_interface);
 
-  void phase_one(bool random_leader_action);
+  void generate_trajectory(bool random_leader_action);
 
   void run(const Settings& settings);
 
@@ -42,7 +42,6 @@ private:
   std::vector<Quadcopter::Action> action_follower_;
   int count_;
   DataSet data_set_;
-  std::vector<double> drift_f3_;
   int episode_;
   std::vector<lt::triangle<double>> f3_side_;
   int max_episode_;
@@ -50,6 +49,7 @@ private:
   std::shared_ptr<simulator_t> sim_interface_;
   std::vector<Quadcopter::State<simulator_t>> states_;
   Quadcopter::Action saved_leader_action_;
+  Quadcopter::Action saved_follower_action_;
   bool stop_episode_;
   SwarmDevice<flight_controller_t> swarm_;
 };

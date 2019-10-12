@@ -20,27 +20,31 @@ Generator (std::vector<std::shared_ptr<flight_controller_t>> quads,
 template <class flight_controller_t,
 	  class simulator_t>
 void Generator<flight_controller_t, simulator_t>::
-phase_one(bool random_leader_action)
+generate_trajectory(bool random_leader_action)
 {
   Quadcopter::Action action_leader;
   Quadcopter robot;
 
   std::vector<std::thread> threads;
 
-  /* Get the state at time t  */
-  Quadcopter::State<simulator_t> state(sim_interface_);
-  states_.push_back(state);
-
+  /* Get the orignal state at time 0  */
+  if (count_ % 2 == 0) {
+    Quadcopter::State<simulator_t> state(sim_interface_);
+    states_.push_back(state);
+  }
+  
   if (random_leader_action == true) {
-
-    action_leader = robot.random_action_generator();
+    action_leader =
+      robot.random_action_generator_with_only_opposed_condition(saved_leader_action_);    
     saved_leader_action_ = action_leader;
-
   } else {
     action_leader = saved_leader_action_;
   }
 
-  action_follower_.push_back(robot.random_action_generator());
+  action_follower_.push_back
+    (robot.random_action_generator_with_only_opposed_condition(saved_follower_action_));
+  saved_follower_action_ = action_follower_.back();
+
 
   /*  Threading QuadCopter */
   threads.push_back(std::thread([&](){
@@ -80,19 +84,16 @@ run(const Settings& settings)
 
   LogInfo() << "Starting positions : " << original_positions;
 
-  lt::triangle<double> original_triangle = mtools_.triangle_side_3D(original_positions);
-
-  f3_side_.push_back(original_triangle);
-
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
 
-    /* Intilization phase, in each episode we should reset the
-     * position of each quadcopter to the initial position.
-     * From here we can start automatically the quads:
-     * Arm + takeoff + offboard mode + moving + land
-     * Then: repeat each episode.
-     */
-
+    /* Intilization phase: an episode start when the quadrotors
+     * takeoff and end when they land and reset. Each episode contain
+     * a count number (steps). Each count represents one line in the
+     * dataset. Several trajectories might be executed in one count.
+     * Now. We execute only two trajectories in one count, thus means
+     * dist(t-1), a(t-1), dist(t), a(t). Where dist contain distance
+     * between the (TF and TL) and (TF and FF)
+     */    
     LogInfo() << "Episode : " << episode_ ;
 
     /* Stop the episode if one of the quad has fallen to arm */    
@@ -102,16 +103,16 @@ run(const Settings& settings)
       stop_episode_ = true;
     
     std::this_thread::sleep_for(std::chrono::seconds(2));
-
+    
     /* Stop the episode if one of the quad has fallen to takoff */
     bool takeoff = swarm_.takeoff(5);
     if (!takeoff)
       stop_episode_ = true;
     
-    /*  Setting up speed_ is important to switch the mode */
+    /*  Setting up speed in order to switch the mode */
     swarm_.init_speed();
-
-     /*  Switch to offboard mode, Allow the control */
+    
+    /*  Switch to offboard mode, Allow the control */
     /* Stop the episode is the one quadcopter have fallen to set
        offbaord mode */    
     bool offboard_mode = swarm_.start_offboard_mode();
@@ -121,25 +122,27 @@ run(const Settings& settings)
     /*  Wait to complete the take off process */
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
+    /*  Handle fake takeoff.. */
+    if (sim_interface_->positions().f1.z < 6  or sim_interface_->positions().f2.z < 6) {
+      stop_episode_ = true;
+    }
+    
     /*  Start the First phase */
-
+    /*  Collect dataset by creating a set of trajectories, each time
+	the leader and the follower execute their trajectory randomly,
+	we check the triangle (whether the follower is too close or
+	too far) finally we break the loop after 10 trajectorise of 1
+	second each */
+    
     if (!stop_episode_) {
-
-      count_ = 0 ;
+      count_ = 0;
 
       std::vector<lt::triangle<double>> new_triangle;
 
       while (count_ < 10 and !stop_episode_) {
 
 	Quadcopter::Reward reward = Quadcopter::Reward::Unknown;
-	
-	/* Choose one random trajectory for the leader in the first
-	   count. Then, keep the same action until the end of the
-	   episode */
-	
-	/*  At the end of each phase, quadcopters have already
-	    finished their trajectories. Thus, we need to test the
-	    triangle*/
+			
 	lt::positions<lt::position3D<double>> positions_before_action =
 	  sim_interface_->positions();
 	
@@ -148,55 +151,36 @@ run(const Settings& settings)
 	lt::triangle<double> triangle_before_action =
 	  mtools_.triangle_side_3D(positions_before_action);
 	
-	if (count_ == 0) {
-	  phase_one(true);
-	} else {
-	  phase_one(false);
+	/* Choose one random trajectory for the leader in the first
+	   count. Then, keep the same action until the end of the
+	   episode */	
+	for (int n_trajectory = 0; n_trajectory < 2; ++n_trajectory) {
+	  if (count_ == 0) {
+	    generate_trajectory(true);
+	  } else {
+	    generate_trajectory(false);
+	  }
 	}
 	
 	/* Get the actual position, test if the triangle is OK */
 	lt::positions<lt::position3D<double>> positions_after_action = sim_interface_->positions();
 
 	LogInfo() << "Positions After action : " << positions_after_action;
-
-	LogInfo() << "Travelled Distance : " <<
+	LogInfo() << "Traveled Distance : " <<
 	  mtools_.traveled_distances(positions_before_action,
-				     positions_after_action); 
-		
-	/*  Change the of calculate te error of triangle untill they
-	    are in the air because the difference in z is adding in error on the
-	    entire calcualtion */
+				     positions_after_action);
 	
 	/* Get the distance between the TL TF, and FF TF  at time t*/
-	new_triangle.push_back(mtools_.triangle_side_3D(positions_after_action));
-
-	/* Keep a copy of the new distance between all of them */
-	f3_side_.push_back(mtools_.triangle_side_3D(positions_after_action));
-
-	/* Calculate the noise over the entire trainning session
-	   This will allow to refine exactly the good action */
-
-	double noise = mtools_.gaussian_noise(f3_side_,
-					      drift_f3_);
-
-	LogInfo() << "Noise: " << noise ;
-
-	/*  Handle fake takeoff.. */
-	if (sim_interface_->positions().f1.z < 6  or sim_interface_->positions().f2.z < 6) {
-	  stop_episode_ = true;
-	} 
+	new_triangle.push_back(mtools_.triangle_side_3D(positions_after_action));	
   
-	/* Calculate the error compare to the starting point */
-	/* Compare with the original at start */
+	/* Calculate the error compare to the starting point */	
 	/* We have compared the value of the triangle with the one
 	   before executing this action. Instead of comparing it to
 	   the original one. But why? Why should this comparison
 	   gives better learning score than the one before */
 	
 	Quadcopter robot;
-	/*  This problem is formulated as a classification problem, we
-	 will try using regression rather than classification to see
-	 if the produced result are better */
+	/*  Keep classification method */
 	if (settings.classification()) {
 	  /*  Classification */
 	  if (count_ == 0 ) {
@@ -207,65 +191,44 @@ run(const Settings& settings)
 					    new_triangle.at(count_));
 	  }
 	}
-	
-	double score = -1;
-	double score_log = -20;
-	double score_square = -1;
-	double score_square_log = -1;	
+
+	/*  Save the information generated from the trajectory into a
+	    dataset file */	
+	if (settings.classification()) {
+	  data_set_.save_csv_data_set(states_.front(),
+				      mtools_.to_one_hot_encoding(action_follower_.back(), 6),
+				      states_.back(),
+				      mtools_.to_one_hot_encoding(reward, 4)
+				      );
+	}
 	if (settings.regression()) {
-	/*  Regression */
-	  if (count_ == 0 ) {
-	    score = robot.true_score(triangle_before_action,
-				     new_triangle.at(count_));
-	    score_log= robot.true_score_log(triangle_before_action,
-					    new_triangle.at(count_));
-	    score_square = robot.true_score_square(triangle_before_action,
-						   new_triangle.at(count_));
-	    score_square_log = robot.true_score_square_log(triangle_before_action,
-							   new_triangle.at(count_));
-	  } else {
-	    score = robot.true_score(new_triangle.at(count_ -1),
-				     new_triangle.at(count_));
-	    score_log = robot.true_score_log(new_triangle.at(count_ -1),
-					     new_triangle.at(count_));
-	    score_square = robot.true_score_square(new_triangle.at(count_ -1),
-						   new_triangle.at(count_));
-	    score_square_log = robot.true_score_square_log(new_triangle.at(count_ -1),
-							   new_triangle.at(count_));
+	  if (states_.front().height() > 7.5) {
+	    auto it = states_.begin();
+	    it = std::next(it, 1),
+	    data_set_.save_csv_data_set(states_.front(),
+					mtools_.to_one_hot_encoding(action_follower_.front(), 6),
+					*(it),
+					mtools_.to_one_hot_encoding(action_follower_.back(), 6),
+					states_.back()
+					);
 	  }
 	}
-	
+	/*  Check the triangle we are out of bound break the loop */
 	if (mtools_.is_triangle(mtools_.triangle_side_3D
 				(sim_interface_->positions())) == false) {
 	  LogInfo() << "The triangle is no longer conserved";
 	  break;
 	}
-	
-	if (settings.classification()) {
-	  data_set_.save_csv_data_set(states_.front(),
-				    mtools_.to_one_hot_encoding(action_follower_.back(), 6),
-				    (states_.back()),
-				    mtools_.to_one_hot_encoding(reward, 4)
-				    );
-	}
-	if (settings.regression()) {
-	  if (states_.front().height() > 7.5) {
-	  data_set_.save_csv_data_set(states_.front(),
-				      mtools_.to_one_hot_encoding(action_follower_.back(), 6),
-				      states_.back(),
-				      score,
-				      score_log,
-				      score_square,
-				      score_square_log
-				      );
-	  }
-	}
+	/*  Clear vectors after each generated line in the dataset */
 	states_.clear();
-	std::this_thread::sleep_for(std::chrono::seconds(1));
+	action_follower_.clear();
 	++count_;
       }
     }
-    /*  Add one count to have the exact number of time steps */
+    
+    
+    /*  Add one count to have the exact number of time steps in the
+	histogram since count start with 0;*/
     if (!stop_episode_) {
       count_ = count_ + 1;
     }
@@ -279,7 +242,7 @@ run(const Settings& settings)
     /* Resetting the entire swarm after the end of each episode*/
     sim_interface_->reset_models();
 
-    LogInfo() << "The quadcopters have been resetted...";
+    LogInfo() << "All quadrotors have been reset...";
     
     std::this_thread::sleep_for(std::chrono::seconds(15));
 
@@ -292,12 +255,12 @@ run(const Settings& settings)
      * to increase the value of COM_ARM_EKF_AB. Note that, the default
      * value is 0.00024 I have increased it to 0.00054 which is very
      * high to the usual stadard. Otherwise there is no way to do the
-     * simulation. Remember, the reboot() function in the action class
-     * is not implemented at the time of writing this comment, and
-     * maybe it will never be implemented as it is quite complicated
-     * to reboot the px4 software from the simulator. I understand
-     * this choice, we need to leave a big sleep_for after resetting
-     * the quadcopters, that is going to helpe resetting the
+     * simulation. Remember, the reboot() function in the MAVSDK
+     * action class is not implemented at the time of writing this
+     * comment, and maybe it will never be implemented as it is quite
+     * complicated to reboot the px4 software from the simulator. I
+     * understand this choice, we need to leave a big sleep_for after
+     * resetting the quadcopters, that is going to helpe resetting the
      * accelerometer values without any problems!
      */
 
