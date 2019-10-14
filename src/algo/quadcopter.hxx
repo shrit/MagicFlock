@@ -201,9 +201,7 @@ int Quadcopter::evaluation_score(const lt::triangle<double>& old_dist,
 
 void Quadcopter::
 save_controller_count(double value)
-{
-  data_set_.save_count_file(value);
-}
+{ data_set_.save_count_file(value); }
 
 std::vector<Quadcopter::Action> Quadcopter::
 possible_actions() const
@@ -213,11 +211,7 @@ Quadcopter::Action Quadcopter::
 random_action_generator()
 {
   int random_action = distribution_int_(generator_);
-
-  LogInfo() << "Random action value: " << random_action ;
-
-  Action action = static_cast<Action>(random_action);
-  
+  Action action = static_cast<Action>(random_action);  
   return action;
 }
 
@@ -275,7 +269,6 @@ random_action_generator_with_all_conditions(Action action)
     action. This is more comfortable since the opposed action apply
     high noise on traveled distance. Also this is more logic, since
     allow more variability in the data set */
-
 Quadcopter::Action Quadcopter::
 random_action_generator_with_only_opposed_condition(Action action)
 {

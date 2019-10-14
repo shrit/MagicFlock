@@ -131,6 +131,9 @@ run(const Settings& settings)
 	second each */
     
     if (!stop_episode_) {
+      /*  Verify that vectors are clear when starting new episode */
+      states_.clear();
+      action_follower_.clear();
       count_ = 0;
 
       std::vector<lt::triangle<double>> new_triangle;
@@ -144,11 +147,13 @@ run(const Settings& settings)
 			
 	lt::positions<lt::position3D<double>> positions_before_action =
 	  sim_interface_->positions();
-	
-	LogInfo() << "Positions before action : " << positions_before_action;
-	
+       	
 	lt::triangle<double> triangle_before_action =
 	  mtools_.triangle_side_3D(positions_before_action);
+
+	LogInfo() << "Distanes before actions : " <<
+	  mtools_.triangle_side_3D(positions_before_action);
+	
 	
 	/* Choose one random trajectory for the leader in the first
 	   count. Then, keep the same action until the end of the
@@ -160,16 +165,15 @@ run(const Settings& settings)
 	    generate_trajectory(false);
 	  }
 	}
-	/* Get the actual position, test if the triangle is OK */
-	lt::positions<lt::position3D<double>> positions_after_action = sim_interface_->positions();
 
-	LogInfo() << "Positions After action : " << positions_after_action;
-	LogInfo() << "Traveled Distance : " <<
-	  mtools_.traveled_distances(positions_before_action,
-				     positions_after_action);
-	
+	lt::positions<lt::position3D<double>> positions_after_action =
+	  sim_interface_->positions();
 	/* Get the distance between the TL TF, and FF TF  at time t*/
 	new_triangle.push_back(mtools_.triangle_side_3D(positions_after_action));	
+	
+	LogInfo() << "Distances after action : " <<
+	  mtools_.triangle_side_3D(positions_after_action);
+	
   
 	/* Calculate the error compare to the starting point */	
 	/* We have compared the value of the triangle with the one
@@ -210,15 +214,16 @@ run(const Settings& settings)
 					);
 	  }
 	}
+	/*  Clear vectors after each generated line in the dataset */
+	states_.clear();
+	action_follower_.clear();
+	
 	/*  Check the triangle we are out of bound break the loop */
 	if (mtools_.is_triangle(mtools_.triangle_side_3D
 				(sim_interface_->positions())) == false) {
 	  LogInfo() << "The triangle is no longer conserved";
 	  break;
 	}
-	/*  Clear vectors after each generated line in the dataset */
-	states_.clear();
-	action_follower_.clear();
 	++count_;
       }
     }
