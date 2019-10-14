@@ -319,7 +319,6 @@ template <class simulator_t>
 inline std::ostream& operator<< (std::ostream& out, const Quadcopter::State<simulator_t>& s)
 {
   out << s.height() << ","
-      << s.distances_3D() << ","
-      << s.orientation() ;
+      << s.distances_3D() ;
   return out;
 }
