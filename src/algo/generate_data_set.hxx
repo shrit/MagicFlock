@@ -23,14 +23,11 @@ void Generator<flight_controller_t, simulator_t>::
 generate_trajectory(bool random_leader_action)
 {
   Quadcopter::Action action_leader;
-  Quadcopter robot;
-
+  Quadcopter robot;  
   std::vector<std::thread> threads;
-
-  /* Get the orignal state at time 0  */
-  if (count_ % 2 == 0) {
+  if ((count_ not_eq 0) and (n_trajectory_ == 0)) {
     Quadcopter::State<simulator_t> state(sim_interface_);
-    states_.push_back(state);
+    states_.push_back(state);  
   }
   
   if (random_leader_action == true) {
@@ -44,7 +41,6 @@ generate_trajectory(bool random_leader_action)
   action_follower_.push_back
     (robot.random_action_generator_with_only_opposed_condition(saved_follower_action_));
   saved_follower_action_ = action_follower_.back();
-
 
   /*  Threading QuadCopter */
   threads.push_back(std::thread([&](){
@@ -105,7 +101,7 @@ run(const Settings& settings)
     std::this_thread::sleep_for(std::chrono::seconds(2));
     
     /* Stop the episode if one of the quad has fallen to takoff */
-    bool takeoff = swarm_.takeoff(5);
+    bool takeoff = swarm_.takeoff(15);
     if (!takeoff)
       stop_episode_ = true;
     
@@ -138,7 +134,10 @@ run(const Settings& settings)
       count_ = 0;
 
       std::vector<lt::triangle<double>> new_triangle;
-
+      
+      Quadcopter::State<simulator_t> initial_state(sim_interface_);
+      states_.push_back(initial_state);
+      
       while (count_ < 10 and !stop_episode_) {
 
 	Quadcopter::Reward reward = Quadcopter::Reward::Unknown;
@@ -154,14 +153,13 @@ run(const Settings& settings)
 	/* Choose one random trajectory for the leader in the first
 	   count. Then, keep the same action until the end of the
 	   episode */	
-	for (int n_trajectory = 0; n_trajectory < 2; ++n_trajectory) {
+	for (n_trajectory_ = 0; n_trajectory_ < 2; ++n_trajectory_) {
 	  if (count_ == 0) {
 	    generate_trajectory(true);
 	  } else {
 	    generate_trajectory(false);
 	  }
 	}
-	
 	/* Get the actual position, test if the triangle is OK */
 	lt::positions<lt::position3D<double>> positions_after_action = sim_interface_->positions();
 
@@ -191,7 +189,6 @@ run(const Settings& settings)
 					    new_triangle.at(count_));
 	  }
 	}
-
 	/*  Save the information generated from the trajectory into a
 	    dataset file */	
 	if (settings.classification()) {
@@ -225,10 +222,9 @@ run(const Settings& settings)
 	++count_;
       }
     }
-    
-    
+
     /*  Add one count to have the exact number of time steps in the
-	histogram since count start with 0;*/
+	histogram since count start with 0*/
     if (!stop_episode_) {
       count_ = count_ + 1;
     }

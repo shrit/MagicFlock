@@ -46,6 +46,7 @@ private:
   std::vector<lt::triangle<double>> f3_side_;
   int max_episode_;
   Math_tools mtools_;
+  int n_trajectory_;
   std::shared_ptr<simulator_t> sim_interface_;
   std::vector<Quadcopter::State<simulator_t>> states_;
   Quadcopter::Action saved_leader_action_;
