@@ -64,27 +64,31 @@ insert_absolute_features(std::vector<Quadcopter::Action> actions)
 {
   arma::mat features;
   arma::rowvec row;
-  
+  auto it = states_.rbegin();
+  it = std::next(it, 1);
   for (int i = 0; i < 6; ++i) {
     /*  State */
-    row << states_.front().height()
-	<< states_.front().distances_3D().f1
-	<< states_.front().distances_3D().f2
-	<< states_.front().distances_3D().f3
-	<< states_.front().orientation()
+    row << (*it).height() 
+      	<< (*it).distances_3D().f1
+	<< (*it).distances_3D().f2
+	<< (*it).distances_3D().f3	
+	<< mtools_.to_one_hot_encoding(action_follower_.back(), 6).at(0)
+      	<< mtools_.to_one_hot_encoding(action_follower_.back(), 6).at(1)
+	<< mtools_.to_one_hot_encoding(action_follower_.back(), 6).at(2)
+	<< mtools_.to_one_hot_encoding(action_follower_.back(), 6).at(3)
+	<< mtools_.to_one_hot_encoding(action_follower_.back(), 6).at(4)
+	<< mtools_.to_one_hot_encoding(action_follower_.back(), 6).at(5)
+	<< states_.back().height()
+	<< states_.back().distances_3D().f1
+	<< states_.back().distances_3D().f2
+	<< states_.back().distances_3D().f3	
       /*  Action encoded as 1, and 0, add 6 times to represent 6 actions */
 	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(0)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(1)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(2)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(3)
-      	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(4)
-      	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(5)
-      /*  nextState */
-	<< states_.back().height()
-	<< states_.back().distances_3D().f1
-	<< states_.back().distances_3D().f2
-	<< states_.back().distances_3D().f3
-	<< states_.back().orientation();
+	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(4)
+	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(5);
     /*  Create a matrix of several rows, each one is added to on the top */
     features.insert_rows(0, row);
   }
@@ -114,18 +118,36 @@ int Supervised_learning<flight_controller_t,
 	       simulator_t>::
 index_of_best_action_regression(arma::mat matrix)
 {
-  int value = 0;
-  for (arma::uword i = 0; i < matrix.n_rows; ++i) {
-    value = arma::index_min(matrix.col(0));
-  }
+  std::vector<double> distances = estimate_action_from_distance(matrix);
+  int value =
+    std::min_element(distances.begin(),
+		     distances.end()) - distances.begin();
   return value;
+}
+
+template <class flight_controller_t,
+	  class simulator_t>
+std::vector<double> Supervised_learning<flight_controller_t,
+					simulator_t>::
+estimate_action_from_distance(arma::mat matrix)
+{
+  std::vector<double> sum_of_distances;
+  lt::triangle<double> distances;
+  for (arma::uword i = 0; i < matrix.n_rows; ++i) {
+    /*  0 index is the height, not considered yet */
+    distances.f1 = std::fabs(original_dist_.f1 - matrix(i, 1));
+    distances.f2 = std::fabs(original_dist_.f2 - matrix(i, 2));
+    distances.f3 = std::fabs(original_dist_.f3 - matrix(i, 3));
+    sum_of_distances.push_back(distances.f1 + distances.f2 + distances.f3);
+  }
+  return sum_of_distances;
 }
 
 template <class flight_controller_t,
 	  class simulator_t>
 void Supervised_learning<flight_controller_t,
 		simulator_t>::
-phase_two(bool random_leader_action)
+generate_trajectory_using_model(bool random_leader_action)
 {
     mlpack::ann::FFN<mlpack::ann::SigmoidCrossEntropyError<>,
 		   mlpack::ann::RandomInitialization> classification_model;
@@ -150,6 +172,12 @@ phase_two(bool random_leader_action)
     action_leader = saved_leader_action_;
   }
 
+  /* Small HACK: Save the leader action only for the first time as a
+     follower action */
+  if (count_ == 0) {
+    action_follower_.push_back(action_leader);
+  }
+  
   /*  Threading QuadCopter */
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("l",
@@ -159,8 +187,7 @@ phase_two(bool random_leader_action)
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("f1",
 								     action_leader,
-								     1000);
-				  
+								     1000);				  
 				}));
 
   /* We need to wait until the quadcopters finish their actions */
@@ -279,18 +306,17 @@ run(const Settings& settings)
       std::vector<lt::triangle<double>> new_triangle;
 
       while (count_ < 300) {
-
 	/*  Do online learning... */
         Quadcopter::Reward reward =
 	  Quadcopter::Reward::very_bad;
 
 	if (count_ == 0 ) {
-	  phase_two(true);
+	  generate_trajectory_using_model(true);
 	  //Change each 10 times the direction of the leader
 	} else if (count_ % 10 == 0) {
-	  phase_two(true);
+	  generate_trajectory_using_model(true);
 	} else {
-	  phase_two(false);
+	  generate_trajectory_using_model(false);
 	}
 
 	lt::positions<lt::position3D<double>> new_positions = sim_interface_->positions();
@@ -326,16 +352,7 @@ run(const Settings& settings)
 	    score = robot_.true_score_square(new_triangle.at(count_ -1),
 				     new_triangle.at(count_));
 	  }
-	}
-	
-	/*  Need to verify that the controller is working,
-	 use the triangle test to figure out after each iteration*/
-	if (mtools_.is_triangle(mtools_.triangle_side_3D(sim_interface_->positions())) == false) {
-	  LogInfo() << "The triangle is no longer conserved";
-	  robot_.save_controller_count(count_);
-	  break;
-	}
-
+	}       
 	/* Log online dataset */	
 	if (classification_) {
 	  data_set_.save_csv_data_set(states_.front(),
@@ -357,9 +374,14 @@ run(const Settings& settings)
 	controller_predictions_.clear();
 	states_.clear();	
 	time_step_vector_.push_back(count_);
-
-	/* Check why we need this sleep ! ??*/
-	std::this_thread::sleep_for(std::chrono::seconds(1));
+	
+	/*  Need to verify that the controller is working,
+	    use the triangle test to figure out after each iteration*/
+	if (mtools_.is_triangle(mtools_.triangle_side_3D(sim_interface_->positions())) == false) {
+	  LogInfo() << "The triangle is no longer conserved";
+	  robot_.save_controller_count(count_);
+	  break;
+	}	       
 	++count_;
       }
     }
@@ -378,7 +400,6 @@ run(const Settings& settings)
     }
    
     step_errors_.clear();
-
     swarm_.land();
     
     /* Resetting the entire swarm after the end of each episode*/

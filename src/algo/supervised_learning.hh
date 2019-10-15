@@ -35,11 +35,12 @@ template<class flight_controller_t,
 	 class simulator_t>
 class Supervised_learning
 {
-
 public:
-
   Supervised_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 		      std::shared_ptr<simulator_t> gzs);
+
+  std::vector<double>
+  estimate_action_from_distance(arma::mat matrix);
   
   int index_of_best_action_classification(arma::mat matrix);
   int index_of_best_action_regression(arma::mat matrix);
@@ -52,14 +53,12 @@ public:
   
   void run(const Settings& settings);
 
-  void phase_two(bool random_leader_action);
+  void generate_trajectory_using_model(bool random_leader_action);
 
   Supervised_learning(Supervised_learning const&) = delete;
-
   Supervised_learning(Supervised_learning &&) = default;
 
 private:
-
   std::vector<Quadcopter::Action> action_follower_ ;
   int count_;
   bool classification_;

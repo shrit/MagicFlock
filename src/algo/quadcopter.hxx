@@ -102,20 +102,19 @@ action_follower(arma::mat features, arma::uword index)
   Quadcopter::Action action = Quadcopter::Action::NoMove;
   /*  Access matrix values according to a given index  */
   /*  Only one action exist that equal 1 in each row of 
-   a matrix */
-  
-  if (features(index, 5) == 1) {
-    action =  Quadcopter::Action::forward;
-  } else if (features(index, 6) == 1) {
-    action =  Quadcopter::Action::backward;
-  } else if (features(index, 7) == 1) {
-    action =  Quadcopter::Action::left;
-  } else if (features(index, 8) == 1) {
-    action =  Quadcopter::Action::right;
-  } else if (features(index, 9) == 1) {
-    action =  Quadcopter::Action::up;
-  } else if (features(index, 10) == 1) {
-    action =  Quadcopter::Action::down;
+   a matrix */  
+  if (features(index, 14) == 1) {
+    action = Quadcopter::Action::forward;
+  } else if (features(index, 15) == 1) {
+    action = Quadcopter::Action::backward;
+  } else if (features(index, 16) == 1) {
+    action = Quadcopter::Action::left;
+  } else if (features(index, 17) == 1) {
+    action = Quadcopter::Action::right;
+  } else if (features(index, 18) == 1) {
+    action = Quadcopter::Action::up;
+  } else if (features(index, 19) == 1) {
+    action = Quadcopter::Action::down;
   }
   return action;
 }
