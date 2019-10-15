@@ -8,14 +8,14 @@ void usage(std::ostream& out)
   out<< "Usage : " << std ::endl
      << "To fly a quadrotor manually you need to start the software with flying option" << std::endl
      << "To control the quadcopter using keyboard use : " << std::endl
-     << " a : arm" << std::endl
+     << " m : arm" << std::endl
      << " t : takoff" << std::endl
      << " l : land" << std::endl
-     << " s : activate offboard mode" << std::endl
-     << " key up    : to go forward" << std::endl
-     << " key right : to go right" << std::endl
-     << " key left  : to go left" << std::endl
-     << " key down  : to go backward" << std::endl
+     << " o : activate offboard mode" << std::endl
+     << " w : to go forward" << std::endl
+     << " d : to go right" << std::endl
+     << " a : to go left" << std::endl
+     << " s : to go backward" << std::endl
      << " + : to turn clock wise" << std::endl
      << " - : to turn counter clock wise" << std::endl
      << "To control the quadcopter using Xbox joystick use : " << std::endl
@@ -29,7 +29,6 @@ void usage(std::ostream& out)
      << " Right Stick down : to go backword" << std::endl
      << " Left Stick up    : to go up" << std::endl
      << " Left Stick right : to go down" << std::endl;
-
 }
 
 /*  Constructor for program options */
