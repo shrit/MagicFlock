@@ -25,13 +25,7 @@ double Train::accuracy(const arma::Row<size_t>& predLabels,
 double Train::accuracy_mse(const arma::mat& predLabels, const arma::mat& LabelY)
 {
   // Calculating how many predicted classes are coincide with real labels.
-  double sum = 0;
-  for (size_t j = 0; j < LabelY.n_cols; j++) {
-
-    double value = std::pow((predLabels(j) - LabelY(j)), 2);
-    sum = sum + value;
-  }
-  return std::sqrt(sum / predLabels.n_cols);
+  return arma::accu(arma::square(predLabels - LabelY)) / LabelY.n_cols;
 }
 
 /*  Used only for classification problem to compare values of several classes */
@@ -138,7 +132,7 @@ void Train::classification()
 
 void Train::regression()
 {
-  define_label_column_size(1);
+  define_label_column_size(4);
   mlpack::ann::FFN<mlpack::ann::MeanSquaredError<>,
 		   mlpack::ann::RandomInitialization> model;
   model.Add<mlpack::ann::Linear<> >(train_features_.n_rows, 200);
@@ -149,7 +143,7 @@ void Train::regression()
   model.Add<mlpack::ann::Linear<> >(200, 200);
   model.Add<mlpack::ann::LeakyReLU<> >();
   model.Add<mlpack::ann::Dropout<> >(0.5);
-  model.Add<mlpack::ann::Linear<> >(200, 1);
+  model.Add<mlpack::ann::Linear<> >(200, 4);
 
   ens::AdamType<ens::AdamUpdate> optimizer;
 
