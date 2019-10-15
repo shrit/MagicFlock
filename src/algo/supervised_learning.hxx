@@ -187,7 +187,7 @@ generate_trajectory_using_model(bool random_leader_action)
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("f1",
 								     action_leader,
-								     1000);				  
+								     1000);
 				}));
 
   /* We need to wait until the quadcopters finish their actions */
@@ -287,7 +287,7 @@ run(const Settings& settings)
     /* Stop the episode if one of the quad has fallen to takoff */
     bool takeoff = swarm_.takeoff(5);
     if (!takeoff)
-      stop_episode_ = true;    
+      stop_episode_ = true;
     
     /*  Setting up speed_ is important to switch the mode */
     swarm_.init_speed();
@@ -327,7 +327,7 @@ run(const Settings& settings)
 	if (sim_interface_->positions().f1.z < 6
 	    or sim_interface_->positions().f2.z < 6) {
 	  stop_episode_ = true;
-	} 
+	}
 		
 	new_triangle.push_back(mtools_.triangle_side_3D(new_positions));
 	
@@ -340,19 +340,7 @@ run(const Settings& settings)
 	    reward = robot_.action_evaluator(new_triangle.at(count_ -1),
 					     new_triangle.at(count_));
 	  }
-	}
-
-	double score = -1;
-	if (regression_) {
-	  /*  Regression */
-	  if (count_ == 0 ) {
-	    score = robot_.true_score_square(original_dist_,
-				     new_triangle.at(count_));	  
-	  } else {
-	    score = robot_.true_score_square(new_triangle.at(count_ -1),
-				     new_triangle.at(count_));
-	  }
-	}       
+	}       	     
 	/* Log online dataset */	
 	if (classification_) {
 	  data_set_.save_csv_data_set(states_.front(),
@@ -363,16 +351,21 @@ run(const Settings& settings)
 				      );
 	}
 	
-	if (settings.regression()) {
-	  data_set_.save_csv_data_set(states_.front(),
-				      mtools_.to_one_hot_encoding(action_follower_.back(), 6),
-				      states_.back(),
-				      controller_predictions_,
-				      score
-				      );
+	if (regression_) {
+	  if (states_.front().height() > 7.5) {
+	    auto it = states_.begin();
+	    it = std::next(it, 1);
+	    data_set_.save_csv_data_set(states_.front(),
+					mtools_.to_one_hot_encoding(action_follower_.back(), 6),
+					*(it),
+					mtools_.to_one_hot_encoding(action_follower_.back(), 6),
+					states_.back()				      
+					);
+	  }
 	}
 	controller_predictions_.clear();
-	states_.clear();	
+	states_.clear();
+	action_follower_.clear();
 	time_step_vector_.push_back(count_);
 	
 	/*  Need to verify that the controller is working,

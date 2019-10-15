@@ -173,8 +173,7 @@ run(const Settings& settings)
 	
 	LogInfo() << "Distances after action : " <<
 	  mtools_.triangle_side_3D(positions_after_action);
-	
-  
+	  
 	/* Calculate the error compare to the starting point */	
 	/* We have compared the value of the triangle with the one
 	   before executing this action. Instead of comparing it to
@@ -205,7 +204,7 @@ run(const Settings& settings)
 	if (settings.regression()) {
 	  if (states_.front().height() > 7.5) {
 	    auto it = states_.begin();
-	    it = std::next(it, 1),
+	    it = std::next(it, 1);
 	    data_set_.save_csv_data_set(states_.front(),
 					mtools_.to_one_hot_encoding(action_follower_.front(), 6),
 					*(it),
