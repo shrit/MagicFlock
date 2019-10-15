@@ -183,12 +183,10 @@ void keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
 
   while (true) {
       // Attempt to read an event from the joystick
-
     int ch = keyboard.poll_event(STDIN_FILENO);
 
-    switch (ch) {
-      
-    case 'a':
+    switch (ch) {      
+    case 'm':
       if (!just_fly) {
 	for (auto it : iris_x) {
 	  it->arm();
@@ -196,7 +194,7 @@ void keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
       } else {
 	iris_x.at(0)->arm();
       }
-      LogInfo() << "arming...";
+      LogInfo() << "Arming...";
       break;
     case 'l':
       if (!just_fly) {
@@ -205,9 +203,8 @@ void keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
 	}
       } else {
 	iris_x.at(0)->land();
-      }
-      
-      LogInfo() << "landing...";
+      }      
+      LogInfo() << "Landing...";
       break;
     case 't':
       if (!just_fly) {
@@ -217,11 +214,10 @@ void keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
       } else {
 	iris_x.at(0)->takeoff();
       }
-      LogInfo() << "taking off...";
-      std::this_thread::sleep_for(std::chrono::seconds(5));
-      
+      LogInfo() << "Taking off...";
+      std::this_thread::sleep_for(std::chrono::seconds(5));      
       break;
-    case 's':
+    case 'o':
       if (!just_fly) {
 	for (auto it : iris_x) {
 	  it->init_speed();
@@ -232,35 +228,37 @@ void keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
       } else {
 	iris_x.at(0)->init_speed();
 	iris_x.at(0)->start_offboard_mode();
-      }
-      
-      LogInfo() << "Start offoard mode..." ;
+      }      
+      LogInfo() << "Start offoard mode...";
       std::this_thread::sleep_for(std::chrono::seconds(1));
       break;
-    case static_cast<int>(Keyboard::Special_keys::KEY_RIGHT):
-      iris_x.at(0)->right(speed);
-      LogInfo() << "Moving right... " ;
-      break;
-    case static_cast<int>(Keyboard::Special_keys::KEY_LEFT):
-      iris_x.at(0)->left(speed);
-      LogInfo() << "Moving left... " ;
-      break;
-    case static_cast<int>(Keyboard::Special_keys::KEY_DOWN):
-      iris_x.at(0)->backward(speed);
-      LogInfo() << "Moving backward... " ;
-      break;
-    case static_cast<int>(Keyboard::Special_keys::KEY_UP):
-      iris_x.at(0)->forward(speed);
-      LogInfo() << "Moving forward... " ;
-      break;
     case 'd':
+      iris_x.at(0)->right(speed);
+      LogInfo() << "Moving right...";
+      break;
+    case 'a':
+      iris_x.at(0)->left(speed);
+      LogInfo() << "Moving left...";
+      break;
+    case 's':
+      iris_x.at(0)->backward(speed);
+      LogInfo() << "Moving backward... ";
+      break;
+    case 'w':
+      iris_x.at(0)->forward(speed);
+      LogInfo() << "Moving forward... ";
+      break;
+    case 'z':
       iris_x.at(0)->down(speed);
-      LogInfo() << "Moving down...: " ;
+      LogInfo() << "Moving down...: ";
       break;
-    case 'u':
+    case 'q':
       iris_x.at(0)->up(speed);
-      LogInfo() << "Moving up...: " ;
+      LogInfo() << "Moving up...: ";
       break;
+    case static_cast<int>(Keyboard::Special_keys::CTRL_C):
+      keyboard.disable_raw_mode(STDIN_FILENO);
+      exit(0);
     default:
       LogInfo() << "NON assigned key: " << ch;
       break;
@@ -304,11 +302,6 @@ int main(int argc, char* argv[])
     exit(0);
   }
   
-  /*
-   * The ns3 Command commented inside the code, A good way to remember it :)
-   */
-  //  /meta/ns-allinone-3.29/ns-3.29/ && /meta/ns-allinone-3.29/ns-3.29/waf --run  \"triangolo --fMode=4 --workDir=/meta/ns-allinone-3.29/ns-3.29 --xmlFilename=/meta/Spider-pig/gazebo/ns3/ns3.world --radioRange=300 --numusers=3\"
-
   std::vector<lt::port_type> ports  =  configs.quads_ports();
   
   /* Create a vector of controllers. Each controller connect to one
