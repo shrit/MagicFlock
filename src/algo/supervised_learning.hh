@@ -51,6 +51,8 @@ public:
   arma::mat
   insert_estimated_features(std::vector<Quadcopter::Action> actions);
   
+  double real_time_loss(arma::mat matrix, arma::uword index_of_best_estimation);
+  
   void run(const Settings& settings);
 
   void generate_trajectory_using_model(bool random_leader_action);

@@ -135,12 +135,23 @@ estimate_action_from_distance(arma::mat matrix)
   lt::triangle<double> distances;
   for (arma::uword i = 0; i < matrix.n_rows; ++i) {
     /*  0 index is the height, not considered yet */
+    /*  Consider only f1 and f2 */
     distances.f1 = std::fabs(original_dist_.f1 - matrix(i, 1));
     distances.f2 = std::fabs(original_dist_.f2 - matrix(i, 2));
-    distances.f3 = std::fabs(original_dist_.f3 - matrix(i, 3));
-    sum_of_distances.push_back(distances.f1 + distances.f2 + distances.f3);
+    sum_of_distances.push_back(distances.f1 + distances.f2);
   }
   return sum_of_distances;
+}
+
+template <class flight_controller_t,
+	  class simulator_t>
+double Supervised_learning<flight_controller_t,
+			   simulator_t>::
+real_time_loss(arma::mat matrix, arma::uword index_of_best_estimation)
+{
+  double loss = std::pow((matrix(index_of_best_estimation, 1) - states_.back().distances_3D().f1), 2) +
+    std::pow((matrix(index_of_best_estimation, 2) - states_.back().distances_3D().f2), 2);
+  return loss;
 }
 
 template <class flight_controller_t,
@@ -166,7 +177,8 @@ generate_trajectory_using_model(bool random_leader_action)
   std::vector<std::thread> threads;
   
   if (random_leader_action == true) {
-    action_leader = robot_.random_action_generator();
+    action_leader
+      = robot_.random_action_generator_with_only_opposed_condition(saved_leader_action_);
     saved_leader_action_ = action_leader;
   } else {
     action_leader = saved_leader_action_;
@@ -227,11 +239,11 @@ generate_trajectory_using_model(bool random_leader_action)
   LogInfo() << features;
   LogInfo() << label;
 
-  int values = index_of_best_action_regression(label);
-  LogInfo() << values;
+  int value = index_of_best_action_regression(label);
+  LogInfo() << value;
 
   /*  Get the follower action now !! and store it directly */
-  action_follower_.push_back(robot_.action_follower(features, values));
+  action_follower_.push_back(robot_.action_follower(features, value));
 
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("f2",
@@ -249,6 +261,8 @@ generate_trajectory_using_model(bool random_leader_action)
   Quadcopter::State<simulator_t> nextState(sim_interface_);
   states_.push_back(nextState);
 
+  double loss = real_time_loss(label, value);
+  LogInfo() << "Real time loss: " << loss;
   step_errors_.push_back(mtools_.deformation_error_one_follower
 			(original_dist_, nextState.distances_3D()));
   return;
@@ -285,7 +299,7 @@ run(const Settings& settings)
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
     /* Stop the episode if one of the quad has fallen to takoff */
-    bool takeoff = swarm_.takeoff(5);
+    bool takeoff = swarm_.takeoff(15);
     if (!takeoff)
       stop_episode_ = true;
     
