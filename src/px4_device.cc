@@ -497,7 +497,7 @@ void Px4Device::quad_health()
   } else if (health_.accelerometer_calibration_ok == false) {
     LogErr() << "Accelerometer is not calibrated please calibrate the accelerometer and try later";
   } else if (health_.magnetometer_calibration_ok == false) {
-    LogErr() << "magnetometer is not calibrated please calibrate the magnetometer and try later";
+    LogErr() << "Magnetometer is not calibrated please calibrate the magnetometer and try later";
   } else if (health_.level_calibration_ok == false) {
     LogErr() << "Please check the caibration level of the vehicle";
   } else if (health_.local_position_ok == false) {

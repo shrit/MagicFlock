@@ -27,12 +27,16 @@ generate_trajectory(bool random_leader_action)
   std::vector<std::thread> threads;
   if ((count_ not_eq 0) and (n_trajectory_ == 0)) {
     Quadcopter::State<simulator_t> state(sim_interface_);
-    states_.push_back(state);  
+    states_.push_back(state);
+
+    auto it = states_.rbegin();
+    it = std::next(it, 1);
+    diff_height_.push_back((states_.back().height() - states_.back().height_f1()));
   }
   
   if (random_leader_action == true) {
     action_leader =
-      robot.random_action_generator_with_only_opposed_condition(saved_leader_action_);    
+      robot.random_action_generator_with_only_opposed_condition(saved_leader_action_);
     saved_leader_action_ = action_leader;
   } else {
     action_leader = saved_leader_action_;
@@ -64,10 +68,14 @@ generate_trajectory(bool random_leader_action)
 
   /* We need to wait until the quadcopters finish their actions */
   std::this_thread::sleep_for(std::chrono::milliseconds(300));
-    
+
+
   /* Get the next state at time t + 1  */
   Quadcopter::State<simulator_t> nextState(sim_interface_);
   states_.push_back(nextState);
+  auto it = states_.rbegin();
+  it = std::next(it, 1);
+  diff_height_.push_back((states_.back().height() - states_.back().height_f1()));
   return;
 }
 
@@ -79,7 +87,7 @@ run(const Settings& settings)
   lt::positions<lt::position3D<double>> original_positions = sim_interface_->positions();
 
   LogInfo() << "Starting positions : " << original_positions;
-
+\
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
 
     /* Intilization phase: an episode start when the quadrotors
@@ -140,7 +148,7 @@ run(const Settings& settings)
       
       Quadcopter::State<simulator_t> initial_state(sim_interface_);
       states_.push_back(initial_state);
-      
+      diff_height_.push_back(0);
       while (count_ < 10 and !stop_episode_) {
 
 	Quadcopter::Reward reward = Quadcopter::Reward::Unknown;
@@ -202,20 +210,29 @@ run(const Settings& settings)
 				      );
 	}
 	if (settings.regression()) {
-	  if (states_.front().height() > 7.5) {
-	    auto it = states_.begin();
-	    it = std::next(it, 1);
-	    data_set_.save_csv_data_set(states_.front(),
-					mtools_.to_one_hot_encoding(action_follower_.front(), 6),
-					*(it),
-					mtools_.to_one_hot_encoding(action_follower_.back(), 6),
-					states_.back()
-					);
-	  }
+	  /*  This condition need to be removed */
+	  auto states_it = states_.rbegin();
+	  states_it = std::next(states_it, 1);
+	  auto states_it_2 = std::next(states_it, 1);
+	  
+	  auto height_it = diff_height_.begin();
+	  height_it = std::next(height_it, 1);
+	  
+	  data_set_.save_csv_data_set(*(states_it_2),
+				      diff_height_.front(),
+				      mtools_.to_one_hot_encoding(action_follower_.front(), 6),
+				      *(states_it),
+				      *(height_it),
+				      mtools_.to_one_hot_encoding(action_follower_.back(), 6),
+				      states_.back(),
+				      diff_height_.back()					
+				      );
 	}
+	
 	/*  Clear vectors after each generated line in the dataset */
-	states_.clear();
+	// states_.clear();
 	action_follower_.clear();
+	diff_height_.clear();
 	
 	/*  Check the triangle we are out of bound break the loop */
 	if (mtools_.is_triangle(mtools_.triangle_side_3D

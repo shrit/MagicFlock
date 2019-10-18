@@ -370,10 +370,13 @@ run(const Settings& settings)
 	    auto it = states_.begin();
 	    it = std::next(it, 1);
 	    data_set_.save_csv_data_set(states_.front(),
+					/*  difference in height + sign */
 					mtools_.to_one_hot_encoding(action_follower_.back(), 6),
 					*(it),
+					/*  difference in height + sign*/
 					mtools_.to_one_hot_encoding(action_follower_.back(), 6),
-					states_.back()				      
+					states_.back()
+					/*  difference in height + sign */
 					);
 	  }
 	}

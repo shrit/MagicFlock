@@ -34,6 +34,7 @@ public:
     State(std::shared_ptr<simulator_t> sim_interface);
 
     double height () const;
+    double height_f1 () const;
     lt::rssi<double> signal_strength () const;
     lt::triangle<double> distances_2D () const;
     lt::triangle<double> distances_3D () const;
@@ -45,6 +46,7 @@ public:
     Math_tools mtools_;
     lt::rssi<double> rssi_ ;
     double height_;
+    double height_f1_;
     double z_orinetation_  ;
     lt::triangle<double> dists_2D_ ;
     lt::triangle<double> dists_3D_ ;

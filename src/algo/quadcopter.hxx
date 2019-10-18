@@ -19,9 +19,10 @@ Quadcopter::State<simulator_t>::State(std::shared_ptr<simulator_t> sim_interface
 {
   rssi_ = sim_interface_->rssi();
   height_ = sim_interface_->positions().f2.z;
+  height_f1_ = sim_interface_->positions().f1.z;
   z_orinetation_  = sim_interface_->orientations().f2.z;
-  dists_2D_ =   mtools_.triangle_side_2D(sim_interface_->positions());
-  dists_3D_ =   mtools_.triangle_side_3D(sim_interface_->positions());
+  dists_2D_ = mtools_.triangle_side_2D(sim_interface_->positions());
+  dists_3D_ = mtools_.triangle_side_3D(sim_interface_->positions());
   e_dists_ = pmodel_.distances_2D();
 }
 
@@ -39,6 +40,12 @@ height() const
   return height_;
 }
 
+template <class simulator_t>
+double Quadcopter::State<simulator_t>::
+height_f1() const
+{/*  need to make it according to what quad?? */
+  return height_f1_;
+}
 template <class simulator_t>
 double Quadcopter::State<simulator_t>::
 orientation () const
@@ -310,7 +317,8 @@ random_action_generator_with_only_opposed_condition(Action action)
 template <class simulator_t>
 inline std::ostream& operator<< (std::ostream& out, const Quadcopter::State<simulator_t>& s)
 {
-  out << s.height() << ","
-      << s.distances_3D() ;
+  out << s.distances_3D().f1
+      <<","
+      << s.distances_3D().f2;
   return out;
 }
