@@ -28,10 +28,6 @@ generate_trajectory(bool random_leader_action)
   if ((count_ not_eq 0) and (n_trajectory_ == 0)) {
     Quadcopter::State<simulator_t> state(sim_interface_);
     states_.push_back(state);
-
-    auto it = states_.rbegin();
-    it = std::next(it, 1);
-    diff_height_.push_back((states_.back().height() - states_.back().height_f1()));
   }
   
   if (random_leader_action == true) {
@@ -41,11 +37,14 @@ generate_trajectory(bool random_leader_action)
   } else {
     action_leader = saved_leader_action_;
   }
-
+  
+  if (n_trajectory_ == 1) {
   action_follower_.push_back
     (robot.random_action_generator_with_only_opposed_condition(saved_follower_action_));
   saved_follower_action_ = action_follower_.back();
-
+  } else {
+    action_follower_.push_back(Quadcopter::Action::NoMove);
+  }
   /*  Threading QuadCopter */
   threads.push_back(std::thread([&](){
 				    swarm_.one_quad_execute_trajectory("l" ,
@@ -57,25 +56,24 @@ generate_trajectory(bool random_leader_action)
 								       action_leader,
 								       1000);
 				}));
-  threads.push_back(std::thread([&](){
-				    swarm_.one_quad_execute_trajectory("f2",
-								       action_follower_.back(),
-								       1000);
-				}));
-  for(auto& thread : threads) {
-    thread.join();
-  }
 
   /* We need to wait until the quadcopters finish their actions */
   std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
-
+  /*  Do no action in the first time step */
+  
+  threads.push_back(std::thread([&](){
+				  swarm_.one_quad_execute_trajectory("f2",
+								     action_follower_.back(),
+								     1000);
+				}));
+  for(auto& thread : threads) {
+    thread.join();
+  }
+    
   /* Get the next state at time t + 1  */
   Quadcopter::State<simulator_t> nextState(sim_interface_);
   states_.push_back(nextState);
-  auto it = states_.rbegin();
-  it = std::next(it, 1);
-  diff_height_.push_back((states_.back().height() - states_.back().height_f1()));
   return;
 }
 
@@ -215,17 +213,11 @@ run(const Settings& settings)
 	  states_it = std::next(states_it, 1);
 	  auto states_it_2 = std::next(states_it, 1);
 	  
-	  auto height_it = diff_height_.begin();
-	  height_it = std::next(height_it, 1);
-	  
-	  data_set_.save_csv_data_set(*(states_it_2),
-				      diff_height_.front(),
+	  data_set_.save_csv_data_set(*(states_it_2),				      
 				      mtools_.to_one_hot_encoding(action_follower_.front(), 6),
 				      *(states_it),
-				      *(height_it),
 				      mtools_.to_one_hot_encoding(action_follower_.back(), 6),
-				      states_.back(),
-				      diff_height_.back()					
+				      states_.back()				      
 				      );
 	}
 	

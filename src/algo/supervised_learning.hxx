@@ -30,11 +30,8 @@ insert_estimated_features(std::vector<Quadcopter::Action> actions)
   arma::rowvec row;
   for (int i = 0; i < 6; ++i) {
     /*  State */
-    row << (*it_state).height()
-	<< (*it_state).estimated_distances().f1
+    row << (*it_state).estimated_distances().f1
 	<< (*it_state).estimated_distances().f2
-	<< (*it_state).estimated_distances().f3
-	<< (*it_state).orientation()
       /*  Action  */
 	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(0)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(1)
@@ -43,11 +40,8 @@ insert_estimated_features(std::vector<Quadcopter::Action> actions)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(4)
       	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(5)
       /*  nextState */
-	<< states_.back().height()
 	<< states_.back().estimated_distances().f1
-	<< states_.back().estimated_distances().f2
-	<< states_.back().estimated_distances().f3
-	<< states_.back().orientation();
+	<< states_.back().estimated_distances().f2;
 
     features.insert_rows(0, row);
   }
@@ -68,20 +62,18 @@ insert_absolute_features(std::vector<Quadcopter::Action> actions)
   it = std::next(it, 1);
   for (int i = 0; i < 6; ++i) {
     /*  State */
-    row << (*it).height() 
-      	<< (*it).distances_3D().f1
+    row << (*it).distances_3D().f1
 	<< (*it).distances_3D().f2
-	<< (*it).distances_3D().f3	
+	<< (*it).height_difference()
 	<< mtools_.to_one_hot_encoding(action_follower_.back(), 6).at(0)
       	<< mtools_.to_one_hot_encoding(action_follower_.back(), 6).at(1)
 	<< mtools_.to_one_hot_encoding(action_follower_.back(), 6).at(2)
 	<< mtools_.to_one_hot_encoding(action_follower_.back(), 6).at(3)
 	<< mtools_.to_one_hot_encoding(action_follower_.back(), 6).at(4)
 	<< mtools_.to_one_hot_encoding(action_follower_.back(), 6).at(5)
-	<< states_.back().height()
 	<< states_.back().distances_3D().f1
 	<< states_.back().distances_3D().f2
-	<< states_.back().distances_3D().f3	
+	<< states_.back().height_difference()
       /*  Action encoded as 1, and 0, add 6 times to represent 6 actions */
 	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(0)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 6).at(1)
@@ -366,19 +358,18 @@ run(const Settings& settings)
 	}
 	
 	if (regression_) {
-	  if (states_.front().height() > 7.5) {
-	    auto it = states_.begin();
-	    it = std::next(it, 1);
-	    data_set_.save_csv_data_set(states_.front(),
-					/*  difference in height + sign */
-					mtools_.to_one_hot_encoding(action_follower_.back(), 6),
-					*(it),
-					/*  difference in height + sign*/
-					mtools_.to_one_hot_encoding(action_follower_.back(), 6),
-					states_.back()
-					/*  difference in height + sign */
-					);
-	  }
+	  auto it = states_.begin();
+	  it = std::next(it, 1);
+	  data_set_.save_csv_data_set(states_.front(),
+				      /*  difference in height + sign */
+				      mtools_.to_one_hot_encoding(action_follower_.back(), 6),
+				      *(it),
+				      /*  difference in height + sign*/
+				      mtools_.to_one_hot_encoding(action_follower_.back(), 6),
+				      states_.back()
+				      /*  difference in height + sign */
+				      );
+	  
 	}
 	controller_predictions_.clear();
 	states_.clear();

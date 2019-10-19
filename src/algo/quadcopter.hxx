@@ -18,7 +18,7 @@ Quadcopter::State<simulator_t>::State(std::shared_ptr<simulator_t> sim_interface
   pmodel_(sim_interface_)
 {
   rssi_ = sim_interface_->rssi();
-  height_ = sim_interface_->positions().f2.z;
+  height_f2_ = sim_interface_->positions().f2.z;
   height_f1_ = sim_interface_->positions().f1.z;
   z_orinetation_  = sim_interface_->orientations().f2.z;
   dists_2D_ = mtools_.triangle_side_2D(sim_interface_->positions());
@@ -35,17 +35,25 @@ signal_strength() const
 
 template <class simulator_t>
 double Quadcopter::State<simulator_t>::
-height() const
-{/*  need to make it according to what quad?? */
-  return height_;
+height_f1() const
+{
+  return height_f1_;
 }
 
 template <class simulator_t>
 double Quadcopter::State<simulator_t>::
-height_f1() const
-{/*  need to make it according to what quad?? */
-  return height_f1_;
+height_f2() const
+{
+  return height_f2_;
 }
+
+template <class simulator_t>
+double Quadcopter::State<simulator_t>::
+height_difference() const
+{
+  return (height_f2_ - height_f1_);
+}
+
 template <class simulator_t>
 double Quadcopter::State<simulator_t>::
 orientation () const
@@ -278,7 +286,7 @@ random_action_generator_with_all_conditions(Action action)
 Quadcopter::Action Quadcopter::
 random_action_generator_with_only_opposed_condition(Action action)
 {
-  Action action_ = Action::NoMove;
+  Action action_ = Action::Unknown;
   
   if (action == Action::backward) {
     action_ = random_action_generator();
@@ -319,6 +327,8 @@ inline std::ostream& operator<< (std::ostream& out, const Quadcopter::State<simu
 {
   out << s.distances_3D().f1
       <<","
-      << s.distances_3D().f2;
+      << s.distances_3D().f2
+      <<","
+      <<s.height_difference();
   return out;
 }
