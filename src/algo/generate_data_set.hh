@@ -42,9 +42,7 @@ private:
   std::vector<Quadcopter::Action> action_follower_;
   int count_;
   DataSet data_set_;
-  std::vector<double> diff_height_;
   int episode_;
-  std::vector<lt::triangle<double>> f3_side_;
   int max_episode_;
   Math_tools mtools_;
   int n_trajectory_;

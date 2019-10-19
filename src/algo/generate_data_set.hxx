@@ -25,6 +25,7 @@ generate_trajectory(bool random_leader_action)
   Quadcopter::Action action_leader;
   Quadcopter robot;  
   std::vector<std::thread> threads;
+  /*  Get the state at time t */
   if ((count_ not_eq 0) and (n_trajectory_ == 0)) {
     Quadcopter::State<simulator_t> state(sim_interface_);
     states_.push_back(state);
@@ -57,6 +58,10 @@ generate_trajectory(bool random_leader_action)
 								       1000);
 				}));
 
+    /* Get the next state at time t + 1  */
+  Quadcopter::State<simulator_t> state(sim_interface_);
+  states_.push_back(state);
+  
   /* We need to wait until the quadcopters finish their actions */
   std::this_thread::sleep_for(std::chrono::milliseconds(300));
 
@@ -71,7 +76,7 @@ generate_trajectory(bool random_leader_action)
     thread.join();
   }
     
-  /* Get the next state at time t + 1  */
+  /* Get the next state at time t + 2  */
   Quadcopter::State<simulator_t> nextState(sim_interface_);
   states_.push_back(nextState);
   return;
@@ -144,9 +149,9 @@ run(const Settings& settings)
 
       std::vector<lt::triangle<double>> new_triangle;
       
+        /* Get the state at time t = 0  */
       Quadcopter::State<simulator_t> initial_state(sim_interface_);
       states_.push_back(initial_state);
-      diff_height_.push_back(0);
       while (count_ < 10 and !stop_episode_) {
 
 	Quadcopter::Reward reward = Quadcopter::Reward::Unknown;
@@ -159,8 +164,7 @@ run(const Settings& settings)
 
 	LogInfo() << "Distanes before actions : " <<
 	  mtools_.triangle_side_3D(positions_before_action);
-	
-	
+		
 	/* Choose one random trajectory for the leader in the first
 	   count. Then, keep the same action until the end of the
 	   episode */	
@@ -223,9 +227,7 @@ run(const Settings& settings)
 	
 	/*  Clear vectors after each generated line in the dataset */
 	// states_.clear();
-	action_follower_.clear();
-	diff_height_.clear();
-	
+	action_follower_.clear();	
 	/*  Check the triangle we are out of bound break the loop */
 	if (mtools_.is_triangle(mtools_.triangle_side_3D
 				(sim_interface_->positions())) == false) {
