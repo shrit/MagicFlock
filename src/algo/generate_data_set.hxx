@@ -206,7 +206,7 @@ run(const Settings& settings)
 	    dataset file */	
 	if (settings.classification()) {
 	  data_set_.save_csv_data_set(states_.front(),
-				      mtools_.to_one_hot_encoding(action_follower_.back(), 6),
+				      mtools_.to_one_hot_encoding(action_follower_.back(), 7),
 				      states_.back(),
 				      mtools_.to_one_hot_encoding(reward, 4)
 				      );
@@ -218,9 +218,9 @@ run(const Settings& settings)
 	  auto states_it_2 = std::next(states_it, 1);
 	  
 	  data_set_.save_csv_data_set(*(states_it_2),				      
-				      mtools_.to_one_hot_encoding(action_follower_.front(), 6),
+				      mtools_.to_one_hot_encoding(action_follower_.front(), 7),
 				      *(states_it),
-				      mtools_.to_one_hot_encoding(action_follower_.back(), 6),
+				      mtools_.to_one_hot_encoding(action_follower_.back(), 7),
 				      states_.back()				      
 				      );
 	}
