@@ -25,12 +25,13 @@ generate_trajectory(bool random_leader_action)
   Quadcopter::Action action_leader;
   Quadcopter robot;  
   std::vector<std::thread> threads;
-  /*  Get the state at time t */
-  if ((count_ not_eq 0) and (n_trajectory_ == 0)) {
-    Quadcopter::State<simulator_t> state(sim_interface_);
-    states_.push_back(state);
-  }
   
+  /*  Get the state at time t */
+  
+  Quadcopter::State<simulator_t> state(sim_interface_);
+  states_.push_back(state);
+
+  /*  Create a random action for the leaders, with the opposed condition */
   if (random_leader_action == true) {
     action_leader =
       robot.random_action_generator_with_only_opposed_condition(saved_leader_action_);
@@ -38,14 +39,11 @@ generate_trajectory(bool random_leader_action)
   } else {
     action_leader = saved_leader_action_;
   }
+    
+  /*  Do not allow follower to move, at this time step, 
+      block the follower and log not move*/
+  action_follower_.push_back(Quadcopter::Action::NoMove);
   
-  if (n_trajectory_ == 1) {
-  action_follower_.push_back
-    (robot.random_action_generator_with_only_opposed_condition(saved_follower_action_));
-  saved_follower_action_ = action_follower_.back();
-  } else {
-    action_follower_.push_back(Quadcopter::Action::NoMove);
-  }
   /*  Threading QuadCopter */
   threads.push_back(std::thread([&](){
 				    swarm_.one_quad_execute_trajectory("l" ,
@@ -58,14 +56,19 @@ generate_trajectory(bool random_leader_action)
 								       1000);
 				}));
 
-    /* Get the next state at time t + 1  */
-  Quadcopter::State<simulator_t> state(sim_interface_);
-  states_.push_back(state);
-  
   /* We need to wait until the quadcopters finish their actions */
-  std::this_thread::sleep_for(std::chrono::milliseconds(300));
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  
+  /* Get the next state at time t + 1  */
+  Quadcopter::State<simulator_t> nextState(sim_interface_);
+  states_.push_back(nextState);
+  
 
-  /*  Do no action in the first time step */
+  /*  Do a random action at t+1 for the follower */
+  
+  action_follower_.push_back
+    (robot.random_action_generator_with_only_opposed_condition(saved_follower_action_));
+  saved_follower_action_ = action_follower_.back();
   
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("f2",
@@ -77,8 +80,8 @@ generate_trajectory(bool random_leader_action)
   }
     
   /* Get the next state at time t + 2  */
-  Quadcopter::State<simulator_t> nextState(sim_interface_);
-  states_.push_back(nextState);
+  Quadcopter::State<simulator_t> finalState(sim_interface_);
+  states_.push_back(finalState);
   return;
 }
 
@@ -90,7 +93,7 @@ run(const Settings& settings)
   lt::positions<lt::position3D<double>> original_positions = sim_interface_->positions();
 
   LogInfo() << "Starting positions : " << original_positions;
-\
+
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
 
     /* Intilization phase: an episode start when the quadrotors
@@ -149,9 +152,6 @@ run(const Settings& settings)
 
       std::vector<lt::triangle<double>> new_triangle;
       
-        /* Get the state at time t = 0  */
-      Quadcopter::State<simulator_t> initial_state(sim_interface_);
-      states_.push_back(initial_state);
       while (count_ < 10 and !stop_episode_) {
 
 	Quadcopter::Reward reward = Quadcopter::Reward::Unknown;
@@ -168,14 +168,12 @@ run(const Settings& settings)
 	/* Choose one random trajectory for the leader in the first
 	   count. Then, keep the same action until the end of the
 	   episode */	
-	for (n_trajectory_ = 0; n_trajectory_ < 2; ++n_trajectory_) {
 	  if (count_ == 0) {
 	    generate_trajectory(true);
 	  } else {
 	    generate_trajectory(false);
-	  }
-	}
-
+	  }	
+	  
 	lt::positions<lt::position3D<double>> positions_after_action =
 	  sim_interface_->positions();
 	/* Get the distance between the TL TF, and FF TF  at time t*/
@@ -221,12 +219,12 @@ run(const Settings& settings)
 				      mtools_.to_one_hot_encoding(action_follower_.front(), 7),
 				      *(states_it),
 				      mtools_.to_one_hot_encoding(action_follower_.back(), 7),
-				      states_.back()				      
+				      states_.back()	      
 				      );
 	}
 	
 	/*  Clear vectors after each generated line in the dataset */
-	// states_.clear();
+	states_.clear();
 	action_follower_.clear();	
 	/*  Check the triangle we are out of bound break the loop */
 	if (mtools_.is_triangle(mtools_.triangle_side_3D

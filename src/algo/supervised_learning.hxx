@@ -175,12 +175,9 @@ generate_trajectory_using_model(bool random_leader_action)
   } else {
     action_leader = saved_leader_action_;
   }
-
-  /* Small HACK: Save the leader action only for the first time as a
-     follower action */
-  if (count_ == 0) {
-    action_follower_.push_back(action_leader);
-  }
+  
+  action_follower_.push_back(Quadcopter::Action::NoMove);
+  
   
   /*  Threading QuadCopter */
   threads.push_back(std::thread([&](){
