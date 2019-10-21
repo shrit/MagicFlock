@@ -76,6 +76,7 @@ private:
   std::vector<Quadcopter::State<simulator_t>> states_;
   std::vector<int>  time_step_vector_;
   lt::triangle<double> original_dist_;
+  double height_diff_;
   Quadcopter robot_;
   SwarmDevice<flight_controller_t> swarm_;
   std::vector<double> controller_predictions_;

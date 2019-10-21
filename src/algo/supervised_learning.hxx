@@ -28,7 +28,7 @@ insert_estimated_features(std::vector<Quadcopter::Action> actions)
   it_state = std::next(it_state, 1);
 
   arma::rowvec row;
-  for (int i = 0; i < 6; ++i) {
+  for (int i = 0; i < 7; ++i) {
     /*  State */
     row << (*it_state).estimated_distances().f1
 	<< (*it_state).estimated_distances().f2
@@ -60,7 +60,7 @@ insert_absolute_features(std::vector<Quadcopter::Action> actions)
   arma::rowvec row;
   auto it = states_.rbegin();
   it = std::next(it, 1);
-  for (int i = 0; i < 6; ++i) {
+  for (int i = 0; i < 7; ++i) {
     /*  State */
     row << (*it).distances_3D().f1
 	<< (*it).distances_3D().f2
@@ -71,6 +71,7 @@ insert_absolute_features(std::vector<Quadcopter::Action> actions)
 	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(3)
 	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(4)
 	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(5)
+      	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(6)
 	<< states_.back().distances_3D().f1
 	<< states_.back().distances_3D().f2
 	<< states_.back().height_difference()
@@ -80,7 +81,8 @@ insert_absolute_features(std::vector<Quadcopter::Action> actions)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(2)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(3)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(4)
-	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(5);
+	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(5)
+    	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(6);
     /*  Create a matrix of several rows, each one is added to on the top */
     features.insert_rows(0, row);
   }
@@ -111,6 +113,8 @@ int Supervised_learning<flight_controller_t,
 index_of_best_action_regression(arma::mat matrix)
 {
   std::vector<double> distances = estimate_action_from_distance(matrix);
+  std::reverse(distances.begin(), distances.end());
+  LogInfo() << "Sum of distances: " << distances;
   int value =
     std::min_element(distances.begin(),
 		     distances.end()) - distances.begin();
@@ -125,12 +129,14 @@ estimate_action_from_distance(arma::mat matrix)
 {
   std::vector<double> sum_of_distances;
   lt::triangle<double> distances;
+  double height_diff;
   for (arma::uword i = 0; i < matrix.n_rows; ++i) {
     /*  0 index is the height, not considered yet */
     /*  Consider only f1 and f2 */
-    distances.f1 = std::fabs(original_dist_.f1 - matrix(i, 1));
-    distances.f2 = std::fabs(original_dist_.f2 - matrix(i, 2));
-    sum_of_distances.push_back(distances.f1 + distances.f2);
+    distances.f1 = std::fabs(original_dist_.f1 - matrix(i, 0));
+    distances.f2 = std::fabs(original_dist_.f2 - matrix(i, 1));
+    height_diff = std::fabs(height_diff_ - matrix(i, 2));
+    sum_of_distances.push_back(distances.f1 + distances.f2 + height_diff);
   }
   return sum_of_distances;
 }
@@ -175,6 +181,10 @@ generate_trajectory_using_model(bool random_leader_action)
   } else {
     action_leader = saved_leader_action_;
   }
+
+    /* Get the next state at time t  */
+  Quadcopter::State<simulator_t> state(sim_interface_);
+  states_.push_back(state);
   
   action_follower_.push_back(Quadcopter::Action::NoMove);
   
@@ -192,11 +202,11 @@ generate_trajectory_using_model(bool random_leader_action)
 				}));
 
   /* We need to wait until the quadcopters finish their actions */
-  std::this_thread::sleep_for(std::chrono::milliseconds(300));
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
   /* Get the next state at time t + 1  */
-  Quadcopter::State<simulator_t> state(sim_interface_);
-  states_.push_back(state);
+  Quadcopter::State<simulator_t> nextState(sim_interface_);
+  states_.push_back(nextState);
 
   /*  We need to predict the action for the follower using h(S)*/
   /*  Extract state and push it into the model with several actions */
@@ -232,7 +242,7 @@ generate_trajectory_using_model(bool random_leader_action)
   LogInfo() << value;
 
   /*  Get the follower action now !! and store it directly */
-  action_follower_.push_back(robot_.action_follower(features, value));
+  action_follower_.push_back(robot_.int_to_action(value));
 
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("f2",
@@ -247,8 +257,8 @@ generate_trajectory_using_model(bool random_leader_action)
 
   /*  Get error of deformation to improve percision later and to
       verify the model accuracy */
-  Quadcopter::State<simulator_t> nextState(sim_interface_);
-  states_.push_back(nextState);
+  Quadcopter::State<simulator_t> finalState(sim_interface_);
+  states_.push_back(finalState);
 
   double loss = real_time_loss(label, value);
   LogInfo() << "Real time loss: " << loss;
@@ -265,10 +275,12 @@ run(const Settings& settings)
   robot_.init();
   bool classification_ = settings.classification();
   bool regression_ = settings.regression();
-  
+  /*  Recover the initial state as an observer state */
+  /*  This state will be used directly instead of original_dist */
   Quadcopter::State<simulator_t> ObserverState(sim_interface_);
   original_dist_ = ObserverState.distances_3D();
-
+  height_diff_ = ObserverState.height_difference();
+  
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
 
     /* Intilization phase, in each episode we should reset the
@@ -288,7 +300,7 @@ run(const Settings& settings)
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
     /* Stop the episode if one of the quad has fallen to takoff */
-    bool takeoff = swarm_.takeoff(15);
+    bool takeoff = swarm_.takeoff(25);
     if (!takeoff)
       stop_episode_ = true;
     
@@ -357,14 +369,12 @@ run(const Settings& settings)
 	if (regression_) {
 	  auto it = states_.begin();
 	  it = std::next(it, 1);
-	  data_set_.save_csv_data_set(states_.front(),
-				      /*  difference in height + sign */
-				      mtools_.to_one_hot_encoding(action_follower_.back(), 6),
+	  
+	  data_set_.save_csv_data_set(states_.front(),       
+				      mtools_.to_one_hot_encoding(action_follower_.front(), 7),
 				      *(it),
-				      /*  difference in height + sign*/
-				      mtools_.to_one_hot_encoding(action_follower_.back(), 6),
+				      mtools_.to_one_hot_encoding(action_follower_.back(), 7),
 				      states_.back()
-				      /*  difference in height + sign */
 				      );
 	  
 	}
@@ -379,7 +389,7 @@ run(const Settings& settings)
 	  LogInfo() << "The triangle is no longer conserved";
 	  robot_.save_controller_count(count_);
 	  break;
-	}	       
+	}
 	++count_;
       }
     }
