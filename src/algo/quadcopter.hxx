@@ -109,6 +109,13 @@ action_evaluator(const lt::triangle<double>& old_dist,
   return reward;
 }
 
+Quadcopter::Action Quadcopter::
+int_to_action(int action_value)
+{
+  Action action;
+  return action = static_cast<Action>(action_value);  
+}
+
 /* Get the best action from the model according to the best values */
 Quadcopter::Action Quadcopter::
 action_follower(arma::mat features, arma::uword index)

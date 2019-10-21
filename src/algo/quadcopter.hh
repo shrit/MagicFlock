@@ -85,6 +85,8 @@ public:
         
   Action
   action_follower(arma::mat features, arma::uword index);
+
+  Action int_to_action(int action_value);
   
   double true_score(const lt::triangle<double>& old_dist,
 		    const lt::triangle<double>& new_dist);
@@ -122,7 +124,8 @@ private:
 					    Action::left,
 					    Action::right,
 					    Action::up,
-					    Action::down};
+					    Action::down,
+					    Action::NoMove};
   
   std::uniform_int_distribution<> distribution_int_;
   std::random_device random_dev;
