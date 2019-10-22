@@ -109,6 +109,9 @@ public:
   void quad_health();
   Telemetry::Result set_rate_result();
 
+  void landed_state_async();
+  Telemetry::LandedState landed_state() const;
+
   /*  Handles plugin results. */
 
   inline void action_error_exit(Action::Result result, const std::string &message);
@@ -116,7 +119,6 @@ public:
   inline void connection_error_exit(ConnectionResult result, const std::string &message);
 
   Px4Device(Px4Device const&) = delete;
-
   Px4Device(Px4Device &&) = default;
 
 private:
@@ -128,6 +130,8 @@ private:
   Telemetry::Health health_;
   Telemetry::PositionVelocityNED _position_ned{{0, 0, 0}, {0, 0, 0}};
   Telemetry::Position position_{0, 0, 0, 0};
+  Telemetry::LandedState _landed_state;
+  mutable std::mutex _landed_state_mutex{};
   std::shared_ptr<mavsdk::Telemetry> telemetry_;
   std::shared_ptr<mavsdk::Action> action_;
   std::shared_ptr<mavsdk::Offboard> offboard_;
