@@ -67,10 +67,7 @@ bool Px4Device::takeoff()
   /*  Wait untill the landed state change the mode */
   std::this_thread::sleep_for(std::chrono::milliseconds(900));
   LogInfo() << "Landed State : "<<telemetry_->landed_state_str(telemetry_->landed_state());
-  /*  Need a way to transite the states, a way not a HACK */
-  // while (telemetry_->landed_state() == Telemetry::LandedState::ON_GROUND) {
-  //   std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  // }
+
   while(telemetry_->landed_state() == Telemetry::LandedState::TAKING_OFF){   
     LogInfo() << "Taking off..." ;
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
@@ -94,10 +91,7 @@ bool Px4Device::takeoff(float meters)
     /*  Wait untill the landed state change the mode */
   std::this_thread::sleep_for(std::chrono::milliseconds(900));
   LogInfo() << "Landed State : "<<telemetry_->landed_state_str(telemetry_->landed_state());
-    /*  Need a way to transite the states, a way not a HACK */
-  // while (telemetry_->landed_state() == Telemetry::LandedState::ON_GROUND) {
-  //   std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  // }
+  
   while (telemetry_->landed_state() == Telemetry::LandedState::TAKING_OFF) {   
     LogInfo() << "Taking off..." ;
     std::this_thread::sleep_for(std::chrono::milliseconds(300));

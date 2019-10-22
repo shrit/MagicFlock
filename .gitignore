@@ -4,6 +4,7 @@ build
 doc/build/*
 dataset/*
 data_set/*
+old_dataset/*
 log/*
 paper/auto/*
 material/auto/*
