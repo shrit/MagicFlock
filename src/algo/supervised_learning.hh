@@ -61,8 +61,8 @@ public:
   Supervised_learning(Supervised_learning &&) = default;
 
 private:
-  std::vector<Quadcopter::Action> action_follower_ ;
-  Quadcopter::Action action_leader_ ;
+
+  std::vector<Quadcopter::Action> action_follower_;
   int count_;
   bool classification_;
   DataSet data_set_;
@@ -82,6 +82,7 @@ private:
   SwarmDevice<flight_controller_t> swarm_;
   std::vector<double> controller_predictions_;
   bool stop_episode_;
+  Quadcopter::Action action_leader_;
 };
 
 # include "supervised_learning.hxx"
