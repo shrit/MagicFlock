@@ -58,12 +58,28 @@ template<class flight_controller_t>
 bool SwarmDevice<flight_controller_t>::
 arm()
 {
-  bool arm;
-  for (auto it : iris_x_){
-    arm = it->arm();
-    if (!arm)
-      return false;
+  bool arm = true;
+  std::vector<std::thread> threads;
+  
+  threads.push_back(std::thread([&](){
+				  arm = iris_x_.at(0)->arm();		    
+				})); 
+  
+  threads.push_back(std::thread([&](){			
+				  arm = iris_x_.at(1)->arm();		    
+				}));			
+  
+  threads.push_back(std::thread([&](){			
+				  arm = iris_x_.at(2)->arm();		    
+				}));
+  
+  for (auto& thread : threads) {
+    thread.join();
   }
+  
+  if (!arm)
+    return false;
+  
   return true;	
 }
 
