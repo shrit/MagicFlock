@@ -62,6 +62,7 @@ public:
 
 private:
   std::vector<Quadcopter::Action> action_follower_ ;
+  Quadcopter::Action action_leader_ ;
   int count_;
   bool classification_;
   DataSet data_set_;

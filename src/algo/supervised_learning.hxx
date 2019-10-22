@@ -171,15 +171,14 @@ generate_trajectory_using_model(bool random_leader_action)
     }
     
   /* We need to pass State, nextState, and all possible action */
-  Quadcopter::Action action_leader ;
   std::vector<std::thread> threads;
   
   if (random_leader_action == true) {
-    action_leader
+    action_leader_
       = robot_.random_action_generator_with_only_opposed_condition(saved_leader_action_);
-    saved_leader_action_ = action_leader;
+    saved_leader_action_ = action_leader_;
   } else {
-    action_leader = saved_leader_action_;
+    action_leader_ = saved_leader_action_;
   }
 
     /* Get the next state at time t  */
@@ -192,12 +191,12 @@ generate_trajectory_using_model(bool random_leader_action)
   /*  Threading QuadCopter */
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("l",
-								     action_leader,
+								     action_leader_,
 								     1000);
 				}));
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("f1",
-								     action_leader,
+								     action_leader_,
 								     1000);
 				}));
 
@@ -295,12 +294,10 @@ run(const Settings& settings)
     stop_episode_ = false;
     bool arm = swarm_.arm();
     if (!arm)
-      stop_episode_ = true;
-    
-    std::this_thread::sleep_for(std::chrono::seconds(2));
+      stop_episode_ = true;   
 
     /* Stop the episode if one of the quad has fallen to takoff */
-    bool takeoff = swarm_.takeoff(25);
+    bool takeoff = swarm_.takeoff(35);
     if (!takeoff)
       stop_episode_ = true;
     
@@ -330,6 +327,11 @@ run(const Settings& settings)
 	  //Change each 10 times the direction of the leader
 	} else if (count_ % 10 == 0) {
 	  generate_trajectory_using_model(true);
+	} else if (sim_interface_->positions().f1.z < 10
+		   or sim_interface_->positions().f2.z < 10) {
+	  while (action_leader_ == Quadcopter::Action::down) {
+	    generate_trajectory_using_model(true);
+	  }
 	} else {
 	  generate_trajectory_using_model(false);
 	}
