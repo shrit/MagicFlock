@@ -56,11 +56,10 @@ bool Px4Device::discover_system()
 
 bool Px4Device::takeoff()
 {
-  LogInfo() << "taking off..." ;
   const Action::Result takeoff_result = action_->takeoff();
   if(takeoff_result != Action::Result::SUCCESS){
     LogErr() << ERROR_CONSOLE_TEXT
-	     << "take off failed: "
+	     << "Taking off has failed: "
 	     << Action::result_str(takeoff_result);
     return false;
   }
@@ -84,7 +83,7 @@ bool Px4Device::takeoff(float meters)
   const Action::Result takeoff_result = action_->takeoff();
   if (takeoff_result != Action::Result::SUCCESS) {
     LogErr() << ERROR_CONSOLE_TEXT
-	     << "take off failed: "
+	     << "Taking off has failed: "
 	     << Action::result_str(takeoff_result);
     return false;
   }
