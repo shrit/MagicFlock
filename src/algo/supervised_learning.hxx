@@ -156,7 +156,8 @@ template <class flight_controller_t,
 	  class simulator_t>
 void Supervised_learning<flight_controller_t,
 		simulator_t>::
-generate_trajectory_using_model(bool random_leader_action)
+generate_trajectory_using_model(bool random_leader_action,
+				bool stop_down_action)
 {
     mlpack::ann::FFN<mlpack::ann::SigmoidCrossEntropyError<>,
 		   mlpack::ann::RandomInitialization> classification_model;
@@ -177,6 +178,12 @@ generate_trajectory_using_model(bool random_leader_action)
     action_leader_
       = robot_.random_action_generator_with_only_opposed_condition(saved_leader_action_);
     saved_leader_action_ = action_leader_;
+  } else if (stop_down_action == true) {
+    while (action_leader_ == Quadcopter::Action::down) {
+      action_leader_ =
+	robot_.random_action_generator_with_only_opposed_condition(saved_leader_action_);
+    }
+    saved_leader_action_ = action_leader_;      
   } else {
     action_leader_ = saved_leader_action_;
   }
@@ -297,7 +304,7 @@ run(const Settings& settings)
       stop_episode_ = true;
 
     /* Stop the episode if one of the quad has fallen to takoff */
-    bool takeoff = swarm_.takeoff(35);
+    bool takeoff = swarm_.takeoff(25);
     if (!takeoff)
       stop_episode_ = true;
     
@@ -323,25 +330,21 @@ run(const Settings& settings)
       count_ = 0;
       std::vector<lt::triangle<double>> new_triangle;
 
-      while (count_ < 300) {
+      while (count_ < 500) {
 	/*  Do online learning... */
         Quadcopter::Reward reward =
 	  Quadcopter::Reward::very_bad;
 
 	if (count_ == 0 ) {
-	  generate_trajectory_using_model(true);
+	  generate_trajectory_using_model(true, false);
 	  //Change each 10 times the direction of the leader
 	} else if (count_ % 10 == 0) {
-	  generate_trajectory_using_model(true);
+	  generate_trajectory_using_model(true, false);
 	} else if (sim_interface_->positions().f1.z < 15
 		   or sim_interface_->positions().f2.z < 15) {
-	  while (action_leader_ == Quadcopter::Action::down) {
-	    action_leader_ =
-	      robot_.random_action_generator_with_only_opposed_condition(saved_leader_action_);
-	      generate_trajectory_using_model(false);
-	  }
+	    generate_trajectory_using_model(false, true);	  
 	} else {
-	  generate_trajectory_using_model(false);
+	  generate_trajectory_using_model(false, false);
 	}
 
 	lt::positions<lt::position3D<double>> new_positions = sim_interface_->positions();
@@ -418,6 +421,6 @@ run(const Settings& settings)
     sim_interface_->reset_models();
     
     LogInfo() << "The quadcopters have been resetted...";    
-    std::this_thread::sleep_for(std::chrono::seconds(30));
+    std::this_thread::sleep_for(std::chrono::seconds(35));
   }
 }

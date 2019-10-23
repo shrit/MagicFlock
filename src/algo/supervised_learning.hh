@@ -55,7 +55,8 @@ public:
   
   void run(const Settings& settings);
 
-  void generate_trajectory_using_model(bool random_leader_action);
+  void generate_trajectory_using_model(bool random_leader_action,
+				       bool stop_down_action);
 
   Supervised_learning(Supervised_learning const&) = delete;
   Supervised_learning(Supervised_learning &&) = default;
