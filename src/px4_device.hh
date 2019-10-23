@@ -112,6 +112,9 @@ public:
   void landed_state_async();
   Telemetry::LandedState landed_state() const;
 
+  void flight_mode_async();
+  Telemetry::FlightMode flight_mode() const;
+  
   /*  Handles plugin results. */
 
   inline void action_error_exit(Action::Result result, const std::string &message);
@@ -130,8 +133,13 @@ private:
   Telemetry::Health health_;
   Telemetry::PositionVelocityNED _position_ned{{0, 0, 0}, {0, 0, 0}};
   Telemetry::Position position_{0, 0, 0, 0};
+
   Telemetry::LandedState _landed_state;
   mutable std::mutex _landed_state_mutex{};
+  
+  Telemetry::FlightMode _flight_mode;
+  mutable std::mutex _flight_mode_mutex{};
+  
   std::shared_ptr<mavsdk::Telemetry> telemetry_;
   std::shared_ptr<mavsdk::Action> action_;
   std::shared_ptr<mavsdk::Offboard> offboard_;

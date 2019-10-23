@@ -17,6 +17,7 @@ Px4Device::Px4Device(lt::connection_type socket,
   set_rate_result();
   position_async();
   landed_state_async();
+  flight_mode_async();
   quad_health();  //Stop testing quad health for some moments
 }
 
@@ -64,16 +65,21 @@ bool Px4Device::takeoff()
 	     << Action::result_str(takeoff_result);
     return false;
   }
-  /*  Wait untill the landed state change the mode */
-  while (landed_state() not_eq Telemetry::LandedState::TAKING_OFF) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    LogInfo() << "Landed State : "<< telemetry_->landed_state_str(landed_state());
-  }
-  
-  while (landed_state() == Telemetry::LandedState::TAKING_OFF) {   
-    LogInfo() << "Taking off...";
+    /*  Wait until the Flight Mode changes to takeoff */
+  while (true) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    if (flight_mode() == Telemetry::FlightMode::TAKEOFF) {
+      LogInfo() << "Flight Mode : "<< telemetry_->flight_mode_str(flight_mode());
+      break;
+    }
+    LogInfo() << "Flight Mode : "<< telemetry_->flight_mode_str(flight_mode());
+  }  
+  while (flight_mode() == Telemetry::FlightMode::TAKEOFF) {   
+    LogInfo() << "Taking off..." ;
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
   }
+  LogInfo() << "Taking off has finished successfully...";
+
   return true;
 }
 
@@ -90,17 +96,16 @@ bool Px4Device::takeoff(float meters)
 	     << Action::result_str(takeoff_result);
     return false;
   }
-    /*  Wait untill the landed state change the mode */
+    /*  Wait until the Flight Mode changes to takeoff */
   while (true) {
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    if (landed_state() == Telemetry::LandedState::TAKING_OFF
-	 or landed_state() == Telemetry::LandedState::IN_AIR) {
-      LogInfo() << "Landed State : "<< telemetry_->landed_state_str(landed_state());
+    if (flight_mode() == Telemetry::FlightMode::TAKEOFF) {
+      LogInfo() << "Flight Mode : "<< telemetry_->flight_mode_str(flight_mode());
       break;
     }
-    LogInfo() << "Landed State : "<< telemetry_->landed_state_str(landed_state());
+    LogInfo() << "Flight Mode : "<< telemetry_->flight_mode_str(flight_mode());
   }  
-  while (landed_state() == Telemetry::LandedState::TAKING_OFF) {   
+  while (flight_mode() == Telemetry::FlightMode::TAKEOFF) {   
     LogInfo() << "Taking off..." ;
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
   }
@@ -112,6 +117,12 @@ Telemetry::LandedState Px4Device::landed_state() const
 {
   std::lock_guard<std::mutex> lock(_landed_state_mutex);
   return _landed_state; 
+}
+
+Telemetry::FlightMode Px4Device::flight_mode() const
+{
+  std::lock_guard<std::mutex> lock(_flight_mode_mutex);
+  return _flight_mode; 
 }
 
 bool Px4Device::land()
@@ -434,7 +445,14 @@ void Px4Device::landed_state_async()
   telemetry_->landed_state_async([this](Telemetry::LandedState landed){
 			       this->_landed_state = landed;
 			     });
-}			    
+}
+
+void Px4Device::flight_mode_async()
+{
+  telemetry_->flight_mode_async([this](Telemetry::FlightMode flight_mode){
+			       this->_flight_mode = flight_mode;
+			     });
+}
 
 Telemetry::PositionVelocityNED Px4Device::get_position_ned() const
 {  return _position_ned; }
