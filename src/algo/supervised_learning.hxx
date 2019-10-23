@@ -418,6 +418,6 @@ run(const Settings& settings)
     sim_interface_->reset_models();
     
     LogInfo() << "The quadcopters have been resetted...";    
-    std::this_thread::sleep_for(std::chrono::seconds(20));
+    std::this_thread::sleep_for(std::chrono::seconds(30));
   }
 }
