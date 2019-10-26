@@ -15,9 +15,9 @@ Px4Device::Px4Device(lt::connection_type socket,
   calibration_ = std::make_shared<mavsdk::Calibration>(system);
 
   set_rate_result();
-  position_async();
-  landed_state_async();
-  flight_mode_async();
+  position_async(); // Get position updates
+  landed_state_async(); // Updated at 1 HZ, which is awkward,
+  flight_mode_async(); // seems to be more updated.
   quad_health();  //Stop testing quad health for some moments
 }
 
@@ -72,7 +72,6 @@ bool Px4Device::takeoff()
       LogInfo() << "Flight Mode : "<< telemetry_->flight_mode_str(flight_mode());
       break;
     }
-    LogInfo() << "Flight Mode : "<< telemetry_->flight_mode_str(flight_mode());
   }  
   while (flight_mode() == Telemetry::FlightMode::TAKEOFF) {   
     LogInfo() << "Taking off..." ;
@@ -103,7 +102,6 @@ bool Px4Device::takeoff(float meters)
       LogInfo() << "Flight Mode : "<< telemetry_->flight_mode_str(flight_mode());
       break;
     }
-    LogInfo() << "Flight Mode : "<< telemetry_->flight_mode_str(flight_mode());
   }  
   while (flight_mode() == Telemetry::FlightMode::TAKEOFF) {   
     LogInfo() << "Taking off..." ;
@@ -111,18 +109,6 @@ bool Px4Device::takeoff(float meters)
   }
   LogInfo() << "Taking off has finished successfully...";
   return true;
-}
-
-Telemetry::LandedState Px4Device::landed_state() const
-{
-  std::lock_guard<std::mutex> lock(_landed_state_mutex);
-  return _landed_state; 
-}
-
-Telemetry::FlightMode Px4Device::flight_mode() const
-{
-  std::lock_guard<std::mutex> lock(_flight_mode_mutex);
-  return _flight_mode; 
 }
 
 bool Px4Device::land()
@@ -409,20 +395,6 @@ bool Px4Device::reboot()
   return true;
 }
 
-void Px4Device::print_position()
-{
-  telemetry_->position_async([this](Telemetry::Position position){			      
-			       LogInfo() << TELEMETRY_CONSOLE_TEXT
-					 << "Altitude : "
-					 << position.relative_altitude_m
-					 << " m"
-					 << "Latitude"
-					 << position.latitude_deg << " deg"
-					 << "Longtitude"
-					 << position.longitude_deg <<" deg";
-			     });
-}
-
 lt::position_GPS<double> Px4Device::get_position_GPS()
 {
   lt::position_GPS<double> pos;
@@ -452,6 +424,18 @@ void Px4Device::flight_mode_async()
   telemetry_->flight_mode_async([this](Telemetry::FlightMode flight_mode){
 			       this->_flight_mode = flight_mode;
 			     });
+}
+
+Telemetry::LandedState Px4Device::landed_state() const
+{
+  std::lock_guard<std::mutex> lock(_landed_state_mutex);
+  return _landed_state; 
+}
+
+Telemetry::FlightMode Px4Device::flight_mode() const
+{
+  std::lock_guard<std::mutex> lock(_flight_mode_mutex);
+  return _flight_mode; 
 }
 
 Telemetry::PositionVelocityNED Px4Device::get_position_ned() const

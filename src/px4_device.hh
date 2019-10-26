@@ -89,9 +89,7 @@ public:
   bool discover_system();
   ConnectionResult connect_to_quad(std::string connection_url);
 
-
-  /*  Position GPS */
-  void print_position();
+  /*  Position from PX4 autopilot, intilized usually by GPS */
   lt::position_GPS<double> get_position_GPS();
   void position_async();
 
