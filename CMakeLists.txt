@@ -20,10 +20,12 @@ include_directories(
 
 #find_package(boost)
 set(mavsdk_lib "/usr/local/lib64/libmavsdk.so")
-set(mavsdk_offboard_lib "/usr/local/lib64/libmavsdk_offboard.so")
-set(mavsdk_telemetry_lib "/usr/local/lib64/libmavsdk_telemetry.so")
 set(mavsdk_action_lib "/usr/local/lib64/libmavsdk_action.so")
 set(mavsdk_calibrattion_lib "/usr/local/lib64/libmavsdk_calibration.so")
+set(mavsdk_offboard_lib "/usr/local/lib64/libmavsdk_offboard.so")
+set(mavsdk_telemetry_lib "/usr/local/lib64/libmavsdk_telemetry.so")
+set(mavsdk_shell_lib "/usr/local/lib64/libmavsdk_shell.so")
+
 set(file_system "/usr/lib/libstdc++fs.a")
 set(pthread_lib "/usr/lib/libpthread.so")
 set(arma "/usr/lib/libarmadillo.so")
@@ -55,10 +57,12 @@ target_link_libraries(QCopter
   ${arma}
   ${GAZEBO_LIBRARIES}
   ${mavsdk_lib}
-  ${mavsdk_offboard_lib}
   ${mavsdk_action_lib}
-  ${mavsdk_telemetry_lib}
   ${mavsdk_calibrattion_lib}
+  ${mavsdk_offboard_lib}
+  ${mavsdk_shell_lib}
+  ${mavsdk_telemetry_lib}
+
 
   ${gomp}
   ${mlpack}

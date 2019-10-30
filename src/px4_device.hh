@@ -23,6 +23,7 @@
 # include <mavsdk/plugins/calibration/calibration.h>
 # include <mavsdk/mavsdk.h>
 # include <mavsdk/plugins/offboard/offboard.h>
+# include <mavsdk/plugins/shell/shell.h>
 # include <mavsdk/plugins/telemetry/telemetry.h>
 
 /*  local includes */
@@ -112,6 +113,9 @@ public:
 
   void flight_mode_async();
   Telemetry::FlightMode flight_mode() const;
+
+  bool execute_px4_shell_command(Shell::ShellMessage message);
+  bool receive_px4_shell_reponse();
   
   /*  Handles plugin results. */
 
@@ -137,9 +141,12 @@ private:
   
   Telemetry::FlightMode _flight_mode;
   mutable std::mutex _flight_mode_mutex{};
+
+  Shell::ShellMessage _shell_reponse;
   
-  std::shared_ptr<mavsdk::Telemetry> telemetry_;
   std::shared_ptr<mavsdk::Action> action_;
-  std::shared_ptr<mavsdk::Offboard> offboard_;
   std::shared_ptr<mavsdk::Calibration> calibration_;
+  std::shared_ptr<mavsdk::Offboard> offboard_;
+  std::shared_ptr<mavsdk::Shell> shell_;
+  std::shared_ptr<mavsdk::Telemetry> telemetry_;
 };

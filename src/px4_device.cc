@@ -9,11 +9,12 @@ Px4Device::Px4Device(lt::connection_type socket,
   discover_system();
   System& system = mavsdk_.system();
 
-  telemetry_   = std::make_shared<mavsdk::Telemetry>(system);
-  offboard_    = std::make_shared<mavsdk::Offboard>(system);
   action_      = std::make_shared<mavsdk::Action>(system);
   calibration_ = std::make_shared<mavsdk::Calibration>(system);
-
+  offboard_    = std::make_shared<mavsdk::Offboard>(system);
+  shell_       = std::make_shared<mavsdk::Shell>(system);
+  telemetry_   = std::make_shared<mavsdk::Telemetry>(system);
+  
   set_rate_result();
   position_async(); // Get position updates
   landed_state_async(); // Updated at 1 HZ, which is awkward,
@@ -376,8 +377,8 @@ bool Px4Device::arm()
 {
   Action::Result arm_result = action_->arm();
   if(arm_result != Action::Result::SUCCESS){
-    LogInfo() << "Arming failed: "
-	      << Action::result_str(arm_result);
+    LogErr() << "Arming failed: "
+	     << Action::result_str(arm_result);
     return false;
   }
   return true;
@@ -388,8 +389,8 @@ bool Px4Device::reboot()
   LogInfo() << "Rebooting..." ;
   Action::Result reboot_result = action_->reboot();
   if(reboot_result != Action::Result::SUCCESS){
-    LogInfo() << "Rebooting failed: "
-	      << Action::result_str(reboot_result) ;
+    LogErr() << "Rebooting failed: "
+	     << Action::result_str(reboot_result) ;
     return false;
   }
   return true;
@@ -436,6 +437,37 @@ Telemetry::FlightMode Px4Device::flight_mode() const
 {
   std::lock_guard<std::mutex> lock(_flight_mode_mutex);
   return _flight_mode; 
+}
+
+bool Px4Device::execute_px4_shell_command(Shell::ShellMessage message)
+{
+  Shell::Result shell_results = shell_->shell_command(message);
+  if (shell_results != Shell::Result::SUCCESS) {
+    LogErr() << "Executing shell command has failed"
+	     << shell_->result_code_str(shell_results);
+    return false;
+  }
+  return true;
+}
+
+bool Px4Device::receive_px4_shell_reponse()
+{
+  Shell::Result shell_results;
+  shell_->shell_command_response_async([&](Shell::Result result,
+					      Shell::ShellMessage reponse){
+					 this->_shell_reponse = reponse;
+					 shell_results = result;
+				       });
+  
+  if (shell_results != Shell::Result::SUCCESS) {
+    LogErr() << "Error reponse Px4 :"
+	     << shell_->result_code_str(shell_results);
+    return false;
+  }  
+  LogInfo () <<_shell_reponse;
+  
+  return true;
+  
 }
 
 Telemetry::PositionVelocityNED Px4Device::get_position_ned() const
