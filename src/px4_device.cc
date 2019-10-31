@@ -113,7 +113,11 @@ bool Px4Device::takeoff(float meters)
 }
 
 bool Px4Device::land()
-{  
+{
+  const bool offboard = stop_offboard_mode();
+  if (!offboard) {
+    LogErr() << "Landing..., Even can not stop offboard mode";
+  }
   const Action::Result land_result = action_->land();
   
   if (land_result != Action::Result::SUCCESS) {
@@ -183,11 +187,21 @@ void Px4Device::init_speed()
 
 bool Px4Device::start_offboard_mode()
 {
-
   Offboard::Result offboard_result = offboard_->start();
-
   if (offboard_result != Offboard::Result::SUCCESS) {
     std::cerr << "Offboard::start() failed: "
+  	      << Offboard::result_str(offboard_result) ;
+
+    return false;
+  }
+  return true;
+}
+
+bool Px4Device::stop_offboard_mode()
+{
+  Offboard::Result offboard_result = offboard_->stop();
+  if (offboard_result != Offboard::Result::SUCCESS) {
+    std::cerr << "Offboard::stop() failed: "
   	      << Offboard::result_str(offboard_result) ;
 
     return false;

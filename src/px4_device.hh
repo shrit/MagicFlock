@@ -86,6 +86,7 @@ public:
     
   void init_speed();
   bool start_offboard_mode();
+  bool stop_offboard_mode();
 
   bool discover_system();
   ConnectionResult connect_to_quad(std::string connection_url);
