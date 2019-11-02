@@ -7,6 +7,7 @@
 #include <mlpack/methods/ann/loss_functions/mean_squared_error.hpp>
 #include <mlpack/methods/ann/ffn.hpp>
 #include <ensmallen_bits/adam/adam_update.hpp>
+#include <ensmallen_bits/callbacks/callbacks.hpp>
 #include <armadillo>
 
 #include "../log.hh"

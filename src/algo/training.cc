@@ -90,24 +90,19 @@ void Train::classification()
 
   // Train the model.
   for (int i = 0; i < 1000; ++i) {
-    LogInfo() << "training...";
+    LogInfo() << "Training..." << "\t Epoch " << i;
     model.Train(train_features_,
 		train_labels_,
-		optimizer);
+		optimizer,
+		ens::PrintLoss(),
+		ens::ProgressBar(),
+		ens::StoreBestCoordinates<arma::mat>());
 
     optimizer.ResetPolicy() = false;
 
     arma::mat pred;
     model.Predict(train_features_, pred);
     // Calculate accuracy on training data points.
-    arma::Row<size_t> predLabels = getLabels(pred);
-    arma::Row<size_t> YLabels = getLabels(train_labels_);
-
-    double trainAccuracy = accuracy(predLabels, YLabels);
-
-    LogInfo() << "Epoch " << i
-	      << ":\tTraining Accuracy = "<< trainAccuracy
-	      << "%";
   }
   LogInfo() << "Training Finished...";
   LogInfo() << "Test with Independent part...";
@@ -115,6 +110,7 @@ void Train::classification()
   arma::mat predtest;
 
   model.Predict(test_features_, predtest);
+  model.Evaluate(test_features_, predtest);
 
   arma::Row<size_t> predtestlabel = getLabels(predtest);
 
@@ -149,31 +145,27 @@ void Train::regression()
 
   // Train the model.
   for (int i = 0; i < 1000; ++i) {
-    std::cout << "training..." << std::endl;
+    LogInfo() << "Training..." << "\t Epoch " << i;
     model.Train(train_features_,
 		train_labels_,
-		optimizer);
+		optimizer,
+		ens::PrintLoss(),
+		ens::ProgressBar(),
+		ens::StoreBestCoordinates<arma::mat>());
       
     optimizer.ResetPolicy() = false;
       
     arma::mat pred;
     model.Predict(train_features_, pred);
-    // Calculate accuracy on training data points.
-    arma::Row<size_t> predLabels = getLabels(pred);
-    arma::Row<size_t> YLabels = getLabels(train_labels_);
-      
-    double trainAccuracy = accuracy_mse(pred, train_labels_);       
-      
-    std::cout << "Epoch " << i
-	      << ":\t Loss: "<< trainAccuracy
-	      << std::endl;
+    model.Evaluate(train_features_, pred);          
   }
   LogInfo() << "Training Finished...";
   LogInfo() << "Test with Independent part...";
   
   arma::mat predtest;
     
-  model.Predict(test_features_, predtest);      
+  model.Predict(test_features_, predtest);
+  model.Evaluate(test_features_, predtest);
  
   double testAccuracy = accuracy_mse(predtest, test_labels_);
     
