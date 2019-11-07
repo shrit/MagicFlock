@@ -30,18 +30,27 @@ insert_estimated_features(std::vector<Quadcopter::Action> actions)
   arma::rowvec row;
   for (int i = 0; i < 7; ++i) {
     /*  State */
-    row << (*it_state).estimated_distances().f1
-	<< (*it_state).estimated_distances().f2
-      /*  Action  */
+    row << (*it).distances_3D().f1
+	<< (*it).distances_3D().f2
+	<< (*it).height_difference()
+	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(0)
+      	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(1)
+	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(2)
+	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(3)
+	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(4)
+	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(5)
+      	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(6)
+	<< states_.back().distances_3D().f1
+	<< states_.back().distances_3D().f2
+	<< states_.back().height_difference()
+      /*  Action encoded as 1, and 0, add 7 times to represent 7 actions */
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(0)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(1)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(2)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(3)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(4)
-      	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(5)
-      /*  nextState */
-	<< states_.back().estimated_distances().f1
-	<< states_.back().estimated_distances().f2;
+	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(5)
+    	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(6);
 
     features.insert_rows(0, row);
   }
@@ -75,7 +84,7 @@ insert_absolute_features(std::vector<Quadcopter::Action> actions)
 	<< states_.back().distances_3D().f1
 	<< states_.back().distances_3D().f2
 	<< states_.back().height_difference()
-      /*  Action encoded as 1, and 0, add 6 times to represent 6 actions */
+      /*  Action encoded as 1, and 0, add 7 times to represent 7 actions */
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(0)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(1)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(2)
