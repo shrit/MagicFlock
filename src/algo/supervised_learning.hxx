@@ -13,6 +13,7 @@ Supervised_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
    sim_interface_(std::move(gzs)),
    swarm_(std::move(iris_x))
 {
+  auto states_ = std::make_shared<std::vector<Quadcopter::State<simulator_t>>>();
   data_set_.init_dataset_directory();
 }
 
@@ -42,7 +43,7 @@ generate_trajectory_using_model(bool random_leader_action,
     
     /* Get the next state at time t  */
     Quadcopter::State<simulator_t> state(sim_interface_);
-  states_.push_back(state);
+  states_->push_back(state);
 
   /* Follower action always equal to no move at this instant t */
   action_follower_.push_back(Quadcopter::Action::NoMove);
@@ -59,17 +60,17 @@ generate_trajectory_using_model(bool random_leader_action,
 
   /* Get the next state at time t + 1  */
   Quadcopter::State<simulator_t> nextState(sim_interface_);
-  states_.push_back(nextState);
-  
+  states_->push_back(nextState);
+
+  Predictor predict("regression");
   std::vector<Quadcopter::Action> possible_action =
     robot_.possible_actions();
 
   /*  Test the trained model using the absolute gazebo distance feature */
-  arma::mat features = create_absolute_features_matrix(possible_action);
-  
-  
+  arma::mat features = predict.create_absolute_features_matrix(states_, possible_action);
+    
   /*  Predict the next state using the above data */
-  auto matrix_best_action = predictor(features);
+  auto matrix_best_action = predict.predict(features);
   
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("f1",
@@ -89,10 +90,11 @@ generate_trajectory_using_model(bool random_leader_action,
   /*  Get error of deformation to improve percision later and to
       verify the model accuracy */
   Quadcopter::State<simulator_t> finalState(sim_interface_);
-  states_.push_back(finalState);
+  states_->push_back(finalState);
 
   /* Take a tuple here  */
-  double loss = real_time_loss(matrix_best_action);
+  double loss =predict.real_time_loss(states_,
+				      matrix_best_action);
   LogInfo() << "Real time loss: " << loss;
   step_errors_.push_back(mtools_.deformation_error_one_follower
 			(original_dist_, nextState.distances_3D()));
@@ -190,25 +192,25 @@ run(const Settings& settings)
 	}       	     
 	/* Log online dataset */	
 	if (classification_) {
-	  data_set_.save_csv_data_set(states_.front(),
+	  data_set_.save_csv_data_set(states_->front(),
 				      mtools_.to_one_hot_encoding(action_follower_.back(), 7),
-				      states_.back(),
+				      states_->back(),
 				      mtools_.to_one_hot_encoding(reward, 4)
 				      );
 	}
 	
 	if (regression_) {
-	  auto it = states_.begin();
+	  auto it = states_->begin();
 	  it = std::next(it, 1);
 	  
-	  data_set_.save_csv_data_set(states_.front(),       
+	  data_set_.save_csv_data_set(states_->front(),       
 				      mtools_.to_one_hot_encoding(action_follower_.front(), 7),
 				      *(it),
 				      mtools_.to_one_hot_encoding(action_follower_.back(), 7),
-				      states_.back()
+				      states_->back()
 				      );	  
 	}
-	states_.clear();
+	states_->clear();
 	action_follower_.clear();
 	time_step_vector_.push_back(count_);
 	
