@@ -19,7 +19,7 @@
 # include "../gazebo.hh"
 # include "../log.hh"
 # include "../math_tools.hh"
-//# include "predictor.hh"
+# include "predictor.hh"
 # include "quadcopter.hh"
 # include "../swarm_device.hh"
 

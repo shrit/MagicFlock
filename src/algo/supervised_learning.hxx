@@ -63,14 +63,15 @@ generate_trajectory_using_model(bool random_leader_action,
   states_->push_back(nextState);
 
   Predictor predict("regression");
-  std::vector<Quadcopter::Action> possible_action =
-    robot_.possible_actions();
 
   /*  Test the trained model using the absolute gazebo distance feature */
-  arma::mat features = predict.create_absolute_features_matrix(states_, possible_action);
+  arma::mat features = predict.create_absolute_features_matrix(states_, action_follower_.back());
     
   /*  Predict the next state using the above data */
   auto matrix_best_action = predict.predict(features);
+  Quadcopter::Action predicted_follower_action;
+  std::tie(std::ignore, std::ignore, predicted_follower_action);
+  action_follower_.push_back(predicted_follower_action);
   
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("f1",
