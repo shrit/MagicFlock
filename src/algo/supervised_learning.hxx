@@ -71,7 +71,7 @@ insert_absolute_features(std::vector<Quadcopter::Action> actions)
   for (int i = 0; i < 7; ++i) {
     /*  State */
     row << (*it).distances_3D().f1
-	<< (*it).distances_3D().f2
+	<< (*it).distances_3D().f3
 	<< (*it).height_difference()
 	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(0)
       	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(1)
@@ -81,7 +81,7 @@ insert_absolute_features(std::vector<Quadcopter::Action> actions)
 	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(5)
       	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(6)
 	<< states_.back().distances_3D().f1
-	<< states_.back().distances_3D().f2
+	<< states_.back().distances_3D().f3
 	<< states_.back().height_difference()
       /*  Action encoded as 1, and 0, add 7 times to represent 7 actions */
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(0)
@@ -153,11 +153,67 @@ template <class flight_controller_t,
 	  class simulator_t>
 double Supervised_learning<flight_controller_t,
 			   simulator_t>::
-real_time_loss(arma::mat matrix, arma::uword index_of_best_estimation)
+real_time_loss(std::tuple<arma::mat, arma::uword> matrix_best_action)
 {
+  arma::mat matrix;
+  arma::uword index_of_best_estimation;
+  std::tie(matrix, index_of_best_estimation) = matrix_best_action;
   double loss = std::pow((matrix(index_of_best_estimation, 1) - states_.back().distances_3D().f1), 2) +
     std::pow((matrix(index_of_best_estimation, 2) - states_.back().distances_3D().f2), 2);
   return loss;
+}
+
+template <class flight_controller_t,
+	  class simulator_t>
+std::tuple<arma::mat, arma::uword> Supervised_learning<flight_controller_t,
+						       simulator_t>::
+predictor()
+{
+  mlpack::ann::FFN<mlpack::ann::SigmoidCrossEntropyError<>,
+		   mlpack::ann::RandomInitialization> classification_model;
+  
+  mlpack::ann::FFN<mlpack::ann::MeanSquaredError<>,
+		   mlpack::ann::RandomInitialization> regression_model;
+  
+  if (classification_) {  
+    mlpack::data::Load("model.txt", "model", classification_model, true);
+  } else if(regression_) {
+    mlpack::data::Load("model.txt", "model", regression_model, true);
+  }
+
+  /*  We need to predict the action for the follower using h(S)*/
+  /*  Extract state and push it into the model with several actions */
+  /*  Take the action index for the highest class
+      given back by the model */
+
+  std::vector<Quadcopter::Action> possible_action  =
+    robot_.possible_actions();
+
+  /*  Test the trained model using the absolute gazebo distance feature */
+  arma::mat features = insert_absolute_features(possible_action);
+  arma::mat label;
+  
+  if (classification_) {
+    classification_model.Predict(features, label);  
+  } else if (regression_) {
+    regression_model.Predict(features, label);
+  }
+  
+  /* Transpose to the original format */
+  features = features.t();
+  label = label.t();
+
+  LogInfo() << "True 3D distance: " << states_.back().distances_3D();
+  LogInfo() << "Size of features: " << arma::size(features);
+  LogInfo() << features;
+  LogInfo() << label;
+
+  arma::uword value = index_of_best_action_regression(label);
+  LogInfo() << value;
+
+  /*  Get the follower action now !! and store it directly */
+  action_follower_.push_back(robot_.int_to_action(value));  
+  return make_tuple(label, value);
 }
 
 template <class flight_controller_t,
@@ -167,18 +223,7 @@ void Supervised_learning<flight_controller_t,
 generate_trajectory_using_model(bool random_leader_action,
 				bool stop_down_action)
 {
-    mlpack::ann::FFN<mlpack::ann::SigmoidCrossEntropyError<>,
-		   mlpack::ann::RandomInitialization> classification_model;
-
-    mlpack::ann::FFN<mlpack::ann::MeanSquaredError<>,
-		     mlpack::ann::RandomInitialization> regression_model;
-    
-    if (classification_) {  
-      mlpack::data::Load("model.txt", "model", classification_model, true);
-    } else if(regression_) {
-      mlpack::data::Load("model.txt", "model", regression_model, true);
-    }
-    
+  
   /* We need to pass State, nextState, and all possible action */
   std::vector<std::thread> threads;
   
@@ -199,10 +244,10 @@ generate_trajectory_using_model(bool random_leader_action,
     /* Get the next state at time t  */
     Quadcopter::State<simulator_t> state(sim_interface_);
   states_.push_back(state);
-  
+
+  /* Follower action always equal to no move at this instant t */
   action_follower_.push_back(Quadcopter::Action::NoMove);
-  
-  
+    
   /*  Threading QuadCopter */
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("l",
@@ -217,42 +262,9 @@ generate_trajectory_using_model(bool random_leader_action,
   Quadcopter::State<simulator_t> nextState(sim_interface_);
   states_.push_back(nextState);
 
-  /*  We need to predict the action for the follower using h(S)*/
-  /*  Extract state and push it into the model with several actions */
-  /*  Take the action index for the highest class
-      given back by the model */
-
-  std::vector<Quadcopter::Action> possible_action  =
-    robot_.possible_actions();
-
-  /*  Test the trained model using the absolute gazebo distance feature */
-  arma::mat features = insert_absolute_features(possible_action);
-  arma::mat label;
+  /*  Predict the next state using the above data */
+  auto matrix_best_action = predictor();
   
-  if (classification_) {
-    classification_model.Predict(features, label);  
-  } else if (regression_) {
-    regression_model.Predict(features, label);
-  }
-  /* Log the controler prediction to improve accuracy*/
-  arma::rowvec vec  = label.row(0);
-  controller_predictions_ = mtools_.to_std_vector(vec);
-  
-  /* Transpose to the original format */
-  features = features.t();
-  label = label.t();
-
-  LogInfo() << "True 3D distance: " << states_.back().distances_3D();
-  LogInfo() << "Size of features: " << arma::size(features);
-  LogInfo() << features;
-  LogInfo() << label;
-
-  int value = index_of_best_action_regression(label);
-  LogInfo() << value;
-
-  /*  Get the follower action now !! and store it directly */
-  action_follower_.push_back(robot_.int_to_action(value));
-
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("f1",
 								     action_follower_.back(),
@@ -261,8 +273,7 @@ generate_trajectory_using_model(bool random_leader_action,
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("f2",
 								     action_follower_.back(),
-								     1000);
-  				   
+								     1000);  				   
   				}));
   
   for (auto& thread : threads) {
@@ -274,11 +285,11 @@ generate_trajectory_using_model(bool random_leader_action,
   Quadcopter::State<simulator_t> finalState(sim_interface_);
   states_.push_back(finalState);
 
-  double loss = real_time_loss(label, value);
+  /* Take a tuple here  */
+  double loss = real_time_loss(matrix_best_action);
   LogInfo() << "Real time loss: " << loss;
   step_errors_.push_back(mtools_.deformation_error_one_follower
 			(original_dist_, nextState.distances_3D()));
-  return;
 }
 
 template <class flight_controller_t,
@@ -287,8 +298,8 @@ void Supervised_learning<flight_controller_t, simulator_t>::
 run(const Settings& settings)
 {
   robot_.init();
-  bool classification_ = settings.classification();
-  bool regression_ = settings.regression();
+  classification_ = settings.classification();
+  regression_ = settings.regression();
   /*  Recover the initial state as an observer state */
   /*  This state will be used directly instead of original_dist */
   Quadcopter::State<simulator_t> ObserverState(sim_interface_);
@@ -350,11 +361,11 @@ run(const Settings& settings)
 	  generate_trajectory_using_model(true, false);
 	} else if (sim_interface_->positions().f1.z < 15
 		   or sim_interface_->positions().f2.z < 15) {
-	    generate_trajectory_using_model(false, true);	  
+	  generate_trajectory_using_model(false, true);
 	} else {
 	  generate_trajectory_using_model(false, false);
 	}
-
+	
 	lt::positions<lt::position3D<double>> new_positions = sim_interface_->positions();
 
 	LogInfo() << "New positions : " << new_positions;
@@ -374,9 +385,8 @@ run(const Settings& settings)
 	/* Log online dataset */	
 	if (classification_) {
 	  data_set_.save_csv_data_set(states_.front(),
-				      mtools_.to_one_hot_encoding(action_follower_.back(), 6),
+				      mtools_.to_one_hot_encoding(action_follower_.back(), 7),
 				      states_.back(),
-				      controller_predictions_,
 				      mtools_.to_one_hot_encoding(reward, 4)
 				      );
 	}
@@ -390,10 +400,8 @@ run(const Settings& settings)
 				      *(it),
 				      mtools_.to_one_hot_encoding(action_follower_.back(), 7),
 				      states_.back()
-				      );
-	  
+				      );	  
 	}
-	controller_predictions_.clear();
 	states_.clear();
 	action_follower_.clear();
 	time_step_vector_.push_back(count_);
@@ -428,7 +436,10 @@ run(const Settings& settings)
     /* Resetting the entire swarm after the end of each episode*/
     sim_interface_->reset_models();
     
-    LogInfo() << "The quadcopters have been resetted...";    
-    std::this_thread::sleep_for(std::chrono::seconds(35));
+    LogInfo() << "The quadcopters have been reset...";
+    LogInfo() << "Waiting untill the kalaman filter to reset...";    
+    std::this_thread::sleep_for(std::chrono::seconds(25));
+    LogInfo() << "Kalaman filter reset...";    
+    
   }
 }

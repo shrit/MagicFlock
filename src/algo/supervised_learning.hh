@@ -7,6 +7,7 @@
 # include <numeric>
 # include <random>
 # include <thread>
+# include <tuple>
 # include <vector>
 
 /*  MLPack includes */
@@ -41,6 +42,9 @@ public:
 
   std::vector<double>
   estimate_action_from_distance(arma::mat matrix);
+
+  void generate_trajectory_using_model(bool random_leader_action,
+				       bool stop_down_action);
   
   int index_of_best_action_classification(arma::mat matrix);
   int index_of_best_action_regression(arma::mat matrix);
@@ -50,13 +54,12 @@ public:
 
   arma::mat
   insert_estimated_features(std::vector<Quadcopter::Action> actions);
+
+  std::tuple<arma::mat, arma::uword> predictor();
   
-  double real_time_loss(arma::mat matrix, arma::uword index_of_best_estimation);
+  double real_time_loss(std::tuple<arma::mat, arma::uword> matrix_best_action);
   
   void run(const Settings& settings);
-
-  void generate_trajectory_using_model(bool random_leader_action,
-				       bool stop_down_action);
 
   Supervised_learning(Supervised_learning const&) = delete;
   Supervised_learning(Supervised_learning &&) = default;
@@ -81,7 +84,6 @@ private:
   double height_diff_;
   Quadcopter robot_;
   SwarmDevice<flight_controller_t> swarm_;
-  std::vector<double> controller_predictions_;
   bool stop_episode_;
   Quadcopter::Action action_leader_;
 };
