@@ -26,13 +26,12 @@ insert_estimated_features(std::vector<Quadcopter::Action> actions)
   arma::mat features;
   auto it_state = states_.rbegin();
   it_state = std::next(it_state, 1);
-
   arma::rowvec row;
   for (int i = 0; i < 7; ++i) {
     /*  State */
-    row << (*it).distances_3D().f1
-	<< (*it).distances_3D().f2
-	<< (*it).height_difference()
+    row << (*it_state).distances_3D().f1
+	<< (*it_state).distances_3D().f2
+	<< (*it_state).height_difference()
 	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(0)
       	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(1)
 	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(2)
@@ -210,11 +209,6 @@ generate_trajectory_using_model(bool random_leader_action,
 								     action_leader_,
 								     1000);
 				}));
-  threads.push_back(std::thread([&](){
-				  swarm_.one_quad_execute_trajectory("f1",
-								     action_leader_,
-								     1000);
-				}));
 
   /* We need to wait until the quadcopters finish their actions */
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -259,6 +253,11 @@ generate_trajectory_using_model(bool random_leader_action,
   /*  Get the follower action now !! and store it directly */
   action_follower_.push_back(robot_.int_to_action(value));
 
+  threads.push_back(std::thread([&](){
+				  swarm_.one_quad_execute_trajectory("f1",
+								     action_follower_.back(),
+								     1000);
+				}));    
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("f2",
 								     action_follower_.back(),
