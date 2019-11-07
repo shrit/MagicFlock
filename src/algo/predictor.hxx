@@ -2,32 +2,48 @@
 
 # include "predictor.hh"
 
-Predictor::Predictor()
-{}
+Predictor::Predictor(std::string name/*  Classification or regression */)
+{
+  classification_ = false;
+  regression_ = false;
+  if (name == "classification") {
+    classification_ = true;
+  } else if (name == "regression"){
+    regression_ = true;
+  } else {
+    LogInfo() << "Please entre either classification or regression to star the prediction";
+  }    
+}
 
 /* Estimate the features (distances) using propagation model from RSSI */
+template<class simulator_t>
 arma::mat Predictor::
-create_estimated_features_matrix(std::vector<Quadcopter::Action> actions)
+create_estimated_features_matrix(states_ptr<simulator_t> states,
+				 Quadcopter::Action action_follower)
 {
   arma::mat features;
-  auto it_state = states_.rbegin();
+  auto it_state = states->rbegin();
   it_state = std::next(it_state, 1);
   arma::rowvec row;
+
+  std::vector<Quadcopter::Action> actions =
+    robot_.possible_actions();
+
   for (int i = 0; i < 7; ++i) {
     /*  State */
     row << (*it_state).distances_3D().f1
 	<< (*it_state).distances_3D().f2
 	<< (*it_state).height_difference()
-	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(0)
-      	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(1)
-	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(2)
-	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(3)
-	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(4)
-	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(5)
-      	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(6)
-	<< states_.back().distances_3D().f1
-	<< states_.back().distances_3D().f2
-	<< states_.back().height_difference()
+	<< mtools_.to_one_hot_encoding(action_follower, 7).at(0)
+      	<< mtools_.to_one_hot_encoding(action_follower, 7).at(1)
+	<< mtools_.to_one_hot_encoding(action_follower, 7).at(2)
+	<< mtools_.to_one_hot_encoding(action_follower, 7).at(3)
+	<< mtools_.to_one_hot_encoding(action_follower, 7).at(4)
+	<< mtools_.to_one_hot_encoding(action_follower, 7).at(5)
+      	<< mtools_.to_one_hot_encoding(action_follower, 7).at(6)
+	<< states->back().distances_3D().f1
+	<< states->back().distances_3D().f2
+	<< states->back().height_difference()
       /*  Action encoded as 1, and 0, add 7 times to represent 7 actions */
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(0)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(1)
@@ -44,28 +60,34 @@ create_estimated_features_matrix(std::vector<Quadcopter::Action> actions)
   return features;
 }
 
+template<class simulator_t>
 arma::mat Predictor::
-create_absolute_features_matrix(std::vector<Quadcopter::Action> actions)
+create_absolute_features_matrix(states_ptr<simulator_t> states,
+			        Quadcopter::Action action_follower)
 {
   arma::mat features;
   arma::rowvec row;
-  auto it = states_.rbegin();
+  auto it = states->rbegin();
   it = std::next(it, 1);
+
+  std::vector<Quadcopter::Action> actions =
+    robot_.possible_actions();
+    
   for (int i = 0; i < 7; ++i) {
     /*  State */
     row << (*it).distances_3D().f1
 	<< (*it).distances_3D().f3
 	<< (*it).height_difference()
-	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(0)
-      	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(1)
-	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(2)
-	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(3)
-	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(4)
-	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(5)
-      	<< mtools_.to_one_hot_encoding(action_follower_.back(), 7).at(6)
-	<< states_.back().distances_3D().f1
-	<< states_.back().distances_3D().f3
-	<< states_.back().height_difference()
+	<< mtools_.to_one_hot_encoding(action_follower, 7).at(0)
+      	<< mtools_.to_one_hot_encoding(action_follower, 7).at(1)
+	<< mtools_.to_one_hot_encoding(action_follower, 7).at(2)
+	<< mtools_.to_one_hot_encoding(action_follower, 7).at(3)
+	<< mtools_.to_one_hot_encoding(action_follower, 7).at(4)
+	<< mtools_.to_one_hot_encoding(action_follower, 7).at(5)
+      	<< mtools_.to_one_hot_encoding(action_follower, 7).at(6)
+	<< states->back().distances_3D().f1
+	<< states->back().distances_3D().f3
+	<< states->back().height_difference()
       /*  Action encoded as 1, and 0, add 7 times to represent 7 actions */
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(0)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(1)
@@ -84,30 +106,8 @@ create_absolute_features_matrix(std::vector<Quadcopter::Action> actions)
   return features;
 }
 
-int Predictor::
-index_of_best_action_classification(arma::mat matrix)
-{
-  int value = 0;
-  for (arma::uword i = 0; i < matrix.n_rows; ++i) {
-    value = arma::index_max(matrix.col(0));
-  }
-  return value;
-}
-
-int Predictor::
-index_of_best_action_regression(arma::mat matrix)
-{
-  std::vector<double> distances = estimate_action_from_distance(matrix);
-  std::reverse(distances.begin(), distances.end());
-  LogInfo() << "Sum of distances: " << distances;
-  int value =
-    std::min_element(distances.begin(),
-		     distances.end()) - distances.begin();
-  return value;
-}
-
 std::vector<double> Predictor::
-estimate_action_from_distance(arma::mat matrix)
+estimate_action_from_distance(arma::mat& matrix)
 {
   std::vector<double> sum_of_distances;
   lt::triangle<double> distances;
@@ -123,19 +123,44 @@ estimate_action_from_distance(arma::mat matrix)
   return sum_of_distances;
 }
 
+int Predictor::
+index_of_best_action_classification(arma::mat& matrix)
+{
+  int value = 0;
+  for (arma::uword i = 0; i < matrix.n_rows; ++i) {
+    value = arma::index_max(matrix.col(0));
+  }
+  return value;
+}
+
+int Predictor::
+index_of_best_action_regression(arma::mat& matrix)
+{
+  std::vector<double> distances = estimate_action_from_distance(matrix);
+  std::reverse(distances.begin(), distances.end());
+  LogInfo() << "Sum of distances: " << distances;
+  int value =
+    std::min_element(distances.begin(),
+		     distances.end()) - distances.begin();
+  return value;
+}
+
+template<class simulator_t>
 double Predictor::
-real_time_loss(std::tuple<arma::mat, arma::uword> matrix_best_action)
+real_time_loss(states_ptr<simulator_t> states,
+	       std::tuple<arma::mat, arma::uword,
+	       Quadcopter::Action>  matrix_best_action)
 {
   arma::mat matrix;
   arma::uword index_of_best_estimation;
-  std::tie(matrix, index_of_best_estimation) = matrix_best_action;
-  double loss = std::pow((matrix(index_of_best_estimation, 1) - states_.back().distances_3D().f1), 2) +
-    std::pow((matrix(index_of_best_estimation, 2) - states_.back().distances_3D().f2), 2);
+  std::tie(matrix, index_of_best_estimation, std::ignore) = matrix_best_action;
+  double loss = std::pow((matrix(index_of_best_estimation, 1) - states->back().distances_3D().f1), 2) +
+    std::pow((matrix(index_of_best_estimation, 2) - states->back().distances_3D().f2), 2);
   return loss;
 }
 
-std::tuple<arma::mat, arma::uword> Predictor::
-predict(arma::mat features)
+std::tuple<arma::mat, arma::uword, Quadcopter::Action> Predictor::
+predict(arma::mat& features)
 {
   mlpack::ann::FFN<mlpack::ann::SigmoidCrossEntropyError<>,
 		   mlpack::ann::RandomInitialization> classification_model;
@@ -173,6 +198,6 @@ predict(arma::mat features)
   LogInfo() << value;
 
   /*  Get the follower action now !! and store it directly */
-  action_follower_.push_back(robot_.int_to_action(value));  
-  return make_tuple(label, value);
+  Quadcopter::Action action_follower = robot_.int_to_action(value);  
+  return make_tuple(label, value, action_follower);
 }

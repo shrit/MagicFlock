@@ -29,26 +29,36 @@
 
 namespace lt = local_types;
 
+template<class simulator_t>
+using states_ptr = std::shared_ptr<std::vector<Quadcopter::State<simulator_t>>>;
+
 class Predictor
 {
 public:
-  Predictor();
+      
+  Predictor(string name);
   
+  template<class simulator_t>
   arma::mat
-  create_absolute_features_matrix(std::vector<Quadcopter::Action> actions);
-  
+  create_absolute_features_matrix(states_ptr<simulator_t> states,
+				  Quadcopter::Action follower_action);
+
+  template<class simulator_t>
   arma::mat
-  create_estimated_features_matrix(std::vector<Quadcopter::Action> actions);
+  create_estimated_features_matrix(states_ptr<simulator_t> states,
+				   Quadcopter::Action follower_action);
 
   std::vector<double>
-  estimate_action_from_distance(arma::mat matrix);
+  estimate_action_from_distance(arma::mat& matrix);
   
-  int index_of_best_action_classification(arma::mat matrix);
-  int index_of_best_action_regression(arma::mat matrix);
+  int index_of_best_action_classification(arma::mat& matrix);
+  int index_of_best_action_regression(arma::mat& matrix);
 
-  std::tuple<arma::mat, arma::uword> predict(arma::mat features);
-  
-  double real_time_loss(std::tuple<arma::mat, arma::uword> matrix_best_action);
+  std::tuple<arma::mat, arma::uword, Quadcopter::Action> predict(arma::mat& features);
+
+  template<class simulator_t>
+  double real_time_loss(states_ptr<simulator_t> states,
+			std::tuple<arma::mat, arma::uword, Quadcopter::Action> matrix_best_action);
   
   Predictor(Predictor const&) = delete;
   Predictor(Predictor &&) = default;
@@ -57,8 +67,6 @@ private:
   bool classification_;
   Math_tools mtools_;
   bool regression_;
-  Quadcopter::Action saved_leader_action_;
-  std::shared_ptr<simulator_t> sim_interface_;
   lt::triangle<double> original_dist_;
   double height_diff_;
   Quadcopter robot_;  
