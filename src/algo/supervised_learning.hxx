@@ -21,7 +21,7 @@ template <class flight_controller_t,
 	  class simulator_t>
 arma::mat Supervised_learning<flight_controller_t,
 		     simulator_t>::
-insert_estimated_features(std::vector<Quadcopter::Action> actions)
+create_estimated_features_matrix(std::vector<Quadcopter::Action> actions)
 {
   arma::mat features;
   auto it_state = states_.rbegin();
@@ -62,7 +62,7 @@ template <class flight_controller_t,
 	  class simulator_t>
 arma::mat Supervised_learning<flight_controller_t,
 		     simulator_t>::
-insert_absolute_features(std::vector<Quadcopter::Action> actions)
+create_absolute_features_matrix(std::vector<Quadcopter::Action> actions)
 {
   arma::mat features;
   arma::rowvec row;
@@ -167,7 +167,7 @@ template <class flight_controller_t,
 	  class simulator_t>
 std::tuple<arma::mat, arma::uword> Supervised_learning<flight_controller_t,
 						       simulator_t>::
-predictor()
+predictor(arma::mat features)
 {
   mlpack::ann::FFN<mlpack::ann::SigmoidCrossEntropyError<>,
 		   mlpack::ann::RandomInitialization> classification_model;
@@ -185,12 +185,6 @@ predictor()
   /*  Extract state and push it into the model with several actions */
   /*  Take the action index for the highest class
       given back by the model */
-
-  std::vector<Quadcopter::Action> possible_action  =
-    robot_.possible_actions();
-
-  /*  Test the trained model using the absolute gazebo distance feature */
-  arma::mat features = insert_absolute_features(possible_action);
   arma::mat label;
   
   if (classification_) {
@@ -222,8 +216,7 @@ void Supervised_learning<flight_controller_t,
 		simulator_t>::
 generate_trajectory_using_model(bool random_leader_action,
 				bool stop_down_action)
-{
-  
+{  
   /* We need to pass State, nextState, and all possible action */
   std::vector<std::thread> threads;
   
@@ -261,9 +254,16 @@ generate_trajectory_using_model(bool random_leader_action,
   /* Get the next state at time t + 1  */
   Quadcopter::State<simulator_t> nextState(sim_interface_);
   states_.push_back(nextState);
+  
+  std::vector<Quadcopter::Action> possible_action =
+    robot_.possible_actions();
 
+  /*  Test the trained model using the absolute gazebo distance feature */
+  arma::mat features = create_absolute_features_matrix(possible_action);
+  
+  
   /*  Predict the next state using the above data */
-  auto matrix_best_action = predictor();
+  auto matrix_best_action = predictor(features);
   
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("f1",
@@ -439,7 +439,6 @@ run(const Settings& settings)
     LogInfo() << "The quadcopters have been reset...";
     LogInfo() << "Waiting untill the kalaman filter to reset...";    
     std::this_thread::sleep_for(std::chrono::seconds(25));
-    LogInfo() << "Kalaman filter reset...";    
-    
+    LogInfo() << "Kalaman filter reset...";        
   }
 }

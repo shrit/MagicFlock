@@ -50,12 +50,12 @@ public:
   int index_of_best_action_regression(arma::mat matrix);
   
   arma::mat
-  insert_absolute_features(std::vector<Quadcopter::Action> actions);
+  create_absolute_features_matrix(std::vector<Quadcopter::Action> actions);
 
   arma::mat
-  insert_estimated_features(std::vector<Quadcopter::Action> actions);
+  create_estimated_features_matrix(std::vector<Quadcopter::Action> actions);
 
-  std::tuple<arma::mat, arma::uword> predictor();
+  std::tuple<arma::mat, arma::uword> predictor(arma::mat features);
   
   double real_time_loss(std::tuple<arma::mat, arma::uword> matrix_best_action);
   
