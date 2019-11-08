@@ -55,7 +55,7 @@ private:
   Quadcopter::Action saved_leader_action_;
   std::shared_ptr<simulator_t> sim_interface_;
   std::vector<double> step_errors_;
-  std::shared_ptr<std::vector<Quadcopter::State<simulator_t>>> states_;
+  std::vector<Quadcopter::State<simulator_t>> states_;
   std::vector<int>  time_step_vector_;
   lt::triangle<double> original_dist_;
   double height_diff_;

@@ -30,7 +30,7 @@
 namespace lt = local_types;
 
 template<class simulator_t>
-using states_ptr = std::shared_ptr<std::vector<Quadcopter::State<simulator_t>>>;
+using states_vec = std::vector<Quadcopter::State<simulator_t>>;
 
 class Predictor
 {
@@ -40,12 +40,12 @@ public:
   
   template<class simulator_t>
   arma::mat
-  create_absolute_features_matrix(states_ptr<simulator_t> states,
+  create_absolute_features_matrix(const states_vec<simulator_t>& states,
 				  Quadcopter::Action follower_action);
 
   template<class simulator_t>
   arma::mat
-  create_estimated_features_matrix(states_ptr<simulator_t> states,
+  create_estimated_features_matrix(const states_vec<simulator_t>& states,
 				   Quadcopter::Action follower_action);
 
   std::vector<double>
@@ -57,7 +57,7 @@ public:
   std::tuple<arma::mat, arma::uword, Quadcopter::Action> predict(arma::mat& features);
 
   template<class simulator_t>
-  double real_time_loss(states_ptr<simulator_t> states,
+  double real_time_loss(const states_vec<simulator_t>& states,
 			std::tuple<arma::mat, arma::uword, Quadcopter::Action> matrix_best_action);
   
   Predictor(Predictor const&) = delete;

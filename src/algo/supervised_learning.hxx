@@ -13,7 +13,6 @@ Supervised_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
    sim_interface_(std::move(gzs)),
    swarm_(std::move(iris_x))
 {
-  auto states_ = std::make_shared<std::vector<Quadcopter::State<simulator_t>>>();
   data_set_.init_dataset_directory();
 }
 
@@ -41,13 +40,13 @@ generate_trajectory_using_model(bool random_leader_action,
     action_leader_ = saved_leader_action_;
   }
     
-    /* Get the next state at time t  */
-    Quadcopter::State<simulator_t> state(sim_interface_);
-  states_->push_back(state);
-
+  /* Get the next state at time t  */
+  Quadcopter::State<simulator_t> state(sim_interface_);
+  states_.push_back(state);
+  
   /* Follower action always equal to no move at this instant t */
   action_follower_.push_back(Quadcopter::Action::NoMove);
-    
+  
   /*  Threading QuadCopter */
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("l",
@@ -60,7 +59,7 @@ generate_trajectory_using_model(bool random_leader_action,
 
   /* Get the next state at time t + 1  */
   Quadcopter::State<simulator_t> nextState(sim_interface_);
-  states_->push_back(nextState);
+  states_.push_back(nextState);
 
   Predictor predict("regression");
 
@@ -91,7 +90,7 @@ generate_trajectory_using_model(bool random_leader_action,
   /*  Get error of deformation to improve percision later and to
       verify the model accuracy */
   Quadcopter::State<simulator_t> finalState(sim_interface_);
-  states_->push_back(finalState);
+  states_.push_back(finalState);
 
   /* Take a tuple here  */
   double loss =predict.real_time_loss(states_,
@@ -193,25 +192,25 @@ run(const Settings& settings)
 	}       	     
 	/* Log online dataset */	
 	if (classification_) {
-	  data_set_.save_csv_data_set(states_->front(),
+	  data_set_.save_csv_data_set(states_.front(),
 				      mtools_.to_one_hot_encoding(action_follower_.back(), 7),
-				      states_->back(),
+				      states_.back(),
 				      mtools_.to_one_hot_encoding(reward, 4)
 				      );
 	}
 	
 	if (regression_) {
-	  auto it = states_->begin();
+	  auto it = states_.begin();
 	  it = std::next(it, 1);
 	  
-	  data_set_.save_csv_data_set(states_->front(),       
+	  data_set_.save_csv_data_set(states_.front(),       
 				      mtools_.to_one_hot_encoding(action_follower_.front(), 7),
 				      *(it),
 				      mtools_.to_one_hot_encoding(action_follower_.back(), 7),
-				      states_->back()
+				      states_.back()
 				      );	  
 	}
-	states_->clear();
+	states_.clear();
 	action_follower_.clear();
 	time_step_vector_.push_back(count_);
 	

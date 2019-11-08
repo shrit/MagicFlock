@@ -18,11 +18,11 @@ Predictor::Predictor(std::string name/*  Classification or regression */)
 /* Estimate the features (distances) using propagation model from RSSI */
 template<class simulator_t>
 arma::mat Predictor::
-create_estimated_features_matrix(states_ptr<simulator_t> states,
+create_estimated_features_matrix(const states_vec<simulator_t>& states,
 				 Quadcopter::Action action_follower)
 {
   arma::mat features;
-  auto it_state = states->rbegin();
+  auto it_state = states.rbegin();
   it_state = std::next(it_state, 1);
   arma::rowvec row;
 
@@ -41,9 +41,9 @@ create_estimated_features_matrix(states_ptr<simulator_t> states,
 	<< mtools_.to_one_hot_encoding(action_follower, 7).at(4)
 	<< mtools_.to_one_hot_encoding(action_follower, 7).at(5)
       	<< mtools_.to_one_hot_encoding(action_follower, 7).at(6)
-	<< states->back().distances_3D().f1
-	<< states->back().distances_3D().f2
-	<< states->back().height_difference()
+	<< states.back().distances_3D().f1
+	<< states.back().distances_3D().f2
+	<< states.back().height_difference()
       /*  Action encoded as 1, and 0, add 7 times to represent 7 actions */
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(0)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(1)
@@ -62,12 +62,12 @@ create_estimated_features_matrix(states_ptr<simulator_t> states,
 
 template<class simulator_t>
 arma::mat Predictor::
-create_absolute_features_matrix(states_ptr<simulator_t> states,
+create_absolute_features_matrix(const states_vec<simulator_t>& states,
 			        Quadcopter::Action action_follower)
 {
   arma::mat features;
   arma::rowvec row;
-  auto it = states->rbegin();
+  auto it = states.rbegin();
   it = std::next(it, 1);
 
   std::vector<Quadcopter::Action> actions =
@@ -85,9 +85,9 @@ create_absolute_features_matrix(states_ptr<simulator_t> states,
 	<< mtools_.to_one_hot_encoding(action_follower, 7).at(4)
 	<< mtools_.to_one_hot_encoding(action_follower, 7).at(5)
       	<< mtools_.to_one_hot_encoding(action_follower, 7).at(6)
-	<< states->back().distances_3D().f1
-	<< states->back().distances_3D().f3
-	<< states->back().height_difference()
+	<< states.back().distances_3D().f1
+	<< states.back().distances_3D().f3
+	<< states.back().height_difference()
       /*  Action encoded as 1, and 0, add 7 times to represent 7 actions */
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(0)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(1)
@@ -147,15 +147,15 @@ index_of_best_action_regression(arma::mat& matrix)
 
 template<class simulator_t>
 double Predictor::
-real_time_loss(states_ptr<simulator_t> states,
+real_time_loss(const states_vec<simulator_t>& states,
 	       std::tuple<arma::mat, arma::uword,
-	       Quadcopter::Action>  matrix_best_action)
+	       Quadcopter::Action> matrix_best_action)
 {
   arma::mat matrix;
   arma::uword index_of_best_estimation;
   std::tie(matrix, index_of_best_estimation, std::ignore) = matrix_best_action;
-  double loss = std::pow((matrix(index_of_best_estimation, 1) - states->back().distances_3D().f1), 2) +
-    std::pow((matrix(index_of_best_estimation, 2) - states->back().distances_3D().f2), 2);
+  double loss = std::pow((matrix(index_of_best_estimation, 1) - states.back().distances_3D().f1), 2) +
+    std::pow((matrix(index_of_best_estimation, 2) - states.back().distances_3D().f2), 2);
   return loss;
 }
 
