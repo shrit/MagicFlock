@@ -53,7 +53,12 @@ generate_trajectory_using_model(bool random_leader_action,
 								     action_leader_,
 								     1000);
 				}));
-
+  threads.push_back(std::thread([&](){
+				  swarm_.one_quad_execute_trajectory("f1",
+								     action_leader_,
+								     1000);
+				}));
+				    
   /* We need to wait until the quadcopters finish their actions */
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
@@ -69,14 +74,9 @@ generate_trajectory_using_model(bool random_leader_action,
   /*  Predict the next state using the above data */
   auto matrix_best_action = predict.predict(features);
   Quadcopter::Action predicted_follower_action;
-  std::tie(std::ignore, std::ignore, predicted_follower_action);
+  std::tie(std::ignore, std::ignore, predicted_follower_action) = matrix_best_action;
   action_follower_.push_back(predicted_follower_action);
   
-  threads.push_back(std::thread([&](){
-				  swarm_.one_quad_execute_trajectory("f1",
-								     action_follower_.back(),
-								     1000);
-				}));    
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("f2",
 								     action_follower_.back(),
