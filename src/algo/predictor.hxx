@@ -76,7 +76,7 @@ create_absolute_features_matrix(const states_vec<simulator_t>& states,
   for (int i = 0; i < 7; ++i) {
     /*  State */
     row << (*it).distances_3D().f1
-	<< (*it).distances_3D().f3
+	<< (*it).distances_3D().f2
 	<< (*it).height_difference()
 	<< mtools_.to_one_hot_encoding(action_follower, 7).at(0)
       	<< mtools_.to_one_hot_encoding(action_follower, 7).at(1)
@@ -86,7 +86,7 @@ create_absolute_features_matrix(const states_vec<simulator_t>& states,
 	<< mtools_.to_one_hot_encoding(action_follower, 7).at(5)
       	<< mtools_.to_one_hot_encoding(action_follower, 7).at(6)
 	<< states.back().distances_3D().f1
-	<< states.back().distances_3D().f3
+	<< states.back().distances_3D().f2
 	<< states.back().height_difference()
       /*  Action encoded as 1, and 0, add 7 times to represent 7 actions */
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(0)

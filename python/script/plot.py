@@ -32,7 +32,6 @@ def modify_labels(dataset_file_name):
 """
 Error files need to be formated as one column file
 This column contain the mean error of each flight
-
 """
 def plot_flight_error(error_file_name):
     num_lines = sum(1 for line in open(error_file_name))
@@ -42,13 +41,11 @@ def plot_flight_error(error_file_name):
     x = np.arange(y.size)
     
     print(y)
-    
     z = np.mean(y)
     
     print ("error standard deviation : ", np.std(y))    
     print(z)
-    #plt.ylim(-1, +9)
-    
+        
     plt.plot(x, y, color='blue')
     
     plt.xlabel('Number of flight')
@@ -57,7 +54,7 @@ def plot_flight_error(error_file_name):
     figure = plt.gcf() # get current figure
     figure.set_size_inches(25, 6)    
     
-    plt.savefig(error_file_name + ".png", dpi=100)
+    plt.savefig(error_file_name + ".svg", dpi=100, format="svg")
     
 
 """

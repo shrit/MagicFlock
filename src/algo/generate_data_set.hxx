@@ -5,8 +5,8 @@
 template<class flight_controller_t,
 	 class simulator_t>
 Generator<flight_controller_t, simulator_t>::
-Generator (std::vector<std::shared_ptr<flight_controller_t>> quads,
-	   std::shared_ptr<simulator_t> sim_interface)
+Generator(std::vector<std::shared_ptr<flight_controller_t>> quads,
+	  std::shared_ptr<simulator_t> sim_interface)
   :count_(0),
    episode_(0),
    max_episode_(10000),
