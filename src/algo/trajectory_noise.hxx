@@ -21,7 +21,7 @@ template<class flight_controller_t,
 void TrajectoryNoise<flight_controller_t, simulator_t>::
 test_trajectory()
 {
-  Quadcopter robot;
+  Quadrotor robot;
 
   action_ =
    robot.random_action_generator_with_all_conditions(saved_action_);
@@ -99,166 +99,166 @@ void TrajectoryNoise<flight_controller_t, simulator_t>::run(/*  enter quadcopter
 
 	  /*  ADD PAST A_t-1 distances */
 	  
-	  if (action_ == Quadcopter::Action::forward and
-	      saved_action_ == Quadcopter::Action::left) {
+	  if (action_ == Quadrotor::Action::forward and
+	      saved_action_ == Quadrotor::Action::left) {
 	    LogInfo() << "F + L";
 	    forward_action_vec_.push_back(quadrotor_distance.d1);
 	    f_k_l_action_vec_.push_back(quadrotor_distance.d1);
 	    f_k_l_action_vec_.push_back(saved_quadrotor_distance_.d1);
 
-	  } else if (action_ == Quadcopter::Action::forward and
-		     saved_action_ == Quadcopter::Action::right) {
+	  } else if (action_ == Quadrotor::Action::forward and
+		     saved_action_ == Quadrotor::Action::right) {
 	    LogInfo() << "F + R";
 	    forward_action_vec_.push_back(quadrotor_distance.d1);
 	    f_k_r_action_vec_.push_back(quadrotor_distance.d1);
 	    f_k_r_action_vec_.push_back(saved_quadrotor_distance_.d1);
 	    
-	  } else if (action_ == Quadcopter::Action::forward and
-		     saved_action_ == Quadcopter::Action::up) {
+	  } else if (action_ == Quadrotor::Action::forward and
+		     saved_action_ == Quadrotor::Action::up) {
 	    LogInfo() << "F + U";
 	    forward_action_vec_.push_back(quadrotor_distance.d1);
 	    f_k_u_action_vec_.push_back(quadrotor_distance.d1);	    
 	    f_k_u_action_vec_.push_back(saved_quadrotor_distance_.d1);
 
-	  } else if (action_ == Quadcopter::Action::forward and 
-	    	     saved_action_ == Quadcopter::Action::down) {
+	  } else if (action_ == Quadrotor::Action::forward and 
+	    	     saved_action_ == Quadrotor::Action::down) {
 	    LogInfo() << "F + D";
 	    forward_action_vec_.push_back(quadrotor_distance.d1);
 	    f_k_d_action_vec_.push_back(quadrotor_distance.d1);	    
 	    f_k_d_action_vec_.push_back(saved_quadrotor_distance_.d1);
 	    
-	  } else if (action_ == Quadcopter::Action::backward and
-		     saved_action_ == Quadcopter::Action::left) {
+	  } else if (action_ == Quadrotor::Action::backward and
+		     saved_action_ == Quadrotor::Action::left) {
 	    LogInfo() << "B + L";
 	    backward_action_vec_.push_back(quadrotor_distance.d1);
 	    b_k_l_action_vec_.push_back(quadrotor_distance.d1);	    
 	    b_k_l_action_vec_.push_back(saved_quadrotor_distance_.d1);
 
-	  } else if (action_ == Quadcopter::Action::backward and
-	    	     saved_action_ == Quadcopter::Action::right) {
+	  } else if (action_ == Quadrotor::Action::backward and
+	    	     saved_action_ == Quadrotor::Action::right) {
 	    LogInfo() << "B + R";
 	    backward_action_vec_.push_back(quadrotor_distance.d1);
 	    b_k_r_action_vec_.push_back(quadrotor_distance.d1);	    
 	    b_k_r_action_vec_.push_back(saved_quadrotor_distance_.d1);
 
-	  } else if (action_ == Quadcopter::Action::backward and
-		     saved_action_ == Quadcopter::Action::up) {
+	  } else if (action_ == Quadrotor::Action::backward and
+		     saved_action_ == Quadrotor::Action::up) {
 	    LogInfo() << "B + U";
 	    backward_action_vec_.push_back(quadrotor_distance.d1);
 	    b_k_u_action_vec_.push_back(quadrotor_distance.d1);	    
 	    b_k_u_action_vec_.push_back(saved_quadrotor_distance_.d1);
 
-	  } else if (action_ == Quadcopter::Action::backward and
-	    	     saved_action_ == Quadcopter::Action::down) {
+	  } else if (action_ == Quadrotor::Action::backward and
+	    	     saved_action_ == Quadrotor::Action::down) {
 	    LogInfo() << "B + D";
 	    backward_action_vec_.push_back(quadrotor_distance.d1);
 	    b_k_d_action_vec_.push_back(quadrotor_distance.d1);	    
 	    b_k_d_action_vec_.push_back(saved_quadrotor_distance_.d1);
 	    
-	  } else if (action_ == Quadcopter::Action::left and
-		     saved_action_ == Quadcopter::Action::forward) {
+	  } else if (action_ == Quadrotor::Action::left and
+		     saved_action_ == Quadrotor::Action::forward) {
 	    LogInfo() << "L + F";
 	    left_action_vec_.push_back(quadrotor_distance.d1);
 	    l_k_f_action_vec_.push_back(quadrotor_distance.d1);	    
 	    l_k_f_action_vec_.push_back(saved_quadrotor_distance_.d1);
 
-	  } else if (action_ == Quadcopter::Action::left and
-		     saved_action_ == Quadcopter::Action::backward) {
+	  } else if (action_ == Quadrotor::Action::left and
+		     saved_action_ == Quadrotor::Action::backward) {
 	    LogInfo() << "L + B";
 	    left_action_vec_.push_back(quadrotor_distance.d1);
 	    l_k_b_action_vec_.push_back(quadrotor_distance.d1);	    
 	    l_k_b_action_vec_.push_back(saved_quadrotor_distance_.d1);
 
-	  } else if (action_ == Quadcopter::Action::left and
-		     saved_action_ == Quadcopter::Action::up) {
+	  } else if (action_ == Quadrotor::Action::left and
+		     saved_action_ == Quadrotor::Action::up) {
 	    LogInfo() << "L + U";
 	    left_action_vec_.push_back(quadrotor_distance.d1);
 	    l_k_u_action_vec_.push_back(quadrotor_distance.d1);	    
 	    l_k_u_action_vec_.push_back(saved_quadrotor_distance_.d1);
 
-	  } else if (action_ == Quadcopter::Action::left and
-		     saved_action_ == Quadcopter::Action::down) {
+	  } else if (action_ == Quadrotor::Action::left and
+		     saved_action_ == Quadrotor::Action::down) {
 	    LogInfo() << "L + D";
 	    left_action_vec_.push_back(quadrotor_distance.d1);
 	    l_k_d_action_vec_.push_back(quadrotor_distance.d1);	    
 	    l_k_d_action_vec_.push_back(saved_quadrotor_distance_.d1);	  
 	  
-	  } else if (action_ == Quadcopter::Action::right and
-		     saved_action_ == Quadcopter::Action::forward) {
+	  } else if (action_ == Quadrotor::Action::right and
+		     saved_action_ == Quadrotor::Action::forward) {
 	    LogInfo() << "R + F";
 	    right_action_vec_.push_back(quadrotor_distance.d1);
 	    r_k_f_action_vec_.push_back(quadrotor_distance.d1);	    
 	    r_k_f_action_vec_.push_back(saved_quadrotor_distance_.d1);
 	    
-	  } else if (action_ == Quadcopter::Action::right and
-		     saved_action_ == Quadcopter::Action::backward) {
+	  } else if (action_ == Quadrotor::Action::right and
+		     saved_action_ == Quadrotor::Action::backward) {
 	    LogInfo() << "R + B";
 	    right_action_vec_.push_back(quadrotor_distance.d1);
 	    r_k_b_action_vec_.push_back(quadrotor_distance.d1);	    
 	    r_k_b_action_vec_.push_back(saved_quadrotor_distance_.d1);
 
-	  } else if (action_ == Quadcopter::Action::right and
-		     saved_action_ == Quadcopter::Action::up) {
+	  } else if (action_ == Quadrotor::Action::right and
+		     saved_action_ == Quadrotor::Action::up) {
 	    LogInfo() << "R + U";
 	    right_action_vec_.push_back(quadrotor_distance.d1);
 	    r_k_u_action_vec_.push_back(quadrotor_distance.d1);	    
 	    r_k_u_action_vec_.push_back(saved_quadrotor_distance_.d1);
 
-	  } else if (action_ == Quadcopter::Action::right and
-		     saved_action_ == Quadcopter::Action::down) {
+	  } else if (action_ == Quadrotor::Action::right and
+		     saved_action_ == Quadrotor::Action::down) {
 	    LogInfo() << "R + D";
 	    right_action_vec_.push_back(quadrotor_distance.d1);
 	    r_k_d_action_vec_.push_back(quadrotor_distance.d1);	    
 	    r_k_d_action_vec_.push_back(saved_quadrotor_distance_.d1);
 	    
-	  } else if (action_ == Quadcopter::Action::up and
-		     saved_action_ == Quadcopter::Action::forward) {
+	  } else if (action_ == Quadrotor::Action::up and
+		     saved_action_ == Quadrotor::Action::forward) {
 
 	    up_action_vec_.push_back(quadrotor_distance.d1);
 	    u_k_f_action_vec_.push_back(quadrotor_distance.d1);	    
 	    u_k_f_action_vec_.push_back(saved_quadrotor_distance_.d1);
 	    
-	  } else if (action_ == Quadcopter::Action::up and
-		     saved_action_ == Quadcopter::Action::backward) {
+	  } else if (action_ == Quadrotor::Action::up and
+		     saved_action_ == Quadrotor::Action::backward) {
 	    
 	    up_action_vec_.push_back(quadrotor_distance.d1);
 	    u_k_b_action_vec_.push_back(quadrotor_distance.d1);  
 	    u_k_b_action_vec_.push_back(saved_quadrotor_distance_.d1);
 
-	  } else if (action_ == Quadcopter::Action::up and
-		     saved_action_ == Quadcopter::Action::left) {
+	  } else if (action_ == Quadrotor::Action::up and
+		     saved_action_ == Quadrotor::Action::left) {
 
 	    up_action_vec_.push_back(quadrotor_distance.d1);
 	    u_k_l_action_vec_.push_back(quadrotor_distance.d1);	    
 	    u_k_l_action_vec_.push_back(saved_quadrotor_distance_.d1);
 
-	  } else if (action_ == Quadcopter::Action::up and
-		     saved_action_ == Quadcopter::Action::right) {
+	  } else if (action_ == Quadrotor::Action::up and
+		     saved_action_ == Quadrotor::Action::right) {
 
 	    up_action_vec_.push_back(quadrotor_distance.d1);
 	    u_k_r_action_vec_.push_back(quadrotor_distance.d1);	    
 	    u_k_r_action_vec_.push_back(saved_quadrotor_distance_.d1);
 	    	    
-	  } else if (action_ == Quadcopter::Action::down and
-		     saved_action_ == Quadcopter::Action::forward) {
+	  } else if (action_ == Quadrotor::Action::down and
+		     saved_action_ == Quadrotor::Action::forward) {
 	    down_action_vec_.push_back(quadrotor_distance.d1);
 	    d_k_f_action_vec_.push_back(quadrotor_distance.d1);	    
 	    d_k_f_action_vec_.push_back(saved_quadrotor_distance_.d1);
 
-	  } else if (action_ == Quadcopter::Action::down and
-		     saved_action_ == Quadcopter::Action::backward) {
+	  } else if (action_ == Quadrotor::Action::down and
+		     saved_action_ == Quadrotor::Action::backward) {
 	    down_action_vec_.push_back(quadrotor_distance.d1);
 	    d_k_b_action_vec_.push_back(quadrotor_distance.d1);	    
 	    d_k_b_action_vec_.push_back(saved_quadrotor_distance_.d1);
 	    
-	  } else if (action_ == Quadcopter::Action::down and
-		     saved_action_ == Quadcopter::Action::left) {
+	  } else if (action_ == Quadrotor::Action::down and
+		     saved_action_ == Quadrotor::Action::left) {
 	    down_action_vec_.push_back(quadrotor_distance.d1);
 	    d_k_l_action_vec_.push_back(quadrotor_distance.d1);	    
 	    d_k_l_action_vec_.push_back(saved_quadrotor_distance_.d1);
 	    
-	  } else if (action_ == Quadcopter::Action::down and
-		     saved_action_ == Quadcopter::Action::right) {
+	  } else if (action_ == Quadrotor::Action::down and
+		     saved_action_ == Quadrotor::Action::right) {
 	    down_action_vec_.push_back(quadrotor_distance.d1);
 	    d_k_l_action_vec_.push_back(quadrotor_distance.d1);	    
 	    d_k_l_action_vec_.push_back(saved_quadrotor_distance_.d1);

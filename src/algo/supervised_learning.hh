@@ -43,7 +43,7 @@ public:
 
 private:
 
-  std::vector<Quadcopter::Action> action_follower_;
+  std::vector<Quadrotor::Action> action_follower_;
   int count_;
   bool classification_;
   DataSet data_set_;
@@ -52,17 +52,17 @@ private:
   int max_episode_ ;
   Math_tools mtools_;
   bool regression_;
-  Quadcopter::Action saved_leader_action_;
+  Quadrotor::Action saved_leader_action_;
   std::shared_ptr<simulator_t> sim_interface_;
   std::vector<double> step_errors_;
-  std::vector<Quadcopter::State<simulator_t>> states_;
+  std::vector<Quadrotor::State<simulator_t>> states_;
   std::vector<int>  time_step_vector_;
   lt::triangle<double> original_dist_;
   double height_diff_;
-  Quadcopter robot_;
+  Quadrotor robot_;
   SwarmDevice<flight_controller_t> swarm_;
   bool stop_episode_;
-  Quadcopter::Action action_leader_;
+  Quadrotor::Action action_leader_;
 };
 
 # include "supervised_learning.hxx"

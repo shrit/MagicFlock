@@ -32,8 +32,8 @@ private:
   int episode_;
   int max_episode_;
   Math_tools mtools_;
-  Quadcopter::Action action_;
-  Quadcopter::Action saved_action_;
+  Quadrotor::Action action_;
+  Quadrotor::Action saved_action_;
   lt::dist3D<double> saved_quadrotor_distance_;
   std::shared_ptr<simulator_t> sim_interface_;
   bool stop_episode_;

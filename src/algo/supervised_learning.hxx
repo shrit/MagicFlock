@@ -31,7 +31,7 @@ generate_trajectory_using_model(bool random_leader_action,
       = robot_.random_action_generator_with_only_opposed_condition(saved_leader_action_);
     saved_leader_action_ = action_leader_;
   } else if (stop_down_action == true) {
-    while (action_leader_ == Quadcopter::Action::down) {
+    while (action_leader_ == Quadrotor::Action::down) {
       action_leader_ =
 	robot_.random_action_generator_with_only_opposed_condition(saved_leader_action_);
     }
@@ -41,11 +41,11 @@ generate_trajectory_using_model(bool random_leader_action,
   }
     
   /* Get the next state at time t  */
-  Quadcopter::State<simulator_t> state(sim_interface_);
+  Quadrotor::State<simulator_t> state(sim_interface_);
   states_.push_back(state);
   
   /* Follower action always equal to no move at this instant t */
-  action_follower_.push_back(Quadcopter::Action::NoMove);
+  action_follower_.push_back(Quadrotor::Action::NoMove);
   
   /*  Threading QuadCopter */
   threads.push_back(std::thread([&](){
@@ -63,7 +63,7 @@ generate_trajectory_using_model(bool random_leader_action,
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
   /* Get the next state at time t + 1  */
-  Quadcopter::State<simulator_t> nextState(sim_interface_);
+  Quadrotor::State<simulator_t> nextState(sim_interface_);
   states_.push_back(nextState);
 
   Predictor predict("regression");
@@ -73,7 +73,7 @@ generate_trajectory_using_model(bool random_leader_action,
     
   /*  Predict the next state using the above data */
   auto matrix_best_action = predict.predict(features);
-  Quadcopter::Action predicted_follower_action;
+  Quadrotor::Action predicted_follower_action;
   std::tie(std::ignore, std::ignore, predicted_follower_action) = matrix_best_action;
   action_follower_.push_back(predicted_follower_action);
   
@@ -89,7 +89,7 @@ generate_trajectory_using_model(bool random_leader_action,
 
   /*  Get error of deformation to improve percision later and to
       verify the model accuracy */
-  Quadcopter::State<simulator_t> finalState(sim_interface_);
+  Quadrotor::State<simulator_t> finalState(sim_interface_);
   states_.push_back(finalState);
 
   /* Take a tuple here  */
@@ -110,7 +110,7 @@ run(const Settings& settings)
   regression_ = settings.regression();
   /*  Recover the initial state as an observer state */
   /*  This state will be used directly instead of original_dist */
-  Quadcopter::State<simulator_t> ObserverState(sim_interface_);
+  Quadrotor::State<simulator_t> ObserverState(sim_interface_);
   original_dist_ = ObserverState.distances_3D();
   height_diff_ = ObserverState.height_difference();
   
@@ -159,8 +159,8 @@ run(const Settings& settings)
 
       while (count_ < 500) {
 	/*  Do online learning... */
-        Quadcopter::Reward reward =
-	  Quadcopter::Reward::very_bad;
+        Quadrotor::Reward reward =
+	  Quadrotor::Reward::very_bad;
 
 	if (count_ == 0 ) {
 	  generate_trajectory_using_model(true, false);

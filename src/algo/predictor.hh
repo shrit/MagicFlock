@@ -41,12 +41,12 @@ public:
   template<class simulator_t>
   arma::mat
   create_absolute_features_matrix(const states_vec<simulator_t>& states,
-				  Quadcopter::Action follower_action);
+				  Quadrotor::Action follower_action);
 
   template<class simulator_t>
   arma::mat
   create_estimated_features_matrix(const states_vec<simulator_t>& states,
-				   Quadcopter::Action follower_action);
+				   Quadrotor::Action follower_action);
 
   std::vector<double>
   estimate_action_from_distance(arma::mat& matrix);
@@ -54,11 +54,11 @@ public:
   int index_of_best_action_classification(arma::mat& matrix);
   int index_of_best_action_regression(arma::mat& matrix);
 
-  std::tuple<arma::mat, arma::uword, Quadcopter::Action> predict(arma::mat& features);
+  std::tuple<arma::mat, arma::uword, Quadrotor::Action> predict(arma::mat& features);
 
   template<class simulator_t>
   double real_time_loss(const states_vec<simulator_t>& states,
-			std::tuple<arma::mat, arma::uword, Quadcopter::Action> matrix_best_action);
+			std::tuple<arma::mat, arma::uword, Quadrotor::Action> matrix_best_action);
   
   Predictor(Predictor const&) = delete;
   Predictor(Predictor &&) = default;
@@ -69,7 +69,7 @@ private:
   bool regression_;
   lt::triangle<double> original_dist_;
   double height_diff_;
-  Quadcopter robot_;  
+  Quadrotor robot_;  
 };
 
 # include "predictor.hxx"

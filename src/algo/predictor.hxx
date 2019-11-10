@@ -19,14 +19,14 @@ Predictor::Predictor(std::string name/*  Classification or regression */)
 template<class simulator_t>
 arma::mat Predictor::
 create_estimated_features_matrix(const states_vec<simulator_t>& states,
-				 Quadcopter::Action action_follower)
+				 Quadrotor::Action action_follower)
 {
   arma::mat features;
   auto it_state = states.rbegin();
   it_state = std::next(it_state, 1);
   arma::rowvec row;
 
-  std::vector<Quadcopter::Action> actions =
+  std::vector<Quadrotor::Action> actions =
     robot_.possible_actions();
 
   for (int i = 0; i < 7; ++i) {
@@ -63,14 +63,14 @@ create_estimated_features_matrix(const states_vec<simulator_t>& states,
 template<class simulator_t>
 arma::mat Predictor::
 create_absolute_features_matrix(const states_vec<simulator_t>& states,
-			        Quadcopter::Action action_follower)
+			        Quadrotor::Action action_follower)
 {
   arma::mat features;
   arma::rowvec row;
   auto it = states.rbegin();
   it = std::next(it, 1);
 
-  std::vector<Quadcopter::Action> actions =
+  std::vector<Quadrotor::Action> actions =
     robot_.possible_actions();
     
   for (int i = 0; i < 7; ++i) {
@@ -149,7 +149,7 @@ template<class simulator_t>
 double Predictor::
 real_time_loss(const states_vec<simulator_t>& states,
 	       std::tuple<arma::mat, arma::uword,
-	       Quadcopter::Action> matrix_best_action)
+	       Quadrotor::Action> matrix_best_action)
 {
   arma::mat matrix;
   arma::uword index_of_best_estimation;
@@ -159,7 +159,7 @@ real_time_loss(const states_vec<simulator_t>& states,
   return loss;
 }
 
-std::tuple<arma::mat, arma::uword, Quadcopter::Action> Predictor::
+std::tuple<arma::mat, arma::uword, Quadrotor::Action> Predictor::
 predict(arma::mat& features)
 {
   mlpack::ann::FFN<mlpack::ann::SigmoidCrossEntropyError<>,
@@ -198,6 +198,6 @@ predict(arma::mat& features)
   LogInfo() << value;
 
   /*  Get the follower action now !! and store it directly */
-  Quadcopter::Action action_follower = robot_.int_to_action(value);  
+  Quadrotor::Action action_follower = robot_.int_to_action(value);  
   return make_tuple(label, value, action_follower);
 }

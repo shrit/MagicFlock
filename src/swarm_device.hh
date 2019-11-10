@@ -18,7 +18,7 @@ public:
   SwarmDevice(std::vector<std::shared_ptr<flight_controller_t>> quads);
 
   void one_quad_execute_trajectory(std::string label,
-				   Quadcopter::Action action,
+				   Quadrotor::Action action,
 				   unsigned int milliseconds);
   bool arm();
   bool arm_specific_quadrotor(std::string quadrotor_name);
