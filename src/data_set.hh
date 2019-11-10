@@ -48,7 +48,7 @@ public:
   void save_histogram(Arg&& arg);
 
   template <typename Arg>
-  void save_count_file(Arg&& arg);
+  void save_controller_count(Arg&& arg);
 
   template <typename Arg, typename... Args>
   void plot(std::string title,

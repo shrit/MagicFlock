@@ -62,7 +62,7 @@ void DataSet::save_histogram(Arg&& arg)
 }
 
 template <typename Arg>
-void DataSet::save_count_file(Arg&& arg)
+void DataSet::save_controller_count(Arg&& arg)
 {
   std::ofstream file;
   file.open(count_file_name_,
