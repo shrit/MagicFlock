@@ -1,192 +1,69 @@
 #pragma once
 
 # include "quadcopter.hh"
-
-Quadrotor::Quadrotor()
-  :distribution_int_(0, 5),
-   generator_(random_dev())
+template <class simulator_t>
+Quadrotor<simulator_t>::Quadrotor(unsigned int id,
+				  std::string name)
+  :id_(id),
+   name_(name)
 {}
 
-void Quadrotor::init()
+template <class simulator_t>
+unsigned int Quadrotor<simulator_t>::id() const
+{ return id_; }
+
+template <class simulator_t>
+std::string Quadrotor<simulator_t>::name() const
+{ return name_; }
+
+template <class simulator_t>
+State<simulator_t> Quadrotor<simulator_t>::current_state() const
 {
-  data_set_.init_dataset_directory();
-}
+  State<simulator_t> state;
 
-Quadrotor::Reward Quadrotor::
-action_evaluator(const lt::triangle<double>& old_dist,
-		 const lt::triangle<double>& new_dist)
-{
-  LogInfo() << "F1 differences: " << std::fabs(old_dist.f1 - new_dist.f1);
-  LogInfo() << "F2 differences: " << std::fabs(old_dist.f2 - new_dist.f2);
-
-  double diff_f1 = std::fabs(old_dist.f1 - new_dist.f1);
-  double diff_f2 = std::fabs(old_dist.f2 - new_dist.f2);
-
-   Reward reward = Reward::Unknown;
-
-  if (0.5  > diff_f1 + diff_f2 ) {
-    reward = Reward::very_good;
-  } else if ( 1.0  > diff_f1 + diff_f2 and
-	      diff_f1 + diff_f2  > 0.5 ) {
-    reward = Reward::good;
-  } else if ( 1.5  > diff_f1 + diff_f2 and
-	      diff_f1 + diff_f2  > 1.0 ) {
-    reward = Reward::bad;
-  } else if ( 2.0  > diff_f1 + diff_f2 and
-	      diff_f1 + diff_f2  > 1.5 ) {
-    reward = Reward::very_bad;
+  /*  Use the neighbor list in order to call the state directly */
+  if (id_ == 0 or name_ == "leader") {
+    /*  Generate state according to leader necessity */
+    
+  } else if (id_ == 1 or name_ == "follower_1") {
+    /*  Generate state according to the first follower necessity */
+  } else if (id_ == 2 or name_ == "follower_2") {
+    /*  Generate state according to the second follower necessity */
   }
-  return reward;
-}
-
-Quadrotor::Action Quadrotor::
-int_to_action(int action_value)
-{
-  Action action;
-  return action = static_cast<Action>(action_value);  
-}
-
-/* Get the best action from the model according to the best values */
-Quadrotor::Action Quadrotor::
-action_follower(arma::mat features, arma::uword index)
-{
-  /*  just a HACK, need to find a dynamic solution later */
-  Quadrotor::Action action = Quadrotor::Action::NoMove;
-  /*  Access matrix values according to a given index  */
-  /*  Only one action exist that equal 1 in each row of 
-   a matrix */  
-  if (features(index, 14) == 1) {
-    action = Quadrotor::Action::forward;
-  } else if (features(index, 15) == 1) {
-    action = Quadrotor::Action::backward;
-  } else if (features(index, 16) == 1) {
-    action = Quadrotor::Action::left;
-  } else if (features(index, 17) == 1) {
-    action = Quadrotor::Action::right;
-  } else if (features(index, 18) == 1) {
-    action = Quadrotor::Action::up;
-  } else if (features(index, 19) == 1) {
-    action = Quadrotor::Action::down;
-  }
-  return action;
-}
-
-void Quadrotor::
-save_controller_count(double value)
-{ data_set_.save_count_file(value); }
-
-std::vector<Quadrotor::Action> Quadrotor::
-possible_actions() const
-{ return possible_actions_; }
-
-Quadrotor::Action Quadrotor::
-random_action_generator()
-{
-  int random_action = distribution_int_(generator_);
-  Action action = static_cast<Action>(random_action);  
-  return action;
-}
-
-/*  The condition is to generate an action that is not the same to the
-    parameter action and not opposed to this action. This is more
-    comfortable since the opposed action apply high noise on traveled
-    distance. Also this is more logic, since allow more variability in
-    the data set */
-Quadrotor::Action Quadrotor::
-random_action_generator_with_all_conditions(Action action)
-{
-  Action action_ = Action::NoMove;
-  
-  if (action == Action::backward) {
-    action_ = random_action_generator();
-    while (action_ == Action::forward or
-	   action_ == Action::backward ) {
-      action_ = random_action_generator();
-    }
-  } else if (action == Action::down) {
-    action_ = random_action_generator();
-    while (action_ == Action::up or
-	   action_ == Action::down) {
-      action_ = random_action_generator();
-    }
-  } else if (action == Action::up) {
-    action_ = random_action_generator();
-    while (action_ == Action::down or
-	   action_ == Action::up) {
-      action_ = random_action_generator();
-    }
-  } else if (action == Action::forward) {
-    action_ = random_action_generator();
-    while (action_ == Action::backward or
-	   action_ == Action::forward) {
-      action_ = random_action_generator();
-    }
-  } else if (action == Action::right) {
-    action_ = random_action_generator();
-    while (action_ == Action::left or
-	   action_ == Action::right) {
-      action_ = random_action_generator();
-    }
-  } else if (action == Action::left) {
-    action_ = random_action_generator();
-    while (action_ == Action::right or
-	   action_ == Action::left) {
-      action_ = random_action_generator();
-    }
-  }
-  return action_;
-}
-
-/*  The condition is to generate an action that not opposed to this
-    action. This is more comfortable since the opposed action apply
-    high noise on traveled distance. Also this is more logic, since
-    allow more variability in the data set */
-Quadrotor::Action Quadrotor::
-random_action_generator_with_only_opposed_condition(Action action)
-{
-  Action action_ = Action::Unknown;
-  
-  if (action == Action::backward) {
-    action_ = random_action_generator();
-    while (action_ == Action::forward) {
-      action_ = random_action_generator();
-    }
-  } else if (action == Action::down) {
-    action_ = random_action_generator();
-    while (action_ == Action::up) {
-      action_ = random_action_generator();
-    }
-  } else if (action == Action::up) {
-    action_ = random_action_generator();
-    while (action_ == Action::down) {
-      action_ = random_action_generator();
-    }
-  } else if (action == Action::forward) {
-    action_ = random_action_generator();
-    while (action_ == Action::backward) {
-      action_ = random_action_generator();
-    }
-  } else if (action == Action::right) {
-    action_ = random_action_generator();
-    while (action_ == Action::left) {
-      action_ = random_action_generator();
-    }
-  } else if (action == Action::left) {
-    action_ = random_action_generator();
-    while (action_ == Action::right) {
-      action_ = random_action_generator();
-    }
-  }
-  return action_;
+  all_states_.push_back(state);
+  return state;
 }
 
 template <class simulator_t>
-inline std::ostream& operator<< (std::ostream& out, const Quadrotor::State<simulator_t>& s)
+std::vector<State<simulator_t>> Quadrotor<simulator_t>::all_states() const
+{ return all_states_; }
+
+template <class simulator_t>
+State<simulator_t> Quadrotor<simulator_t>::last_state()
 {
-  out << s.distances_3D().f1
-      <<","
-      << s.distances_3D().f2
-      <<","
-      <<s.height_difference();
-  return out;
+  return last_state_;
 }
+
+template <class simulator_t>
+void Quadrotor<simulator_t>::reset_all_states()
+{ all_states_.clear(); }
+
+template <class simulator_t>
+Actions::Action Quadrotor<simulator_t>::current_action()
+{ all_actions_.push_back(current_action_);
+  return current_action_;
+}
+
+template <class simulator_t>
+Actions::Action Quadrotor<simulator_t>::last_action() const
+{/*  Use the vector r begin +1
+  be sure that the vector has more than 1 element*/
+  return last_action_; }
+
+template <class simulator_t>
+std::vector<Actions::Action> Quadrotor<simulator_t>::all_actions() const
+{ return all_actions_; }
+  
+template <class simulator_t>
+void Quadrotor<simulator_t>::reset_all_action()
+{ all_actions_.clear(); }
