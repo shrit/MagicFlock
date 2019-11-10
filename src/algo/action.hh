@@ -16,11 +16,11 @@
 
 # include "../global.hh"
 
-class Action {
+class Actions {
 
 public:
 
-  Action();
+  Actions();
   
   enum class Action
     {

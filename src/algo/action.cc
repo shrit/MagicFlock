@@ -1,7 +1,12 @@
 #include "action.hh"
 
+Actions::Action()
+  :distribution_int_(0, 5),
+   generator_(random_dev())
+{}
+
 /* Get the best action from the model according to the best values */
-Action::Action Action::
+Actions::Action Actions::
 extract_action_from_index(arma::mat features, arma::uword index)
 {
   /*  just a HACK, need to find a dynamic solution later */
@@ -27,18 +32,18 @@ extract_action_from_index(arma::mat features, arma::uword index)
   return action;
 }
 
-Action::Action Action::
+Actions::Action Actions::
 int_to_action(int action_value)
 {
   Action action;
   return action = static_cast<Action>(action_value);  
 }
 
-std::vector<Action::Action> Action::
+std::vector<Actions::Action> Actions::
 possible_actions() const
 { return possible_actions_; }
 
-Action::Action Action::
+Actions::Action Actions::
 random_action_generator()
 {
   int random_action = distribution_int_(generator_);
@@ -51,7 +56,7 @@ random_action_generator()
     comfortable since the opposed action apply high noise on traveled
     distance. Also this is more logic, since allow more variability in
     the data set */
-Action::Action Action::
+Actions::Action Actions::
 random_action_generator_with_all_conditions(Action action)
 {
   Action action_ = Action::NoMove;
@@ -100,7 +105,7 @@ random_action_generator_with_all_conditions(Action action)
     action. This is more comfortable since the opposed action apply
     high noise on traveled distance. Also this is more logic, since
     allow more variability in the data set */
-Action::Action Action::
+Actions::Action Actions::
 random_action_generator_with_only_opposed_condition(Action action)
 {
   Action action_ = Action::Unknown;

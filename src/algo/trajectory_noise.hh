@@ -3,6 +3,7 @@
 /*  Standard C++ includes  */
 
 /* Local includes  */
+# include "action.hh"
 # include "../data_set.hh"
 # include "../global.hh"
 # include "../log.hh"
@@ -32,8 +33,8 @@ private:
   int episode_;
   int max_episode_;
   Math_tools mtools_;
-  Quadrotor::Action action_;
-  Quadrotor::Action saved_action_;
+  Actions::Action action_;
+  Actions::Action saved_action_;
   lt::dist3D<double> saved_quadrotor_distance_;
   std::shared_ptr<simulator_t> sim_interface_;
   bool stop_episode_;

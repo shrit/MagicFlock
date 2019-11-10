@@ -28,28 +28,28 @@ quadrotor_label_2_number(std::string label)
 template <class flight_controller_t>
 void SwarmDevice<flight_controller_t>::
 one_quad_execute_trajectory(std::string label,
-			    Quadrotor::Action action,
+			    Actions::Action action,
 			    unsigned int milliseconds)
 {
   int quad_number = 0;
   quad_number = quadrotor_label_2_number(label);
 
-  if (action == Quadrotor::Action::left) {
+  if (action == Actions::Action::left) {
     iris_x_.at(quad_number)->left(speed_, milliseconds);
 
-  } else if (action == Quadrotor::Action::right) {
+  } else if (action == Actions::Action::right) {
     iris_x_.at(quad_number)->right(speed_, milliseconds);
 
-  } else if (action == Quadrotor::Action::forward) {
+  } else if (action == Actions::Action::forward) {
     iris_x_.at(quad_number)->forward(speed_, milliseconds);
 
-  } else if (action == Quadrotor::Action::backward) {
+  } else if (action == Actions::Action::backward) {
     iris_x_.at(quad_number)->backward(speed_, milliseconds);
 
-  } else if (action == Quadrotor::Action::up) {
+  } else if (action == Actions::Action::up) {
     iris_x_.at(quad_number)->up(speed_, milliseconds);
 
-  } else if (action == Quadrotor::Action::down) {
+  } else if (action == Actions::Action::down) {
     iris_x_.at(quad_number)->down(speed_, milliseconds);
   }
 }
