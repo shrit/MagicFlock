@@ -19,55 +19,50 @@ State<simulator_t>::State(std::shared_ptr<simulator_t> sim_interface):
 template <class simulator_t>
 lt::rssi<double> State<simulator_t>::
 signal_strength() const
-{
-  return rssi_ ;
-}
+{ return rssi_ ; }
 
 template <class simulator_t>
 double State<simulator_t>::
 height_f1() const
-{
-  return height_f1_;
-}
+{ return height_f1_; }
 
 template <class simulator_t>
 double State<simulator_t>::
 height_f2() const
-{
-  return height_f2_;
-}
+{ return height_f2_; }
 
 template <class simulator_t>
 double State<simulator_t>::
 height_difference() const
-{
-  return (height_f2_ - height_f1_);
-}
+{ return (height_f2_ - height_f1_); }
 
 template <class simulator_t>
 double State<simulator_t>::
 orientation () const
-{
-  return z_orinetation_;
-}
+{ return z_orinetation_; }
 
 template <class simulator_t>
 lt::triangle<double> State<simulator_t>::
 distances_2D () const
-{
-  return dists_2D_;
-}
+{ return dists_2D_; }
 
 template <class simulator_t>
 lt::triangle<double> State<simulator_t>::
 distances_3D () const
-{
-  return dists_3D_;
-}
+{ return dists_3D_; }
 
 template <class simulator_t>
 lt::triangle<double> State<simulator_t>::
 estimated_distances () const
+{ return e_dists_; }
+
+template <class simulator_t>
+inline std::ostream& operator<< (std::ostream& out, const State<simulator_t>& s)
 {
-  return e_dists_;
+  out << s.distances_3D().f1
+      <<","
+      << s.distances_3D().f2
+      <<","
+      <<s.height_difference();
+  return out;
 }
