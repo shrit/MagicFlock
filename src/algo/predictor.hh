@@ -25,7 +25,7 @@
 # include "../global.hh"
 # include "../log.hh"
 # include "../math_tools.hh"
-# include "quadcopter.hh"
+# include "quadrotor.hh"
 
 namespace lt = local_types;
 

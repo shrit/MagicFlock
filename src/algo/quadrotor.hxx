@@ -1,6 +1,6 @@
 #pragma once
 
-# include "quadcopter.hh"
+# include "quadrotor.hh"
 template <class simulator_t>
 Quadrotor<simulator_t>::Quadrotor(unsigned int id,
 				  std::string name)

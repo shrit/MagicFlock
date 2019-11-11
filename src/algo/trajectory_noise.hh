@@ -1,6 +1,7 @@
 #pragma once
 
 /*  Standard C++ includes  */
+# include <vector>
 
 /* Local includes  */
 # include "action.hh"

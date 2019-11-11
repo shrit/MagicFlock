@@ -52,4 +52,4 @@ private:
 
 };
 
-# include "quadcopter.hxx"
+# include "quadrotor.hxx"
