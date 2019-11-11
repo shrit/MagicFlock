@@ -32,7 +32,7 @@ public:
   void reset_all_states();
   
   Actions::Action current_action();
-  Actions::Action last_action() const;
+  Actions::Action last_action();
   std::vector<Actions::Action> all_actions() const;
   void reset_all_action();
   
