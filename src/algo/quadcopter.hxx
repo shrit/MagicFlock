@@ -35,14 +35,22 @@ State<simulator_t> Quadrotor<simulator_t>::current_state() const
 }
 
 template <class simulator_t>
+void Quadrotor<simulator_t>::add_nearest_neighbor_id(unsigned int id)
+{
+  nearest_neighbors_.push_back(id);
+}
+
+template <class simulator_t>
+std::vector<unsigned int> Quadrotor<simulator_t>::nearest_neighbors() const
+{ return nearest_neighbors_; }
+  
+template <class simulator_t>
 std::vector<State<simulator_t>> Quadrotor<simulator_t>::all_states() const
 { return all_states_; }
 
 template <class simulator_t>
 State<simulator_t> Quadrotor<simulator_t>::last_state()
-{
-  return last_state_;
-}
+{  return last_state_; // As last_action the same things to do }
 
 template <class simulator_t>
 void Quadrotor<simulator_t>::reset_all_states()
