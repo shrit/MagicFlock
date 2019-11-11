@@ -7,7 +7,6 @@
 */
 #pragma once
 
-
 # include <random>
 # include <utility>
 
@@ -15,13 +14,15 @@
 # include <armadillo>
 
 # include "../global.hh"
+# include "../log.hh"
 
 class Actions {
 
 public:
 
   Actions();
-  
+
+  /*  Add action to str printer  */
   enum class Action
     {
      forward,
@@ -33,16 +34,16 @@ public:
      NoMove,
      Unknown,
     };
-
+  
   Action
   extract_action_from_index(arma::mat features, arma::uword index);
+
+  std::string action_to_str(Action action);
   
   Action int_to_action(int action_value);
-  
   std::vector<Action> all_possible_actions() const;
 
   /*  Random action generator */
-
   Action random_action_generator();
 
   Action 

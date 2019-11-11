@@ -5,6 +5,38 @@ Actions::Action()
    generator_(random_dev())
 {}
 
+std::string Actions::action_to_str(Action action)
+{
+  std::string string_action = "";
+  switch (action) {
+  case forward:
+    string_action = "Forward";
+    break;
+  case backward:
+   string_action =  "Backward"; 
+    break;
+  case left:
+    string_action =  "Left";
+    break;
+  case right:
+    string_action =  "right";
+    break;
+  case up:
+    string_action =  "Up";
+    break;
+  case down:
+    string_action =  "Down";
+    break;
+  case NoMove:
+    string_action =  "NoMove";
+    break;
+  case Unknown:
+    string_action =  "Unknown";
+    break;    
+  }
+  return string_action;    
+}
+
 /* Get the best action from the model according to the best values */
 Actions::Action Actions::
 extract_action_from_index(arma::mat features, arma::uword index)
