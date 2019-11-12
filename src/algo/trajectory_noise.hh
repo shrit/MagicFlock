@@ -17,15 +17,14 @@ template<class flight_controller_t,
 class TrajectoryNoise {
 
 public:
-
+  
   TrajectoryNoise(std::vector<std::shared_ptr<flight_controller_t>> quads,
 		  std::shared_ptr<simulator_t> sim_interface);  
   void run();
 
   void test_trajectory();
   
-  TrajectoryNoise(TrajectoryNoise const&) = delete;
-  
+  TrajectoryNoise(TrajectoryNoise const&) = delete;  
   TrajectoryNoise(TrajectoryNoise &&) = default;
 
 private:
@@ -53,7 +52,7 @@ private:
   std::vector<double> f_k_r_action_vec_; /*  Forward action known that right action has been executed */
   std::vector<double> f_k_u_action_vec_; /*  Forward action known that up action has been executed */
   std::vector<double> f_k_d_action_vec_; /*  Forward action known that down action has been executed */
-
+  
   std::vector<double> b_k_l_action_vec_; /*  Backward action known that left action has been executed */
   std::vector<double> b_k_r_action_vec_; /*  Backward action known that right action has been executed */
   std::vector<double> b_k_u_action_vec_; /*  Backward action known that up action has been executed */

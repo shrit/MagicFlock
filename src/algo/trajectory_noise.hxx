@@ -21,10 +21,10 @@ template<class flight_controller_t,
 void TrajectoryNoise<flight_controller_t, simulator_t>::
 test_trajectory()
 {
-  Quadrotor robot;
+  Actions action;
 
   action_ =
-   robot.random_action_generator_with_all_conditions(saved_action_);
+    action.random_action_generator_with_all_conditions(saved_action_);
   
   /*  Execute a trajectory for 1 seconds */
   swarm_.one_quad_execute_trajectory("l" ,
