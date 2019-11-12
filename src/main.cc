@@ -17,6 +17,7 @@
 /*  locale defined include */
 # include "algo/training.hh"
 # include "algo/generate_data_set.hh"
+# include "algo/quadrotor.hh"
 # include "algo/supervised_learning.hh"
 # include "algo/trajectory_noise.hh"
 # include "config_ini.hh"
@@ -302,7 +303,7 @@ int main(int argc, char* argv[])
     exit(0);
   }
   
-  std::vector<lt::port_type> ports  =  configs.quads_ports();
+  std::vector<lt::port_type> ports = configs.quads_ports();
   
   /* Create a vector of controllers. Each controller connect to one
    * quadcopters at a time
@@ -316,8 +317,9 @@ int main(int argc, char* argv[])
     LogInfo() << "Add an iris QCopter! " ;
   }
 
-  LogInfo() << "Ports number: "<<ports ;
+  LogInfo() << "Ports number: "<< ports;
 
+      
   ////////////
   // Gazebo //
   ///////////
@@ -341,17 +343,25 @@ int main(int argc, char* argv[])
 
   std::this_thread::sleep_for(std::chrono::seconds(10));
 
+  /*  Create a vector of quadrotors, each one has an id + a name  */
+  /*  Try to see if it is possible or efficient to merge quadrotors +
+      device controller */
+  std::vector<Quadrotor<Gazebo>> quadrotors;
+  quadrotors.emplace_back(0, "leader");
+  quadrotors.emplace_back(1, "follower_1");
+  quadrotors.emplace_back(2, "follower_2");
+  
   /*  1: Generate a dataset
    *  2: Train the model on the dataset
    *  3: Test the trained model
    */
 
   if (settings.generate() == true) {
-    Generator<Px4Device, Gazebo> generator(iris_x, gz);
+    Generator<Px4Device, Gazebo> generator(iris_x, quadrotors, gz);
     generator.run(settings);
     
   } else if (settings.testing() == true) {
-    Supervised_learning<Px4Device, Gazebo> slearning(iris_x, gz);
+    Supervised_learning<Px4Device, Gazebo> slearning(iris_x, quadrotors, gz);
     slearning.run(settings);
     
   } else if (settings.trajectory() == true) {
