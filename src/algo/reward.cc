@@ -1,6 +1,6 @@
 # include "reward.hh"
 
-Reward::Reward Reward::
+Rewards::Reward Rewards::
 evaluator_current_state(const lt::triangle<double>& old_dist,
 			const lt::triangle<double>& new_dist)
 {
