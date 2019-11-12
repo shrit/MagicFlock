@@ -16,6 +16,10 @@ Generator(std::vector<std::shared_ptr<flight_controller_t>> quads,
    quadrotors_(std::move(quadrotors))
 {
   data_set_.init_dataset_directory();
+  /*  Allow easier access and debugging to all quadrotors state */
+  leader_ = quadrotors_.begin();
+  follower_1_ = std::next(quadrotors_.begin(), 1);
+  follower_2_ = std::next(quadrotors_.begin(), 2);
 }
 
 /*  Phase one: Data Set generation */
@@ -24,35 +28,31 @@ template <class flight_controller_t,
 void Generator<flight_controller_t, simulator_t>::
 generate_trajectory(bool change_leader_action)
 {
-  Actions action;
-  /*  Allow easier access and debugging to all quadrotors state */
-  auto leader = quadrotors_.begin();
-  auto follower_1_ = std::next(quadrotors_.begin(), 1);
-  auto follower_2_ = std::next(quadrotors_.begin(), 2);
-  
+  Actions action;  
   std::vector<std::thread> threads;
   
   /*  Sample the state at time t */
   follower_1_.sample_state();
   follower_2_.sample_state();
   
-  /*  Create a random action for the leaders, with the opposed condition */
-  if (change_leader_action == true) {
-    leader.current_action(
-			  action.random_action_generator_with_only_opposed_condition
-			  (leader.last_action()));
+  /*  Create a random action for the leader_s, with the opposed condition */
+  if (change_leader__action == true) {
+    leader_.current_action(
+			   action.random_action_generator_with_only_opposed_condition
+			   (leader_.last_action()));
   } else {
-    leader.current_action(leader.last_action());
+    leader_.current_action(leader_.last_action());
   }
     
   /*  Do not allow follower to move, at this time step, 
       block the follower and log not move*/
   follower_1_.current_action(Actions::Action::NoMove);
+  follower_2_.current_action(Actions::Action::NoMove);
   
   /*  Threading QuadCopter */
   threads.push_back(std::thread([&](){
 				    swarm_.one_quad_execute_trajectory("l" ,
-								       leader.current_action(),
+								       leader_.current_action(),
 								       1000);
 				}));
 
@@ -154,7 +154,7 @@ run(const Settings& settings)
     
     /*  Start the First phase */
     /*  Collect dataset by creating a set of trajectories, each time
-	the leader and the follower execute their trajectory randomly,
+	the leader_ and the follower execute their trajectory randomly,
 	we check the triangle (whether the follower is too close or
 	too far) finally we break the loop after 10 trajectorise of 1
 	second each */
@@ -182,7 +182,7 @@ run(const Settings& settings)
 	LogInfo() << "Distanes before actions : " <<
 	  mtools_.triangle_side_3D(positions_before_action);
 		
-	/* Choose one random trajectory for the leader in the first
+	/* Choose one random trajectory for the leader_ in the first
 	   count. Then, keep the same action until the end of the
 	   episode */	
 	  if (count_ == 0) {
