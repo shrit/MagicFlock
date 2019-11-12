@@ -10,11 +10,14 @@
 # include <vector>
 
 /* local includes  */
+# include "action.hh"
 # include "../data_set.hh"
 # include "../global.hh"
 # include "../log.hh"
 # include "../math_tools.hh"
-# include "quadcopter.hh"
+# include "quadrotor.hh"
+# include "reward.hh"
+# include "state.hh"
 # include "../settings.hh"
 # include "../swarm_device.hh"
 
@@ -27,6 +30,7 @@ class Generator {
 public:
 
   Generator(std::vector<std::shared_ptr<flight_controller_t>> quads,
+	    const std::vector<Quadrotor<simulator_t>>& quadrotors,
 	    std::shared_ptr<simulator_t> sim_interface);
 
   void generate_trajectory(bool random_leader_action);
@@ -39,19 +43,19 @@ public:
 
 private:
   
-  std::vector<Quadcopter::Action> action_follower_;
   int count_;
   DataSet data_set_;
   int episode_;
   int max_episode_;
   Math_tools mtools_;
-  int n_trajectory_;
   std::shared_ptr<simulator_t> sim_interface_;
-  std::vector<Quadcopter::State<simulator_t>> states_;
-  Quadcopter::Action saved_leader_action_;
-  Quadcopter::Action saved_follower_action_;
-  bool stop_episode_;
+  bool stop_episode_;  
   SwarmDevice<flight_controller_t> swarm_;
+  std::vector<Quadrotor<simulator_t>> quadrotors_;
+  
+  typename std::vector<Quadrotor<simulator_t>>::iterator leader_;
+  typename std::vector<Quadrotor<simulator_t>>::iterator follower_1_;
+  typename std::vector<Quadrotor<simulator_t>>::iterator follower_2_;
 };
 
 # include "generate_data_set.hxx"

@@ -6,12 +6,14 @@ template<class flight_controller_t,
 	 class simulator_t>
 Generator<flight_controller_t, simulator_t>::
 Generator(std::vector<std::shared_ptr<flight_controller_t>> quads,
+	  const std::vector<Quadrotor<simulator_t>>& quadrotors,
 	  std::shared_ptr<simulator_t> sim_interface)
   :count_(0),
    episode_(0),
    max_episode_(10000),
    sim_interface_(std::move(sim_interface)),
-   swarm_(std::move(quads))
+   swarm_(std::move(quads)),
+   quadrotors_(std::move(quadrotors))
 {
   data_set_.init_dataset_directory();
 }
@@ -20,39 +22,37 @@ Generator(std::vector<std::shared_ptr<flight_controller_t>> quads,
 template <class flight_controller_t,
 	  class simulator_t>
 void Generator<flight_controller_t, simulator_t>::
-generate_trajectory(bool random_leader_action)
+generate_trajectory(bool change_leader_action)
 {
-  Quadcopter::Action action_leader;
-  Quadcopter robot;  
+  Actions action;
+  /*  Allow easier access and debugging to all quadrotors state */
+  auto leader = quadrotors_.begin();
+  auto follower_1_ = std::next(quadrotors_.begin(), 1);
+  auto follower_2_ = std::next(quadrotors_.begin(), 2);
+  
   std::vector<std::thread> threads;
   
-  /*  Get the state at time t */
+  /*  Sample the state at time t */
+  follower_1_.sample_state();
+  follower_2_.sample_state();
   
-  Quadcopter::State<simulator_t> state(sim_interface_);
-  states_.push_back(state);
-
   /*  Create a random action for the leaders, with the opposed condition */
-  if (random_leader_action == true) {
-    action_leader =
-      robot.random_action_generator_with_only_opposed_condition(saved_leader_action_);
-    saved_leader_action_ = action_leader;
+  if (change_leader_action == true) {
+    leader.current_action(
+			  action.random_action_generator_with_only_opposed_condition
+			  (leader.last_action()));
   } else {
-    action_leader = saved_leader_action_;
+    leader.current_action(leader.last_action());
   }
     
   /*  Do not allow follower to move, at this time step, 
       block the follower and log not move*/
-  action_follower_.push_back(Quadcopter::Action::NoMove);
+  follower_1_.current_action(Actions::Action::NoMove);
   
   /*  Threading QuadCopter */
   threads.push_back(std::thread([&](){
 				    swarm_.one_quad_execute_trajectory("l" ,
-								       action_leader,
-								       1000);
-				}));
-  threads.push_back(std::thread([&](){
-				    swarm_.one_quad_execute_trajectory("f1" ,
-								       action_leader,
+								       leader.current_action(),
 								       1000);
 				}));
 
@@ -60,29 +60,44 @@ generate_trajectory(bool random_leader_action)
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   
   /* Get the next state at time t + 1  */
-  Quadcopter::State<simulator_t> nextState(sim_interface_);
-  states_.push_back(nextState);
-  
+  follower_1_.sample_state();
+  follower_2_.sample_state();
 
-  /*  Do a random action at t+1 for the follower */
+  /*  Do a random action at t+1 for the follower 1 */
+  follower_1_.current_action(
+			    action.random_action_generator_with_only_opposed_condition
+			    (follower_1_.last_action()));
   
-  action_follower_.push_back
-    (robot.random_action_generator_with_only_opposed_condition(saved_follower_action_));
-  saved_follower_action_ = action_follower_.back();
+  threads.push_back(std::thread([&](){
+				  swarm_.one_quad_execute_trajectory("f1" ,
+								     follower_1_.current_action(),
+								     1000);
+				}));
+  
+  /* We need to wait until the quadcopters finish their actions */
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  
+  /* Get the next state at time t + 2  */
+  follower_1_.sample_state();
+  follower_2_.sample_state();
+  
+  /*  Do a random action at t+2 for the follower 2 */
+  follower_2_.current_action(
+			    action.random_action_generator_with_only_opposed_condition
+			    (follower_2_.last_action()));
   
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("f2",
-								     action_follower_.back(),
+								     follower_2_.current_action(),
 								     1000);
 				}));
   for(auto& thread : threads) {
     thread.join();
   }
     
-  /* Get the next state at time t + 2  */
-  Quadcopter::State<simulator_t> finalState(sim_interface_);
-  states_.push_back(finalState);
-  return;
+  /* Get the next state at time t + 3 */
+  follower_1_.sample_state();
+  follower_2_.sample_state();
 }
 
 template<class flight_controller_t,
@@ -146,15 +161,17 @@ run(const Settings& settings)
     
     if (!stop_episode_) {
       /*  Verify that vectors are clear when starting new episode */
-      states_.clear();
-      action_follower_.clear();
+      follower_1_.reset_all_states();
+      follower_2_.reset_all_states();
+      follower_1_.reset_all_actions();
+      follower_2_.reset_all_actions();
       count_ = 0;
 
       std::vector<lt::triangle<double>> new_triangle;
       
       while (count_ < 10 and !stop_episode_) {
 
-	Quadcopter::Reward reward = Quadcopter::Reward::Unknown;
+	Rewards::Reward reward = Rewards::Reward::Unknown;
 			
 	lt::positions<lt::position3D<double>> positions_before_action =
 	  sim_interface_->positions();
@@ -187,45 +204,41 @@ run(const Settings& settings)
 	   before executing this action. Instead of comparing it to
 	   the original one. But why? Why should this comparison
 	   gives better learning score than the one before */
-	
-	Quadcopter robot;
+	Rewards rewarder;
 	/*  Keep classification method */
 	if (settings.classification()) {
 	  /*  Classification */
 	  if (count_ == 0 ) {
-	    reward = robot.action_evaluator(triangle_before_action,
-					    new_triangle.at(count_));
+	    reward = rewarder.evaluate_current_state(triangle_before_action,
+						   new_triangle.at(count_));
 	  } else {
-	    reward = robot.action_evaluator(new_triangle.at(count_ -1),
-					    new_triangle.at(count_));
+	    reward = rewarder.evaluate_current_state(new_triangle.at(count_ -1),
+						   new_triangle.at(count_));
 	  }
 	}
 	/*  Save the information generated from the trajectory into a
 	    dataset file */	
 	if (settings.classification()) {
-	  data_set_.save_csv_data_set(states_.front(),
-				      mtools_.to_one_hot_encoding(action_follower_.back(), 7),
-				      states_.back(),
+	  data_set_.save_csv_data_set(follower_1_.last_state(),
+				      mtools_.to_one_hot_encoding(follower_1_.current_action(), 7),
+				      follower_1_.current_state(),
 				      mtools_.to_one_hot_encoding(reward, 4)
 				      );
 	}
-	if (settings.regression()) {
-	  /*  This condition need to be removed */
-	  auto states_it = states_.rbegin();
-	  states_it = std::next(states_it, 1);
-	  auto states_it_2 = std::next(states_it, 1);
-	  
-	  data_set_.save_csv_data_set(*(states_it_2),				      
-				      mtools_.to_one_hot_encoding(action_follower_.front(), 7),
-				      *(states_it),
-				      mtools_.to_one_hot_encoding(action_follower_.back(), 7),
-				      states_.back()	      
+	if (settings.regression()) {	 
+	  data_set_.save_csv_data_set(follower_1_.before_last_state(),				      
+				      mtools_.to_one_hot_encoding(follower_1_.last_action(), 7),
+				      follower_1_.last_state(),
+				      mtools_.to_one_hot_encoding(follower_1_.current_action(), 7),
+				      follower_1_.current_state()	      
 				      );
 	}
 	
 	/*  Clear vectors after each generated line in the dataset */
-	states_.clear();
-	action_follower_.clear();	
+	follower_1_.reset_all_states();
+	follower_2_.reset_all_states();	
+	follower_1_.reset_all_actions();
+	follower_2_.reset_all_actions();	
 	/*  Check the triangle we are out of bound break the loop */
 	if (mtools_.is_triangle(mtools_.triangle_side_3D
 				(sim_interface_->positions())) == false) {
