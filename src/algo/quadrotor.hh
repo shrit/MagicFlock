@@ -25,16 +25,21 @@ public:
 
   std::vector<unsigned int> nearest_neighbors() const;
   void add_nearest_neighbor_id(unsigned int id);
-  
+
+  /*  State related functions */
+  void sample_state();
   State<simulator_t> current_state() const;
   State<simulator_t> last_state();
+  State<simulator_t> before_last_state();
   std::vector<State<simulator_t>> all_states() const;
   void reset_all_states();
-  
-  Actions::Action current_action();
+
+    /*  Action related functions */
+  Actions::Action current_action() const;
+  void current_action(Actions::Action action);
   Actions::Action last_action();
   std::vector<Actions::Action> all_actions() const;
-  void reset_all_action();
+  void reset_all_actions();
   
 private:
 
@@ -44,6 +49,7 @@ private:
  
   State<simulator_t> current_state_;
   State<simulator_t> last_state_;
+  State<simulator_t> before_last_state_;
   std::vector<State<simulator_t>> all_states_;
 
   unsigned int id_; /* Quadrotor id */
