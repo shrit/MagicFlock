@@ -3,9 +3,11 @@
 # include "quadrotor.hh"
 template <class simulator_t>
 Quadrotor<simulator_t>::Quadrotor(unsigned int id,
-				  std::string name)
+				  std::string name,
+				  std::shared_ptr<simulator_t> sim_interface)
   :id_(id),
-   name_(name)
+   name_(name),
+   sim_interface_(std::move(sim_interface))
 {}
 
 template <class simulator_t>
@@ -27,7 +29,7 @@ std::vector<unsigned int> Quadrotor<simulator_t>::nearest_neighbors() const
 template <class simulator_t>
 void Quadrotor<simulator_t>::sample_state()
 {
-  State<simulator_t> state(id_, nearest_neighbors_);
+  State<simulator_t> state(sim_interface_, id_, nearest_neighbors_);
   current_state_ = state;
   all_states_.push_back(state);
 }

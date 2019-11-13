@@ -56,6 +56,8 @@ private:
   std::string name_; /* Quadrotor name */
   std::vector<unsigned int> nearest_neighbors_;
 
+  std::shared_ptr<simulator_t> sim_interface_;
+
 };
 
 # include "quadrotor.hxx"
