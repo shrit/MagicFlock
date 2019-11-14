@@ -28,7 +28,31 @@ def modify_labels(dataset_file_name):
 
     new_data_set = np.column_stack((dataset, z))        
     np.savetxt(dataset_file_name, new_data_set, delimiter=",")
-     
+
+
+def plot_generic(generic_file_name, xlabel, ylabel):
+    num_lines = sum(1 for line in open(generic_file_name))
+    print (num_lines)
+    
+    y = np.loadtxt(generic_file_name)
+    x = np.arange(y.size)
+    
+    print(y)
+    z = np.mean(y)
+    
+    print ("standard deviation : ", np.std(y))    
+    print("mean value:", z)
+        
+    plt.plot(x, y, color='blue')
+    
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+
+    figure = plt.gcf() # get current figure
+    figure.set_size_inches(25, 6)    
+    
+    plt.savefig(generic_file_name + ".svg", dpi=100, format="svg")    
+         
 """
 Error files need to be formated as one column file
 This column contain the mean error of each flight
@@ -126,8 +150,8 @@ def plot_one_cumulative_histogram(histogram_file_name):
     x, z = cumulative_histogram(histogram_file_name)
     
     plt.plot(x, z, color='blue')
-    plt.xlabel('Number of time steps')
-    plt.ylabel('cdf')
+    plt.xlabel('Number of time steps per episode')
+    plt.ylabel('CDF')
     plt.grid()
     figure = plt.gcf() # get current figure
     figure.set_size_inches(25, 6)    
@@ -141,14 +165,14 @@ def plot_two_cumulative_histogram(histogram_file_name,
     plt.plot(x, y, color='blue', label="Trained controller")
     plt.plot(x, j, color='green', label="Random controller")
 
-    plt.title("Cumulative histogram of two controllers")
-    plt.xlabel('Number of time steps')
+    plt.title("Cumulative distribution function of random and trained controller")
+    plt.xlabel('Number of time steps executed by the follower per episode')
     plt.ylabel('cdf')
     plt.legend()
     plt.grid()
     figure = plt.gcf() # get current figure
     figure.set_size_inches(25, 6)    
-    plt.savefig(histogram_file_name + "two_cumulative_.png", dpi=100)
+    plt.savefig(histogram_file_name + "two_cumulative_.svg", dpi=100)
 
 if __name__ == '__main__':
 
@@ -165,7 +189,8 @@ if __name__ == '__main__':
         You have to provide the file format as described in the above comments.
         '''))
 
-    parser.add_argument('--dataset_file_name', metavar="dataset file name", type=str, help="Enter error file name that has the dataset to modify the labels")
+    parser.add_argument('--dataset_file_name', metavar="dataset file name", type=str, help="Enter dataset file name to plot")
+    parser.add_argument('--generic_file_name', metavar="generic file name", type=str, help="Enter a generic file to plot with one column")
     parser.add_argument('--error_file_name', metavar="error file name", type=str, help="Enter error file name that has the mean value of each flight")
     parser.add_argument('--count_file_name', metavar="count file name", type=str, help="Enter flight count file name  ")
     parser.add_argument('--histogram_file_name', metavar="histogram file name", type=str, help="Enter a histogram file name, two column file name, nuumber of steps and frequency")
@@ -180,6 +205,11 @@ if __name__ == '__main__':
     if args.error_file_name:
         plot_flight_error(args.error_file_name)
 
+    elif args.generic_file_name:
+        xlabel = input('Enter your xlabel:')
+        ylabel = input('Enter your ylabel:')
+        plot_generic(args.generic_file_name, xlabel, ylabel)
+        
     elif args.count_file_name:    
         plot_flight_count(args.count_file_name)
         
