@@ -2,7 +2,10 @@
 
 # include "predictor.hh"
 
-Predictor::Predictor(std::string name/*  Classification or regression */)
+Predictor::Predictor(std::string name,/*  Classification or regression */
+		     std::string name_quadrotor,
+		     const std::vector<Quadrotor<simulator_t>>& quadrotors)
+  :quadrotors_(std::move(quadrotors))
 {
   classification_ = false;
   regression_ = false;
@@ -12,38 +15,45 @@ Predictor::Predictor(std::string name/*  Classification or regression */)
     regression_ = true;
   } else {
     LogInfo() << "Please entre either classification or regression to star the prediction";
+  }
+
+  if (name_quadrotors == "leader") {
+    
+  } else if (name_quadrotors == "follower_1") {
+    
+  } else if (name_quadrotors == "follower_2") {
+    
   }    
+  /*  Allow easier access and debugging to all quadrotors state */
+  quad_ = quadrotors.begin() + index;
 }
 
 /* Estimate the features (distances) using propagation model from RSSI */
 template<class simulator_t>
 arma::mat Predictor::
-create_estimated_features_matrix(const states_vec<simulator_t>& states,
-				 Quadrotor::Action action_follower)
+create_estimated_features_matrix()				 
 {
-  arma::mat features;
-  auto it_state = states.rbegin();
-  it_state = std::next(it_state, 1);
+  arma::mat features; 
   arma::rowvec row;
 
-  std::vector<Quadrotor::Action> actions =
-    robot_.possible_actions();
+  std::vector<Actions::Action> actions =
+    action_.possible_actions();
 
   for (int i = 0; i < 7; ++i) {
     /*  State */
-    row << (*it_state).distances_3D().f1
-	<< (*it_state).distances_3D().f2
-	<< (*it_state).height_difference()
-	<< mtools_.to_one_hot_encoding(action_follower, 7).at(0)
-      	<< mtools_.to_one_hot_encoding(action_follower, 7).at(1)
-	<< mtools_.to_one_hot_encoding(action_follower, 7).at(2)
-	<< mtools_.to_one_hot_encoding(action_follower, 7).at(3)
-	<< mtools_.to_one_hot_encoding(action_follower, 7).at(4)
-	<< mtools_.to_one_hot_encoding(action_follower, 7).at(5)
-      	<< mtools_.to_one_hot_encoding(action_follower, 7).at(6)
-	<< states.back().distances_3D().f1
-	<< states.back().distances_3D().f2
-	<< states.back().height_difference()
+    row << quad_.last_state().distances_3D().f1
+	<< quad_.last_state().distances_3D().f2
+	<< quad_.last_state().height_difference()
+	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(0)
+      	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(1)
+	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(2)
+	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(3)
+	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(4)
+	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(5)
+      	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(6)
+	<< quad_.current_state().distances_3D().f1
+	<< quad_.current_state().distances_3D().f2
+	<< quad_.current_state().height_difference()
       /*  Action encoded as 1, and 0, add 7 times to represent 7 actions */
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(0)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(1)
@@ -62,32 +72,29 @@ create_estimated_features_matrix(const states_vec<simulator_t>& states,
 
 template<class simulator_t>
 arma::mat Predictor::
-create_absolute_features_matrix(const states_vec<simulator_t>& states,
-			        Quadrotor::Action action_follower)
+create_absolute_features_matrix()			        
 {
   arma::mat features;
   arma::rowvec row;
-  auto it = states.rbegin();
-  it = std::next(it, 1);
 
   std::vector<Quadrotor::Action> actions =
     robot_.possible_actions();
     
   for (int i = 0; i < 7; ++i) {
     /*  State */
-    row << (*it).distances_3D().f1
-	<< (*it).distances_3D().f2
-	<< (*it).height_difference()
-	<< mtools_.to_one_hot_encoding(action_follower, 7).at(0)
-      	<< mtools_.to_one_hot_encoding(action_follower, 7).at(1)
-	<< mtools_.to_one_hot_encoding(action_follower, 7).at(2)
-	<< mtools_.to_one_hot_encoding(action_follower, 7).at(3)
-	<< mtools_.to_one_hot_encoding(action_follower, 7).at(4)
-	<< mtools_.to_one_hot_encoding(action_follower, 7).at(5)
-      	<< mtools_.to_one_hot_encoding(action_follower, 7).at(6)
-	<< states.back().distances_3D().f1
-	<< states.back().distances_3D().f2
-	<< states.back().height_difference()
+    row << quad_.last_state().distances_3D().f1
+	<< quad_.last_state().distances_3D().f2
+	<< quad_.last_state().height_difference()
+	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(0)
+      	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(1)
+	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(2)
+	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(3)
+	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(4)
+	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(5)
+      	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(6)
+	<< quad_.current_state.distances_3D().f1
+	<< quad_.current_state.distances_3D().f2
+	<< quad_.current_state.height_difference()
       /*  Action encoded as 1, and 0, add 7 times to represent 7 actions */
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(0)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(1)

@@ -30,23 +30,20 @@
 namespace lt = local_types;
 
 template<class simulator_t>
-using states_vec = std::vector<Quadcopter::State<simulator_t>>;
+using quadrotors_vec = std::vector<Quadrotor<simulator_t>>;
 
+template<class simulator_t>
 class Predictor
 {
 public:
       
-  Predictor(string name);
+  Predictor(string name, const quadrotors_vec& quadrotors);
   
-  template<class simulator_t>
   arma::mat
-  create_absolute_features_matrix(const states_vec<simulator_t>& states,
-				  Quadrotor::Action follower_action);
-
-  template<class simulator_t>
+  create_absolute_features_matrix();
+				  
   arma::mat
-  create_estimated_features_matrix(const states_vec<simulator_t>& states,
-				   Quadrotor::Action follower_action);
+  create_estimated_features_matrix();
 
   std::vector<double>
   estimate_action_from_distance(arma::mat& matrix);
@@ -63,13 +60,14 @@ public:
   Predictor(Predictor const&) = delete;
   Predictor(Predictor &&) = default;
 private:
-  
+
+  Actions action;
   bool classification_;
   Math_tools mtools_;
   bool regression_;
   lt::triangle<double> original_dist_;
   double height_diff_;
-  Quadrotor robot_;  
+  std::vector<Quadrotor<simulator_t>> quadrotors_;
 };
 
 # include "predictor.hxx"
