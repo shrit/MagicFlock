@@ -87,31 +87,30 @@ void Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
     } else if (name == std::string(config_.quad_names().at(1))) {
       const ::gazebo::msgs::Vector3d& position = pose.position();
 
-      _positions.f1.x = position.x();
-      _positions.f1.y = position.y();
-      _positions.f1.z = position.z();
-
-
+      _positions.follower_1.x = position.x();
+      _positions.follower_1.y = position.y();
+      _positions.follower_1.z = position.z();
+      
       const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
 
-      _orientations.f1.x = orientation.x();
-      _orientations.f1.y = orientation.y();
-      _orientations.f1.z = orientation.z();
-      _orientations.f1.w = orientation.w();
+      _orientations.follower_1.x = orientation.x();
+      _orientations.follower_1.y = orientation.y();
+      _orientations.follower_1.z = orientation.z();
+      _orientations.follower_1.w = orientation.w();
 
     } else if (name == std::string(config_.quad_names().at(2))) {
       const ::gazebo::msgs::Vector3d& position = pose.position();
 
-      _positions.f2.x = position.x();
-      _positions.f2.y = position.y();
-      _positions.f2.z = position.z();
+      _positions.follower_2.x = position.x();
+      _positions.follower_2.y = position.y();
+      _positions.follower_2.z = position.z();
 
       const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
 
-      _orientations.f2.x = orientation.x();
-      _orientations.f2.y = orientation.y();
-      _orientations.f2.z = orientation.z();
-      _orientations.f2.w = orientation.w();
+      _orientations.follower_2.x = orientation.x();
+      _orientations.follower_2.y = orientation.y();
+      _orientations.follower_2.z = orientation.z();
+      _orientations.follower_2.w = orientation.w();
     }
   }
 }

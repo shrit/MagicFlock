@@ -48,8 +48,9 @@ namespace local_types {
   template <class position_t>
   struct positions {
     position_t leader;
-    position_t f2;
-    position_t f1;
+    position_t follower_1;
+    position_t follower_2;
+
   };
 
   template <typename T>
@@ -88,11 +89,11 @@ namespace local_types {
     { return f3_;}
 
     void f1(T value)
-    {  f1_ = value;}
+    { f1_ = value; }
     void f2(T value)
-    { f2_ = value;}
+    { f2_ = value; }
     void f3(T value)
-    {  f3_ =  value;}
+    { f3_ = value; }
 
   private:
 
@@ -106,7 +107,7 @@ namespace local_types {
   using port_type = uint16_t;
   //Type of drone's conncetion socket
   using connection_type = std::string;
-  using topic_name               = std::string;
+  using topic_name = std::string;
 }
 
 /*  Overloading the << operator to print local structs, vectors and classes */

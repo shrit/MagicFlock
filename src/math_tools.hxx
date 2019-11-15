@@ -39,10 +39,17 @@ double Math_tools::gaussian_noise(std::vector<lt::triangle<T>> distances,
 
 template <typename T>
 long long unsigned int Math_tools::
-index_of_highest_value(const std::vector<T>& vec)
+index_of_max_value(const std::vector<T>& vec)
 {
-  // Find Smallest Value in vec
     auto highest = std::max_element(vec.begin(), vec.end());
+    return std::distance(vec.begin(), highest);
+}
+
+template <typename T>
+long long unsigned int Math_tools::
+index_of_min_value(const std::vector<T>& vec)
+{
+    auto highest = std::min_element(vec.begin(), vec.end());
     return std::distance(vec.begin(), highest);
 }
 
@@ -90,16 +97,16 @@ triangle_side_2D(lt::positions<lt::position3D<T>> pos)
     lt::position3D<double> dist, dist2, dist3;
 
     /*  Distance between leader and FF */
-    dist.x =  pos.leader.x - pos.f1.x;
-    dist.y =  pos.leader.y - pos.f1.y;
+    dist.x =  pos.leader.x - pos.follower_1.x;
+    dist.y =  pos.leader.y - pos.follower_1.y;
 
     /* Distance between leader and TF */
-    dist2.x = pos.leader.x - pos.f2.x;
-    dist2.y = pos.leader.y - pos.f2.y;
+    dist2.x = pos.leader.x - pos.follower_2.x;
+    dist2.y = pos.leader.y - pos.follower_2.y;
 
     /* Distance between TF and FF */
-    dist3.x = pos.f1.x - pos.f2.x;
-    dist3.y = pos.f1.y - pos.f2.y;
+    dist3.x = pos.follower_1.x - pos.follower_2.x;
+    dist3.y = pos.follower_1.y - pos.follower_2.y;
 
     lt::triangle<double> t;
 
@@ -122,19 +129,19 @@ triangle_side_3D(lt::positions<lt::position3D<T>> pos)
     lt::position3D<double> dist, dist2, dist3;
 
     /*  Distance between leader and FF */
-    dist.x =  pos.leader.x - pos.f1.x;
-    dist.y =  pos.leader.y - pos.f1.y;
-    dist.z =  pos.leader.z - pos.f1.z;
+    dist.x =  pos.leader.x - pos.follower_1.x;
+    dist.y =  pos.leader.y - pos.follower_1.y;
+    dist.z =  pos.leader.z - pos.follower_1.z;
 
     /* Distance between leader and TF */
-    dist2.x = pos.leader.x - pos.f2.x;
-    dist2.y = pos.leader.y - pos.f2.y;
-    dist2.z = pos.leader.z - pos.f2.z;
+    dist2.x = pos.leader.x - pos.follower_2.x;
+    dist2.y = pos.leader.y - pos.follower_2.y;
+    dist2.z = pos.leader.z - pos.follower_2.z;
 
     /* Distance between TF and FF */
-    dist3.x = pos.f1.x - pos.f2.x;
-    dist3.y = pos.f1.y - pos.f2.y;
-    dist3.z = pos.f1.z - pos.f2.z;
+    dist3.x = pos.follower_1.x - pos.follower_2.x;
+    dist3.y = pos.follower_1.y - pos.follower_2.y;
+    dist3.z = pos.follower_1.z - pos.follower_2.z;
 
     lt::triangle<double> t;
 
@@ -152,6 +159,9 @@ triangle_side_3D(lt::positions<lt::position3D<T>> pos)
     /*  it return the traingle side */
     return t;
 }
+
+template <typename T>
+lt::triangle<double> Math_tools::distance_to_neighbors
 
 /*  Simple implementation, need more logical one */
 template <typename Arg, typename Arg2>
@@ -188,9 +198,24 @@ std::vector<double> Math_tools::to_std_vector(Arg arg)
   return vec;
 }
 
+
+
+std::vector<double> Math_tools::distance_to_neighbor(unsigned int id,
+				 std::vector<unsigned int> nearest_neighbors,
+				 std::shared_ptr<simulator_t> sim_interface)
+{
+
+  std::vector<double> distances;
+  
+  
+
+  return distances;
+}
+
+
 template <typename T>
 lt::dist3D<double> Math_tools::traveled_distances(lt::positions<lt::position3D<T>> pos_t,
-						     lt::positions<lt::position3D<T>> pos_t_1)
+						  lt::positions<lt::position3D<T>> pos_t_1)
 {
   lt::position3D<double> dist_leader, dist_f1, dist_f2;
 
@@ -199,15 +224,15 @@ lt::dist3D<double> Math_tools::traveled_distances(lt::positions<lt::position3D<T
   dist_leader.y =  pos_t.leader.y - pos_t_1.leader.y;
   dist_leader.z =  pos_t.leader.z - pos_t_1.leader.z;
   
-  /* Travelled distance between time steps for f1  */
-  dist_f1.x = pos_t.f1.x - pos_t_1.f1.x;
-  dist_f1.y = pos_t.f1.y - pos_t_1.f1.y;
-  dist_f1.z = pos_t.f1.z - pos_t_1.f1.z;
+  /* Travelled distance between time steps for follower_1  */
+  dist_follower_1.x = pos_t.follower_1.x - pos_t_1.follower_1.x;
+  dist_follower_1.y = pos_t.follower_1.y - pos_t_1.follower_1.y;
+  dist_follower_1.z = pos_t.follower_1.z - pos_t_1.follower_1.z;
   
-  /* Travelled distance between time steps for f2  */
-  dist_f2.x = pos_t.f2.x - pos_t_1.f2.x;
-  dist_f2.y = pos_t.f2.y - pos_t_1.f2.y;
-  dist_f2.z = pos_t.f2.z - pos_t_1.f2.z;
+  /* Travelled distance between time steps for follower_2  */
+  dist_follower_2.x = pos_t.follower_2.x - pos_t_1.follower_2.x;
+  dist_follower_2.y = pos_t.follower_2.y - pos_t_1.follower_2.y;
+  dist_follower_2.z = pos_t.follower_2.z - pos_t_1.follower_2.z;
 
   lt::dist3D<double> distance3D;
 
@@ -219,15 +244,15 @@ lt::dist3D<double> Math_tools::traveled_distances(lt::positions<lt::position3D<T
 			    std::pow((dist_leader.y), 2) +
 			    std::pow((dist_leader.z), 2));
 
-  /*  Distance travelled by the f1 */
-  distance3D.d2 = std::sqrt(std::pow((dist_f1.x), 2) +
-			    std::pow((dist_f1.y), 2) +
-			    std::pow((dist_f1.z), 2));
+  /*  Distance travelled by the follower_1 */
+  distance3D.d2 = std::sqrt(std::pow((dist_follower_1.x), 2) +
+			    std::pow((dist_follower_1.y), 2) +
+			    std::pow((dist_follower_1.z), 2));
 
-  /*  Distance travelled by the f2 */
-  distance3D.d3 = std::sqrt(std::pow((dist_f2.x), 2) +
-			    std::pow((dist_f2.y), 2) +
-			    std::pow((dist_f2.z), 2));
+  /*  Distance travelled by the follower_2 */
+  distance3D.d3 = std::sqrt(std::pow((dist_follower_2.x), 2) +
+			    std::pow((dist_follower_2.y), 2) +
+			    std::pow((dist_follower_2.z), 2));
   
   return distance3D;
 }
