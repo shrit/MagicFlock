@@ -6,12 +6,14 @@ template <class flight_controller_t,
 	  class simulator_t>
 Supervised_learning<flight_controller_t, simulator_t>::
 Supervised_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
+		    const std::vector<Quadrotor<simulator_t>>& quadrotors,
 		    std::shared_ptr<simulator_t> gzs)
   :count_(0),
    episode_(0),
    max_episode_(10000),
    sim_interface_(std::move(gzs)),
-   swarm_(std::move(iris_x))
+   swarm_(std::move(iris_x)),
+   quadrotors_(std::move(quadrotors))
 {
   data_set_.init_dataset_directory();
 }
@@ -20,52 +22,57 @@ template <class flight_controller_t,
 	  class simulator_t>
 void Supervised_learning<flight_controller_t,
 		simulator_t>::
-generate_trajectory_using_model(bool random_leader_action,
+generate_trajectory_using_model(bool change_leader_action,
 				bool stop_down_action)
-{  
+{
+    Actions action;
+  /*  Allow easier access and debugging to all quadrotors state */
+  auto leader = quadrotors_.begin();
+  auto follower_1_ = std::next(quadrotors_.begin(), 1);
+  auto follower_2_ = std::next(quadrotors_.begin(), 2);
+  
   /* We need to pass State, nextState, and all possible action */
   std::vector<std::thread> threads;
   
-  if (random_leader_action == true) {
-    action_leader_
-      = robot_.random_action_generator_with_only_opposed_condition(saved_leader_action_);
-    saved_leader_action_ = action_leader_;
+  if (change_leader_action == true) {
+    leader_.current_action(
+			   action.random_action_generator_with_only_opposed_condition
+			   (leader_.last_action()));
   } else if (stop_down_action == true) {
-    while (action_leader_ == Quadrotor::Action::down) {
-      action_leader_ =
-	robot_.random_action_generator_with_only_opposed_condition(saved_leader_action_);
-    }
-    saved_leader_action_ = action_leader_;      
-  } else {
-    action_leader_ = saved_leader_action_;
+    while (leader_.current_action() == Actions::Action::down) {
+      leader_.current_action(
+			     action.random_action_generator_with_only_opposed_condition
+			     (leader_.last_action()));
+    }    
   }
-    
-  /* Get the next state at time t  */
-  Quadrotor::State<simulator_t> state(sim_interface_);
-  states_.push_back(state);
+      
+  /*  Sample the state at time t */
+  follower_1_.sample_state();
+  follower_2_.sample_state();
   
   /* Follower action always equal to no move at this instant t */
-  action_follower_.push_back(Quadrotor::Action::NoMove);
+  follower_1_.current_action(Actions::Action::NoMove);
+  follower_2_.current_action(Actions::Action::NoMove);
   
   /*  Threading QuadCopter */
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("l",
-								     action_leader_,
+								     leader_.current_action(),
 								     1000);
 				}));
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("f1",
-								     action_leader_,
+								     leader_.current_action(),
 								     1000);
 				}));
 				    
   /* We need to wait until the quadcopters finish their actions */
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-  /* Get the next state at time t + 1  */
-  Quadrotor::State<simulator_t> nextState(sim_interface_);
-  states_.push_back(nextState);
-
+ 
+  /*  Sample the state at time t */
+  follower_1_.sample_state();
+  follower_2_.sample_state();
+  
   Predictor predict("regression");
 
   /*  Test the trained model using the absolute gazebo distance feature */
@@ -73,14 +80,13 @@ generate_trajectory_using_model(bool random_leader_action,
     
   /*  Predict the next state using the above data */
   auto matrix_best_action = predict.predict(features);
-  Quadrotor::Action predicted_follower_action;
+  Actions::Action predicted_follower_action;
   std::tie(std::ignore, std::ignore, predicted_follower_action) = matrix_best_action;
   action_follower_.push_back(predicted_follower_action);
   
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("f2",
-								     action_follower_.back(),
-								     1000);  				   
+								     action_follower_.back(),								          1000);  				   
   				}));
   
   for (auto& thread : threads) {
@@ -89,12 +95,13 @@ generate_trajectory_using_model(bool random_leader_action,
 
   /*  Get error of deformation to improve percision later and to
       verify the model accuracy */
-  Quadrotor::State<simulator_t> finalState(sim_interface_);
-  states_.push_back(finalState);
+    /*  Sample the state at time t */
+  follower_1_.sample_state(); /*  Final state */
+  follower_2_.sample_state();
 
   /* Take a tuple here  */
-  double loss =predict.real_time_loss(states_,
-				      matrix_best_action);
+  double loss = predict.real_time_loss(states_,
+				       matrix_best_action);
   LogInfo() << "Real time loss: " << loss;
   step_errors_.push_back(mtools_.deformation_error_one_follower
 			(original_dist_, nextState.distances_3D()));
@@ -159,8 +166,8 @@ run(const Settings& settings)
 
       while (count_ < 500) {
 	/*  Do online learning... */
-        Quadrotor::Reward reward =
-	  Quadrotor::Reward::very_bad;
+        Rewards::Reward reward =
+	  Rewards::Reward::Unknown;
 
 	if (count_ == 0 ) {
 	  generate_trajectory_using_model(true, false);
@@ -200,8 +207,6 @@ run(const Settings& settings)
 	}
 	
 	if (regression_) {
-	  auto it = states_.begin();
-	  it = std::next(it, 1);
 	  
 	  data_set_.save_csv_data_set(states_.front(),       
 				      mtools_.to_one_hot_encoding(action_follower_.front(), 7),
@@ -218,7 +223,7 @@ run(const Settings& settings)
 	    use the triangle test to figure out after each iteration*/
 	if (mtools_.is_triangle(mtools_.triangle_side_3D(sim_interface_->positions())) == false) {
 	  LogInfo() << "The triangle is no longer conserved";
-	  robot_.save_controller_count(count_);
+	  data_set_.save_controller_count(count_);
 	  break;
 	}
 	++count_;

@@ -20,7 +20,8 @@
 # include "../log.hh"
 # include "../math_tools.hh"
 # include "predictor.hh"
-# include "quadcopter.hh"
+# include "quadrotor.hh"
+# include "reward.hh"
 # include "../swarm_device.hh"
 
 namespace lt = local_types;
@@ -31,6 +32,7 @@ class Supervised_learning
 {
 public:
   Supervised_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
+		      const std::vector<Quadrotor<simulator_t>>& quadrotors,
 		      std::shared_ptr<simulator_t> gzs);
   
   void generate_trajectory_using_model(bool random_leader_action,
@@ -43,7 +45,7 @@ public:
 
 private:
 
-  std::vector<Quadrotor::Action> action_follower_;
+  std::vector<Actions::Action> action_follower_;
   int count_;
   bool classification_;
   DataSet data_set_;
@@ -52,7 +54,7 @@ private:
   int max_episode_ ;
   Math_tools mtools_;
   bool regression_;
-  Quadrotor::Action saved_leader_action_;
+  Actions::Action saved_leader_action_;
   std::shared_ptr<simulator_t> sim_interface_;
   std::vector<double> step_errors_;
   std::vector<Quadrotor::State<simulator_t>> states_;
@@ -62,7 +64,8 @@ private:
   Quadrotor robot_;
   SwarmDevice<flight_controller_t> swarm_;
   bool stop_episode_;
-  Quadrotor::Action action_leader_;
+  Actions::Action action_leader_;
+  std::vector<Quadrotor<simualtor_t>> quadrotors_;
 };
 
 # include "supervised_learning.hxx"
