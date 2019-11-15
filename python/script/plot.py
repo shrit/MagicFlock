@@ -49,7 +49,7 @@ def plot_generic(generic_file_name, xlabel, ylabel):
     plt.ylabel(ylabel)
 
     figure = plt.gcf() # get current figure
-    figure.set_size_inches(25, 6)    
+    figure.set_size_inches(10, 6)    
     
     plt.savefig(generic_file_name + ".svg", dpi=100, format="svg")    
          
@@ -78,8 +78,7 @@ def plot_flight_error(error_file_name):
     figure = plt.gcf() # get current figure
     figure.set_size_inches(25, 6)    
     
-    plt.savefig(error_file_name + ".svg", dpi=100, format="svg")
-    
+    plt.savefig(error_file_name + ".svg", dpi=100, format="svg")    
 
 """
 Count files need to be formated as one column file
@@ -113,13 +112,13 @@ def plot_histogram(count_file_name, histogram_file_name):
     x = np.loadtxt(count_file_name)
     plt.hist(x, bins=3)
 
-    plt.xlabel('Number of time steps')
+    plt.xlabel('Number of time steps per episode')
     plt.ylabel('Frequency')
     
     figure = plt.gcf() 
     figure.set_size_inches(25, 6)    
 
-    plt.savefig(histogram_file_name + ".png", dpi=100)
+    plt.savefig(histogram_file_name + ".svg", dpi=100)
 
     
 def plot_histogram_2d(histogram_file_name):
@@ -127,13 +126,13 @@ def plot_histogram_2d(histogram_file_name):
     data = pd.read_csv(histogram_file_name, sep=' ',header=None, index_col =0)
 
     data.plot(kind='bar')
-    plt.xlabel('Number of time steps')
+    plt.xlabel('Number of time steps per episode')
     plt.ylabel('Frequency')
             
     figure = plt.gcf() # get current figure
-    figure.set_size_inches(25, 6)    
+    figure.set_size_inches(10, 6)    
 
-    plt.savefig(histogram_file_name + ".png", dpi=100)
+    plt.savefig(histogram_file_name + ".svg", dpi=100)
 
 def cumulative_histogram(filename):
     data = genfromtxt(filename, delimiter=' ')
