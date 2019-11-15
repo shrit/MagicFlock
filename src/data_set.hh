@@ -74,7 +74,6 @@ private:
   std::string histogram_file_name_;
 
   std::vector<std::vector<double>> data_set_;
-
 };
 
 # include "data_set.hxx"

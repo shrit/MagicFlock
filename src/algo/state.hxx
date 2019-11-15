@@ -3,14 +3,17 @@
 # include "state.hh"
 
 template <class simulator_t>
-State<simulator_t>::State(std::shared_ptr<simulator_t> sim_interface):
+State<simulator_t>::State(std::shared_ptr<simulator_t> sim_interface,
+			  unsigned int id,
+			  std::vector<unsigned int> nearest_neighbors):
   sim_interface_(std::move(sim_interface)),
   pmodel_(sim_interface_)
 {
   rssi_ = sim_interface_->rssi();
-  height_f2_ = sim_interface_->positions().f2.z;
-  height_f1_ = sim_interface_->positions().f1.z;
-  z_orinetation_  = sim_interface_->orientations().f2.z;
+  height_follower_2_ = sim_interface_->positions().follower_2.z;
+  height_follower_1_ = sim_interface_->positions().follower_1.z;
+  height_leader_ = sim_interface_->positions().leader_.z;
+  z_orinetation_  = sim_interface_->orientations().follower_2.z;
   dists_2D_ = mtools_.triangle_side_2D(sim_interface_->positions());
   dists_3D_ = mtools_.triangle_side_3D(sim_interface_->positions());
   e_dists_ = pmodel_.distances_2D();
@@ -19,7 +22,7 @@ State<simulator_t>::State(std::shared_ptr<simulator_t> sim_interface):
 template <class simulator_t>
 lt::rssi<double> State<simulator_t>::
 signal_strength() const
-{ return rssi_ ; }
+{ return rssi_; }
 
 template <class simulator_t>
 double State<simulator_t>::
