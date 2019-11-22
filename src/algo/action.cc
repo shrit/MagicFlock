@@ -72,7 +72,7 @@ int_to_action(int action_value)
 }
 
 std::vector<Actions::Action> Actions::
-possible_actions() const
+all_possible_actions() const
 { return possible_actions_; }
 
 Actions::Action Actions::

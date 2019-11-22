@@ -40,7 +40,7 @@ create_estimated_features_matrix()
   arma::rowvec row;
 
   std::vector<Actions::Action> actions =
-    action_.possible_actions();
+    action_.all_possible_actions();
 
   for (int i = 0; i < 7; ++i) {
     /*  State */
@@ -81,7 +81,7 @@ create_absolute_features_matrix()
   arma::rowvec row;
 
   std::vector<Quadrotor::Action> actions =
-    action_.possible_actions();
+    action_.all_possible_actions();
     
   for (int i = 0; i < 7; ++i) {
     /*  State */
@@ -160,8 +160,7 @@ index_of_best_action_regression(arma::mat& matrix)
 
 template<class simulator_t>
 double Predictor<simulator_t>::
-real_time_loss(const states_vec<simulator_t>& states,
-	       std::tuple<arma::mat, arma::uword,
+real_time_loss(std::tuple<arma::mat, arma::uword,
 	       Quadrotor::Action> matrix_best_action)
 {
   arma::mat matrix;
@@ -212,6 +211,6 @@ predict(arma::mat& features)
   LogInfo() << value;
 
   /*  Get the follower action now !! and store it directly */
-  Quadrotor::Action action_follower = actino_.int_to_action(value);  
+  Quadrotor::Action action_follower = action_.int_to_action(value);  
   return make_tuple(label, value, action_follower);
 }

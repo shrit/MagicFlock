@@ -54,8 +54,7 @@ public:
   std::tuple<arma::mat, arma::uword, Quadrotor::Action> predict(arma::mat& features);
 
   template<class simulator_t>
-  double real_time_loss(const states_vec<simulator_t>& states,
-			std::tuple<arma::mat, arma::uword, Quadrotor::Action> matrix_best_action);
+  double real_time_loss(std::tuple<arma::mat, arma::uword, Quadrotor::Action> matrix_best_action);
   
   Predictor(Predictor const&) = delete;
   Predictor(Predictor &&) = default;
