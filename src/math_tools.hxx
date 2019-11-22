@@ -199,25 +199,24 @@ std::vector<double> Math_tools::to_std_vector(Arg arg)
 }
 
 
+// std::vector<double> Math_tools::distance_to_neighbors(unsigned int id,
+// 				 std::vector<unsigned int> nearest_neighbors,
+// 				 std::shared_ptr<simulator_t> sim_interface)
+// {
 
-std::vector<double> Math_tools::distance_to_neighbor(unsigned int id,
-				 std::vector<unsigned int> nearest_neighbors,
-				 std::shared_ptr<simulator_t> sim_interface)
-{
-
-  std::vector<double> distances;
+//   std::vector<double> distances;
   
   
 
-  return distances;
-}
+//   return distances;
+// }
 
 
 template <typename T>
 lt::dist3D<double> Math_tools::traveled_distances(lt::positions<lt::position3D<T>> pos_t,
 						  lt::positions<lt::position3D<T>> pos_t_1)
 {
-  lt::position3D<double> dist_leader, dist_f1, dist_f2;
+  lt::position3D<double> dist_leader, dist_follower_1, dist_follower_2;
 
     /* Travelled distance between time steps for leader  */
   dist_leader.x =  pos_t.leader.x - pos_t_1.leader.x;

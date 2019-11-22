@@ -28,12 +28,18 @@ public:
   double deformation_error_one_follower(lt::triangle<T> old_dist,
 					lt::triangle<T> new_dist);
 
+  std::vector<double> distance_to_neighbors();
+  
   template <typename T>
   double gaussian_noise(std::vector<lt::triangle<T>> ideal_dist,
 			std::vector<T> drift_f3);
   template <typename T>
   long long unsigned int
-  index_of_highest_value(const std::vector<T>& vec);
+  index_of_max_value(const std::vector<T>& vec);
+
+  template <typename T>
+  long long unsigned int
+  index_of_min_value(const std::vector<T>& vec);
 
   template <typename T>
   bool is_triangle(lt::triangle<T> t);
