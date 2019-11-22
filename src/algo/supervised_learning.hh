@@ -45,7 +45,6 @@ public:
 
 private:
 
-  std::vector<Actions::Action> action_follower_;
   int count_;
   bool classification_;
   DataSet data_set_;
@@ -54,17 +53,13 @@ private:
   int max_episode_ ;
   Math_tools mtools_;
   bool regression_;
-  Actions::Action saved_leader_action_;
   std::shared_ptr<simulator_t> sim_interface_;
   std::vector<double> step_errors_;
-  std::vector<Quadrotor::State<simulator_t>> states_;
   std::vector<int>  time_step_vector_;
   lt::triangle<double> original_dist_;
   double height_diff_;
-  Quadrotor robot_;
   SwarmDevice<flight_controller_t> swarm_;
   bool stop_episode_;
-  Actions::Action action_leader_;
   std::vector<Quadrotor<simualtor_t>> quadrotors_;
 };
 

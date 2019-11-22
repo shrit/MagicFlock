@@ -18,7 +18,8 @@ class Quadrotor {
 public:
   
   Quadrotor(unsigned int id,
-	    std::string name);
+	    std::string name,
+	    std::shared_ptr<simulator_t> sim_interface);
   
   unsigned int id() const;
   std::string name() const;

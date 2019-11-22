@@ -2,10 +2,13 @@
 
 # include "predictor.hh"
 
-Predictor::Predictor(std::string name,/*  Classification or regression */
+template<class simulator_t>
+Predictor::Predictor<simulator_t>(std::string name,/*  Classification or regression */
 		     std::string name_quadrotor,
 		     const std::vector<Quadrotor<simulator_t>>& quadrotors)
-  :quadrotors_(std::move(quadrotors))
+  
+  :which_quad_(-1),
+  quadrotors_(std::move(quadrotors))
 {
   classification_ = false;
   regression_ = false;
@@ -16,21 +19,21 @@ Predictor::Predictor(std::string name,/*  Classification or regression */
   } else {
     LogInfo() << "Please entre either classification or regression to star the prediction";
   }
-
+  
   if (name_quadrotors == "leader") {
-    
+    which_quad_ = 0;
   } else if (name_quadrotors == "follower_1") {
-    
+    which_quad_ = 1;
   } else if (name_quadrotors == "follower_2") {
-    
+    which_quad_ = 2;
   }    
   /*  Allow easier access and debugging to all quadrotors state */
-  quad_ = quadrotors.begin() + index;
+  quad_ = quadrotors.begin() + which_quad_;
 }
 
 /* Estimate the features (distances) using propagation model from RSSI */
 template<class simulator_t>
-arma::mat Predictor::
+arma::mat Predictor<simulator_t>::
 create_estimated_features_matrix()				 
 {
   arma::mat features; 
@@ -71,14 +74,14 @@ create_estimated_features_matrix()
 }
 
 template<class simulator_t>
-arma::mat Predictor::
+arma::mat Predictor<simulator_t>::
 create_absolute_features_matrix()			        
 {
   arma::mat features;
   arma::rowvec row;
 
   std::vector<Quadrotor::Action> actions =
-    robot_.possible_actions();
+    action_.possible_actions();
     
   for (int i = 0; i < 7; ++i) {
     /*  State */
@@ -113,7 +116,8 @@ create_absolute_features_matrix()
   return features;
 }
 
-std::vector<double> Predictor::
+template<class simulator_t>
+std::vector<double> Predictor<simulator_t>::
 estimate_action_from_distance(arma::mat& matrix)
 {
   std::vector<double> sum_of_distances;
@@ -130,7 +134,8 @@ estimate_action_from_distance(arma::mat& matrix)
   return sum_of_distances;
 }
 
-int Predictor::
+template<class simulator_t>
+int Predictor<simulator_t>::
 index_of_best_action_classification(arma::mat& matrix)
 {
   int value = 0;
@@ -140,7 +145,8 @@ index_of_best_action_classification(arma::mat& matrix)
   return value;
 }
 
-int Predictor::
+template<class simulator_t>
+int Predictor<simulator_t>::
 index_of_best_action_regression(arma::mat& matrix)
 {
   std::vector<double> distances = estimate_action_from_distance(matrix);
@@ -153,7 +159,7 @@ index_of_best_action_regression(arma::mat& matrix)
 }
 
 template<class simulator_t>
-double Predictor::
+double Predictor<simulator_t>::
 real_time_loss(const states_vec<simulator_t>& states,
 	       std::tuple<arma::mat, arma::uword,
 	       Quadrotor::Action> matrix_best_action)
@@ -161,12 +167,13 @@ real_time_loss(const states_vec<simulator_t>& states,
   arma::mat matrix;
   arma::uword index_of_best_estimation;
   std::tie(matrix, index_of_best_estimation, std::ignore) = matrix_best_action;
-  double loss = std::pow((matrix(index_of_best_estimation, 1) - states.back().distances_3D().f1), 2) +
-    std::pow((matrix(index_of_best_estimation, 2) - states.back().distances_3D().f2), 2);
+  double loss = std::pow((matrix(index_of_best_estimation, 1) - quad_.current_state().distances_3D().follower_1), 2) +
+    std::pow((matrix(index_of_best_estimation, 2) - states.back(quad_.current_state().distances_3D().follower_2), 2);
   return loss;
 }
-
-std::tuple<arma::mat, arma::uword, Quadrotor::Action> Predictor::
+    
+template<class simulator_t>
+std::tuple<arma::mat, arma::uword, Quadrotor::Action> Predictor<simulator_t>::
 predict(arma::mat& features)
 {
   mlpack::ann::FFN<mlpack::ann::SigmoidCrossEntropyError<>,
@@ -205,6 +212,6 @@ predict(arma::mat& features)
   LogInfo() << value;
 
   /*  Get the follower action now !! and store it directly */
-  Quadrotor::Action action_follower = robot_.int_to_action(value);  
+  Quadrotor::Action action_follower = actino_.int_to_action(value);  
   return make_tuple(label, value, action_follower);
 }

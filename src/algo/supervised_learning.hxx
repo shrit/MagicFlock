@@ -27,10 +27,10 @@ generate_trajectory_using_model(bool change_leader_action,
 {
     Actions action;
   /*  Allow easier access and debugging to all quadrotors state */
-  auto leader = quadrotors_.begin();
-  auto follower_1_ = std::next(quadrotors_.begin(), 1);
-  auto follower_2_ = std::next(quadrotors_.begin(), 2);
-  
+    leader_ = quadrotors_.begin();
+    follower_1_ = std::next(quadrotors_.begin(), 1);
+    follower_2_ = std::next(quadrotors_.begin(), 2);
+    
   /* We need to pass State, nextState, and all possible action */
   std::vector<std::thread> threads;
   

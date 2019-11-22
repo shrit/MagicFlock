@@ -61,13 +61,15 @@ public:
   Predictor(Predictor &&) = default;
 private:
 
-  Actions action;
+  Actions action_;
   bool classification_;
   Math_tools mtools_;
   bool regression_;
   lt::triangle<double> original_dist_;
   double height_diff_;
+  typename std::vector<Quadrotor<simulator_t>>::iterator quad_;
   std::vector<Quadrotor<simulator_t>> quadrotors_;
+  int which_quad_;
 };
 
 # include "predictor.hxx"
