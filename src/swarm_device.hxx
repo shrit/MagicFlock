@@ -224,7 +224,7 @@ positions_GPS()
 {
   lt::positions<lt::position_GPS<double>> positions;
   positions.leader = iris_x_.at(0)->get_position_GPS();
-  positions.f1 = iris_x_.at(1)->get_position_GPS();
-  positions.f2 = iris_x_.at(2)->get_position_GPS();
+  positions.follower_1 = iris_x_.at(1)->get_position_GPS();
+  positions.follower_2 = iris_x_.at(2)->get_position_GPS();
   return positions;
 }
