@@ -11,6 +11,8 @@
 
 # include "action.hh"
 # include "state.hh"
+# include "../data_set.hh"
+# include "../math_tools.hh"
 
 template <class simulator_t>  
 class Quadrotor {
@@ -41,13 +43,19 @@ public:
   Actions::Action last_action();
   std::vector<Actions::Action> all_actions() const;
   void reset_all_actions();
+
+  /*  Data set related functions */
+  void register_data_set();
   
 private:
 
   Actions::Action current_action_;
   Actions::Action last_action_;
   std::vector<Actions::Action> all_actions_;
- 
+
+  Math_tools mtools_;
+  DataSet data_set_;
+  
   State<simulator_t> current_state_;
   State<simulator_t> last_state_;
   State<simulator_t> before_last_state_;

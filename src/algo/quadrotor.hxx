@@ -8,7 +8,9 @@ Quadrotor<simulator_t>::Quadrotor(unsigned int id,
   :id_(id),
    name_(name),
    sim_interface_(std::move(sim_interface))
-{}
+{
+  data_set_.init_dataset_directory();
+}
 
 template <class simulator_t>
 unsigned int Quadrotor<simulator_t>::id() const
@@ -97,3 +99,14 @@ std::vector<Actions::Action> Quadrotor<simulator_t>::all_actions() const
 template <class simulator_t>
 void Quadrotor<simulator_t>::reset_all_actions()
 { all_actions_.clear(); }
+
+template <class simulator_t>
+void Quadrotor<simulator_t>::register_data_set()
+{
+  data_set_.save_csv_data_set(before_last_state(),				      
+			      mtools_.to_one_hot_encoding(last_action(), 7),
+			      last_state(),
+			      mtools_.to_one_hot_encoding(current_action(), 7),
+			      current_state()	      
+			      );  
+}
