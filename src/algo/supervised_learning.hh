@@ -47,7 +47,6 @@ private:
 
   int count_;
   bool classification_;
-  DataSet data_set_;
   int episode_;
   std::vector<double> flight_errors_;
   int max_episode_ ;
@@ -60,7 +59,11 @@ private:
   double height_diff_;
   SwarmDevice<flight_controller_t> swarm_;
   bool stop_episode_;
-  std::vector<Quadrotor<simualtor_t>> quadrotors_;
+  std::vector<Quadrotor<simulator_t>> quadrotors_;
+
+  typename std::vector<Quadrotor<simulator_t>>::iterator leader_;
+  typename std::vector<Quadrotor<simulator_t>>::iterator follower_1_;
+  typename std::vector<Quadrotor<simulator_t>>::iterator follower_2_;
 };
 
 # include "supervised_learning.hxx"

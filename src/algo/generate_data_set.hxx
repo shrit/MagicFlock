@@ -201,39 +201,9 @@ run(const Settings& settings)
 	LogInfo() << "Distances after action : " <<
 	  mtools_.triangle_side_3D(positions_after_action);
 	  
-	/* Calculate the error compare to the starting point */	
-	/* We have compared the value of the triangle with the one
-	   before executing this action. Instead of comparing it to
-	   the original one. But why? Why should this comparison
-	   gives better learning score than the one before */
-	Rewards rewarder;
-	/*  Keep classification method */
-	if (settings.classification()) {
-	  /*  Classification */
-	  if (count_ == 0 ) {
-	    reward = rewarder.evaluate_current_state(triangle_before_action,
-						   new_triangle.at(count_));
-	  } else {
-	    reward = rewarder.evaluate_current_state(new_triangle.at(count_ -1),
-						   new_triangle.at(count_));
-	  }
-	}
-	/*  Save the information generated from the trajectory into a
-	    dataset file */	
-	if (settings.classification()) {
-	  data_set_.save_csv_data_set(follower_1_->last_state(),
-				      mtools_.to_one_hot_encoding(follower_1_->current_action(), 7),
-				      follower_1_->current_state(),
-				      mtools_.to_one_hot_encoding(reward, 4)
-				      );
-	}
 	if (settings.regression()) {	 
-	  data_set_.save_csv_data_set(follower_1_->before_last_state(),				      
-				      mtools_.to_one_hot_encoding(follower_1_->last_action(), 7),
-				      follower_1_->last_state(),
-				      mtools_.to_one_hot_encoding(follower_1_->current_action(), 7),
-				      follower_1_->current_state()	      
-				      );
+	  follower_1->register_data_set();
+	  follower_2->register_data_set();
 	}
 	
 	/*  Clear vectors after each generated line in the dataset */
