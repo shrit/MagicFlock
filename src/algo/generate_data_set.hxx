@@ -32,27 +32,27 @@ generate_trajectory(bool change_leader_action)
   std::vector<std::thread> threads;
   
   /*  Sample the state at time t */
-  follower_1_.sample_state();
-  follower_2_.sample_state();
+  follower_1_->sample_state();
+  follower_2_->sample_state();
   
   /*  Create a random action for the leader_s, with the opposed condition */
-  if (change_leader__action == true) {
-    leader_.current_action(
+  if (change_leader_action == true) {
+    leader_->current_action(
 			   action.random_action_generator_with_only_opposed_condition
-			   (leader_.last_action()));
+			   (leader_->last_action()));
   } else {
-    leader_.current_action(leader_.last_action());
+    leader_->current_action(leader_->last_action());
   }
     
   /*  Do not allow follower to move, at this time step, 
       block the follower and log not move*/
-  follower_1_.current_action(Actions::Action::NoMove);
-  follower_2_.current_action(Actions::Action::NoMove);
+  follower_1_->current_action(Actions::Action::NoMove);
+  follower_2_->current_action(Actions::Action::NoMove);
   
   /*  Threading QuadCopter */
   threads.push_back(std::thread([&](){
 				    swarm_.one_quad_execute_trajectory("l" ,
-								       leader_.current_action(),
+								       leader_->current_action(),
 								       1000);
 				}));
 
@@ -60,17 +60,17 @@ generate_trajectory(bool change_leader_action)
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   
   /* Get the next state at time t + 1  */
-  follower_1_.sample_state();
-  follower_2_.sample_state();
+  follower_1_->sample_state();
+  follower_2_->sample_state();
 
   /*  Do a random action at t+1 for the follower 1 */
-  follower_1_.current_action(
+  follower_1_->current_action(
 			    action.random_action_generator_with_only_opposed_condition
-			    (follower_1_.last_action()));
+			    (follower_1_->last_action()));
   
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("f1" ,
-								     follower_1_.current_action(),
+								     follower_1_->current_action(),
 								     1000);
 				}));
   
@@ -78,17 +78,17 @@ generate_trajectory(bool change_leader_action)
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   
   /* Get the next state at time t + 2  */
-  follower_1_.sample_state();
-  follower_2_.sample_state();
+  follower_1_->sample_state();
+  follower_2_->sample_state();
   
   /*  Do a random action at t+2 for the follower 2 */
-  follower_2_.current_action(
+  follower_2_->current_action(
 			    action.random_action_generator_with_only_opposed_condition
-			    (follower_2_.last_action()));
+			    (follower_2_->last_action()));
   
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory("f2",
-								     follower_2_.current_action(),
+								     follower_2_->current_action(),
 								     1000);
 				}));
   for(auto& thread : threads) {
@@ -96,8 +96,8 @@ generate_trajectory(bool change_leader_action)
   }
     
   /* Get the next state at time t + 3 */
-  follower_1_.sample_state();
-  follower_2_.sample_state();
+  follower_1_->sample_state();
+  follower_2_->sample_state();
 }
 
 template<class flight_controller_t,
@@ -147,8 +147,10 @@ run(const Settings& settings)
     /*  Wait to complete the take off process */
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
+    /*  This can be removed since it is bo longer needed */
     /*  Handle fake takeoff.. */
-    if (sim_interface_->positions().f1.z < 6  or sim_interface_->positions().f2.z < 6) {
+    if (sim_interface_->positions().follower_1.z < 6  or
+	sim_interface_->positions().follower_2.z < 6) {
       stop_episode_ = true;
     }
     
@@ -161,10 +163,10 @@ run(const Settings& settings)
     
     if (!stop_episode_) {
       /*  Verify that vectors are clear when starting new episode */
-      follower_1_.reset_all_states();
-      follower_2_.reset_all_states();
-      follower_1_.reset_all_actions();
-      follower_2_.reset_all_actions();
+      follower_1_->reset_all_states();
+      follower_2_->reset_all_states();
+      follower_1_->reset_all_actions();
+      follower_2_->reset_all_actions();
       count_ = 0;
 
       std::vector<lt::triangle<double>> new_triangle;
@@ -219,26 +221,26 @@ run(const Settings& settings)
 	/*  Save the information generated from the trajectory into a
 	    dataset file */	
 	if (settings.classification()) {
-	  data_set_.save_csv_data_set(follower_1_.last_state(),
-				      mtools_.to_one_hot_encoding(follower_1_.current_action(), 7),
-				      follower_1_.current_state(),
+	  data_set_.save_csv_data_set(follower_1_->last_state(),
+				      mtools_.to_one_hot_encoding(follower_1_->current_action(), 7),
+				      follower_1_->current_state(),
 				      mtools_.to_one_hot_encoding(reward, 4)
 				      );
 	}
 	if (settings.regression()) {	 
-	  data_set_.save_csv_data_set(follower_1_.before_last_state(),				      
-				      mtools_.to_one_hot_encoding(follower_1_.last_action(), 7),
-				      follower_1_.last_state(),
-				      mtools_.to_one_hot_encoding(follower_1_.current_action(), 7),
-				      follower_1_.current_state()	      
+	  data_set_.save_csv_data_set(follower_1_->before_last_state(),				      
+				      mtools_.to_one_hot_encoding(follower_1_->last_action(), 7),
+				      follower_1_->last_state(),
+				      mtools_.to_one_hot_encoding(follower_1_->current_action(), 7),
+				      follower_1_->current_state()	      
 				      );
 	}
 	
 	/*  Clear vectors after each generated line in the dataset */
-	follower_1_.reset_all_states();
-	follower_2_.reset_all_states();	
-	follower_1_.reset_all_actions();
-	follower_2_.reset_all_actions();	
+	follower_1_->reset_all_states();
+	follower_2_->reset_all_states();	
+	follower_1_->reset_all_actions();
+	follower_2_->reset_all_actions();	
 	/*  Check the triangle we are out of bound break the loop */
 	if (mtools_.is_triangle(mtools_.triangle_side_3D
 				(sim_interface_->positions())) == false) {
