@@ -202,8 +202,8 @@ run(const Settings& settings)
 	  mtools_.triangle_side_3D(positions_after_action);
 	  
 	if (settings.regression()) {	 
-	  follower_1->register_data_set();
-	  follower_2->register_data_set();
+	  follower_1_->register_data_set();
+	  follower_2_->register_data_set();
 	}
 	
 	/*  Clear vectors after each generated line in the dataset */
@@ -227,9 +227,9 @@ run(const Settings& settings)
       count_ = count_ + 1;
     }
     /*  Save a version of the time steps to create a histogram */
-    mtools_.histogram(count_);
-    data_set_.save_histogram(mtools_.get_histogram<int>());
-
+    follower_1_->register_histogram(count_);
+    follower_2_->register_histogram(count_);
+       
     /* Landing is blocking untill touching the ground*/
     swarm_.land();
 

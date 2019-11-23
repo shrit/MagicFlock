@@ -111,13 +111,15 @@ template <class flight_controller_t,
 void Supervised_learning<flight_controller_t, simulator_t>::
 run(const Settings& settings)
 {
-  classification_ = settings.classification();
   regression_ = settings.regression();
+
+  /*  To be removed just check that every thing is fine */
+  
   /*  Recover the initial state as an observer state */
   /*  This state will be used directly instead of original_dist */
-  Quadrotor::State<simulator_t> ObserverState(sim_interface_);
-  original_dist_ = ObserverState.distances_3D();
-  height_diff_ = ObserverState.height_difference();
+  // Quadrotor::State<simulator_t> ObserverState(sim_interface_);
+  // original_dist_ = ObserverState.distances_3D();
+  // height_diff_ = ObserverState.height_difference();
   
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
 
@@ -157,17 +159,14 @@ run(const Settings& settings)
       std::vector<lt::triangle<double>> new_triangle;
 
       while (count_ < 1000) {
-	/*  Do online learning... */
-        Rewards::Reward reward =
-	  Rewards::Reward::Unknown;
-
+	
 	if (count_ == 0 ) {
 	  generate_trajectory_using_model(true, false);
 	  //Change each 10 times the direction of the leader
 	} else if (count_ % 10 == 0) {
 	  generate_trajectory_using_model(true, false);
-	} else if (sim_interface_->positions().f1.z < 15
-		   or sim_interface_->positions().f2.z < 15) {
+	} else if (sim_interface_->positions().follower_1.z < 15
+		   or sim_interface_->positions().follower_2.z < 15) {
 	  generate_trajectory_using_model(false, true);
 	} else {
 	  generate_trajectory_using_model(false, false);
@@ -197,17 +196,17 @@ run(const Settings& settings)
 	++count_;
       }
     }
-    /*  Add 1 to adjust count to one instead of starting by zero */
-    count_ = count_ + 1;
-    /*  Save a version of the time steps to create a histogram */
-    mtools_.histogram(count_);
-    data_set_.save_histogram(mtools_.get_histogram<int>());
-
+    
+    follower_1_->register_histogram(count_);
+    follower_2_->register_histogram(count_);
+    
     /*  Get the flight error as the mean of the step error */
     double mean_error = mtools_.mean(step_errors_);
 
     if (mean_error != -1) {
-      data_set_.save_error_file(mean_error);
+      /*  We need to figure out what to do with this value 
+       and whether if it is useful or not*/
+      // data_set_.save_error_file(mean_error);
       flight_errors_.push_back(mean_error);
     }
    

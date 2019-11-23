@@ -11,7 +11,6 @@
 
 /* local includes  */
 # include "action.hh"
-# include "../data_set.hh"
 # include "../global.hh"
 # include "../log.hh"
 # include "../math_tools.hh"
@@ -44,7 +43,6 @@ public:
 private:
   
   int count_;
-  DataSet data_set_;
   int episode_;
   int max_episode_;
   Math_tools mtools_;

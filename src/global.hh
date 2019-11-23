@@ -56,8 +56,8 @@ namespace local_types {
   template <typename T>
   struct orientations {
     orientation<T> leader;
-    orientation<T> f1;
-    orientation<T> f2;
+    orientation<T> follower_1;
+    orientation<T> follower_2;
   };
 
   template<typename T>
@@ -140,17 +140,12 @@ template <typename T>
 std::ostream& operator<< (std::ostream& out,
 			  const local_types::positions<T>& p)
 {
-  out << "[ Leader: "<< p.leader <<",\n Fake F:  " << p.f1 <<",\n True F: " << p.f2 <<"]";
+  out << "[ Leader: "<< p.leader <<",\n Fake F:  "
+      << p.follower_1
+      << ",\n True F: "
+      << p.follower_2 <<"]";
   return out;
 }
-
-// template <typename T>
-// std::ostream& operator<< (std::ostream& out,
-// 			  const local_types::positions<local_types::positionGPS<T> >& p)
-// {
-//   out << "[ Leader: "<< p.leader <<",\n Fake F:  " << p.f1 <<",\n True F: " << p.f2 <<"]";
-//   return out;
-// }
 
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const local_types::rssi<T>& r)
