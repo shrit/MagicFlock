@@ -36,11 +36,10 @@ public:
   void Parse_rssi_msg_2(ConstVector2dPtr& msg);
 
   lt::rssi<double> rssi() const;
-  lt::positions<lt::position3D<double>> positions() const;
-  lt::orientations<double> orientations() const;
+  std::vector<lt::position3D<double>> positions() const;
+  std::vector<lt::orientation<double>> orientations() const;
 
   Gazebo(Gazebo const&) = delete;
-
   Gazebo(Gazebo &&) = default;
 
 private:
@@ -51,10 +50,10 @@ private:
   NodePtr node_;
 
   mutable std::mutex _positions_mutex{};
-  lt::positions<lt::position3D<double>> _positions;
+  std::vector<lt::position3D<double>> _positions;
 
   mutable std::mutex _orientations_mutex{};
-  lt::orientations<double> _orientations;
+  std::vector<lt::orientation<double>> _orientations;
 
   mutable std::mutex _signal_mutex{};
   lt::rssi<double> _signal;

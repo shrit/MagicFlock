@@ -1,7 +1,9 @@
 # include "gazebo.hh"
 
 Gazebo::Gazebo(int argc, char* argv[])
-  : node_(new gazebo::transport::Node())
+  : node_(new gazebo::transport::Node()),
+    _positions(3,lt::position3D<double>()),
+    _orientations(3,lt::orientation<double>())
 {
   gazebo::client::setup(argc, argv);
   node_->Init();
@@ -73,44 +75,44 @@ void Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
     if (name == std::string(config_.quad_names().at(0))) {
       const ::gazebo::msgs::Vector3d& position = pose.position();
 
-      _positions.leader.x = position.x();
-      _positions.leader.y = position.y();
-      _positions.leader.z = position.z();
+      _positions.at(0).x = position.x();
+      _positions.at(0).y = position.y();
+      _positions.at(0).z = position.z();
 
       const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
 
-      _orientations.leader.x = orientation.x();
-      _orientations.leader.y = orientation.y();
-      _orientations.leader.z = orientation.z();
-      _orientations.leader.w = orientation.w();
+      _orientations.at(0).x = orientation.x();
+      _orientations.at(0).y = orientation.y();
+      _orientations.at(0).z = orientation.z();
+      _orientations.at(0).w = orientation.w();
 
     } else if (name == std::string(config_.quad_names().at(1))) {
       const ::gazebo::msgs::Vector3d& position = pose.position();
 
-      _positions.follower_1.x = position.x();
-      _positions.follower_1.y = position.y();
-      _positions.follower_1.z = position.z();
+      _positions.at(1).x = position.x();
+      _positions.at(1).y = position.y();
+      _positions.at(1).z = position.z();
       
       const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
 
-      _orientations.follower_1.x = orientation.x();
-      _orientations.follower_1.y = orientation.y();
-      _orientations.follower_1.z = orientation.z();
-      _orientations.follower_1.w = orientation.w();
+      _orientations.at(1).x = orientation.x();
+      _orientations.at(1).y = orientation.y();
+      _orientations.at(1).z = orientation.z();
+      _orientations.at(1).w = orientation.w();
 
     } else if (name == std::string(config_.quad_names().at(2))) {
       const ::gazebo::msgs::Vector3d& position = pose.position();
 
-      _positions.follower_2.x = position.x();
-      _positions.follower_2.y = position.y();
-      _positions.follower_2.z = position.z();
+      _positions.at(2).x = position.x();
+      _positions.at(2).y = position.y();
+      _positions.at(2).z = position.z();
 
       const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
 
-      _orientations.follower_2.x = orientation.x();
-      _orientations.follower_2.y = orientation.y();
-      _orientations.follower_2.z = orientation.z();
-      _orientations.follower_2.w = orientation.w();
+      _orientations.at(2).x = orientation.x();
+      _orientations.at(2).y = orientation.y();
+      _orientations.at(2).z = orientation.z();
+      _orientations.at(2).w = orientation.w();
     }
   }
 }
@@ -121,13 +123,13 @@ lt::rssi<double> Gazebo::rssi() const
   return _signal;
 }
 
-lt::positions<lt::position3D<double>> Gazebo::positions() const
+std::vector<lt::position3D<double>> Gazebo::positions() const
 {
   std::lock_guard<std::mutex> lock(_positions_mutex);
   return _positions;
 }
 
-lt::orientations<double> Gazebo::orientations() const
+std::vector<lt::orientation<double>> Gazebo::orientations() const
 {
   std::lock_guard<std::mutex> lock(_orientations_mutex);
   return _orientations;
