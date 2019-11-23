@@ -19,7 +19,8 @@ Predictor::Predictor<simulator_t>(std::string name,/*  Classification or regress
   } else {
     LogInfo() << "Please entre either classification or regression to star the prediction";
   }
-  
+
+  /*  replace by id */
   if (name_quadrotors == "leader") {
     which_quad_ = 0;
   } else if (name_quadrotors == "follower_1") {

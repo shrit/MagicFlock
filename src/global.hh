@@ -44,20 +44,20 @@ namespace local_types {
     T z;
     T w;
   };
-
+  
+  /*  These two are no longer required, Deprecated, they are not generic  */
   template <class position_t>
   struct positions {
     position_t leader;
     position_t follower_1;
     position_t follower_2;
-
   };
 
-  template <typename T>
+  template <typename orientation_t>
   struct orientations {
-    orientation<T> leader;
-    orientation<T> follower_1;
-    orientation<T> follower_2;
+    orientation<orientation_t> leader;
+    orientation<orientation_t> follower_1;
+    orientation<orientation_t> follower_2;
   };
 
   template<typename T>
@@ -96,16 +96,12 @@ namespace local_types {
     { f3_ = value; }
 
   private:
-
     T f1_;
     T f2_;
     T f3_;
-
   };
 
-  /// Type of a drone's port
   using port_type = uint16_t;
-  //Type of drone's conncetion socket
   using connection_type = std::string;
   using topic_name = std::string;
 }

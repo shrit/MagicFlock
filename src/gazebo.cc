@@ -36,7 +36,6 @@ void Gazebo::publisher(lt::topic_name name)
 void Gazebo::reset_models()
 {
   for (auto it : pubs_) {
-
     if (it->WaitForConnection(5)) {
       gazebo::msgs::Vector2d msg;
       gazebo::msgs::Set(&msg, ignition::math::Vector2d(1, 0));

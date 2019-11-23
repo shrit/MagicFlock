@@ -12,9 +12,9 @@ State<simulator_t>::State(std::shared_ptr<simulator_t> sim_interface,
   auto leader =  sim_interface_->positions().begin();
   auto follower = sim_interface_->positions().begin() + id;
   //  estimated_dists_3D_ = pmodel_.distances_3D();
-  dists_3D_ = mtools_.distances_to_neighbor(id,
-					    nearest_neighbors,
-					    sim_interface_->positions());
+  dists_3D_ = mtools_.distances_to_neighbors(id,
+					     nearest_neighbors,
+					     sim_interface_->positions());
   alti_diff_ = (leader->z - follower->z);
 }
 
