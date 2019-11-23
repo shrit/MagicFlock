@@ -19,7 +19,9 @@ class State {
 
 public:
 
-  State(std::shared_ptr<simulator_t> sim_interface);
+  State(std::shared_ptr<simulator_t> sim_interface,
+	unsigned int id,
+	std::vector<unsigned int> nearest_neighbors);
   double height_f1() const;
   double height_f2() const;
   double height_difference() const;
