@@ -110,3 +110,14 @@ void Quadrotor<simulator_t>::register_data_set()
 			      current_state()	      
 			      );  
 }
+
+template <class simulator_t>
+void Quadrotor<simulator_t>::register_histogram(int count)
+{
+  /*  Save a version of the time steps to create a histogram */
+  /*  Increase one since count start from 0 */
+  /*  Need to find a solution for this with a timer */
+  count ++;
+  mtools_.histogram(count);
+  data_set_.save_histogram(mtools_.get_histogram<int>());
+}

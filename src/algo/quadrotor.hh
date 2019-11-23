@@ -46,6 +46,7 @@ public:
 
   /*  Data set related functions */
   void register_data_set();
+  void register_histogram(int count);
   
 private:
 
