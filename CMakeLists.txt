@@ -17,8 +17,6 @@ include_directories(
  /usr/include/
   )
 
-
-#find_package(boost)
 set(mavsdk_lib "/usr/local/lib64/libmavsdk.so")
 set(mavsdk_action_lib "/usr/local/lib64/libmavsdk_action.so")
 set(mavsdk_calibrattion_lib "/usr/local/lib64/libmavsdk_calibration.so")
@@ -38,7 +36,7 @@ set(boost_lib_time "/usr/lib/libboost_date_time.so")
 
 link_directories(${GAZEBO_LIBRARY_DIRS})
 
-add_executable(QCopter
+add_executable(lemon
   src/algo/training.cc
   src/config_ini.cc
   src/data_set.cc
@@ -51,7 +49,7 @@ add_executable(QCopter
   src/settings.cc    
   )
 
-target_link_libraries(QCopter   
+target_link_libraries(lemon   
   ${pthread_lib}
   ${arma}
   ${GAZEBO_LIBRARIES}
@@ -61,7 +59,6 @@ target_link_libraries(QCopter
   ${mavsdk_offboard_lib}
   ${mavsdk_shell_lib}
   ${mavsdk_telemetry_lib}
-
 
   ${gomp}
   ${mlpack}
