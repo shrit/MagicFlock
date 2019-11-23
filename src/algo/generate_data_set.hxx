@@ -15,7 +15,6 @@ Generator(std::vector<std::shared_ptr<flight_controller_t>> quads,
    swarm_(std::move(quads)),
    quadrotors_(std::move(quadrotors))
 {
-  data_set_.init_dataset_directory();
   /*  Allow easier access and debugging to all quadrotors state */
   leader_ = quadrotors_.begin();
   follower_1_ = std::next(quadrotors_.begin(), 1);
@@ -172,8 +171,6 @@ run(const Settings& settings)
       std::vector<lt::triangle<double>> new_triangle;
       
       while (count_ < 10 and !stop_episode_) {
-
-	Rewards::Reward reward = Rewards::Reward::Unknown;
 			
 	lt::positions<lt::position3D<double>> positions_before_action =
 	  sim_interface_->positions();

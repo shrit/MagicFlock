@@ -29,7 +29,6 @@ generate_trajectory_using_model(bool change_leader_action,
     follower_1_ = std::next(quadrotors_.begin(), 1);
     follower_2_ = std::next(quadrotors_.begin(), 2);
     
-  /* We need to pass State, nextState, and all possible action */
   std::vector<std::thread> threads;
   
   if (change_leader_action == true) {
@@ -102,8 +101,8 @@ generate_trajectory_using_model(bool change_leader_action,
   /* Take a tuple here  */
   double loss = predict.real_time_loss(matrix_best_action);
   LogInfo() << "Real time loss: " << loss;
-  step_errors_.push_back(mtools_.deformation_error_one_follower
-			(original_dist_, nextState.distances_3D()));
+  // step_errors_.push_back(mtools_.deformation_error_one_follower
+  // 			(original_dist_, nextState.distances_3D()));
 }
 
 template <class flight_controller_t,
@@ -182,15 +181,17 @@ run(const Settings& settings)
 	  follower_1_->register_data_set();
 	  follower_2_->register_data_set();
 	}
-	states_.clear();
-	action_follower_.clear();
+
+	follower_1_->reset_all_states();
+	follower_2_->reset_all_states();	
+	follower_1_->reset_all_actions();
+	follower_2_->reset_all_actions();	
 	time_step_vector_.push_back(count_);
 	
 	/*  Need to verify that the controller is working,
 	    use the triangle test to figure out after each iteration*/
 	if (mtools_.is_triangle(mtools_.triangle_side_3D(sim_interface_->positions())) == false) {
 	  LogInfo() << "The triangle is no longer conserved";
-	  data_set_.save_controller_count(count_);
 	  break;
 	}
 	++count_;

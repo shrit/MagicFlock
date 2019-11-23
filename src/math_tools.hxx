@@ -160,9 +160,6 @@ triangle_side_3D(lt::positions<lt::position3D<T>> pos)
     return t;
 }
 
-template <typename T>
-lt::triangle<double> Math_tools::distance_to_neighbors
-
 /*  Simple implementation, need more logical one */
 template <typename Arg, typename Arg2>
 std::vector<bool> Math_tools::to_one_hot_encoding(Arg arg, Arg2 number_of_class)
@@ -210,7 +207,6 @@ std::vector<double> Math_tools::to_std_vector(Arg arg)
 
 //   return distances;
 // }
-
 
 template <typename T>
 lt::dist3D<double> Math_tools::traveled_distances(lt::positions<lt::position3D<T>> pos_t,
