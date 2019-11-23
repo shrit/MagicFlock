@@ -22,29 +22,21 @@ public:
   State(std::shared_ptr<simulator_t> sim_interface,
 	unsigned int id,
 	std::vector<unsigned int> nearest_neighbors);
-  double height_f1() const;
-  double height_f2() const;
+
   double height_difference() const;
-  lt::rssi<double> signal_strength() const;
-  lt::triangle<double> distances_2D() const;
-  lt::triangle<double> distances_3D() const;
-  lt::triangle<double> estimated_distances() const;
-  double orientation() const;
+  std::vector<double> distances_3D() const;
+  std::vector<double> estimated_distances() const;
 
 private:
 
+  double alti_diff_;
   Math_tools mtools_;
-  lt::rssi<double> rssi_ ;
-  double height_f2_;
-  double height_f1_;
-  double z_orinetation_  ;
-  lt::triangle<double> dists_2D_ ;
-  lt::triangle<double> dists_3D_ ;
-  lt::triangle<double> e_dists_;
+  std::vector<double> dists_3D_;
+  std::vector<double> estimated_dists_3D_;
   /*  Create a shared pointer to a simulator interface The interface
       need to have all the required data about the quadcopter*/
   std::shared_ptr<simulator_t> sim_interface_;
-  Propagation_model<simulator_t, double> pmodel_;
+  Propagation_model<double> pmodel_;
 };
 
 # include "state.hxx"
