@@ -9,28 +9,26 @@
 constexpr double PI           = 3.14159265358979323846;  /* pi */
 constexpr double speed_of_light = 299792458;
 
-template<class simulator_t,
-	 class T>
+template <class rssi_t>
 class Propagation_model {
 
 public:
 
-  Propagation_model(std::shared_ptr<simulator_t> sim_interface);
+  Propagation_model(std::vector<double> position);
 
-  T dbm_to_watt(T value);
-  T Hz_to_Ghz(T value);
+  double dbm_to_watt(double value);
+  double Hz_to_Ghz(double value);
 
-  lt::triangle<double> distances_2D();
+  std::vector<double> estimated_distances_3D();
 
   void channel_to_frequency(int channel);
-
   void wave_length();
 
 private:
 
-  T friis_convert_watt_to_distance(T receiver_power);
-  T friis_convert_dbm_to_distance(T receiver_power);
-  T ITU_convert_dbm_to_distance(T receiver_power);
+  double friis_convert_watt_to_distance(double receiver_power);
+  double friis_convert_dbm_to_distance(double receiver_power);
+  double ITU_convert_dbm_to_distance(double receiver_power);
 
   double frequency_; // in HZ
   double wave_length_;
@@ -45,9 +43,7 @@ private:
   double sigma_;
 
   Math_tools mtools_;
-
-  std::shared_ptr<simulator_t> sim_interface_;
-
+  std::shared_ptr<rssi_t> rssi_interface_;
 };
 
-# include "propagation_mode.hxx"
+# include "propagation_model.hxx"
