@@ -172,7 +172,7 @@ run(const Settings& settings)
       
       while (count_ < 10 and !stop_episode_) {
 			
-	lt::positions<lt::position3D<double>> positions_before_action =
+	std::vector<lt::position3D<double>> positions_before_action =
 	  sim_interface_->positions();
        	
 	lt::triangle<double> triangle_before_action =
@@ -188,9 +188,9 @@ run(const Settings& settings)
 	    generate_trajectory(true);
 	  } else {
 	    generate_trajectory(false);
-	  }	
+	  }
 	  
-	lt::positions<lt::position3D<double>> positions_after_action =
+	std::vector<lt::position3D<double>> positions_after_action =
 	  sim_interface_->positions();
 	/* Get the distance between the TL TF, and FF TF  at time t*/
 	new_triangle.push_back(mtools_.triangle_side_3D(positions_after_action));	

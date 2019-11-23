@@ -171,7 +171,7 @@ run(const Settings& settings)
 	  generate_trajectory_using_model(false, false);
 	}
 	
-	lt::positions<lt::position3D<double>> new_positions = sim_interface_->positions();
+        std::vector<lt::position3D<double>> new_positions = sim_interface_->positions();
 
 	LogInfo() << "New positions : " << new_positions;
 		
