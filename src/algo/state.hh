@@ -10,7 +10,7 @@
 /*  Local includes */
 # include "../global.hh"
 # include "../math_tools.hh"
-# include "propagation_model.hh"
+//# include "propagation_model.hh"
 
 namespace lt = local_types;
 
@@ -36,7 +36,7 @@ private:
   /*  Create a shared pointer to a simulator interface The interface
       need to have all the required data about the quadcopter*/
   std::shared_ptr<simulator_t> sim_interface_;
-  Propagation_model<double> pmodel_;
+  // Propagation_model<double> pmodel_;
 };
 
 # include "state.hxx"

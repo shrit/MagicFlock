@@ -7,12 +7,14 @@ State<simulator_t>::State(std::shared_ptr<simulator_t> sim_interface,
 			  unsigned int id,
 			  std::vector<unsigned int> nearest_neighbors)
   : sim_interface_(std::move(sim_interface)),
-    pmodel_(sim_interface)
+
 {
   auto leader =  sim_interface_->positions().begin();
   auto follower = sim_interface_->positions().begin() + id;
-  estimated_dists_3D_ = pmodel_.distances_3D();
-  dists_3D_ = mtools_.distances_to_neighbor(sim_interface_->positions());
+  //  estimated_dists_3D_ = pmodel_.distances_3D();
+  dists_3D_ = mtools_.distances_to_neighbor(id,
+					    nearest_neighbors,
+					    sim_interface_->positions());
   alti_diff_ = (leader->z - follower->z);
 }
 
@@ -29,7 +31,7 @@ distances_3D() const
 template <class simulator_t>
 std::vector<double> State<simulator_t>::
 estimated_distances() const
-{ return estimated_dists_; }
+{ return estimated_dists_3D_; }
 
 template <class simulator_t>
 inline std::ostream& operator<< (std::ostream& out, const State<simulator_t>& s)
