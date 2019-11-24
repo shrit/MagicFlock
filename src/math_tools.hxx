@@ -195,18 +195,32 @@ std::vector<double> Math_tools::to_std_vector(Arg arg)
   return vec;
 }
 
+double Math_tools::distance_a_2_b(std::vector<lt::position3D<double>> positions,
+				  unsigned int id_a,
+				  unsigned int id_b)
+{
+  lt::position3D<double> dist;
+  /*  Distance between a and b */
+    dist.x = positions.at(id_a).x - positions.at(id_b).x;
+    dist.y = positions.at(id_a).y - positions.at(id_b).y;
+    dist.z = positions.at(id_a).z - positions.at(id_b).z;
+    
+    double distance = std::sqrt(std::pow((dist.x), 2) +
+				std::pow((dist.y), 2) +
+				std::pow((dist.z), 2));    
+    return distance;
+}
 
-// std::vector<double> Math_tools::distance_to_neighbors(unsigned int id,
-// 				 std::vector<unsigned int> nearest_neighbors,
-// 				 std::shared_ptr<simulator_t> sim_interface)
-// {
-
-//   std::vector<double> distances;
-  
-  
-
-//   return distances;
-// }
+std::vector<double> Math_tools::distances_to_neighbors(unsigned int id,
+						       std::vector<unsigned int> nearest_neighbors,
+						       std::vector<lt::position3D<double>> positions)
+{
+  std::vector<double> distances;
+  for (unsigned int i = 0; i < nearest_neighbors.size(); ++i) {
+    distances.push_back(distance_a_2_b(positions, id, nearest_neighbors(i)));
+  }
+  return distances;
+}
 
 template <typename T>
 lt::dist3D<double> Math_tools::traveled_distances(lt::positions<lt::position3D<T>> pos_t,
