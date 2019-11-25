@@ -59,12 +59,6 @@ public:
   template <typename Arg>
   Arg mean(std::vector<Arg> vec);
   
-  template <typename T>
-  lt::triangle<double> triangle_side_2D(std::vector<lt::position3D<T>> pos);
-  
-  template <typename T>
-  lt::triangle<double> triangle_side_3D(std::vector<lt::position3D<T>> pos);
-  
   template <typename Arg, typename Arg2>
   std::vector<bool> to_one_hot_encoding(Arg arg,
 					Arg2 number_of_class);

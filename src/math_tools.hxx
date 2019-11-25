@@ -56,7 +56,7 @@ index_of_min_value(const std::vector<T>& vec)
 bool Math_tools::
 is_good_shape(unsigned int id,                               
 	      std::vector<unsigned int> nearest_neighbors,   
-	      std::vector<lt::position3D<double>> positions);
+	      std::vector<lt::position3D<double>> positions)
 {
   bool value = false;
   std::vector<double> distances = distances_to_neighbors(id, nearest_neighbors, positions);
@@ -87,76 +87,6 @@ std::map<T, T> Math_tools::
 get_histogram()
 {
   return histo_;
-}
-
-template <typename T>
-lt::triangle<double> Math_tools::
-triangle_side_2D(std::vector<lt::position3D<T>> pos)
-{
-    lt::position3D<double> dist, dist2, dist3;
-
-    /*  Distance between leader and FF */
-    dist.x =  pos.leader.x - pos.follower_1.x;
-    dist.y =  pos.leader.y - pos.follower_1.y;
-
-    /* Distance between leader and TF */
-    dist2.x = pos.leader.x - pos.follower_2.x;
-    dist2.y = pos.leader.y - pos.follower_2.y;
-
-    /* Distance between TF and FF */
-    dist3.x = pos.follower_1.x - pos.follower_2.x;
-    dist3.y = pos.follower_1.y - pos.follower_2.y;
-
-    lt::triangle<double> t;
-
-    t.f3 = std::sqrt(std::pow((dist.x), 2) +
-		     std::pow((dist.y), 2));
-
-    t.f1 = std::sqrt(std::pow((dist2.x), 2)+
-		     std::pow((dist2.y), 2));
-
-    t.f2 = std::sqrt(std::pow((dist3.x), 2)+
-		     std::pow((dist3.y), 2));
-    /*  it return the traingle side */
-    return t;
-}
-
-template <typename T>
-lt::triangle<double> Math_tools::
-triangle_side_3D(std::vector<lt::position3D<T>> pos)
-{
-    lt::position3D<double> dist, dist2, dist3;
-
-    /*  Distance between leader and FF */
-    dist.x =  pos.leader.x - pos.follower_1.x;
-    dist.y =  pos.leader.y - pos.follower_1.y;
-    dist.z =  pos.leader.z - pos.follower_1.z;
-
-    /* Distance between leader and TF */
-    dist2.x = pos.leader.x - pos.follower_2.x;
-    dist2.y = pos.leader.y - pos.follower_2.y;
-    dist2.z = pos.leader.z - pos.follower_2.z;
-
-    /* Distance between TF and FF */
-    dist3.x = pos.follower_1.x - pos.follower_2.x;
-    dist3.y = pos.follower_1.y - pos.follower_2.y;
-    dist3.z = pos.follower_1.z - pos.follower_2.z;
-
-    lt::triangle<double> t;
-
-    t.f3 = std::sqrt(std::pow((dist.x), 2) +
-		     std::pow((dist.y), 2) +
-		     std::pow((dist.z), 2));
-
-    t.f1 = std::sqrt(std::pow((dist2.x), 2) +
-		     std::pow((dist2.y), 2) +
-		     std::pow((dist2.z), 2));
-
-    t.f2 = std::sqrt(std::pow((dist3.x), 2) +
-		     std::pow((dist3.y), 2) +
-		     std::pow((dist3.z), 2));
-    /*  it return the traingle side */
-    return t;
 }
 
 /*  Simple implementation, need more logical one */
