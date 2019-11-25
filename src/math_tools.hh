@@ -46,8 +46,9 @@ public:
   long long unsigned int
   index_of_min_value(const std::vector<T>& vec);
 
-  template <typename T>
-  bool is_triangle(lt::triangle<T> t);
+  bool is_good_shape(unsigned int id,
+		     std::vector<unsigned int> nearest_neighbors,
+		     std::vector<lt::position3D<double>> positions);
   
   template <typename T>
   std::map<T, T> get_histogram();
@@ -72,8 +73,8 @@ public:
   std::vector<double> to_std_vector(Arg arg);
   
   template <typename T>
-  lt::dist3D<double> traveled_distances(lt::positions<lt::position3D<T>> pos_t,
-					lt::positions<lt::position3D<T>> pos_t_1);
+  double traveled_distances(lt::position3D<T> pos_t,
+			    lt::position3D<T> pos_t_1);
   
   template <typename T>
   T pythagore_leg(T leg, T hypotenuse);

@@ -47,6 +47,8 @@ public:
   /*  Data set related functions */
   void register_data_set();
   void register_histogram(int count);
+
+  bool examin_geometric_shape();
   
 private:
 

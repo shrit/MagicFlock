@@ -207,14 +207,18 @@ run(const Settings& settings)
 	follower_1_->reset_all_states();
 	follower_2_->reset_all_states();	
 	follower_1_->reset_all_actions();
-	follower_2_->reset_all_actions();	
-	/*  Check the triangle we are out of bound break the loop */
-	if (mtools_.is_triangle(mtools_.triangle_side_3D
-				(sim_interface_->positions())) == false) {
-	  LogInfo() << "The triangle is no longer conserved";
-	  break;
+	follower_2_->reset_all_actions();
+
+	/*  Chech the geometrical shape */
+	bool shape = false;
+	for (auto it : quadrotors_) {
+	  shape = it->examin_geometric_shape();
 	}
-	++count_;
+	if (!shape) {
+	  LogInfo() << "The geometrical is no longer conserved";
+	  break;
+	}	
+	++count_;					
       }
     }
 

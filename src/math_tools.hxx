@@ -53,18 +53,17 @@ index_of_min_value(const std::vector<T>& vec)
     return std::distance(vec.begin(), highest);
 }
 
-template <typename T>
 bool Math_tools::
-is_triangle(lt::triangle<T> t)
+is_good_shape(unsigned int id,                               
+	      std::vector<unsigned int> nearest_neighbors,   
+	      std::vector<lt::position3D<double>> positions);
 {
   bool value = false;
-  if((t.f1 + t.f2 >  lower_threshold_.at(0))  and
-     (t.f1 + t.f2 <  upper_threshold_.at(0))) {
-    if ((t.f1 + t.f3 >  lower_threshold_.at(1))  and
-	(t.f1 + t.f3 <  upper_threshold_.at(1))) {
-      if ((t.f2 + t.f3 >  lower_threshold_.at(2))  and
-	  (t.f2 + t.f3 <  upper_threshold_.at(2)))
-	value = true;
+  std::vector<double> distances = distances_to_neighbors(id, nearest_neighbors, positions);
+  for (auto&& i : distances) {
+    if((i > lower_threshold_.at(0))  and
+       (i < upper_threshold_.at(0))) {
+      value = true;
     }
   }
   return value;
@@ -92,7 +91,7 @@ get_histogram()
 
 template <typename T>
 lt::triangle<double> Math_tools::
-triangle_side_2D(lt::positions<lt::position3D<T>> pos)
+triangle_side_2D(std::vector<lt::position3D<T>> pos)
 {
     lt::position3D<double> dist, dist2, dist3;
 
@@ -124,7 +123,7 @@ triangle_side_2D(lt::positions<lt::position3D<T>> pos)
 
 template <typename T>
 lt::triangle<double> Math_tools::
-triangle_side_3D(lt::positions<lt::position3D<T>> pos)
+triangle_side_3D(std::vector<lt::position3D<T>> pos)
 {
     lt::position3D<double> dist, dist2, dist3;
 
@@ -216,54 +215,33 @@ std::vector<double> Math_tools::distances_to_neighbors(unsigned int id,
 						       std::vector<lt::position3D<double>> positions)
 {
   std::vector<double> distances;
-  for (unsigned int i = 0; i < nearest_neighbors.size(); ++i) {
-    distances.push_back(distance_a_2_b(positions, id, nearest_neighbors(i)));
+  for (auto&& i : nearest_neighbors) {
+    distances.push_back(distance_a_2_b(positions, id, i));
   }
   return distances;
 }
 
 template <typename T>
-lt::dist3D<double> Math_tools::traveled_distances(lt::positions<lt::position3D<T>> pos_t,
-						  lt::positions<lt::position3D<T>> pos_t_1)
+double Math_tools::traveled_distances(lt::position3D<T> pos_t,
+				      lt::position3D<T> pos_t_1)
 {
-  lt::position3D<double> dist_leader, dist_follower_1, dist_follower_2;
+  lt::position3D<double> dist;
 
-    /* Travelled distance between time steps for leader  */
-  dist_leader.x =  pos_t.leader.x - pos_t_1.leader.x;
-  dist_leader.y =  pos_t.leader.y - pos_t_1.leader.y;
-  dist_leader.z =  pos_t.leader.z - pos_t_1.leader.z;
+    /* Travelled distance between time steps */
+  dist.x =  pos_t.x - pos_t_1.x;
+  dist.y =  pos_t.y - pos_t_1.y;
+  dist.z =  pos_t.z - pos_t_1.z;
   
-  /* Travelled distance between time steps for follower_1  */
-  dist_follower_1.x = pos_t.follower_1.x - pos_t_1.follower_1.x;
-  dist_follower_1.y = pos_t.follower_1.y - pos_t_1.follower_1.y;
-  dist_follower_1.z = pos_t.follower_1.z - pos_t_1.follower_1.z;
-  
-  /* Travelled distance between time steps for follower_2  */
-  dist_follower_2.x = pos_t.follower_2.x - pos_t_1.follower_2.x;
-  dist_follower_2.y = pos_t.follower_2.y - pos_t_1.follower_2.y;
-  dist_follower_2.z = pos_t.follower_2.z - pos_t_1.follower_2.z;
-
-  lt::dist3D<double> distance3D;
+  double traveled_distance;
 
   /*  Summing up vectors, the total is the distance travelled by each
       agent during each trajectory */
   
   /*  Distance travelled by the leader */
-  distance3D.d1 = std::sqrt(std::pow((dist_leader.x), 2) +
-			    std::pow((dist_leader.y), 2) +
-			    std::pow((dist_leader.z), 2));
-
-  /*  Distance travelled by the follower_1 */
-  distance3D.d2 = std::sqrt(std::pow((dist_follower_1.x), 2) +
-			    std::pow((dist_follower_1.y), 2) +
-			    std::pow((dist_follower_1.z), 2));
-
-  /*  Distance travelled by the follower_2 */
-  distance3D.d3 = std::sqrt(std::pow((dist_follower_2.x), 2) +
-			    std::pow((dist_follower_2.y), 2) +
-			    std::pow((dist_follower_2.z), 2));
-  
-  return distance3D;
+  traveled_distance = std::sqrt(std::pow((dist.x), 2) +
+				std::pow((dist.y), 2) +
+				std::pow((dist.z), 2));  
+  return traveled_distance;
 }
 
 template <typename T>
