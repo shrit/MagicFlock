@@ -70,7 +70,7 @@ generate_trajectory_using_model(bool change_leader_action,
   follower_1_->sample_state();
   follower_2_->sample_state();
   
-  Predictor predict("regression", "follower_1", quadrotors_);
+  Predictor<simulator_t> predict("regression", follower_1_);
 
   /*  Test the trained model using the absolute gazebo distance feature */
   arma::mat features = predict.create_absolute_features_matrix();

@@ -78,18 +78,20 @@ void TrajectoryNoise<flight_controller_t, simulator_t>::run(/*  enter quadcopter
       
       count_ = 0;      
       while (count_  < 1000 ) {
-	lt::positions<lt::position3D<double>> positions_before_action =
+	std::vector<lt::position3D<double>> positions_before_action =
 	  sim_interface_->positions();
 	
 	test_trajectory();
 	/* Get the actual position, test if the triangle is OK */
-	lt::positions<lt::position3D<double>> positions_after_action =
+	std::vector<lt::position3D<double>> positions_after_action =
 	  sim_interface_->positions();
-		
-	lt::dist3D<double> quadrotor_distance = mtools_.traveled_distances(positions_before_action,
-									   positions_after_action);
+
+	/*  Take the distance traveled by the leader  */
+	/*  Just a hack need to find a better solution later */
+        double traveled_distance = mtools_.traveled_distances(positions_before_action.at(0),
+							      positions_after_action.at(0));
 	
-	LogInfo() << "Traveled Distance by the leader : " << quadrotor_distance.d1;
+	LogInfo() << "Traveled Distance by the quadrotor : " << traveled_distance;
 	if (count_ > 0) {
 
 	  /* Construct the experinces vector, Study the distribution
@@ -102,174 +104,148 @@ void TrajectoryNoise<flight_controller_t, simulator_t>::run(/*  enter quadcopter
 	  if (action_ == Actions::Action::forward and
 	      saved_action_ == Actions::Action::left) {
 	    LogInfo() << "F + L";
-	    forward_action_vec_.push_back(quadrotor_distance.d1);
-	    f_k_l_action_vec_.push_back(quadrotor_distance.d1);
-	    f_k_l_action_vec_.push_back(saved_quadrotor_distance_.d1);
-
+	    forward_action_vec_.push_back(traveled_distance);
+	    f_k_l_action_vec_.push_back(traveled_distance);
+	    
 	  } else if (action_ == Actions::Action::forward and
 		     saved_action_ == Actions::Action::right) {
 	    LogInfo() << "F + R";
-	    forward_action_vec_.push_back(quadrotor_distance.d1);
-	    f_k_r_action_vec_.push_back(quadrotor_distance.d1);
-	    f_k_r_action_vec_.push_back(saved_quadrotor_distance_.d1);
+	    forward_action_vec_.push_back(traveled_distance);
+	    f_k_r_action_vec_.push_back(traveled_distance);	   
 	    
 	  } else if (action_ == Actions::Action::forward and
 		     saved_action_ == Actions::Action::up) {
 	    LogInfo() << "F + U";
-	    forward_action_vec_.push_back(quadrotor_distance.d1);
-	    f_k_u_action_vec_.push_back(quadrotor_distance.d1);	    
-	    f_k_u_action_vec_.push_back(saved_quadrotor_distance_.d1);
+	    forward_action_vec_.push_back(traveled_distance);
+	    f_k_u_action_vec_.push_back(traveled_distance);	    
 
 	  } else if (action_ == Actions::Action::forward and 
 	    	     saved_action_ == Actions::Action::down) {
 	    LogInfo() << "F + D";
-	    forward_action_vec_.push_back(quadrotor_distance.d1);
-	    f_k_d_action_vec_.push_back(quadrotor_distance.d1);	    
-	    f_k_d_action_vec_.push_back(saved_quadrotor_distance_.d1);
+	    forward_action_vec_.push_back(traveled_distance);
+	    f_k_d_action_vec_.push_back(traveled_distance);
 	    
 	  } else if (action_ == Actions::Action::backward and
 		     saved_action_ == Actions::Action::left) {
 	    LogInfo() << "B + L";
-	    backward_action_vec_.push_back(quadrotor_distance.d1);
-	    b_k_l_action_vec_.push_back(quadrotor_distance.d1);	    
-	    b_k_l_action_vec_.push_back(saved_quadrotor_distance_.d1);
+	    backward_action_vec_.push_back(traveled_distance);
+	    b_k_l_action_vec_.push_back(traveled_distance);
 
 	  } else if (action_ == Actions::Action::backward and
 	    	     saved_action_ == Actions::Action::right) {
 	    LogInfo() << "B + R";
-	    backward_action_vec_.push_back(quadrotor_distance.d1);
-	    b_k_r_action_vec_.push_back(quadrotor_distance.d1);	    
-	    b_k_r_action_vec_.push_back(saved_quadrotor_distance_.d1);
+	    backward_action_vec_.push_back(traveled_distance);
+	    b_k_r_action_vec_.push_back(traveled_distance);
 
 	  } else if (action_ == Actions::Action::backward and
 		     saved_action_ == Actions::Action::up) {
 	    LogInfo() << "B + U";
-	    backward_action_vec_.push_back(quadrotor_distance.d1);
-	    b_k_u_action_vec_.push_back(quadrotor_distance.d1);	    
-	    b_k_u_action_vec_.push_back(saved_quadrotor_distance_.d1);
+	    backward_action_vec_.push_back(traveled_distance);
+	    b_k_u_action_vec_.push_back(traveled_distance);
 
 	  } else if (action_ == Actions::Action::backward and
 	    	     saved_action_ == Actions::Action::down) {
 	    LogInfo() << "B + D";
-	    backward_action_vec_.push_back(quadrotor_distance.d1);
-	    b_k_d_action_vec_.push_back(quadrotor_distance.d1);	    
-	    b_k_d_action_vec_.push_back(saved_quadrotor_distance_.d1);
+	    backward_action_vec_.push_back(traveled_distance);
+	    b_k_d_action_vec_.push_back(traveled_distance);	    
 	    
 	  } else if (action_ == Actions::Action::left and
 		     saved_action_ == Actions::Action::forward) {
 	    LogInfo() << "L + F";
-	    left_action_vec_.push_back(quadrotor_distance.d1);
-	    l_k_f_action_vec_.push_back(quadrotor_distance.d1);	    
-	    l_k_f_action_vec_.push_back(saved_quadrotor_distance_.d1);
+	    left_action_vec_.push_back(traveled_distance);
+	    l_k_f_action_vec_.push_back(traveled_distance);	    
 
 	  } else if (action_ == Actions::Action::left and
 		     saved_action_ == Actions::Action::backward) {
 	    LogInfo() << "L + B";
-	    left_action_vec_.push_back(quadrotor_distance.d1);
-	    l_k_b_action_vec_.push_back(quadrotor_distance.d1);	    
-	    l_k_b_action_vec_.push_back(saved_quadrotor_distance_.d1);
+	    left_action_vec_.push_back(traveled_distance);
+	    l_k_b_action_vec_.push_back(traveled_distance);	    
 
 	  } else if (action_ == Actions::Action::left and
 		     saved_action_ == Actions::Action::up) {
 	    LogInfo() << "L + U";
-	    left_action_vec_.push_back(quadrotor_distance.d1);
-	    l_k_u_action_vec_.push_back(quadrotor_distance.d1);	    
-	    l_k_u_action_vec_.push_back(saved_quadrotor_distance_.d1);
+	    left_action_vec_.push_back(traveled_distance);
+	    l_k_u_action_vec_.push_back(traveled_distance);	    
 
 	  } else if (action_ == Actions::Action::left and
 		     saved_action_ == Actions::Action::down) {
 	    LogInfo() << "L + D";
-	    left_action_vec_.push_back(quadrotor_distance.d1);
-	    l_k_d_action_vec_.push_back(quadrotor_distance.d1);	    
-	    l_k_d_action_vec_.push_back(saved_quadrotor_distance_.d1);	  
+	    left_action_vec_.push_back(traveled_distance);
+	    l_k_d_action_vec_.push_back(traveled_distance);	    
 	  
 	  } else if (action_ == Actions::Action::right and
 		     saved_action_ == Actions::Action::forward) {
 	    LogInfo() << "R + F";
-	    right_action_vec_.push_back(quadrotor_distance.d1);
-	    r_k_f_action_vec_.push_back(quadrotor_distance.d1);	    
-	    r_k_f_action_vec_.push_back(saved_quadrotor_distance_.d1);
+	    right_action_vec_.push_back(traveled_distance);
+	    r_k_f_action_vec_.push_back(traveled_distance);	    
 	    
 	  } else if (action_ == Actions::Action::right and
 		     saved_action_ == Actions::Action::backward) {
 	    LogInfo() << "R + B";
-	    right_action_vec_.push_back(quadrotor_distance.d1);
-	    r_k_b_action_vec_.push_back(quadrotor_distance.d1);	    
-	    r_k_b_action_vec_.push_back(saved_quadrotor_distance_.d1);
+	    right_action_vec_.push_back(traveled_distance);
+	    r_k_b_action_vec_.push_back(traveled_distance);	    
 
 	  } else if (action_ == Actions::Action::right and
 		     saved_action_ == Actions::Action::up) {
 	    LogInfo() << "R + U";
-	    right_action_vec_.push_back(quadrotor_distance.d1);
-	    r_k_u_action_vec_.push_back(quadrotor_distance.d1);	    
-	    r_k_u_action_vec_.push_back(saved_quadrotor_distance_.d1);
+	    right_action_vec_.push_back(traveled_distance);
+	    r_k_u_action_vec_.push_back(traveled_distance);	    
 
 	  } else if (action_ == Actions::Action::right and
 		     saved_action_ == Actions::Action::down) {
 	    LogInfo() << "R + D";
-	    right_action_vec_.push_back(quadrotor_distance.d1);
-	    r_k_d_action_vec_.push_back(quadrotor_distance.d1);	    
-	    r_k_d_action_vec_.push_back(saved_quadrotor_distance_.d1);
+	    right_action_vec_.push_back(traveled_distance);
+	    r_k_d_action_vec_.push_back(traveled_distance);	    
 	    
 	  } else if (action_ == Actions::Action::up and
 		     saved_action_ == Actions::Action::forward) {
 
-	    up_action_vec_.push_back(quadrotor_distance.d1);
-	    u_k_f_action_vec_.push_back(quadrotor_distance.d1);	    
-	    u_k_f_action_vec_.push_back(saved_quadrotor_distance_.d1);
+	    up_action_vec_.push_back(traveled_distance);
+	    u_k_f_action_vec_.push_back(traveled_distance);	    
 	    
 	  } else if (action_ == Actions::Action::up and
 		     saved_action_ == Actions::Action::backward) {
 	    
-	    up_action_vec_.push_back(quadrotor_distance.d1);
-	    u_k_b_action_vec_.push_back(quadrotor_distance.d1);  
-	    u_k_b_action_vec_.push_back(saved_quadrotor_distance_.d1);
-
+	    up_action_vec_.push_back(traveled_distance);
+	    u_k_b_action_vec_.push_back(traveled_distance);  
+	    
 	  } else if (action_ == Actions::Action::up and
 		     saved_action_ == Actions::Action::left) {
 
-	    up_action_vec_.push_back(quadrotor_distance.d1);
-	    u_k_l_action_vec_.push_back(quadrotor_distance.d1);	    
-	    u_k_l_action_vec_.push_back(saved_quadrotor_distance_.d1);
+	    up_action_vec_.push_back(traveled_distance);
+	    u_k_l_action_vec_.push_back(traveled_distance);	    
 
 	  } else if (action_ == Actions::Action::up and
 		     saved_action_ == Actions::Action::right) {
 
-	    up_action_vec_.push_back(quadrotor_distance.d1);
-	    u_k_r_action_vec_.push_back(quadrotor_distance.d1);	    
-	    u_k_r_action_vec_.push_back(saved_quadrotor_distance_.d1);
+	    up_action_vec_.push_back(traveled_distance);
+	    u_k_r_action_vec_.push_back(traveled_distance);	    
 	    	    
 	  } else if (action_ == Actions::Action::down and
 		     saved_action_ == Actions::Action::forward) {
-	    down_action_vec_.push_back(quadrotor_distance.d1);
-	    d_k_f_action_vec_.push_back(quadrotor_distance.d1);	    
-	    d_k_f_action_vec_.push_back(saved_quadrotor_distance_.d1);
+	    down_action_vec_.push_back(traveled_distance);
+	    d_k_f_action_vec_.push_back(traveled_distance);	    
 
 	  } else if (action_ == Actions::Action::down and
 		     saved_action_ == Actions::Action::backward) {
-	    down_action_vec_.push_back(quadrotor_distance.d1);
-	    d_k_b_action_vec_.push_back(quadrotor_distance.d1);	    
-	    d_k_b_action_vec_.push_back(saved_quadrotor_distance_.d1);
+	    down_action_vec_.push_back(traveled_distance);
+	    d_k_b_action_vec_.push_back(traveled_distance);	    
 	    
 	  } else if (action_ == Actions::Action::down and
 		     saved_action_ == Actions::Action::left) {
-	    down_action_vec_.push_back(quadrotor_distance.d1);
-	    d_k_l_action_vec_.push_back(quadrotor_distance.d1);	    
-	    d_k_l_action_vec_.push_back(saved_quadrotor_distance_.d1);
+	    down_action_vec_.push_back(traveled_distance);
+	    d_k_l_action_vec_.push_back(traveled_distance);	    
 	    
 	  } else if (action_ == Actions::Action::down and
 		     saved_action_ == Actions::Action::right) {
-	    down_action_vec_.push_back(quadrotor_distance.d1);
-	    d_k_l_action_vec_.push_back(quadrotor_distance.d1);	    
-	    d_k_l_action_vec_.push_back(saved_quadrotor_distance_.d1);
+	    down_action_vec_.push_back(traveled_distance);
+	    d_k_r_action_vec_.push_back(traveled_distance);	    
 	  }	  
 	}
-	saved_action_ = action_;
-	saved_quadrotor_distance_ = quadrotor_distance;
-	
+	saved_action_ = action_;       
 	++count_ ;
       }
-      /*  Calculate the mean value */
+      /*  Calculate the mean value */ /*  Replace logging with a file */
       LogInfo() << "Mean of Forward: " <<  mtools_.mean(forward_action_vec_);
       LogInfo() << "Mean of Backward: " <<  mtools_.mean(backward_action_vec_);
       LogInfo() << "Mean of Left: " <<  mtools_.mean(left_action_vec_);
@@ -312,17 +288,15 @@ void TrajectoryNoise<flight_controller_t, simulator_t>::run(/*  enter quadcopter
       LogInfo() << "Variance of left knowing forward: " <<  mtools_.variance(l_k_f_action_vec_);
       LogInfo() << "Variance of left knowing backward: " <<  mtools_.variance(l_k_b_action_vec_);
       LogInfo() << "Variance of left knowing up: " <<  mtools_.variance(l_k_u_action_vec_);
-      LogInfo() << "Variance of left knowing down: " <<  mtools_.variance(l_k_d_action_vec_);                                    
-    }
-    
-    /*  Logging */
+      LogInfo() << "Variance of left knowing down: " <<  mtools_.variance(l_k_d_action_vec_);
+      
+    }   
     
     /*  Landing */
     swarm_.land_specific_quadrotor("l");
     
     /*  Resetting */
     sim_interface_->reset_models();
-
     LogInfo() << "All quadrotors have been reset...";
     
     std::this_thread::sleep_for(std::chrono::seconds(15));

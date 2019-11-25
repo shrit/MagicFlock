@@ -35,7 +35,6 @@ private:
   Math_tools mtools_;
   Actions::Action action_;
   Actions::Action saved_action_;
-  lt::dist3D<double> saved_quadrotor_distance_;
   std::shared_ptr<simulator_t> sim_interface_;
   bool stop_episode_;
   SwarmDevice<flight_controller_t> swarm_;
