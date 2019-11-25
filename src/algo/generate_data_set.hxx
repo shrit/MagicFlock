@@ -104,8 +104,7 @@ template<class flight_controller_t,
 void Generator<flight_controller_t, simulator_t>::
 run(const Settings& settings)
 {
-  lt::positions<lt::position3D<double>> original_positions = sim_interface_->positions();
-
+  std::vector<lt::position3D<double>> original_positions = sim_interface_->positions();
   LogInfo() << "Starting positions : " << original_positions;
 
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
@@ -145,13 +144,6 @@ run(const Settings& settings)
     
     /*  Wait to complete the take off process */
     std::this_thread::sleep_for(std::chrono::seconds(1));
-
-    /*  This can be removed since it is bo longer needed */
-    /*  Handle fake takeoff.. */
-    if (sim_interface_->positions().follower_1.z < 6  or
-	sim_interface_->positions().follower_2.z < 6) {
-      stop_episode_ = true;
-    }
     
     /*  Start the First phase */
     /*  Collect dataset by creating a set of trajectories, each time
@@ -167,37 +159,24 @@ run(const Settings& settings)
       follower_1_->reset_all_actions();
       follower_2_->reset_all_actions();
       count_ = 0;
-
-      std::vector<lt::triangle<double>> new_triangle;
       
       while (count_ < 10 and !stop_episode_) {
-			
+	
 	std::vector<lt::position3D<double>> positions_before_action =
-	  sim_interface_->positions();
-       	
-	lt::triangle<double> triangle_before_action =
-	  mtools_.triangle_side_3D(positions_before_action);
-
-	LogInfo() << "Distanes before actions : " <<
-	  mtools_.triangle_side_3D(positions_before_action);
-		
+	  sim_interface_->positions();       
+	
 	/* Choose one random trajectory for the leader_ in the first
 	   count. Then, keep the same action until the end of the
 	   episode */	
-	  if (count_ == 0) {
-	    generate_trajectory(true);
-	  } else {
-	    generate_trajectory(false);
-	  }
-	  
+	if (count_ == 0) {
+	  generate_trajectory(true);
+	} else {
+	  generate_trajectory(false);
+	}
+	
 	std::vector<lt::position3D<double>> positions_after_action =
 	  sim_interface_->positions();
-	/* Get the distance between the TL TF, and FF TF  at time t*/
-	new_triangle.push_back(mtools_.triangle_side_3D(positions_after_action));	
 	
-	LogInfo() << "Distances after action : " <<
-	  mtools_.triangle_side_3D(positions_after_action);
-	  
 	if (settings.regression()) {	 
 	  follower_1_->register_data_set();
 	  follower_2_->register_data_set();
@@ -208,11 +187,11 @@ run(const Settings& settings)
 	follower_2_->reset_all_states();	
 	follower_1_->reset_all_actions();
 	follower_2_->reset_all_actions();
-
+	
 	/*  Chech the geometrical shape */
 	bool shape = false;
 	for (auto it : quadrotors_) {
-	  shape = it->examin_geometric_shape();
+	  shape = it.examin_geometric_shape();
 	}
 	if (!shape) {
 	  LogInfo() << "The geometrical is no longer conserved";
@@ -221,19 +200,14 @@ run(const Settings& settings)
 	++count_;					
       }
     }
-
-    /*  Add one count to have the exact number of time steps in the
-	histogram since count start with 0*/
-    if (!stop_episode_) {
-      count_ = count_ + 1;
-    }
+    
     /*  Save a version of the time steps to create a histogram */
     follower_1_->register_histogram(count_);
     follower_2_->register_histogram(count_);
-       
+    
     /* Landing is blocking untill touching the ground*/
     swarm_.land();
-
+    
     /* Resetting the entire swarm after the end of each episode*/
     sim_interface_->reset_models();
 

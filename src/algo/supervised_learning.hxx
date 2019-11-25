@@ -155,8 +155,6 @@ run(const Settings& settings)
     if (!stop_episode_) {
 
       count_ = 0;
-      std::vector<lt::triangle<double>> new_triangle;
-
       while (count_ < 1000) {
 	
 	if (count_ == 0 ) {
@@ -164,18 +162,15 @@ run(const Settings& settings)
 	  //Change each 10 times the direction of the leader
 	} else if (count_ % 10 == 0) {
 	  generate_trajectory_using_model(true, false);
-	} else if (sim_interface_->positions().follower_1.z < 15
-		   or sim_interface_->positions().follower_2.z < 15) {
+	} else if (sim_interface_->positions().at(0).z < 15
+		   or sim_interface_->positions().at(1).z < 15) {
 	  generate_trajectory_using_model(false, true);
 	} else {
 	  generate_trajectory_using_model(false, false);
 	}
 	
         std::vector<lt::position3D<double>> new_positions = sim_interface_->positions();
-
-	LogInfo() << "New positions : " << new_positions;
-		
-	new_triangle.push_back(mtools_.triangle_side_3D(new_positions));
+	LogInfo() << "New positions : " << new_positions;	       
 	
 	if(regression_) {
 	  follower_1_->register_data_set();
@@ -188,12 +183,15 @@ run(const Settings& settings)
 	follower_2_->reset_all_actions();	
 	time_step_vector_.push_back(count_);
 	
-	/*  Need to verify that the controller is working,
-	    use the triangle test to figure out after each iteration*/
-	if (mtools_.is_triangle(mtools_.triangle_side_3D(sim_interface_->positions())) == false) {
-	  LogInfo() << "The triangle is no longer conserved";
-	  break;
+	/*  Check the geometrical shape */
+	bool shape = false;
+	for (auto it : quadrotors_) {
+	  shape = it.examin_geometric_shape();
 	}
+	if (!shape) {
+	  LogInfo() << "The geometrical is no longer conserved";
+	  break;
+	}	
 	++count_;
       }
     }

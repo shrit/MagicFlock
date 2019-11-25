@@ -6,8 +6,7 @@ template <class simulator_t>
 State<simulator_t>::State(std::shared_ptr<simulator_t> sim_interface,
 			  unsigned int id,
 			  std::vector<unsigned int> nearest_neighbors)
-  : sim_interface_(std::move(sim_interface)),
-
+  : sim_interface_(std::move(sim_interface))
 {
   auto leader =  sim_interface_->positions().begin();
   auto follower = sim_interface_->positions().begin() + id;
@@ -15,8 +14,8 @@ State<simulator_t>::State(std::shared_ptr<simulator_t> sim_interface,
   dists_3D_ = mtools_.distances_to_neighbors(id,
 					     nearest_neighbors,
 					     sim_interface_->positions());
-  alti_diff_ = (sim_interface_->positions().at(0)->z -
-		sim_interface_->positions().at(id)->z);
+  alti_diff_ = (sim_interface_->positions().at(0).z -
+		sim_interface_->positions().at(id).z);
 }
 
 template <class simulator_t>
