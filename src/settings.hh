@@ -24,13 +24,13 @@ public:
   std::string dataset() const;
   
 private:
-  bool flying_;
-  bool generate_;
-  bool training_;  
-  bool testing_;
-  bool classification_;
-  bool regression_;
-  bool trajectory_noise_;
+  bool flying_{false};
+  bool generate_{false};
+  bool training_{false};  
+  bool testing_{false};
+  bool classification_{false};
+  bool regression_{false};
+  bool trajectory_noise_{false};
   std::string ini_file_;
   std::string dataset_file_;
 };
