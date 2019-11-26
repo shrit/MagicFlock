@@ -3,6 +3,10 @@
 # include "state.hh"
 
 template <class simulator_t>
+State<simulator_t>::State()
+{}
+
+template <class simulator_t>
 State<simulator_t>::State(std::shared_ptr<simulator_t> sim_interface,
 			  unsigned int id,
 			  std::vector<unsigned int> nearest_neighbors)
@@ -14,8 +18,7 @@ State<simulator_t>::State(std::shared_ptr<simulator_t> sim_interface,
   dists_3D_ = mtools_.distances_to_neighbors(id,
 					     nearest_neighbors,
 					     sim_interface_->positions());
-  alti_diff_ = (sim_interface_->positions().at(0).z -
-		sim_interface_->positions().at(id).z);
+  alti_diff_ = (leader->z - follower->z);
 }
 
 template <class simulator_t>

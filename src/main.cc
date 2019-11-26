@@ -347,9 +347,9 @@ int main(int argc, char* argv[])
   /*  Try to see if it is possible or efficient to merge quadrotors +
       device controller */
   std::vector<Quadrotor<Gazebo>> quadrotors;
-  quadrotors.emplace_back(0, "leader");
-  quadrotors.emplace_back(1, "follower_1");
-  quadrotors.emplace_back(2, "follower_2");
+  quadrotors.emplace_back(0, "leader", gz);
+  quadrotors.emplace_back(1, "follower_1", gz);
+  quadrotors.emplace_back(2, "follower_2", gz);
   
   /*  1: Generate a dataset
    *  2: Train the model on the dataset

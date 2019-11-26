@@ -58,7 +58,7 @@ private:
 
   Math_tools mtools_;
   DataSet data_set_;
-  
+
   State<simulator_t> current_state_;
   State<simulator_t> last_state_;
   State<simulator_t> before_last_state_;

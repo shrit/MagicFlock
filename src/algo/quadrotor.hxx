@@ -7,7 +7,7 @@ Quadrotor<simulator_t>::Quadrotor(unsigned int id,
 				  std::shared_ptr<simulator_t> sim_interface)
   :id_(id),
    name_(name),
-   sim_interface_(std::move(sim_interface))
+   sim_interface_(sim_interface)
 {
   data_set_.init_dataset_directory();
 }

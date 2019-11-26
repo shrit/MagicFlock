@@ -19,6 +19,7 @@ class State {
 
 public:
 
+  State();  
   State(std::shared_ptr<simulator_t> sim_interface,
 	unsigned int id,
 	std::vector<unsigned int> nearest_neighbors);
