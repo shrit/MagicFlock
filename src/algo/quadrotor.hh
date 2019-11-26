@@ -52,8 +52,8 @@ public:
   
 private:
 
-  Actions::Action current_action_;
-  Actions::Action last_action_;
+  Actions::Action current_action_{Actions::Action::Unknown};
+  Actions::Action last_action_{Actions::Action::Unknown};
   std::vector<Actions::Action> all_actions_;
 
   Math_tools mtools_;
