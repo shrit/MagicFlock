@@ -37,7 +37,8 @@ class Predictor
 {
 public:
       
-  Predictor(string name, const quadrotors_vec<simulator_t>& quadrotors);
+  Predictor(string name,
+	    typename std::vector<Quadrotor<simulator_t>>::iterator quad);
   
   arma::mat
   create_absolute_features_matrix();
@@ -53,7 +54,6 @@ public:
 
   std::tuple<arma::mat, arma::uword, Actions::Action> predict(arma::mat& features);
 
-  template<class simulator_t>
   double real_time_loss(std::tuple<arma::mat, arma::uword, Actions::Action> matrix_best_action);
   
   Predictor(Predictor const&) = delete;
@@ -64,7 +64,7 @@ private:
   bool classification_;
   Math_tools mtools_;
   bool regression_;
-  lt::triangle<double> original_dist_;
+  std::vector<double> original_dist_;
   double height_diff_;
   typename std::vector<Quadrotor<simulator_t>>::iterator quad_;
   std::vector<Quadrotor<simulator_t>> quadrotors_;

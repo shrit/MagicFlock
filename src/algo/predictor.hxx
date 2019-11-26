@@ -3,12 +3,10 @@
 # include "predictor.hh"
 
 template<class simulator_t>
-Predictor::Predictor<simulator_t>(std::string name,/*  Classification or regression */
-		     std::string name_quadrotor,
-		     const std::vector<Quadrotor<simulator_t>>& quadrotors)
+Predictor<simulator_t>::Predictor(std::string name,/*  Classification or regression */
+				  typename std::vector<Quadrotor<simulator_t>>::iterator quad)
   
-  :which_quad_(-1),
-  quadrotors_(std::move(quadrotors))
+  :quad_(quad)
 {
   classification_ = false;
   regression_ = false;
@@ -18,18 +16,7 @@ Predictor::Predictor<simulator_t>(std::string name,/*  Classification or regress
     regression_ = true;
   } else {
     LogInfo() << "Please entre either classification or regression to star the prediction";
-  }
-
-  /*  replace by id */
-  if (name_quadrotors == "leader") {
-    which_quad_ = 0;
-  } else if (name_quadrotors == "follower_1") {
-    which_quad_ = 1;
-  } else if (name_quadrotors == "follower_2") {
-    which_quad_ = 2;
-  }    
-  /*  Allow easier access and debugging to all quadrotors state */
-  quad_ = quadrotors.begin() + which_quad_;
+  }   
 }
 
 /* Estimate the features (distances) using propagation model from RSSI */
@@ -45,19 +32,19 @@ create_estimated_features_matrix()
 
   for (int i = 0; i < 7; ++i) {
     /*  State */
-    row << quad_.last_state().distances_3D().f1
-	<< quad_.last_state().distances_3D().f2
-	<< quad_.last_state().height_difference()
-	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(0)
-      	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(1)
-	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(2)
-	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(3)
-	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(4)
-	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(5)
-      	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(6)
-	<< quad_.current_state().distances_3D().f1
-	<< quad_.current_state().distances_3D().f2
-	<< quad_.current_state().height_difference()
+    row << quad_->last_state().distances_3D().at(0)
+	<< quad_->last_state().distances_3D().at(1)
+	<< quad_->last_state().height_difference()
+	<< mtools_.to_one_hot_encoding(quad_->current_action(), 7).at(0)
+      	<< mtools_.to_one_hot_encoding(quad_->current_action(), 7).at(1)
+	<< mtools_.to_one_hot_encoding(quad_->current_action(), 7).at(2)
+	<< mtools_.to_one_hot_encoding(quad_->current_action(), 7).at(3)
+	<< mtools_.to_one_hot_encoding(quad_->current_action(), 7).at(4)
+	<< mtools_.to_one_hot_encoding(quad_->current_action(), 7).at(5)
+      	<< mtools_.to_one_hot_encoding(quad_->current_action(), 7).at(6)
+	<< quad_->current_state().distances_3D().at(0)
+	<< quad_->current_state().distances_3D().at(1)
+	<< quad_->current_state().height_difference()
       /*  Action encoded as 1, and 0, add 7 times to represent 7 actions */
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(0)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(1)
@@ -86,19 +73,19 @@ create_absolute_features_matrix()
     
   for (int i = 0; i < 7; ++i) {
     /*  State */
-    row << quad_.last_state().distances_3D().f1
-	<< quad_.last_state().distances_3D().f2
-	<< quad_.last_state().height_difference()
-	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(0)
-      	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(1)
-	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(2)
-	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(3)
-	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(4)
-	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(5)
-      	<< mtools_.to_one_hot_encoding(quad_.current_action(), 7).at(6)
-	<< quad_.current_state.distances_3D().f1
-	<< quad_.current_state.distances_3D().f2
-	<< quad_.current_state.height_difference()
+    row << quad_->last_state().distances_3D().at(0)
+	<< quad_->last_state().distances_3D().at(1)
+	<< quad_->last_state().height_difference()
+	<< mtools_.to_one_hot_encoding(quad_->current_action(), 7).at(0)
+      	<< mtools_.to_one_hot_encoding(quad_->current_action(), 7).at(1)
+	<< mtools_.to_one_hot_encoding(quad_->current_action(), 7).at(2)
+	<< mtools_.to_one_hot_encoding(quad_->current_action(), 7).at(3)
+	<< mtools_.to_one_hot_encoding(quad_->current_action(), 7).at(4)
+	<< mtools_.to_one_hot_encoding(quad_->current_action(), 7).at(5)
+      	<< mtools_.to_one_hot_encoding(quad_->current_action(), 7).at(6)
+	<< quad_->current_state().distances_3D().at(0)
+	<< quad_->current_state().distances_3D().at(1)
+	<< quad_->current_state().height_difference()
       /*  Action encoded as 1, and 0, add 7 times to represent 7 actions */
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(0)
 	<< mtools_.to_one_hot_encoding(actions.at(i), 7).at(1)
@@ -122,15 +109,15 @@ std::vector<double> Predictor<simulator_t>::
 estimate_action_from_distance(arma::mat& matrix)
 {
   std::vector<double> sum_of_distances;
-  lt::triangle<double> distances;
+  std::vector<double> distances;
   double height_diff;
   for (arma::uword i = 0; i < matrix.n_rows; ++i) {
     /*  0 index is the height, not considered yet */
     /*  Consider only f1 and f2 */
-    distances.f1 = std::fabs(original_dist_.f1 - matrix(i, 0));
-    distances.f2 = std::fabs(original_dist_.f2 - matrix(i, 1));
+    distances.at(0) = std::fabs(original_dist_.at(0) - matrix(i, 0));
+    distances.at(1) = std::fabs(original_dist_.at(1) - matrix(i, 1));
     height_diff = std::fabs(height_diff_ - matrix(i, 2));
-    sum_of_distances.push_back(distances.f1 + distances.f2 + height_diff);
+    sum_of_distances.push_back(distances.at(0) + distances.at(1) + height_diff);
   }
   return sum_of_distances;
 }
@@ -167,8 +154,8 @@ real_time_loss(std::tuple<arma::mat, arma::uword,
   arma::mat matrix;
   arma::uword index_of_best_estimation;
   std::tie(matrix, index_of_best_estimation, std::ignore) = matrix_best_action;
-  double loss = std::pow((matrix(index_of_best_estimation, 1) - quad_.current_state().distances_3D().follower_1), 2) +
-    std::pow((matrix(index_of_best_estimation, 2) - quad_.current_state().distances_3D().follower_2), 2);
+  double loss = std::pow((matrix(index_of_best_estimation, 1) - quad_->current_state().distances_3D().at(0)), 2) +
+    std::pow((matrix(index_of_best_estimation, 2) - quad_->current_state().distances_3D().at(1)), 2);
   return loss;
 }
     
