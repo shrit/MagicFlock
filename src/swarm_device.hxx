@@ -10,47 +10,28 @@ SwarmDevice(std::vector<std::shared_ptr<flight_controller_t>> quads)
 {}
 
 template <class flight_controller_t>
-int SwarmDevice<flight_controller_t>::
-quadrotor_label_2_number(std::string label)
-{
-  int quad_number = 0;
-  
-  if (label == "l") {
-    quad_number = 0;
-  } else if (label == "f1") {
-    quad_number = 1;
-  } else if (label == "f2") {
-    quad_number = 2;
-  }
-  return quad_number;
-}
-
-template <class flight_controller_t>
 void SwarmDevice<flight_controller_t>::
-one_quad_execute_trajectory(std::string label,
+one_quad_execute_trajectory(unsigned int id,
 			    Actions::Action action,
 			    unsigned int milliseconds)
 {
-  int quad_number = 0;
-  quad_number = quadrotor_label_2_number(label);
-
   if (action == Actions::Action::left) {
-    iris_x_.at(quad_number)->left(speed_, milliseconds);
+    iris_x_.at(id)->left(speed_, milliseconds);
 
   } else if (action == Actions::Action::right) {
-    iris_x_.at(quad_number)->right(speed_, milliseconds);
+    iris_x_.at(id)->right(speed_, milliseconds);
 
   } else if (action == Actions::Action::forward) {
-    iris_x_.at(quad_number)->forward(speed_, milliseconds);
+    iris_x_.at(id)->forward(speed_, milliseconds);
 
   } else if (action == Actions::Action::backward) {
-    iris_x_.at(quad_number)->backward(speed_, milliseconds);
+    iris_x_.at(id)->backward(speed_, milliseconds);
 
   } else if (action == Actions::Action::up) {
-    iris_x_.at(quad_number)->up(speed_, milliseconds);
+    iris_x_.at(id)->up(speed_, milliseconds);
 
   } else if (action == Actions::Action::down) {
-    iris_x_.at(quad_number)->down(speed_, milliseconds);
+    iris_x_.at(id)->down(speed_, milliseconds);
   }
 }
 
@@ -85,10 +66,9 @@ arm()
 
 template<class flight_controller_t>
 bool SwarmDevice<flight_controller_t>::
-arm_specific_quadrotor(std::string quadrotor_name)
+arm_specific_quadrotor(unsigned int id)
 {
-  int quad_number = quadrotor_label_2_number(quadrotor_name);
-  bool arm = iris_x_.at(quad_number)->arm();
+  bool arm = iris_x_.at(id)->arm();
   if (!arm)
     return false;
   
@@ -106,10 +86,9 @@ init_speed()
 
 template<class flight_controller_t>
 void SwarmDevice<flight_controller_t>::
-init_speed_specific_quadrotor(std::string quadrotor_name)
+init_speed_specific_quadrotor(unsigned int id)
 {
-  int quad_number = quadrotor_label_2_number(quadrotor_name);
-  iris_x_.at(quad_number)->init_speed();  
+  iris_x_.at(id)->init_speed();  
 }
 
 template<class flight_controller_t>
@@ -127,10 +106,9 @@ start_offboard_mode()
 
 template<class flight_controller_t>
 bool SwarmDevice<flight_controller_t>::
-start_offboard_mode_specific_quadrotor(std::string quadrotor_name)
+start_offboard_mode_specific_quadrotor(unsigned int id)
 {
-  int quad_number = quadrotor_label_2_number(quadrotor_name);
-  bool offboard_mode = iris_x_.at(quad_number)->start_offboard_mode();
+  bool offboard_mode = iris_x_.at(id)->start_offboard_mode();
   if (!offboard_mode)
     return false;
   
@@ -167,11 +145,9 @@ takeoff(float meters)
 
 template<class flight_controller_t>
 bool SwarmDevice<flight_controller_t>::
-takeoff_specific_quadrotor(float meters, std::string quadrotor_name)
+takeoff_specific_quadrotor(float meters, unsigned int id)
 {
-  int quad_number = quadrotor_label_2_number(quadrotor_name);
-  bool takeoff = iris_x_.at(quad_number)->takeoff(meters);
-  
+  bool takeoff = iris_x_.at(id)->takeoff(meters);  
   if (!takeoff)
     return false;
   
@@ -205,13 +181,12 @@ land()
 
   return true;    
 }
+
 template<class flight_controller_t>
 bool SwarmDevice<flight_controller_t>::
-land_specific_quadrotor(std::string quadrotor_name)
+land_specific_quadrotor(unsigned int id)
 {
-  int quad_number = quadrotor_label_2_number(quadrotor_name);
-  bool land = iris_x_.at(quad_number)->land();
-  
+  bool land = iris_x_.at(id)->land();  
   if (!land)
     return false;
 
