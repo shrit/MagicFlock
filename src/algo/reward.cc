@@ -1,7 +1,7 @@
 # include "reward.hh"
 
 Rewards::Reward Rewards::
-evaluator_current_state(const lt::triangle<double>& old_dist,
+evaluate_current_state(const lt::triangle<double>& old_dist,
 			const lt::triangle<double>& new_dist)
 {
   LogInfo() << "F1 differences: " << std::fabs(old_dist.f1 - new_dist.f1);

@@ -1,6 +1,6 @@
 #include "action.hh"
 
-Actions::Action()
+Actions::Actions()
   :distribution_int_(0, 5),
    generator_(random_dev())
 {}
@@ -9,28 +9,28 @@ std::string Actions::action_to_str(Action action)
 {
   std::string string_action = "";
   switch (action) {
-  case forward:
+  case Action::forward:
     string_action = "Forward";
     break;
-  case backward:
+  case Action::backward:
    string_action =  "Backward"; 
     break;
-  case left:
+  case Action::left:
     string_action =  "Left";
     break;
-  case right:
+  case Action::right:
     string_action =  "right";
     break;
-  case up:
+  case Action::up:
     string_action =  "Up";
     break;
-  case down:
+  case Action::down:
     string_action =  "Down";
     break;
-  case NoMove:
+  case Action::NoMove:
     string_action =  "NoMove";
     break;
-  case Unknown:
+  case Action::Unknown:
     string_action =  "Unknown";
     break;    
   }
@@ -42,24 +42,24 @@ Actions::Action Actions::
 extract_action_from_index(arma::mat features, arma::uword index)
 {
   /*  just a HACK, need to find a dynamic solution later */
-  Action::Action action = Action::Action::Unknown;
+  Action action = Action::Unknown;
   /*  Access matrix values according to a given index  */
   /*  Only one action exist that equal 1 in each row of 
    a matrix */  
   if (features(index, 14) == 1) {
-    action = Action::Action::forward;
+    action = Action::forward;
   } else if (features(index, 15) == 1) {
-    action = Action::Action::backward;
+    action = Action::backward;
   } else if (features(index, 16) == 1) {
-    action = Action::Action::left;
+    action = Action::left;
   } else if (features(index, 17) == 1) {
-    action = Action::Action::right;
+    action = Action::right;
   } else if (features(index, 18) == 1) {
-    action = Action::Action::up;
+    action = Action::up;
   } else if (features(index, 19) == 1) {
-    action = Action::Action::down;
+    action = Action::down;
   } else if (features(index, 20) == 1) {
-    action = Action::Action::NoMove;
+    action = Action::NoMove;
   }  
   return action;
 }
@@ -91,7 +91,7 @@ random_action_generator()
 Actions::Action Actions::
 random_action_generator_with_all_conditions(Action action)
 {
-  Action action_ = Action::NoMove;
+  Action action_ = Action::Unknown;
   
   if (action == Action::backward) {
     action_ = random_action_generator();
