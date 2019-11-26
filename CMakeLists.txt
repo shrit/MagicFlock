@@ -37,6 +37,8 @@ set(boost_lib_time "/usr/lib/libboost_date_time.so")
 link_directories(${GAZEBO_LIBRARY_DIRS})
 
 add_executable(lemon
+  src/algo/action.cc
+  src/algo/reward.cc  
   src/algo/training.cc
   src/config_ini.cc
   src/data_set.cc
