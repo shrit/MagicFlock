@@ -129,6 +129,9 @@ random_action_generator_with_all_conditions(Action action)
 	   action_ == Action::left) {
       action_ = random_action_generator();
     }
+  } else if (action == Action::Unknown or
+	     action == Action::NoMove) {
+    action_ = random_action_generator();
   }
   return action_;
 }
@@ -172,6 +175,9 @@ random_action_generator_with_only_opposed_condition(Action action)
     while (action_ == Action::right) {
       action_ = random_action_generator();
     }
+  } else if (action == Action::Unknown or
+	     action == Action::NoMove) {
+    action_ = random_action_generator();
   }
   return action_;
 }
