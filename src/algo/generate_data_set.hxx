@@ -48,14 +48,14 @@ generate_trajectory(bool change_leader_action)
   follower_1_->current_action(Actions::Action::NoMove);
   follower_2_->current_action(Actions::Action::NoMove);
   
-  /*  Threading QuadCopter */
+  /*  Threading Quadrotors */
   threads.push_back(std::thread([&](){
-				    swarm_.one_quad_execute_trajectory("l" ,
-								       leader_->current_action(),
-								       1000);
+				  swarm_.one_quad_execute_trajectory(leader_->id(),
+								     leader_->current_action(),
+								     1000);
 				}));
 
-  /* We need to wait until the quadcopters finish their actions */
+  /* We need to wait until the Quadrotors finish their actions */
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   
   /* Get the next state at time t + 1  */
@@ -68,12 +68,12 @@ generate_trajectory(bool change_leader_action)
 			    (follower_1_->last_action()));
   
   threads.push_back(std::thread([&](){
-				  swarm_.one_quad_execute_trajectory("f1" ,
+				  swarm_.one_quad_execute_trajectory(follower_1_->id(),
 								     follower_1_->current_action(),
 								     1000);
 				}));
   
-  /* We need to wait until the quadcopters finish their actions */
+  /* We need to wait until the Quadrotors finish their actions */
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   
   /* Get the next state at time t + 2  */
@@ -86,14 +86,17 @@ generate_trajectory(bool change_leader_action)
 			    (follower_2_->last_action()));
   
   threads.push_back(std::thread([&](){
-				  swarm_.one_quad_execute_trajectory("f2",
+				  swarm_.one_quad_execute_trajectory(follower_2_->id(),
 								     follower_2_->current_action(),
 								     1000);
 				}));
   for(auto& thread : threads) {
     thread.join();
   }
-    
+
+  /* We need to wait until the Quadrotors finish their actions */
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  
   /* Get the next state at time t + 3 */
   follower_1_->sample_state();
   follower_2_->sample_state();
@@ -160,7 +163,7 @@ run(const Settings& settings)
       follower_2_->reset_all_actions();
       count_ = 0;
       
-      while (count_ < 10 and !stop_episode_) {
+      while (!stop_episode_) {
 	
 	std::vector<lt::position3D<double>> positions_before_action =
 	  sim_interface_->positions();       

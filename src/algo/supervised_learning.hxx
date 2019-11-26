@@ -53,12 +53,12 @@ generate_trajectory_using_model(bool change_leader_action,
   
   /*  Threading QuadCopter */
   threads.push_back(std::thread([&](){
-				  swarm_.one_quad_execute_trajectory("l",
+				  swarm_.one_quad_execute_trajectory(leader_->id(),
 								     leader_->current_action(),
 								     1000);
 				}));
   threads.push_back(std::thread([&](){
-				  swarm_.one_quad_execute_trajectory("f1",
+				  swarm_.one_quad_execute_trajectory(follower_1_->id(),
 								     leader_->current_action(),
 								     1000);
 				}));
@@ -83,8 +83,8 @@ generate_trajectory_using_model(bool change_leader_action,
   follower_1_->current_action(predicted_follower_action);
   
   threads.push_back(std::thread([&](){
-				  swarm_.one_quad_execute_trajectory("f1",
-								     follower_1_->current_action(),
+				  swarm_.one_quad_execute_trajectory(follower_2_->id(),
+								     follower_2_->current_action(),
 								     1000);  				   
   				}));
   
