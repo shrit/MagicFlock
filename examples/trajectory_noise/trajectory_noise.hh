@@ -5,6 +5,7 @@
 
 /* Local includes  */
 # include "action.hh"
+# include "quadrotor.hh"
 # include "../data_set.hh"
 # include "../global.hh"
 # include "../log.hh"
@@ -19,6 +20,7 @@ class TrajectoryNoise {
 public:
   
   TrajectoryNoise(std::vector<std::shared_ptr<flight_controller_t>> quads,
+		  const std::vector<Quadrotor<simulator_t>>& quadrotors,
 		  std::shared_ptr<simulator_t> sim_interface);  
   void run();
 
@@ -33,12 +35,16 @@ private:
   int episode_;
   int max_episode_;
   Math_tools mtools_;
-  Actions::Action action_;
-  Actions::Action saved_action_;
+  Actions action_;
   std::shared_ptr<simulator_t> sim_interface_;
   bool stop_episode_;
   SwarmDevice<flight_controller_t> swarm_;
+  std::vector<Quadrotor<simulator_t>> quadrotors_;
 
+  typename std::vector<Quadrotor<simulator_t>>::iterator leader_;
+  typename std::vector<Quadrotor<simulator_t>>::iterator follower_1_;
+  typename std::vector<Quadrotor<simulator_t>>::iterator follower_2_;
+  
   /*  This is a monster ! */
   std::vector<double> forward_action_vec_;
   std::vector<double> backward_action_vec_;

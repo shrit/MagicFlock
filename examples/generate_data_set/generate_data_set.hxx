@@ -33,7 +33,7 @@ generate_trajectory(bool change_leader_action)
   /*  Sample the state at time t */
   follower_1_->sample_state();
   follower_2_->sample_state();
-  
+  LogInfo() << "Sampling states at t";
   /*  Create a random action for the leader_s, with the opposed condition */
   if (change_leader_action == true) {
     leader_->current_action(
@@ -48,6 +48,7 @@ generate_trajectory(bool change_leader_action)
   follower_1_->current_action(Actions::Action::NoMove);
   follower_2_->current_action(Actions::Action::NoMove);
   
+  LogInfo() << "Current action leader" << action.action_to_str(leader_->current_action());
   /*  Threading Quadrotors */
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory(leader_->id(),
@@ -59,13 +60,16 @@ generate_trajectory(bool change_leader_action)
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   
   /* Get the next state at time t + 1  */
+  LogInfo() << "Sampling states at t +1";
   follower_1_->sample_state();
   follower_2_->sample_state();
 
   /*  Do a random action at t+1 for the follower 1 */
   follower_1_->current_action(
-			    action.random_action_generator_with_only_opposed_condition
-			    (follower_1_->last_action()));
+			      action.random_action_generator_with_only_opposed_condition
+			      (follower_1_->last_action()));
+  
+  LogInfo() << "Current action follower 1" << action.action_to_str(follower_1_->current_action());
   
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory(follower_1_->id(),
@@ -77,6 +81,7 @@ generate_trajectory(bool change_leader_action)
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   
   /* Get the next state at time t + 2  */
+  LogInfo() << "Sampling states at t+2";
   follower_1_->sample_state();
   follower_2_->sample_state();
   
@@ -84,7 +89,7 @@ generate_trajectory(bool change_leader_action)
   follower_2_->current_action(
 			    action.random_action_generator_with_only_opposed_condition
 			    (follower_2_->last_action()));
-  
+  LogInfo() << "Current action follower 2" << action.action_to_str(follower_2_->current_action());
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory(follower_2_->id(),
 								     follower_2_->current_action(),
@@ -98,6 +103,7 @@ generate_trajectory(bool change_leader_action)
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   
   /* Get the next state at time t + 3 */
+  LogInfo() << "Sampling states at t +3";
   follower_1_->sample_state();
   follower_2_->sample_state();
 }

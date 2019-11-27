@@ -6,14 +6,19 @@ template<class flight_controller_t,
 	 class simulator_t>
 TrajectoryNoise<flight_controller_t, simulator_t>::
 TrajectoryNoise(std::vector<std::shared_ptr<flight_controller_t>> quads,
+		const std::vector<Quadrotor<simulator_t>>& quadrotors,
 		std::shared_ptr<simulator_t> sim_interface)
   :count_(0),
    episode_(0),
    max_episode_(1),
    sim_interface_(std::move(sim_interface)),
-   swarm_(std::move(quads))
+   swarm_(std::move(quads)),
+   quadrotors_(std::move(quadrotors))
 {
   data_set_.init_dataset_directory();
+  leader_ = quadrotors_.begin();
+  follower_1_ = std::next(quadrotors_.begin(), 1);
+  follower_2_ = std::next(quadrotors_.begin(), 2);
 }
 
 template<class flight_controller_t,
@@ -21,21 +26,20 @@ template<class flight_controller_t,
 void TrajectoryNoise<flight_controller_t, simulator_t>::
 test_trajectory()
 {
-  Actions action;
-
-  action_ =
-    action.random_action_generator_with_all_conditions(saved_action_);
+  follower_1_->current_action(
+			      action_.random_action_generator_with_all_conditions
+			      (follower_1_->last_action()));
   
   /*  Execute a trajectory for 1 seconds */
-  swarm_.one_quad_execute_trajectory("l" ,
-				     action_,
+  swarm_.one_quad_execute_trajectory(follower_1_->id(),
+				     follower_1_->current_action(),
 				     1000);
   std::this_thread::sleep_for(std::chrono::milliseconds(300));
 }
 
 template<class flight_controller_t,
 	 class simulator_t>
-void TrajectoryNoise<flight_controller_t, simulator_t>::run(/*  enter quadcopter number */)
+void TrajectoryNoise<flight_controller_t, simulator_t>::run()
 {
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
     
@@ -49,7 +53,7 @@ void TrajectoryNoise<flight_controller_t, simulator_t>::run(/*  enter quadcopter
 
     /* Stop the episode if one of the quad has fallen to arm */    
     stop_episode_ = false;
-    bool arm = swarm_.arm_specific_quadrotor("l");
+    bool arm = swarm_.arm_specific_quadrotor(follower_1_->id());
     if(!arm)
       stop_episode_ = true;
     
@@ -57,17 +61,17 @@ void TrajectoryNoise<flight_controller_t, simulator_t>::run(/*  enter quadcopter
     std::this_thread::sleep_for(std::chrono::seconds(2));
 
     /* Stop the episode if one of the quad has fallen to takoff */
-    bool takeoff = swarm_.takeoff_specific_quadrotor(20, "l");
+    bool takeoff = swarm_.takeoff_specific_quadrotor(20, follower_1_->id());
     if (!takeoff)
       stop_episode_ = true;
     
     /*  Setting up speed_ is important to switch the mode */
-    swarm_.init_speed_specific_quadrotor("l");
+    swarm_.init_speed_specific_quadrotor(follower_1_->id());
 
      /*  Switch to offboard mode, Allow the control */
     /* Stop the episode is the one quadcopter have fallen to set
        offbaord mode */    
-    bool offboard_mode = swarm_.start_offboard_mode_specific_quadrotor("l");
+    bool offboard_mode = swarm_.start_offboard_mode_specific_quadrotor(follower_1_->id());
     if(!offboard_mode)
       stop_episode_ = true;
     
@@ -101,149 +105,149 @@ void TrajectoryNoise<flight_controller_t, simulator_t>::run(/*  enter quadcopter
 
 	  /*  ADD PAST A_t-1 distances */
 	  
-	  if (action_ == Actions::Action::forward and
-	      saved_action_ == Actions::Action::left) {
+	  if (follower_1_->current_action() == Actions::Action::forward and
+	      follower_1_->last_action() == Actions::Action::left) {
 	    LogInfo() << "F + L";
-	    forward_action_vec_.push_back(traveled_distance);
-	    f_k_l_action_vec_.push_back(traveled_distance);
+	    forward_action_->current_action()vec_.push_back(traveled_distance);
+	    f_k_l_follower_1_->current_action()vec_.push_back(traveled_distance);
 	    
-	  } else if (action_ == Actions::Action::forward and
-		     saved_action_ == Actions::Action::right) {
+	  } else if (follower_1_->current_action() == Actions::Action::forward and
+		     follower_1_->last_action() == Actions::Action::right) {
 	    LogInfo() << "F + R";
-	    forward_action_vec_.push_back(traveled_distance);
-	    f_k_r_action_vec_.push_back(traveled_distance);	   
+	    forward_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    f_k_r_follower_1_->current_action()vec_.push_back(traveled_distance);	   
 	    
-	  } else if (action_ == Actions::Action::forward and
-		     saved_action_ == Actions::Action::up) {
+	  } else if (follower_1_->current_action() == Actions::Action::forward and
+		     follower_1_->last_action() == Actions::Action::up) {
 	    LogInfo() << "F + U";
-	    forward_action_vec_.push_back(traveled_distance);
-	    f_k_u_action_vec_.push_back(traveled_distance);	    
+	    forward_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    f_k_u_follower_1_->current_action()vec_.push_back(traveled_distance);	    
 
-	  } else if (action_ == Actions::Action::forward and 
-	    	     saved_action_ == Actions::Action::down) {
+	  } else if (follower_1_->current_action() == Actions::Action::forward and 
+	    	     follower_1_->last_action() == Actions::Action::down) {
 	    LogInfo() << "F + D";
-	    forward_action_vec_.push_back(traveled_distance);
-	    f_k_d_action_vec_.push_back(traveled_distance);
+	    forward_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    f_k_d_follower_1_->current_action()vec_.push_back(traveled_distance);
 	    
-	  } else if (action_ == Actions::Action::backward and
-		     saved_action_ == Actions::Action::left) {
+	  } else if (follower_1_->current_action() == Actions::Action::backward and
+		     follower_1_->last_action() == Actions::Action::left) {
 	    LogInfo() << "B + L";
-	    backward_action_vec_.push_back(traveled_distance);
-	    b_k_l_action_vec_.push_back(traveled_distance);
+	    backward_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    b_k_l_follower_1_->current_action()vec_.push_back(traveled_distance);
 
-	  } else if (action_ == Actions::Action::backward and
-	    	     saved_action_ == Actions::Action::right) {
+	  } else if (follower_1_->current_action() == Actions::Action::backward and
+	    	     follower_1_->last_action() == Actions::Action::right) {
 	    LogInfo() << "B + R";
-	    backward_action_vec_.push_back(traveled_distance);
-	    b_k_r_action_vec_.push_back(traveled_distance);
+	    backward_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    b_k_r_follower_1_->current_action()vec_.push_back(traveled_distance);
 
-	  } else if (action_ == Actions::Action::backward and
-		     saved_action_ == Actions::Action::up) {
+	  } else if (follower_1_->current_action() == Actions::Action::backward and
+		     follower_1_->last_action() == Actions::Action::up) {
 	    LogInfo() << "B + U";
-	    backward_action_vec_.push_back(traveled_distance);
-	    b_k_u_action_vec_.push_back(traveled_distance);
+	    backward_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    b_k_u_follower_1_->current_action()vec_.push_back(traveled_distance);
 
-	  } else if (action_ == Actions::Action::backward and
-	    	     saved_action_ == Actions::Action::down) {
+	  } else if (follower_1_->current_action() == Actions::Action::backward and
+	    	     follower_1_->last_action() == Actions::Action::down) {
 	    LogInfo() << "B + D";
-	    backward_action_vec_.push_back(traveled_distance);
-	    b_k_d_action_vec_.push_back(traveled_distance);	    
+	    backward_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    b_k_d_follower_1_->current_action()vec_.push_back(traveled_distance);	    
 	    
-	  } else if (action_ == Actions::Action::left and
-		     saved_action_ == Actions::Action::forward) {
+	  } else if (follower_1_->current_action() == Actions::Action::left and
+		     follower_1_->last_action() == Actions::Action::forward) {
 	    LogInfo() << "L + F";
-	    left_action_vec_.push_back(traveled_distance);
-	    l_k_f_action_vec_.push_back(traveled_distance);	    
+	    left_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    l_k_f_follower_1_->current_action()vec_.push_back(traveled_distance);	    
 
-	  } else if (action_ == Actions::Action::left and
-		     saved_action_ == Actions::Action::backward) {
+	  } else if (follower_1_->current_action() == Actions::Action::left and
+		     follower_1_->last_action() == Actions::Action::backward) {
 	    LogInfo() << "L + B";
-	    left_action_vec_.push_back(traveled_distance);
-	    l_k_b_action_vec_.push_back(traveled_distance);	    
+	    left_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    l_k_b_follower_1_->current_action()vec_.push_back(traveled_distance);	    
 
-	  } else if (action_ == Actions::Action::left and
-		     saved_action_ == Actions::Action::up) {
+	  } else if (follower_1_->current_action() == Actions::Action::left and
+		     follower_1_->last_action() == Actions::Action::up) {
 	    LogInfo() << "L + U";
-	    left_action_vec_.push_back(traveled_distance);
-	    l_k_u_action_vec_.push_back(traveled_distance);	    
+	    left_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    l_k_u_follower_1_->current_action()vec_.push_back(traveled_distance);	    
 
-	  } else if (action_ == Actions::Action::left and
-		     saved_action_ == Actions::Action::down) {
+	  } else if (follower_1_->current_action() == Actions::Action::left and
+		     follower_1_->last_action() == Actions::Action::down) {
 	    LogInfo() << "L + D";
-	    left_action_vec_.push_back(traveled_distance);
-	    l_k_d_action_vec_.push_back(traveled_distance);	    
+	    left_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    l_k_d_follower_1_->current_action()vec_.push_back(traveled_distance);	    
 	  
-	  } else if (action_ == Actions::Action::right and
-		     saved_action_ == Actions::Action::forward) {
+	  } else if (follower_1_->current_action() == Actions::Action::right and
+		     follower_1_->last_action() == Actions::Action::forward) {
 	    LogInfo() << "R + F";
-	    right_action_vec_.push_back(traveled_distance);
-	    r_k_f_action_vec_.push_back(traveled_distance);	    
+	    right_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    r_k_f_follower_1_->current_action()vec_.push_back(traveled_distance);	    
 	    
-	  } else if (action_ == Actions::Action::right and
-		     saved_action_ == Actions::Action::backward) {
+	  } else if (follower_1_->current_action() == Actions::Action::right and
+		     follower_1_->last_action() == Actions::Action::backward) {
 	    LogInfo() << "R + B";
-	    right_action_vec_.push_back(traveled_distance);
-	    r_k_b_action_vec_.push_back(traveled_distance);	    
+	    right_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    r_k_b_follower_1_->current_action()vec_.push_back(traveled_distance);	    
 
-	  } else if (action_ == Actions::Action::right and
-		     saved_action_ == Actions::Action::up) {
+	  } else if (follower_1_->current_action() == Actions::Action::right and
+		     follower_1_->last_action() == Actions::Action::up) {
 	    LogInfo() << "R + U";
-	    right_action_vec_.push_back(traveled_distance);
-	    r_k_u_action_vec_.push_back(traveled_distance);	    
+	    right_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    r_k_u_follower_1_->current_action()vec_.push_back(traveled_distance);	    
 
-	  } else if (action_ == Actions::Action::right and
-		     saved_action_ == Actions::Action::down) {
+	  } else if (follower_1_->current_action() == Actions::Action::right and
+		     follower_1_->last_action() == Actions::Action::down) {
 	    LogInfo() << "R + D";
-	    right_action_vec_.push_back(traveled_distance);
-	    r_k_d_action_vec_.push_back(traveled_distance);	    
+	    right_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    r_k_d_follower_1_->current_action()vec_.push_back(traveled_distance);	    
 	    
-	  } else if (action_ == Actions::Action::up and
-		     saved_action_ == Actions::Action::forward) {
+	  } else if (follower_1_->current_action() == Actions::Action::up and
+		     follower_1_->last_action() == Actions::Action::forward) {
 
-	    up_action_vec_.push_back(traveled_distance);
-	    u_k_f_action_vec_.push_back(traveled_distance);	    
+	    up_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    u_k_f_follower_1_->current_action()vec_.push_back(traveled_distance);	    
 	    
-	  } else if (action_ == Actions::Action::up and
-		     saved_action_ == Actions::Action::backward) {
+	  } else if (follower_1_->current_action() == Actions::Action::up and
+		     follower_1_->last_action() == Actions::Action::backward) {
 	    
-	    up_action_vec_.push_back(traveled_distance);
-	    u_k_b_action_vec_.push_back(traveled_distance);  
+	    up_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    u_k_b_follower_1_->current_action()vec_.push_back(traveled_distance);  
 	    
-	  } else if (action_ == Actions::Action::up and
-		     saved_action_ == Actions::Action::left) {
+	  } else if (follower_1_->current_action() == Actions::Action::up and
+		     follower_1_->last_action() == Actions::Action::left) {
 
-	    up_action_vec_.push_back(traveled_distance);
-	    u_k_l_action_vec_.push_back(traveled_distance);	    
+	    up_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    u_k_l_follower_1_->current_action()vec_.push_back(traveled_distance);	    
 
-	  } else if (action_ == Actions::Action::up and
-		     saved_action_ == Actions::Action::right) {
+	  } else if (follower_1_->current_action() == Actions::Action::up and
+		     follower_1_->last_action() == Actions::Action::right) {
 
-	    up_action_vec_.push_back(traveled_distance);
-	    u_k_r_action_vec_.push_back(traveled_distance);	    
+	    up_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    u_k_r_action_.push_back(traveled_distance);	    
 	    	    
-	  } else if (action_ == Actions::Action::down and
-		     saved_action_ == Actions::Action::forward) {
+	  } else if (follower_1_->current_action() == Actions::Action::down and
+		     follower_1_->last_action() == Actions::Action::forward) {
 	    down_action_vec_.push_back(traveled_distance);
-	    d_k_f_action_vec_.push_back(traveled_distance);	    
+	    d_k_f_action_1_vec_.push_back(traveled_distance);	    
 
-	  } else if (action_ == Actions::Action::down and
-		     saved_action_ == Actions::Action::backward) {
+	  } else if (follower_1_->current_action() == Actions::Action::down and
+		     follower_1_->last_action() == Actions::Action::backward) {
 	    down_action_vec_.push_back(traveled_distance);
 	    d_k_b_action_vec_.push_back(traveled_distance);	    
 	    
-	  } else if (action_ == Actions::Action::down and
-		     saved_action_ == Actions::Action::left) {
+	  } else if (follower_1_->current_action() == Actions::Action::down and
+		     follower_1_->last_action() == Actions::Action::left) {
 	    down_action_vec_.push_back(traveled_distance);
 	    d_k_l_action_vec_.push_back(traveled_distance);	    
 	    
-	  } else if (action_ == Actions::Action::down and
-		     saved_action_ == Actions::Action::right) {
-	    down_action_vec_.push_back(traveled_distance);
-	    d_k_r_action_vec_.push_back(traveled_distance);	    
+	  } else if (follower_1_->current_action() == Actions::Action::down and
+		     follower_1_->last_action() == Actions::Action::right) {
+	    down_action_->current_action()vec_.push_back(traveled_distance);
+	    d_k_r_action_->current_action()vec_.push_back(traveled_distance);	    
 	  }	  
 	}
-	saved_action_ = action_;       
-	++count_ ;
+	// follower_1->last_action(follower_1_->current_action()); //no longer needed
+	++count_;
       }
       /*  Calculate the mean value */ /*  Replace logging with a file */
       LogInfo() << "Mean of Forward: " <<  mtools_.mean(forward_action_vec_);
@@ -293,7 +297,7 @@ void TrajectoryNoise<flight_controller_t, simulator_t>::run(/*  enter quadcopter
     }   
     
     /*  Landing */
-    swarm_.land_specific_quadrotor("l");
+    swarm_.land_specific_quadrotor(leader_->id());
     
     /*  Resetting */
     sim_interface_->reset_models();
