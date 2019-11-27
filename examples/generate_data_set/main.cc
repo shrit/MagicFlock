@@ -1,6 +1,6 @@
 /**
  * @file main.cc
- * @brief generate dat set using the library
+ * @brief generate data set using the library
  *
  * @authors Author: Omar Shrit <shrit@lri.fr>
  *
