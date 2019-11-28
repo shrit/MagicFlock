@@ -24,12 +24,18 @@ TrajectoryNoise(std::vector<std::shared_ptr<flight_controller_t>> quads,
 template<class flight_controller_t,
 	 class simulator_t>
 void TrajectoryNoise<flight_controller_t, simulator_t>::
-test_trajectory()
+test_trajectory(bool stop_down_action)
 {
   follower_1_->current_action(
 			      action_.random_action_generator_with_all_conditions
 			      (follower_1_->last_action()));
-  
+  if (stop_down_action == true) {
+    while (follower_1_->current_action() == Actions::Action::down) {
+      follower_1_->current_action(
+				  action_.random_action_generator_with_all_conditions
+				  (follower_1_->last_action()));
+    }
+  }  
   /*  Execute a trajectory for 1 seconds */
   swarm_.one_quad_execute_trajectory(follower_1_->id(),
 				     follower_1_->current_action(),
@@ -84,8 +90,12 @@ void TrajectoryNoise<flight_controller_t, simulator_t>::run()
       while (count_  < 1000 ) {
 	std::vector<lt::position3D<double>> positions_before_action =
 	  sim_interface_->positions();
-	
-	test_trajectory();
+	/*  Verify that the quadrotors is not close to the ground */
+	if (sim_interface_->positions().at(1).z < 15) {
+	  test_trajectory(true);
+	} else  {
+	  test_trajectory(false);
+	}
 	/* Get the actual position, test if the triangle is OK */
 	std::vector<lt::position3D<double>> positions_after_action =
 	  sim_interface_->positions();

@@ -24,7 +24,7 @@ public:
 		  std::shared_ptr<simulator_t> sim_interface);  
   void run();
 
-  void test_trajectory();
+  void test_trajectory(bool stop_down_action);
   
   TrajectoryNoise(TrajectoryNoise const&) = delete;  
   TrajectoryNoise(TrajectoryNoise &&) = default;
