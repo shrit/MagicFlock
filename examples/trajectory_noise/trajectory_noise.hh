@@ -82,7 +82,6 @@ private:
   std::vector<double> d_k_b_action_vec_; /*  down action known that backward action has been executed */
   std::vector<double> d_k_l_action_vec_; /*  down action known that left action has been executed */
   std::vector<double> d_k_r_action_vec_; /*  down action known that right action has been executed */
-    
 };
 
 # include "trajectory_noise.hxx"

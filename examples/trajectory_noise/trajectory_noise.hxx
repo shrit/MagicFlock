@@ -108,121 +108,121 @@ void TrajectoryNoise<flight_controller_t, simulator_t>::run()
 	  if (follower_1_->current_action() == Actions::Action::forward and
 	      follower_1_->last_action() == Actions::Action::left) {
 	    LogInfo() << "F + L";
-	    forward_action_->current_action()vec_.push_back(traveled_distance);
-	    f_k_l_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    forward_action_vec_.push_back(traveled_distance);
+	    f_k_l_action_vec_.push_back(traveled_distance);
 	    
 	  } else if (follower_1_->current_action() == Actions::Action::forward and
 		     follower_1_->last_action() == Actions::Action::right) {
 	    LogInfo() << "F + R";
-	    forward_follower_1_->current_action()vec_.push_back(traveled_distance);
-	    f_k_r_follower_1_->current_action()vec_.push_back(traveled_distance);	   
+	    forward_action_vec_.push_back(traveled_distance);
+	    f_k_r_action_vec_.push_back(traveled_distance);	   
 	    
 	  } else if (follower_1_->current_action() == Actions::Action::forward and
 		     follower_1_->last_action() == Actions::Action::up) {
 	    LogInfo() << "F + U";
-	    forward_follower_1_->current_action()vec_.push_back(traveled_distance);
-	    f_k_u_follower_1_->current_action()vec_.push_back(traveled_distance);	    
+	    forward_action_vec_.push_back(traveled_distance);
+	    f_k_u_action_vec_.push_back(traveled_distance);	    
 
 	  } else if (follower_1_->current_action() == Actions::Action::forward and 
 	    	     follower_1_->last_action() == Actions::Action::down) {
 	    LogInfo() << "F + D";
-	    forward_follower_1_->current_action()vec_.push_back(traveled_distance);
-	    f_k_d_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    forward_action_vec_.push_back(traveled_distance);
+	    f_k_d_action_vec_.push_back(traveled_distance);
 	    
 	  } else if (follower_1_->current_action() == Actions::Action::backward and
 		     follower_1_->last_action() == Actions::Action::left) {
 	    LogInfo() << "B + L";
-	    backward_follower_1_->current_action()vec_.push_back(traveled_distance);
-	    b_k_l_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    backward_action_vec_.push_back(traveled_distance);
+	    b_k_l_action_vec_.push_back(traveled_distance);
 
 	  } else if (follower_1_->current_action() == Actions::Action::backward and
 	    	     follower_1_->last_action() == Actions::Action::right) {
 	    LogInfo() << "B + R";
-	    backward_follower_1_->current_action()vec_.push_back(traveled_distance);
-	    b_k_r_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    backward_action_vec_.push_back(traveled_distance);
+	    b_k_r_action_vec_.push_back(traveled_distance);
 
 	  } else if (follower_1_->current_action() == Actions::Action::backward and
 		     follower_1_->last_action() == Actions::Action::up) {
 	    LogInfo() << "B + U";
-	    backward_follower_1_->current_action()vec_.push_back(traveled_distance);
-	    b_k_u_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    backward_action_vec_.push_back(traveled_distance);
+	    b_k_u_action_vec_.push_back(traveled_distance);
 
 	  } else if (follower_1_->current_action() == Actions::Action::backward and
 	    	     follower_1_->last_action() == Actions::Action::down) {
 	    LogInfo() << "B + D";
-	    backward_follower_1_->current_action()vec_.push_back(traveled_distance);
-	    b_k_d_follower_1_->current_action()vec_.push_back(traveled_distance);	    
+	    backward_action_vec_.push_back(traveled_distance);
+	    b_k_d_action_vec_.push_back(traveled_distance);	    
 	    
 	  } else if (follower_1_->current_action() == Actions::Action::left and
 		     follower_1_->last_action() == Actions::Action::forward) {
 	    LogInfo() << "L + F";
-	    left_follower_1_->current_action()vec_.push_back(traveled_distance);
-	    l_k_f_follower_1_->current_action()vec_.push_back(traveled_distance);	    
+	    left_action_vec_.push_back(traveled_distance);
+	    l_k_f_action_vec_.push_back(traveled_distance);	    
 
 	  } else if (follower_1_->current_action() == Actions::Action::left and
 		     follower_1_->last_action() == Actions::Action::backward) {
 	    LogInfo() << "L + B";
-	    left_follower_1_->current_action()vec_.push_back(traveled_distance);
-	    l_k_b_follower_1_->current_action()vec_.push_back(traveled_distance);	    
+	    left_action_vec_.push_back(traveled_distance);
+	    l_k_b_action_vec_.push_back(traveled_distance);	    
 
 	  } else if (follower_1_->current_action() == Actions::Action::left and
 		     follower_1_->last_action() == Actions::Action::up) {
 	    LogInfo() << "L + U";
-	    left_follower_1_->current_action()vec_.push_back(traveled_distance);
-	    l_k_u_follower_1_->current_action()vec_.push_back(traveled_distance);	    
+	    left_action_vec_.push_back(traveled_distance);
+	    l_k_u_action_vec_.push_back(traveled_distance);	    
 
 	  } else if (follower_1_->current_action() == Actions::Action::left and
 		     follower_1_->last_action() == Actions::Action::down) {
 	    LogInfo() << "L + D";
-	    left_follower_1_->current_action()vec_.push_back(traveled_distance);
-	    l_k_d_follower_1_->current_action()vec_.push_back(traveled_distance);	    
+	    left_action_vec_.push_back(traveled_distance);
+	    l_k_d_action_vec_.push_back(traveled_distance);	    
 	  
 	  } else if (follower_1_->current_action() == Actions::Action::right and
 		     follower_1_->last_action() == Actions::Action::forward) {
 	    LogInfo() << "R + F";
-	    right_follower_1_->current_action()vec_.push_back(traveled_distance);
-	    r_k_f_follower_1_->current_action()vec_.push_back(traveled_distance);	    
+	    right_action_vec_.push_back(traveled_distance);
+	    r_k_f_action_vec_.push_back(traveled_distance);	    
 	    
 	  } else if (follower_1_->current_action() == Actions::Action::right and
 		     follower_1_->last_action() == Actions::Action::backward) {
 	    LogInfo() << "R + B";
-	    right_follower_1_->current_action()vec_.push_back(traveled_distance);
-	    r_k_b_follower_1_->current_action()vec_.push_back(traveled_distance);	    
+	    right_action_vec_.push_back(traveled_distance);
+	    r_k_b_action_vec_.push_back(traveled_distance);	    
 
 	  } else if (follower_1_->current_action() == Actions::Action::right and
 		     follower_1_->last_action() == Actions::Action::up) {
 	    LogInfo() << "R + U";
-	    right_follower_1_->current_action()vec_.push_back(traveled_distance);
-	    r_k_u_follower_1_->current_action()vec_.push_back(traveled_distance);	    
+	    right_action_vec_.push_back(traveled_distance);
+	    r_k_u_action_vec_.push_back(traveled_distance);	    
 
 	  } else if (follower_1_->current_action() == Actions::Action::right and
 		     follower_1_->last_action() == Actions::Action::down) {
 	    LogInfo() << "R + D";
-	    right_follower_1_->current_action()vec_.push_back(traveled_distance);
-	    r_k_d_follower_1_->current_action()vec_.push_back(traveled_distance);	    
+	    right_action_vec_.push_back(traveled_distance);
+	    r_k_d_action_vec_.push_back(traveled_distance);	    
 	    
 	  } else if (follower_1_->current_action() == Actions::Action::up and
 		     follower_1_->last_action() == Actions::Action::forward) {
 
-	    up_follower_1_->current_action()vec_.push_back(traveled_distance);
-	    u_k_f_follower_1_->current_action()vec_.push_back(traveled_distance);	    
+	    up_action_vec_.push_back(traveled_distance);
+	    u_k_f_action_vec_.push_back(traveled_distance);	    
 	    
 	  } else if (follower_1_->current_action() == Actions::Action::up and
 		     follower_1_->last_action() == Actions::Action::backward) {
 	    
-	    up_follower_1_->current_action()vec_.push_back(traveled_distance);
-	    u_k_b_follower_1_->current_action()vec_.push_back(traveled_distance);  
+	    up_action_vec_.push_back(traveled_distance);
+	    u_k_b_action_vec_.push_back(traveled_distance);  
 	    
 	  } else if (follower_1_->current_action() == Actions::Action::up and
 		     follower_1_->last_action() == Actions::Action::left) {
 
-	    up_follower_1_->current_action()vec_.push_back(traveled_distance);
-	    u_k_l_follower_1_->current_action()vec_.push_back(traveled_distance);	    
+	    up_action_vec_.push_back(traveled_distance);
+	    u_k_l_action_vec_.push_back(traveled_distance);	    
 
 	  } else if (follower_1_->current_action() == Actions::Action::up and
 		     follower_1_->last_action() == Actions::Action::right) {
 
-	    up_follower_1_->current_action()vec_.push_back(traveled_distance);
+	    up_action_vec_.push_back(traveled_distance);
 	    u_k_r_action_.push_back(traveled_distance);	    
 	    	    
 	  } else if (follower_1_->current_action() == Actions::Action::down and
