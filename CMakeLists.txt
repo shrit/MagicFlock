@@ -26,13 +26,6 @@ set(pthread_lib "/usr/lib/libpthread.so")
 set(mlpack "/meta/mlpack/build/lib/libmlpack.so")
 set(gomp "/usr/lib/libgomp.so")
 
-link_directories(
-  ${GAZEBO_LIBRARY_DIRS}
-  ${ARMADILLO_LIBRARY_DIR}
-  ${BOOST_LIBRARY_DIRS}
-  ${MAVSDK_LIBRARY_DIRS}
-  )
-
 add_library(ILMR SHARED
   src/algo/action.cc
   src/algo/reward.cc  
@@ -57,5 +50,10 @@ target_link_libraries(ILMR
   ${gomp}
   )
 
-# install(FILES "${CMAKE_CURRENT_BINARY_DIR}/lib/"
-#   DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+install(TARGETS ILMR
+  EXPORT MyLibTargets
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
+  )
