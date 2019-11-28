@@ -1,4 +1,4 @@
-# include "reward.hh"
+# include "include/reward.hh"
 
 Rewards::Reward Rewards::
 evaluate_current_state(const lt::triangle<double>& old_dist,

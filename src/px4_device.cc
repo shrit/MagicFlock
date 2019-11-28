@@ -1,4 +1,4 @@
-# include "px4_device.hh"
+# include "include/px4_device.hh"
 
 Px4Device::Px4Device(lt::connection_type socket,
 		     lt::port_type port)

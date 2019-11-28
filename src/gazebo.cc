@@ -1,4 +1,4 @@
-# include "gazebo.hh"
+# include "include/gazebo.hh"
 
 Gazebo::Gazebo(int argc, char* argv[])
   : node_(new gazebo::transport::Node()),
