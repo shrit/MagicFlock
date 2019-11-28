@@ -13,8 +13,8 @@
 /*  Armadillo includes  */
 # include <armadillo>
 
-# include "../global.hh"
-# include "../log.hh"
+# include "global.hh"
+# include "log.hh"
 
 class Actions {
 

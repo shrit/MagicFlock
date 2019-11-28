@@ -5,7 +5,7 @@
 # include <string>
 
 
-# include "../third_party/ini/ini.hh"
+# include "../../third_party/ini/ini.hh"
 # include "global.hh"
 
 namespace lt = local_types;

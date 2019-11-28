@@ -1,7 +1,6 @@
 #pragma once
 
-
-# include "../global.hh"
+# include "global.hh"
 
 namespace lt = local_types;
 
