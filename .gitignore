@@ -2,10 +2,10 @@
 
 build
 doc/build/*
-dataset/*
-data_set/*
+dataset
+data_set
 old_dataset/*
-log/*
+log
 paper/auto/*
 material/auto/*
 model_plugin/build/*
