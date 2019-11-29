@@ -13,12 +13,8 @@ find_package(Armadillo REQUIRED)
 find_package(Boost COMPONENTS serialization program_options date_time REQUIRED)
 
 include_directories(
-  ${GAZEBO_INCLUDE_DIRS}
-  ${ARMADILLO_INCLUDE_DIRS}
-  ${Boost_INCLUDE_DIRS}
-  ${MAVSDK_INCLUDE_DIRS}
-  /usr/local/include/mavsdk 
-  /usr/include/
+  ${GAZEBO_INCLUDE_DIRS}  
+  /usr/local/include/mavsdk
   )
 
 set(file_system "/usr/lib/libstdc++fs.a")
@@ -26,9 +22,12 @@ set(pthread_lib "/usr/lib/libpthread.so")
 set(mlpack "/meta/mlpack/build/lib/libmlpack.so")
 set(gomp "/usr/lib/libgomp.so")
 
+file(GLOB HEADER_LIST CONFIGURE_DEPENDS "src/include/*.hh")
+file(GLOB HEADER_LIST_XX CONFIGURE_DEPENDS "src/include/*.hxx")
+
 add_library(ILMR SHARED
-  src/algo/action.cc
-  src/algo/reward.cc  
+  src/action.cc
+  src/reward.cc  
   src/config_ini.cc
   src/data_set.cc
   src/gazebo.cc
@@ -36,8 +35,16 @@ add_library(ILMR SHARED
   third_party/joystick/joystick.cc
   src/log.cc
   src/px4_device.cc
-  src/settings.cc    
+  src/settings.cc
+  ${HEADER_LIST}
+  ${HEADER_LIST_XX}
   )
+
+target_include_directories(ILMR PUBLIC
+  src/include
+  )
+
+target_compile_features(ILMR PUBLIC cxx_std_17)
 
 target_link_libraries(ILMR
   ${GAZEBO_LIBRARIES}
@@ -50,10 +57,14 @@ target_link_libraries(ILMR
   ${gomp}
   )
 
+install(FILES
+  ${HEADER_LIST}
+  ${HEADER_LIST_XX}
+  DESTINATION include/ILMR
+  )
+
 install(TARGETS ILMR
-  EXPORT MyLibTargets
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
   )
