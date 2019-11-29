@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_definitions("-Wall -Werror -Wextra -O -Wno-parentheses -march=native -g3 
--fopenmp -lgomp")
+-fopenmp -lgomp -lmavsdk")
 
 find_package(gazebo REQUIRED)
 find_package(MAVSDK REQUIRED)
@@ -50,11 +50,17 @@ target_link_libraries(ILMR
   ${GAZEBO_LIBRARIES}
   ${ARMADILLO_LIBRARIES}
   ${BOOST_LIBRARIES}
-  ${MAVSDK_LIBRARIES}
   ${file_system}
   ${pthread_lib}
   ${mlpack}
   ${gomp}
+
+  MAVSDK::mavsdk_action
+  MAVSDK::mavsdk_calibration  
+  MAVSDK::mavsdk_offboard
+  MAVSDK::mavsdk_telemetry
+  MAVSDK::mavsdk_shell  
+  MAVSDK::mavsdk  
   )
 
 install(FILES
