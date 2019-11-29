@@ -4,8 +4,7 @@
 # include <iostream>
 # include <string>
 
-
-# include "../../third_party/ini/ini.hh"
+# include "ini.hh"
 # include "global.hh"
 
 namespace lt = local_types;

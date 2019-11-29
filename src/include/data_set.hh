@@ -22,8 +22,7 @@
 
 /*  local defined include */
 # include "global.hh"
-
-# include "../../third_party/gnuplot/plot.h"
+# include "plot.h"
 
 namespace lt = local_types;
 
