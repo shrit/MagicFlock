@@ -32,7 +32,7 @@ add_library(ILMR SHARED
   src/data_set.cc
   src/gazebo.cc
   src/keyboard.cc
-  third_party/joystick/joystick.cc
+  src/include/third_party/joystick/joystick.cc
   src/log.cc
   src/px4_device.cc
   src/settings.cc
@@ -60,6 +60,8 @@ target_link_libraries(ILMR
 install(FILES
   ${HEADER_LIST}
   ${HEADER_LIST_XX}
+  ${THIRD_PARTY_LIST}
+  
   DESTINATION include/ILMR
   )
 
