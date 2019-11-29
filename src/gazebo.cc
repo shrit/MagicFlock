@@ -1,9 +1,10 @@
 # include "include/gazebo.hh"
 
-Gazebo::Gazebo(int argc, char* argv[])
+Gazebo::Gazebo(int argc, char* argv[], Configs config)
   : node_(new gazebo::transport::Node()),
     _positions(3,lt::position3D<double>()),
-    _orientations(3,lt::orientation<double>())
+    _orientations(3,lt::orientation<double>()),
+    config_(config)
 {
   gazebo::client::setup(argc, argv);
   node_->Init();

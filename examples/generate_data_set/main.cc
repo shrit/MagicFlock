@@ -48,12 +48,11 @@ int main(int argc, char* argv[])
   LogInfo() << "Ports number: "<< ports;      
   
   /*  Gazebo simulator */
-  std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(argc,argv);
+  std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(argc, argv, configs);
   
   gz->subscriber(configs.positions());
   
-  /* Verify the numbers to subscribe to the good signal strength */
-  
+  /* Verify the numbers to subscribe to the good signal strength */  
   gz->subscriber(configs.rssi_1_2());
   gz->subscriber(configs.rssi_1_3());
   gz->subscriber(configs.rssi_2_3());

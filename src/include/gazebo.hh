@@ -23,7 +23,7 @@ public:
   using PubPtr  = gazebo::transport::PublisherPtr;
   using NodePtr = gazebo::transport::NodePtr;
 
-  Gazebo(int argc, char* argv[]);
+  Gazebo(int argc, char* argv[], Configs config);
 
   void subscriber(lt::topic_name name);
   void publisher(lt::topic_name name);
