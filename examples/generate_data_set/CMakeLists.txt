@@ -1,64 +1,30 @@
 cmake_minimum_required(VERSION 3.9.0)
-
 project(generate_data_set)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_definitions("-Wall -Werror -Wextra -O -Wno-parentheses -march=native -g3 
--fopenmp -lgomp")
+-fopenmp -lgomp ")
 
 find_package(gazebo REQUIRED)
 
 include_directories(
-
   ${GAZEBO_INCLUDE_DIRS}
-  /usr/local/include/mavsdk 
-  /usr/include/
+  /usr/local/include/ilmr
+  /usr/local/include/mavsdk
   )
 
-set(mavsdk_lib "/usr/local/lib64/libmavsdk.so")
-set(mavsdk_action_lib "/usr/local/lib64/libmavsdk_action.so")
-set(mavsdk_calibrattion_lib "/usr/local/lib64/libmavsdk_calibration.so")
-set(mavsdk_offboard_lib "/usr/local/lib64/libmavsdk_offboard.so")
-set(mavsdk_telemetry_lib "/usr/local/lib64/libmavsdk_telemetry.so")
-set(mavsdk_shell_lib "/usr/local/lib64/libmavsdk_shell.so")
-
-find_package(MAVSDK REQUIRED)
-find_package(MLPACK REQUIRED)
-
-set(file_system "/usr/lib/libstdc++fs.a")
-set(pthread_lib "/usr/lib/libpthread.so")
-set(arma "/usr/lib/libarmadillo.so")
-set(mlpack "/meta/mlpack/build/lib/libmlpack.so")
-set(gomp "/usr/lib/libgomp.so")
-
-set(boost_lib_serialization "/usr/lib/libboost_serialization.so")
-set(boost_lib_program_options "/usr/lib/libboost_program_options.so")
-set(boost_lib_time "/usr/lib/libboost_date_time.so")
-
+set(ilmr "/usr/local/lib/libILMR.so")
+set(mavsdk "/usr/local/lib64/libmavsdk.so")
 link_directories(${GAZEBO_LIBRARY_DIRS})
 
 add_executable(generate_data_set 
   main.cc 
   )
 
-target_link_libraries(generate_data_set   
-  
-  MAVSDK::mavsdk_action
-  MAVSDK::mavsdk_offboard
-  MAVSDK::mavsdk_telemetry
-  MAVSDK::mavsdk
-  
-  ${pthread_lib}
-  ${arma}
-  ${GAZEBO_LIBRARIES}  
-  ${gomp}
-  ${mlpack}
-  ${file_system}
-  ${boost_lib_serialization}
-  ${boost_lib_program_options}  
-  ${boost_lib_time}  
+target_link_libraries(generate_data_set       
+  ${GAZEBO_LIBRARIES}
+  ${mavsdk}
+  ${ilmr}
   )
-
-

@@ -111,7 +111,7 @@ generate_trajectory(bool change_leader_action)
 template<class flight_controller_t,
 	 class simulator_t>
 void Generator<flight_controller_t, simulator_t>::
-run(const Settings& settings)
+run()
 {
   std::vector<lt::position3D<double>> original_positions = sim_interface_->positions();
   LogInfo() << "Starting positions : " << original_positions;
@@ -185,11 +185,10 @@ run(const Settings& settings)
 	
 	std::vector<lt::position3D<double>> positions_after_action =
 	  sim_interface_->positions();
+		
+	follower_1_->register_data_set();
+	follower_2_->register_data_set();
 	
-	if (settings.regression()) {	 
-	  follower_1_->register_data_set();
-	  follower_2_->register_data_set();
-	}
 	
 	/*  Clear vectors after each generated line in the dataset */
 	follower_1_->reset_all_states();

@@ -10,11 +10,17 @@
 # include <chrono>
 # include <cstdlib>
 # include <string>
-# include <thread>
 # include <vector>
 
-/*  locale defined include */
+/*  local defined include */
 # include "generate_data_set.hh"
+
+/* ILMR library include  */
+# include <ILMR/gazebo.hh>
+# include <ILMR/config_ini.hh>
+# include <ILMR/quadrotor.hh>
+# include <ILMR/log.hh>
+# include <ILMR/px4_device.hh>
 
 /*
  *  Main file: Start generate dataset
@@ -70,5 +76,5 @@ int main(int argc, char* argv[])
   
   /*  Generate a dataset  */
   Generator<Px4Device, Gazebo> generator(iris_x, quadrotors, gz);
-  generator.run(settings);    
+  generator.run();    
 }

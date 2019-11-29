@@ -9,16 +9,16 @@
 # include <thread>
 # include <vector>
 
-/* local includes  */
-# include "action.hh"
-# include "../global.hh"
-# include "../log.hh"
-# include "../math_tools.hh"
-# include "quadrotor.hh"
-# include "reward.hh"
-# include "state.hh"
-# include "../settings.hh"
-# include "../swarm_device.hh"
+/* ILMR includes  */
+# include <ILMR/action.hh>
+# include <ILMR/global.hh>
+# include "ILMR/log.hh"
+# include <ILMR/math_tools.hh>
+# include <ILMR/quadrotor.hh>
+# include <ILMR/reward.hh>
+# include <ILMR/state.hh>
+# include <ILMR/settings.hh>
+# include <ILMR/swarm_device.hh>
 
 namespace lt = local_types;
 
@@ -31,13 +31,11 @@ public:
   Generator(std::vector<std::shared_ptr<flight_controller_t>> quads,
 	    const std::vector<Quadrotor<simulator_t>>& quadrotors,
 	    std::shared_ptr<simulator_t> sim_interface);
-
+  
   void generate_trajectory(bool random_leader_action);
-
-  void run(const Settings& settings);
+  void run();
 
   Generator(Generator const&) = delete;
-
   Generator(Generator &&) = default;
 
 private:
