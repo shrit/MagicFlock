@@ -8,8 +8,8 @@
 */
 
 /*  Local includes */
-# include "../global.hh"
-# include "../math_tools.hh"
+# include "global.hh"
+# include "math_tools.hh"
 //# include "propagation_model.hh"
 
 namespace lt = local_types;

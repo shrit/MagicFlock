@@ -11,8 +11,8 @@
 
 # include "action.hh"
 # include "state.hh"
-# include "../data_set.hh"
-# include "../math_tools.hh"
+# include "data_set.hh"
+# include "math_tools.hh"
 
 template <class simulator_t>  
 class Quadrotor {
