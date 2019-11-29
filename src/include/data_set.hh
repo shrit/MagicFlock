@@ -22,7 +22,7 @@
 
 /*  local defined include */
 # include "global.hh"
-# include "plot.h"
+# include "plot.hh"
 
 namespace lt = local_types;
 
