@@ -2,12 +2,14 @@
 
 Configs::Configs()
 {
+}
 
-  mINI::INIFile file("../quad.ini");
+Configs::Configs(std::string file_name)
+{
+
+  mINI::INIFile file(file_name);
   file.read(ini_);
-
   parse_ini();
-
 }
 
 void Configs::parse_ini()

@@ -11,10 +11,10 @@ namespace lt = local_types;
 
 class Configs
 {
-
 public:
-
+  
   Configs();
+  Configs(std::string file_name);
 
   void parse_ini();
 
@@ -30,7 +30,6 @@ public:
 
   int quad_number() const;
   std::vector<std::string> quad_names() const;
-
   std::vector<lt::port_type> quads_ports() const;
 
   float speed() const;

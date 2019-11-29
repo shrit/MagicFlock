@@ -15,14 +15,13 @@
 
 namespace lt = local_types;
 
-class configs;
 class Gazebo
 {
 public:
 
-  using SubPtr                   = gazebo::transport::SubscriberPtr;
-  using PubPtr                   = gazebo::transport::PublisherPtr;
-  using NodePtr                  = gazebo::transport::NodePtr;
+  using SubPtr  = gazebo::transport::SubscriberPtr;
+  using PubPtr  = gazebo::transport::PublisherPtr;
+  using NodePtr = gazebo::transport::NodePtr;
 
   Gazebo(int argc, char* argv[]);
 
