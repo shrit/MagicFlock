@@ -199,7 +199,7 @@ run()
 	follower_1_->reset_all_actions();
 	follower_2_->reset_all_actions();
 	
-	/*  Chech the geometrical shape */
+	/*  Check the geometrical shape */
 	bool shape = false;
 	for (auto it : quadrotors_) {
 	  shape = it.examin_geometric_shape();
