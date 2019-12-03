@@ -11,12 +11,13 @@
 # include <vector>
 
 /* local includes  */
-# include <ILMR/global.hh>
-# include <ILMR/log.hh>
+
 # include <ILMR/predictor.hh>
 # include <ILMR/quadrotor.hh>
 # include <ILMR/swarm_device.hh>
 # include <ILMR/action.hh>
+# include <ILMR/global.hh>
+# include <ILMR/log.hh>
 
 namespace lt = local_types;
 

@@ -14,7 +14,12 @@ Supervised_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
    sim_interface_(std::move(gzs)),
    swarm_(std::move(iris_x)),
    quadrotors_(std::move(quadrotors))
-{}
+{
+  /*  Allow easier access and debugging to all quadrotors state */
+  leader_ = quadrotors_.begin();
+  follower_1_ = std::next(quadrotors_.begin(), 1);
+  follower_2_ = std::next(quadrotors_.begin(), 2);
+}
 
 template <class flight_controller_t,
 	  class simulator_t>
@@ -23,31 +28,27 @@ void Supervised_learning<flight_controller_t,
 generate_trajectory_using_model(bool change_leader_action,
 				bool stop_down_action)
 {
-    Actions action;
-  /*  Allow easier access and debugging to all quadrotors state */
-    leader_ = quadrotors_.begin();
-    follower_1_ = std::next(quadrotors_.begin(), 1);
-    follower_2_ = std::next(quadrotors_.begin(), 2);
-    
+  Actions action;  
   std::vector<std::thread> threads;
-  
+
+  /*  Pick leader action, change it or keep it */
   if (change_leader_action == true) {
     leader_->current_action(
-			   action.random_action_generator_with_only_opposed_condition
-			   (leader_->last_action()));
+			    action.random_action_generator_with_only_opposed_condition
+			    (leader_->last_action()));
   } else if (stop_down_action == true) {
     while (leader_->current_action() == Actions::Action::down) {
       leader_->current_action(
-			     action.random_action_generator_with_only_opposed_condition
-			     (leader_->last_action()));
+			      action.random_action_generator_with_only_opposed_condition
+			      (leader_->last_action()));
     }    
   }
-      
+  
   /*  Sample the state at time t */
   follower_1_->sample_state();
   follower_2_->sample_state();
   
-  /* Follower action always equal to no move at this instant t */
+  /* Followers actions always equal to no move at this instant t */
   follower_1_->current_action(Actions::Action::NoMove);
   follower_2_->current_action(Actions::Action::NoMove);
   
@@ -55,37 +56,53 @@ generate_trajectory_using_model(bool change_leader_action,
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory(leader_->id(),
 								     leader_->current_action(),
+								     1,
 								     1000);
 				}));
+
+  /* We need to wait until the quadcopters finish their actions */
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  
+  /*  Sample the state at time t + 1*/
+  follower_1_->sample_state();
+  follower_2_->sample_state();
+
+  Predictor<simulator_t> predict_f1("regression",
+				    "/meta/lemon/model/regression_models/h0/model.txt",
+				    "model",
+				    follower_1_);
+
+  Actions::Action follower_1_action = predict_f1.get_predicted_action();  
+  follower_1_->current_action(follower_1_action);
+  
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory(follower_1_->id(),
-								     leader_->current_action(),
+								     follower_1_->current_action(),
+								     1,
 								     1000);
 				}));
 				    
   /* We need to wait until the quadcopters finish their actions */
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
  
-  /*  Sample the state at time t */
+  /*  Sample the state at time t + 2 */
   follower_1_->sample_state();
   follower_2_->sample_state();
   
-  Predictor<simulator_t> predict("regression", follower_1_);
-
-  /*  Test the trained model using the absolute gazebo distance feature */
-  arma::mat features = predict.create_absolute_features_matrix();
-    
-  /*  Predict the next state using the above data */
-  auto matrix_best_action = predict.predict(features);
-  Actions::Action predicted_follower_action;
-  std::tie(std::ignore, std::ignore, predicted_follower_action) = matrix_best_action;
+  Predictor<simulator_t> predict_f2("regression",
+				    "/meta/lemon/model/regression_models/h0/model.txt",
+				    "model",				    
+				    follower_2_);
   
-  follower_1_->current_action(predicted_follower_action);
+  Actions::Action follower_2_action = predict_f2.get_predicted_action();  
+  follower_2_->current_action(follower_2_action);
   
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory(follower_2_->id(),
 								     follower_2_->current_action(),
-								     1000);  				   
+								     1,
+								     1000);
+				  
   				}));
   
   for (auto& thread : threads) {
@@ -94,13 +111,16 @@ generate_trajectory_using_model(bool change_leader_action,
 
   /*  Get error of deformation to improve percision later and to
       verify the model accuracy */
-    /*  Sample the state at time t */
-  follower_1_->sample_state(); /*  Final state */
+  
+    /*  Sample the state at time t + 3 final state */
+  follower_1_->sample_state(); 
   follower_2_->sample_state();
 
   /* Take a tuple here  */
-  double loss = predict.real_time_loss(matrix_best_action);
-  LogInfo() << "Real time loss: " << loss;
+  double loss_f1 = predict_f1.real_time_loss();
+  double loss_f2 = predict_f2.real_time_loss();  
+  LogInfo() << "Real time loss f1: " << loss_f1;
+  LogInfo() << "Real time loss f2: " << loss_f2;
   // step_errors_.push_back(mtools_.deformation_error_one_follower
   // 			(original_dist_, nextState.distances_3D()));
 }
@@ -108,12 +128,9 @@ generate_trajectory_using_model(bool change_leader_action,
 template <class flight_controller_t,
 	  class simulator_t>
 void Supervised_learning<flight_controller_t, simulator_t>::
-run(const Settings& settings)
-{
-  regression_ = settings.regression();
-
-  /*  To be removed just check that every thing is fine */
-  
+run()
+{   
+  /*  To be removed just check that every thing is fine */  
   /*  Recover the initial state as an observer state */
   /*  This state will be used directly instead of original_dist */
   // Quadrotor::State<simulator_t> ObserverState(sim_interface_);
@@ -155,7 +172,7 @@ run(const Settings& settings)
     if (!stop_episode_) {
 
       count_ = 0;
-      while (count_ < 1000) {
+      while (!stop_episode_) {
 	
 	if (count_ == 0 ) {
 	  generate_trajectory_using_model(true, false);
@@ -171,12 +188,10 @@ run(const Settings& settings)
 	
         std::vector<lt::position3D<double>> new_positions = sim_interface_->positions();
 	LogInfo() << "New positions : " << new_positions;	       
+		
+	follower_1_->register_data_set();
+	follower_2_->register_data_set();
 	
-	if(regression_) {
-	  follower_1_->register_data_set();
-	  follower_2_->register_data_set();
-	}
-
 	follower_1_->reset_all_states();
 	follower_2_->reset_all_states();	
 	follower_1_->reset_all_actions();
@@ -200,14 +215,14 @@ run(const Settings& settings)
     follower_2_->register_histogram(count_);
     
     /*  Get the flight error as the mean of the step error */
-    double mean_error = mtools_.mean(step_errors_);
+    //  double mean_error = mtools_.mean(step_errors_);
 
-    if (mean_error != -1) {
+    // if (mean_error != -1) {
       /*  We need to figure out what to do with this value 
        and whether if it is useful or not*/
       // data_set_.save_error_file(mean_error);
-      flight_errors_.push_back(mean_error);
-    }
+      // flight_errors_.push_back(mean_error);
+    // }
    
     step_errors_.clear();
     swarm_.land();
