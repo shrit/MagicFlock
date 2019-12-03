@@ -33,6 +33,21 @@ void DataSet::save_csv_data_set(Arg&& arg, Args&&... args)
   file.close();
 }
 
+template <typename Arg, typename... Args>
+void DataSet::save_csv_data_set_2_file(std::string file_name, Arg&& arg, Args&&... args)
+{
+  std::ofstream file;
+  file.open(dataset_file_name_ + "_" + file_name,
+	    std::ios::out | std::ios::app);
+
+  file << std::forward<Arg>(arg);
+  ((file <<","<< std::forward<Args>(args)), ...);
+
+  file << "\n";
+  file.flush();
+  file.close();
+}
+
 template <typename Arg>
 void DataSet::save_error_file(Arg&& arg)
 {

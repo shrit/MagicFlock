@@ -40,6 +40,9 @@ public:
   template <typename Arg, typename... Args>
   void save_csv_data_set(Arg&& arg, Args&&... args);
 
+  template <typename Arg, typename... Args>
+  void save_csv_data_set_2_file(std::string file_name, Arg&& arg, Args&&... args);
+  
   template <typename Arg>
   void save_error_file(Arg&& arg);
 
@@ -58,7 +61,7 @@ public:
   void init_dataset_directory();
 
   std::vector<lt::rssi<double>>  rssi_vector() const;
-  std::vector<int>  action_vector() const;
+  std::vector<int> action_vector() const;
   std::vector<lt::error<double>> error_vector() const;
   std::vector<std::vector<double>> data_set() const;
 

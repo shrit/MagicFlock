@@ -103,12 +103,13 @@ void Quadrotor<simulator_t>::reset_all_actions()
 template <class simulator_t>
 void Quadrotor<simulator_t>::register_data_set()
 {
-  data_set_.save_csv_data_set(before_last_state(),				      
-			      mtools_.to_one_hot_encoding(last_action(), 7),
-			      last_state(),
-			      mtools_.to_one_hot_encoding(current_action(), 7),
-			      current_state()	      
-			      );  
+  data_set_.save_csv_data_set_2_file(name_,
+				     before_last_state(),				      
+				     mtools_.to_one_hot_encoding(last_action(), 7),
+				     last_state(),
+				     mtools_.to_one_hot_encoding(current_action(), 7),
+				     current_state()	      
+				     );
 }
 
 template <class simulator_t>
