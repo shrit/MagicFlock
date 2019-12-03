@@ -7,7 +7,6 @@
 # include <vector>
 
 /*  Local includes */
-# include "config_ini.hh"
 # include "global.hh"
 
 template<class flight_controller_t>
@@ -19,6 +18,7 @@ public:
 
   void one_quad_execute_trajectory(unsigned int id,
 				   Actions::Action action,
+				   int speed,
 				   unsigned int milliseconds);
   bool arm();
   bool arm_specific_quadrotor(unsigned int id);
@@ -41,9 +41,7 @@ public:
   SwarmDevice(SwarmDevice &&) = default;
   
 private:
-  Configs configs_;
   std::vector<std::shared_ptr<flight_controller_t>> iris_x_;
-  float speed_;
 };
 
 # include "swarm_device.hxx"

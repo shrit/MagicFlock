@@ -5,33 +5,33 @@
 template<class flight_controller_t>
 SwarmDevice<flight_controller_t>::
 SwarmDevice(std::vector<std::shared_ptr<flight_controller_t>> quads)
-  :iris_x_(std::move(quads)),
-   speed_(configs_.speed())   
+  :iris_x_(std::move(quads))
 {}
 
 template <class flight_controller_t>
 void SwarmDevice<flight_controller_t>::
 one_quad_execute_trajectory(unsigned int id,
 			    Actions::Action action,
+			    int speed,
 			    unsigned int milliseconds)
 {
   if (action == Actions::Action::left) {
-    iris_x_.at(id)->left(speed_, milliseconds);
+    iris_x_.at(id)->left(speed, milliseconds);
 
   } else if (action == Actions::Action::right) {
-    iris_x_.at(id)->right(speed_, milliseconds);
+    iris_x_.at(id)->right(speed, milliseconds);
 
   } else if (action == Actions::Action::forward) {
-    iris_x_.at(id)->forward(speed_, milliseconds);
+    iris_x_.at(id)->forward(speed, milliseconds);
 
   } else if (action == Actions::Action::backward) {
-    iris_x_.at(id)->backward(speed_, milliseconds);
+    iris_x_.at(id)->backward(speed, milliseconds);
 
   } else if (action == Actions::Action::up) {
-    iris_x_.at(id)->up(speed_, milliseconds);
+    iris_x_.at(id)->up(speed, milliseconds);
 
   } else if (action == Actions::Action::down) {
-    iris_x_.at(id)->down(speed_, milliseconds);
+    iris_x_.at(id)->down(speed, milliseconds);
   }
 }
 

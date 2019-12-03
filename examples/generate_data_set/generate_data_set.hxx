@@ -53,6 +53,7 @@ generate_trajectory(bool change_leader_action)
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory(leader_->id(),
 								     leader_->current_action(),
+								     1,
 								     1000);
 				}));
 
@@ -74,6 +75,7 @@ generate_trajectory(bool change_leader_action)
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory(follower_1_->id(),
 								     follower_1_->current_action(),
+								     1,
 								     1000);
 				}));
   
@@ -93,6 +95,7 @@ generate_trajectory(bool change_leader_action)
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory(follower_2_->id(),
 								     follower_2_->current_action(),
+								     1,
 								     1000);
 				}));
   for(auto& thread : threads) {
