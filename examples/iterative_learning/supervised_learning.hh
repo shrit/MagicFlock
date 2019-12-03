@@ -10,19 +10,13 @@
 # include <tuple>
 # include <vector>
 
-/*  Armadillo includes  */
-# include <armadillo>
-
 /* local includes  */
-# include "../data_set.hh"
-# include "../global.hh"
-# include "../gazebo.hh"
-# include "../log.hh"
-# include "../math_tools.hh"
-# include "predictor.hh"
-# include "quadrotor.hh"
-# include "reward.hh"
-# include "../swarm_device.hh"
+# include <ILMR/global.hh>
+# include <ILMR/log.hh>
+# include <ILMR/predictor.hh>
+# include <ILMR/quadrotor.hh>
+# include <ILMR/swarm_device.hh>
+# include <ILMR/action.hh>
 
 namespace lt = local_types;
 
@@ -38,7 +32,7 @@ public:
   void generate_trajectory_using_model(bool random_leader_action,
 				       bool stop_down_action);
   
-  void run(const Settings& settings);
+  void run();
 
   Supervised_learning(Supervised_learning const&) = delete;
   Supervised_learning(Supervised_learning &&) = default;
@@ -50,13 +44,9 @@ private:
   int episode_;
   std::vector<double> flight_errors_;
   int max_episode_ ;
-  Math_tools mtools_;
-  bool regression_;
   std::shared_ptr<simulator_t> sim_interface_;
   std::vector<double> step_errors_;
   std::vector<int>  time_step_vector_;
-  lt::triangle<double> original_dist_;
-  double height_diff_;
   SwarmDevice<flight_controller_t> swarm_;
   bool stop_episode_;
   std::vector<Quadrotor<simulator_t>> quadrotors_;
