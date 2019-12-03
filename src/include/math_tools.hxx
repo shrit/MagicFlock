@@ -61,8 +61,8 @@ is_good_shape(unsigned int id,
   bool value = false;
   std::vector<double> distances = distances_to_neighbors(id, nearest_neighbors, positions);
   for (auto&& i : distances) {
-    if((i > lower_threshold_.at(0))  and
-       (i < upper_threshold_.at(0))) {
+    if((i > lower_threshold_)  and
+       (i < upper_threshold_)) {
       value = true;
     }
   }

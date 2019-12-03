@@ -19,10 +19,7 @@ class Math_tools {
 
 public:
 
-  Math_tools() :
-    lower_threshold_{4, 4, 4},
-    upper_threshold_{9, 9, 9}
-  {}
+  Math_tools() {}
 
   template <typename T>
   double deformation_error_one_follower(lt::triangle<T> old_dist,
@@ -31,6 +28,7 @@ public:
   std::vector<double> distances_to_neighbors(unsigned int id,
 					     std::vector<unsigned int> nearest_neighbors,
 					     std::vector<lt::position3D<double>> positions);
+  
   double distance_a_2_b(std::vector<lt::position3D<double>> positions,
 			unsigned int id_a,
 			unsigned int id_b);
@@ -82,8 +80,8 @@ public:
 private:
   
   std::map <int, int> histo_;
-  std::vector<float> lower_threshold_;
-  std::vector<float> upper_threshold_;
+  float lower_threshold_ = 1; /*  1 meters minimum distance between quadrotors */
+  float upper_threshold_ = 4; /*  4 meters maximum distance between quadrotors */
   
 };
 

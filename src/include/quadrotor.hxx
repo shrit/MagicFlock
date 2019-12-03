@@ -126,11 +126,8 @@ void Quadrotor<simulator_t>::register_histogram(int count)
 template <class simulator_t>
 bool Quadrotor<simulator_t>::examin_geometric_shape()
 {
-  bool shape = false;
-  if (mtools_.is_good_shape(id_,
-			    nearest_neighbors_,
-			    sim_interface_->positions()) == true) {
-    shape = true;
-  }
+  bool shape = mtools_.is_good_shape(id_,
+				     nearest_neighbors_,
+				     sim_interface_->positions());        
   return shape;
 }
