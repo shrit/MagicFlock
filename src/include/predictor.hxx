@@ -4,9 +4,13 @@
 
 template<class simulator_t>
 Predictor<simulator_t>::Predictor(std::string name,/*  Classification or regression */
+				  std::string full_path_to_model,
+				  std::string model_name,
 				  typename std::vector<Quadrotor<simulator_t>>::iterator quad)
-  
-  :quad_(quad)
+  :real_time_loss_(0),
+   model_path_(full_path_to_model),
+   model_name_(model_name),
+   quad_(quad)      
 {
   classification_ = false;
   regression_ = false;
@@ -158,6 +162,11 @@ real_time_loss(std::tuple<arma::mat, arma::uword,
     std::pow((matrix(index_of_best_estimation, 2) - quad_->current_state().distances_3D().at(1)), 2);
   return loss;
 }
+
+template<class simulator_t>
+double Predictor<simulator_t>::
+real_time_loss() const
+{ return real_time_loss_; }
     
 template<class simulator_t>
 std::tuple<arma::mat, arma::uword, Actions::Action> Predictor<simulator_t>::
@@ -170,9 +179,9 @@ predict(arma::mat& features)
 		   mlpack::ann::RandomInitialization> regression_model;
   
   if (classification_) {  
-    mlpack::data::Load("model.txt", "model", classification_model, true);
+    mlpack::data::Load(model_path_, model_name_, classification_model, true);
   } else if(regression_) {
-    mlpack::data::Load("model.txt", "model", regression_model, true);
+    mlpack::data::Load(model_path_, model_name_, regression_model, true);
   }
 
   /*  We need to predict the action for the follower using h(S)*/
@@ -201,4 +210,19 @@ predict(arma::mat& features)
   /*  Get the follower action now !! and store it directly */
   Actions::Action action_follower = action_.int_to_action(value);  
   return make_tuple(label, value, action_follower);
+}
+
+template<class simulator_t>
+Actions::Action Predictor<simulator_t>::
+get_predicted_action()
+{  
+  Actions::Action predicted_follower_action;
+  /*  Test the trained model using the absolute gazebo distance feature */
+  arma::mat features = create_absolute_features_matrix();  
+  /*  Predict the next state using the above data */
+  auto matrix_best_action = predict(features);
+  real_time_loss_ = real_time_loss (matrix_best_action);
+  std::tie(std::ignore, std::ignore, predicted_follower_action) = matrix_best_action;
+
+  return predicted_follower_action;  
 }
