@@ -13,11 +13,7 @@
 # include <ILMR/action.hh>
 # include <ILMR/global.hh>
 # include "ILMR/log.hh"
-# include <ILMR/math_tools.hh>
 # include <ILMR/quadrotor.hh>
-# include <ILMR/reward.hh>
-# include <ILMR/state.hh>
-# include <ILMR/settings.hh>
 # include <ILMR/swarm_device.hh>
 
 namespace lt = local_types;
@@ -43,7 +39,6 @@ private:
   int count_;
   int episode_;
   int max_episode_;
-  Math_tools mtools_;
   std::shared_ptr<simulator_t> sim_interface_;
   bool stop_episode_;  
   SwarmDevice<flight_controller_t> swarm_;
