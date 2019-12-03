@@ -13,8 +13,15 @@
 # include <thread>
 # include <vector>
 
-/*  locale defined include */
+/*  local  defined include */
 # include "supervised_learning.hh"
+
+/* ILMR library include  */
+# include <ILMR/gazebo.hh>
+# include <ILMR/config_ini.hh>
+# include <ILMR/quadrotor.hh>
+# include <ILMR/log.hh>
+# include <ILMR/px4_device.hh>
 
 /*
  *  Main file: Start generate dataset
@@ -22,8 +29,8 @@
 int main(int argc, char* argv[])
 {
   /*  Init configs */
-    Configs configs;
-    /*  Init logging system */
+  Configs configs("/meta/lemon/quad.ini");
+  /*  Init logging system */
   Log log;
   log.init();
 
@@ -42,12 +49,11 @@ int main(int argc, char* argv[])
   LogInfo() << "Ports number: "<< ports;      
   
   /*  Gazebo simulator */
-  std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(argc,argv);
+  std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(argc, argv, configs);
   
   gz->subscriber(configs.positions());
   
-  /* Verify the numbers to subscribe to the good signal strength */
-  
+  /* Verify the numbers to subscribe to the good signal strength */  
   gz->subscriber(configs.rssi_1_2());
   gz->subscriber(configs.rssi_1_3());
   gz->subscriber(configs.rssi_2_3());
@@ -68,9 +74,16 @@ int main(int argc, char* argv[])
   quadrotors.emplace_back(1, "follower_1", gz);
   quadrotors.emplace_back(2, "follower_2", gz);
 
+    /*  Add neighbors list  */
+  quadrotors.at(0).add_nearest_neighbor_id(1);
+  quadrotors.at(0).add_nearest_neighbor_id(2);
+  quadrotors.at(1).add_nearest_neighbor_id(0);
+  quadrotors.at(1).add_nearest_neighbor_id(2);
+  quadrotors.at(2).add_nearest_neighbor_id(0);
+  quadrotors.at(2).add_nearest_neighbor_id(1);
+
   /*  Test the trained model and improve it  */
   Supervised_learning<Px4Device, Gazebo> slearning(iris_x, quadrotors, gz);
-  slearning.run(settings);
-
+  slearning.run();  
 
 }
