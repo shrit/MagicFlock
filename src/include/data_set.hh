@@ -22,6 +22,8 @@
 # include "global.hh"
 # include "plot.hh"
 
+# include <armadillo>
+
 namespace lt = local_types;
 
 class DataSet {
