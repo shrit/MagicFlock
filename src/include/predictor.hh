@@ -72,7 +72,6 @@ private:
   Math_tools mtools_;
   bool regression_;
   std::vector<double> original_dist_;
-  double height_diff_;
   double real_time_loss_;
   typename std::vector<Quadrotor<simulator_t>>::iterator quad_;
   std::vector<Quadrotor<simulator_t>> quadrotors_;

@@ -7,7 +7,8 @@ Predictor<simulator_t>::Predictor(std::string name,/*  Classification or regress
 				  std::string full_path_to_model,
 				  std::string model_name,
 				  typename std::vector<Quadrotor<simulator_t>>::iterator quad)
-  :real_time_loss_(0),
+  :original_dist_{3, 3},
+   real_time_loss_(0),
    model_path_(full_path_to_model),
    model_name_(model_name),
    quad_(quad)      
@@ -113,15 +114,15 @@ std::vector<double> Predictor<simulator_t>::
 estimate_action_from_distance(arma::mat& matrix)
 {
   std::vector<double> sum_of_distances;
-  std::vector<double> distances;
+  double d1, d2;
+  double original_d1 = 3;
+  double original_d2 = 3;
   double height_diff;
   for (arma::uword i = 0; i < matrix.n_rows; ++i) {
-    /*  0 index is the height, not considered yet */
-    /*  Consider only f1 and f2 */
-    distances.at(0) = std::fabs(original_dist_.at(0) - matrix(i, 0));
-    distances.at(1) = std::fabs(original_dist_.at(1) - matrix(i, 1));
-    height_diff = std::fabs(height_diff_ - matrix(i, 2));
-    sum_of_distances.push_back(distances.at(0) + distances.at(1) + height_diff);
+    d1 = std::fabs(original_d1 - matrix(i, 0));
+    d2 = std::fabs(original_d2 - matrix(i, 1));
+    height_diff = std::fabs(quad_->current_state().height_difference() - matrix(i, 2));
+    sum_of_distances.push_back(d1 + d2 + height_diff);
   }
   return sum_of_distances;
 }
