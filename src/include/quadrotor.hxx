@@ -132,3 +132,13 @@ bool Quadrotor<simulator_t>::examin_geometric_shape()
 				     sim_interface_->positions());        
   return shape;
 }
+
+template <class simulator_t>
+void Quadrotor<simulator_t>::set_speed(double speed)
+{
+  speed_ = speed;  
+}
+
+template <class simulator_t>
+double Quadrotor<simulator_t>::speed()
+{ return speed_; }

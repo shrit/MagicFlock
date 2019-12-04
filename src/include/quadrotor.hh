@@ -48,6 +48,9 @@ public:
   void register_data_set();
   void register_histogram(int count);
 
+  void set_speed(double speed);
+  double speed() const;
+  
   bool examin_geometric_shape();
   
 private:
@@ -66,6 +69,7 @@ private:
 
   unsigned int id_; /* Quadrotor id */
   std::string name_; /* Quadrotor name */
+  double speed_ = 1; /*  Quadrotors speed. Default speed is equal to 1 m/s */
   std::vector<unsigned int> nearest_neighbors_;
 
   std::shared_ptr<simulator_t> sim_interface_;

@@ -39,6 +39,7 @@ test_trajectory(bool stop_down_action)
   /*  Execute a trajectory for 1 seconds */
   swarm_.one_quad_execute_trajectory(follower_1_->id(),
 				     follower_1_->current_action(),
+				     follower_1_->speed(),
 				     1000);
   std::this_thread::sleep_for(std::chrono::milliseconds(300));
 }

@@ -32,8 +32,7 @@ generate_trajectory(bool change_leader_action)
   
   /*  Sample the state at time t */
   follower_1_->sample_state();
-  follower_2_->sample_state();
-  LogInfo() << "Sampling states at t";
+
   /*  Create a random action for the leader_s, with the opposed condition */
   if (change_leader_action == true) {
     leader_->current_action(
@@ -53,7 +52,7 @@ generate_trajectory(bool change_leader_action)
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory(leader_->id(),
 								     leader_->current_action(),
-								     1,
+								     leader_->speed(),
 								     1000);
 				}));
 
@@ -75,7 +74,7 @@ generate_trajectory(bool change_leader_action)
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory(follower_1_->id(),
 								     follower_1_->current_action(),
-								     1,
+								     follower_1_->speed(),
 								     1000);
 				}));
   
@@ -95,7 +94,7 @@ generate_trajectory(bool change_leader_action)
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory(follower_2_->id(),
 								     follower_2_->current_action(),
-								     1,
+								     follower_2_->speed(),
 								     1000);
 				}));
   for(auto& thread : threads) {
@@ -107,7 +106,6 @@ generate_trajectory(bool change_leader_action)
   
   /* Get the next state at time t + 3 */
   LogInfo() << "Sampling states at t +3";
-  follower_1_->sample_state();
   follower_2_->sample_state();
 }
 
