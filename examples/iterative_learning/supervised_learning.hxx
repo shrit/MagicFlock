@@ -44,9 +44,9 @@ generate_trajectory_using_model(bool change_leader_action,
     }    
   }
   
-  /*  Sample the state at time t */
+  /*  Sample the state at time t = 0 only for the first follower */
   follower_1_->sample_state();
-  follower_2_->sample_state();
+
   
   /* Followers actions always equal to no move at this instant t */
   follower_1_->current_action(Actions::Action::NoMove);
@@ -66,7 +66,7 @@ generate_trajectory_using_model(bool change_leader_action,
   /*  Sample the state at time t + 1*/
   follower_1_->sample_state();
   follower_2_->sample_state();
-
+    
   Predictor<simulator_t> predict_f1("regression",
 				    "/meta/lemon/model/regression_models/h0/model.txt",
 				    "model",
@@ -113,7 +113,6 @@ generate_trajectory_using_model(bool change_leader_action,
       verify the model accuracy */
   
     /*  Sample the state at time t + 3 final state */
-  follower_1_->sample_state(); 
   follower_2_->sample_state();
 
   /* Take a tuple here  */
@@ -232,7 +231,7 @@ run()
     
     LogInfo() << "The quadcopters have been reset...";
     LogInfo() << "Waiting untill the kalaman filter to reset...";    
-    std::this_thread::sleep_for(std::chrono::seconds(25));
+    std::this_thread::sleep_for(std::chrono::seconds(20));
     LogInfo() << "Kalaman filter reset...";        
   }
 }
