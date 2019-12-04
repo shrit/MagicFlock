@@ -10,8 +10,7 @@
 #include <ensmallen_bits/callbacks/callbacks.hpp>
 #include <armadillo>
 
-#include "../log.hh"
-#include "../settings.hh"
+#include <ILMR/log.hh>
 
 class Train {
 
@@ -26,11 +25,11 @@ public:
 		      const arma::mat& LabelY);
   
   arma::Row<size_t> getLabels(const arma::mat& predOut);
-
+  
   void load_data_set(std::string&& dataset_file);
   void define_label_column_size(int x);
   
-  void run(const Settings& settings);
+  void run(std::string&& name);
   void classification();
   void regression();
   
@@ -52,5 +51,4 @@ private:
   arma::mat test_labels_;
 
   double ratio_ = 0.1;
-
 };

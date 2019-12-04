@@ -167,8 +167,7 @@ void Train::regression()
   model.Predict(test_features_, predtest);
   model.Evaluate(test_features_, predtest);
  
-  double testAccuracy = accuracy_mse(predtest, test_labels_);
-    
+  double testAccuracy = accuracy_mse(predtest, test_labels_);    
   std::cout << "LOSS  = "<< testAccuracy<< "%,"
 	    << std::endl;
     
@@ -177,11 +176,11 @@ void Train::regression()
   mlpack::data::Save("model.txt", "model", model, false);  
 }
 
-void Train::run(const Settings& settings)
+void Train::run(std::string&& name)
 {
-  if (settings.classification()) {
+  if (name == "classification") {
     classification();    
-  } else if (settings.regression()) {
+  } else if (name == "regression") {
     regression();
   }      
 }
