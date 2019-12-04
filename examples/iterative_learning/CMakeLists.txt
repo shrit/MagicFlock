@@ -22,6 +22,7 @@ set(ilmr "/usr/local/lib/libILMR.so")
 set(mavsdk "/usr/local/lib64/libmavsdk.so")
 set(mlpack "/meta/mlpack/build/lib/libmlpack.so")
 set(gomp "/usr/lib/libgomp.so")
+set(boost_seria "/usr/lib/libboost_serialization.a")
 
 link_directories(${GAZEBO_LIBRARY_DIRS})
 
@@ -32,7 +33,7 @@ add_executable(iterative_learning
 target_link_libraries(iterative_learning
   ${GAZEBO_LIBRARIES}
   ${ARMADILLO_LIBRARIES}
-  ${BOOST_LIBRARIES}
+  ${boost_seria}
   ${mavsdk}
   ${ilmr}
   ${mlpack}
