@@ -48,8 +48,13 @@ public:
   void register_data_set();
   void register_histogram(int count);
 
+  /*  Speed related functions */
   void set_speed(double speed);
   double speed() const;
+  double increase_speed();
+  double decrease_speed();
+  double increase_speed_by_value(double speed);
+  double decrease_speed_by_value(double speed);  
   
   bool examin_geometric_shape();
   

@@ -140,5 +140,25 @@ void Quadrotor<simulator_t>::set_speed(double speed)
 }
 
 template <class simulator_t>
-double Quadrotor<simulator_t>::speed()
+double Quadrotor<simulator_t>::speed() const
 { return speed_; }
+
+template <class simulator_t>
+double Quadrotor<simulator_t>::increase_speed()
+{ speed_++; }
+
+template <class simulator_t>
+double Quadrotor<simulator_t>::decrease_speed()
+{ speed_--; }
+
+template <class simulator_t>
+double Quadrotor<simulator_t>::increase_speed_by_value(double speed)
+{
+  speed_ = speed_ + speed;
+}
+
+template <class simulator_t>
+double Quadrotor<simulator_t>::decrease_speed_by_value(double speed)
+{
+  speed_ = speed_ - speed;
+}
