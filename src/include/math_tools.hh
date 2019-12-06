@@ -80,9 +80,8 @@ public:
 private:
   
   std::map <int, int> histo_;
-  float lower_threshold_ = 1; /*  1 meters minimum distance between quadrotors */
-  float upper_threshold_ = 4; /*  4 meters maximum distance between quadrotors */
-  
+  double lower_threshold_ = 1; /*  1 meters minimum distance between quadrotors */
+  double upper_threshold_ = 5; /*  4 meters maximum distance between quadrotors */
 };
 
 # include "math_tools.hxx"
