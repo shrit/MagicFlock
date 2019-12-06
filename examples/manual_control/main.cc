@@ -15,15 +15,13 @@
 # include <thread>
 # include <vector>
 
-# include "config_ini.hh"
-# include "data_set.hh"
-# include "gazebo.hh"
-# include "global.hh"
-# include "../third_party/joystick/joystick.hh"
-# include "keyboard.hh"
-# include "log.hh"
-# include "px4_device.hh"
-# include "settings.hh"
+# include <ILMR/config_ini.hh>
+
+# include <ILMR/global.hh>
+# include <ILMR/joystick.hh>
+# include <ILMR/keyboard.hh>
+# include <ILMR/log.hh>
+# include <ILMR/px4_device.hh>
 
 namespace lt = local_types;
 
@@ -259,17 +257,42 @@ void keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
   }
 }
 
+/*  Print the possible keyboard or joystick input */
+void usage(std::ostream& out)
+{
+
+  out<< "Usage : " << std ::endl
+     << "To fly a quadrotor manually you need to start the software with flying option" << std::endl
+     << "To control the quadcopter using keyboard use : " << std::endl
+     << " m : arm" << std::endl
+     << " t : takoff" << std::endl
+     << " l : land" << std::endl
+     << " o : activate offboard mode" << std::endl
+     << " w : to go forward" << std::endl
+     << " d : to go right" << std::endl
+     << " a : to go left" << std::endl
+     << " s : to go backward" << std::endl
+     << " + : to turn clock wise" << std::endl
+     << " - : to turn counter clock wise" << std::endl
+     << "To control the quadcopter using Xbox joystick use : " << std::endl
+     << " A : to arm" << std::endl
+     << " X : takeoff "<< std::endl
+     << " Y : activate offboard mode" << std::endl
+     << " B : land" << std::endl
+     << " Right Stick up    : to go forward" << std::endl
+     << " Right Stick right : to go right" << std::endl
+     << " Right Stick left : to go left" << std::endl
+     << " Right Stick down : to go backword" << std::endl
+     << " Left Stick up    : to go up" << std::endl
+     << " Left Stick right : to go down" << std::endl;
+}
+
 /*
  *  Main file: Start one controller by quadcopters
  */
 int main(int argc, char* argv[])
 {
-  if (argc < 2) {
-    LogErr() << "Please specify if you want to train or test a controller!!" ;
-    exit(0);
-  }
-  
-  Settings settings(argc, argv);
+
   Configs configs;
   
   /*  Init logging system */
