@@ -60,14 +60,14 @@ void Train::define_label_column_size(int x) {
   
   // Split the data from the training set.
   train_labels_ = trainset_.submat(trainset_.n_rows - x, 0,
-				  trainset_.n_rows - x, trainset_.n_cols - 1);
+				  trainset_.n_rows - 1, trainset_.n_cols - 1);
   
   test_features_ = testset_.submat(0, 0,
 				   testset_.n_rows - (x + 1),
 				   testset_.n_cols - 1);
   
   test_labels_ = testset_.submat(testset_.n_rows - x, 0,
-				 testset_.n_rows - x, testset_.n_cols - 1);
+				 testset_.n_rows - 1, testset_.n_cols - 1);
 }
 
 void Train::classification()
@@ -128,7 +128,7 @@ void Train::classification()
 
 void Train::regression()
 {
-  define_label_column_size(4);
+  define_label_column_size(3);
   mlpack::ann::FFN<mlpack::ann::MeanSquaredError<>,
 		   mlpack::ann::RandomInitialization> model;
   model.Add<mlpack::ann::Linear<> >(train_features_.n_rows, 200);
@@ -139,20 +139,30 @@ void Train::regression()
   model.Add<mlpack::ann::Linear<> >(200, 200);
   model.Add<mlpack::ann::LeakyReLU<> >();
   model.Add<mlpack::ann::Dropout<> >(0.5);
-  model.Add<mlpack::ann::Linear<> >(200, 4);
+  model.Add<mlpack::ann::Linear<> >(200, 3);
 
   ens::AdamType<ens::AdamUpdate> optimizer;
 
-  // Train the model.
-  for (int i = 0; i < 1000; ++i) {
-    LogInfo() << "Training..." << "\t Epoch " << i;
+  optimizer.Tolerance() = -1;
+  optimizer.MaxIterations() = 0;
+  
+  for (int i = 0; i < 1; ++i) {
+    LogInfo() << "Starting.....";
+    auto t1 = std::chrono::high_resolution_clock::now();
     model.Train(train_features_,
 		train_labels_,
 		optimizer,
 		ens::PrintLoss(),
 		ens::ProgressBar(),
+		ens::EarlyStopAtMinLoss(300),
 		ens::StoreBestCoordinates<arma::mat>());
-      
+
+    auto t2 = std::chrono::high_resolution_clock::now();
+    std::cout << std::endl;
+    std::cout << "Training time: " 
+              << std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
+              << " seconds" << std::endl;
+    
     optimizer.ResetPolicy() = false;
       
     arma::mat pred;
