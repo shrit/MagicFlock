@@ -25,8 +25,12 @@ public:
 	std::vector<unsigned int> nearest_neighbors);
 
   double height_difference() const;
+  double rt_height_difference();
+  
   std::vector<double> distances_3D() const;
   std::vector<double> estimated_distances() const;
+
+  State StateConstructor(arma::rowvec values);
 
 private:
 

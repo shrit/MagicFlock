@@ -22,9 +22,27 @@ State<simulator_t>::State(std::shared_ptr<simulator_t> sim_interface,
 }
 
 template <class simulator_t>
+State State<simulator_t>::StateConstructor(arma::rowvec values)
+{
+  alti_diff_ = values.back();
+  values.pop_back();
+  dists_3D_ = values();
+  
+  return *this 
+}
+
+template <class simulator_t>
 double State<simulator_t>::
 height_difference() const
 { return alti_diff_; }
+
+template <class simulator_t>
+double State<simulator_t>::
+rt_height_difference() 
+{
+  alti_diff_ = (leader->z - follower->z);
+  return alti_diff_;
+}
 
 template <class simulator_t>
 std::vector<double> State<simulator_t>::
@@ -44,3 +62,36 @@ inline std::ostream& operator<< (std::ostream& out, const State<simulator_t>& s)
       << s.height_difference();
   return out;
 }
+
+template <class simulator_t>
+inline bool operator< (const State<simulator_t>& s, const State<simulator_t>& s1)
+{
+  //  if (s.dists_3D_.)
+  
+}
+
+
+template <class simulator_t>
+inline bool operator> (const State<simulator_t>& s, const State<simulator_t>& s1)
+{
+  
+}
+
+template <class simulator_t>
+inline bool operator== (const State<simulator_t>& s, const State<simulator_t>& s1)
+{
+  bool result_distance = std::equal(s.distances_3D().begin(), s.distances_3D().end(),
+			   s1.distances_3D().begin(), [](const double& d, const double& d1) {
+							bool result = ILMR::comparator(d, d1);
+							return result;			       
+						      });
+  
+  bool result_height = comparator(s.height_difference(), s1.height_difference());
+  
+  bool result = false;
+  if (result_distace and result_height) {
+    result = true;
+  }    
+  return result;
+}
+
