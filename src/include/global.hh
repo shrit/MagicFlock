@@ -106,6 +106,18 @@ namespace local_types {
   using topic_name = std::string;
 }
 
+namespace ILMR {
+  bool comparator(double d1, double d2)
+  {
+    double epsilon = 0.5;
+    if ((d1 -d2) < 0.5) {      
+      return true;
+    } else
+      return false;
+  }      
+}
+
+
 /*  Overloading the << operator to print local structs, vectors and classes */
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const local_types::dist3D<T>& v)
