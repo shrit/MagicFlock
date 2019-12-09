@@ -99,9 +99,7 @@ template <typename Arg, typename Arg2>
 std::vector<bool> Math_tools::to_one_hot_encoding(Arg arg, Arg2 number_of_class)
 {
   std::vector<bool> one_hot (number_of_class, 0);
-  // // to check
-  // if constexpr (std::is_same<Arg,
-  // 		typename std::underlying_type<Quadcopter<Arg>::Action>::type>::value) {
+
   if( number_of_class > static_cast<int>(arg)) {
     one_hot.at(static_cast<int>(arg)) = 1 ;
   } else {
@@ -111,11 +109,40 @@ std::vector<bool> Math_tools::to_one_hot_encoding(Arg arg, Arg2 number_of_class)
 }
 
 template <typename Arg>
+int Math_tools::to_one_hot_encoding(std::vector<Arg> values)
+{
+  auto it = std::find(values.begin(), values.end(), 1);
+  int index = std::distance(values.begin(), it);
+  return index;
+}
+
+template <typename Arg>
+bool Math_tools::hamming_distance_one_hot(std::vector<Arg> v1, std::vector<Arg> v2)
+{
+  bool distance = false;
+  if (v1.size() == v2.size()) {
+    if (v1 == v2) {
+      distance = true;      
+    }
+  } else {
+    LogErr() << "Can not calculate hamming on different size vectors";
+  }
+  return distance;
+}
+
+int Math_tools::ecludian_distance(double d1, double d2)
+{
+  double distance = std::sqrt(std::pow((d1), 2) +
+			      std::pow((d2), 2));    
+  return distance;
+}
+
+template <typename Arg>
 std::vector<double> Math_tools::to_std_vector(Arg arg)
 {
   std::vector<double> vec;
   if (arg.is_empty()) {
-    LogInfo() << "Can not convert empty vector to std vector";
+    LogErr() << "Can not convert empty vector to std vector";
   }
   if (std::is_same<Arg, arma::rowvec>::value) {
     vec.resize(arg.n_cols);
