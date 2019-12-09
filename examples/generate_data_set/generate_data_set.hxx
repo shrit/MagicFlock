@@ -198,14 +198,17 @@ run()
 	follower_2_->reset_all_actions();
 	
 	/*  Check the geometrical shape */
-	bool shape = false;
+	std::vector<bool> shapes;
 	for (auto it : quadrotors_) {
-	  shape = it.examin_geometric_shape();
+	  shapes.push_back(it.examin_geometric_shape());
 	}
-	if (!shape) {
+	if (std::any_of(shapes.begin(), shapes.end(), [](const bool& shape){
+							if (!shape) return true;
+							else return false;
+						      })) {
 	  LogInfo() << "The geometrical is no longer conserved";
 	  break;
-	}	
+	}
 	++count_;					
       }
     }
