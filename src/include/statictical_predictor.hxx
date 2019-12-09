@@ -11,22 +11,30 @@ StatisticalPredictor::StatisticalPredictor(std::string dataset_file,
 
 void StatisticalPredictor::predict()
 {
-  // Iterate throughout only the first column
-  /*  Other columns are compared later, if the first one is Ok */
-  arma::mat::iterator it     = dataset.begin();
-  arma::mat::iterator it_end = dataset.end();
 
   // We need to create a state from the first 3 column from a matrix
+  // It is much better to parse data set line by line into state, actions, nextstate , etc
+  /*  Then all the parsed state and actions can be agglomerated into matries.
+   Then it should be easy to read each line of these matrices since they are seperated */
+  std::vector<double> state = dataset.each_row([](){
+						 std::vector<double> vec;
+						 arma::colvec
+						 return vec;
+					       });
+  
 
-
+  StateConstructor(/*  Armadillo row state matrix */);
+  ActionConstructor(/*  Armadillo row state matrix */)
+    
   // Iterate thought out the entire state vectors constructed from the matrix
   
   for(; it != it_end; ++it) {
     
     if (quad.current_state() == it.current_state()) {
       // Get actions and s t+1 from the data set,
-      // do hamming and eculdian test
-      // do argmin
+      // do hamming and eculdian distance test
+      // do argmin on the distances.
+      // do argmin on st+2. get the best action at+1
     }    
   }
 
