@@ -22,13 +22,24 @@ State<simulator_t>::State(std::shared_ptr<simulator_t> sim_interface,
 }
 
 template <class simulator_t>
-State State<simulator_t>::StateConstructor(arma::rowvec values)
+State<simulator_t>::State(std::vector<double> distances, double altitude_diff)
 {
-  alti_diff_ = values.back();
-  values.pop_back();
-  dists_3D_ = values();
-  
-  return *this 
+  dists_3D_ = distances;
+  atli_diff_ = altitude_diff;  
+}
+
+template <class simulator_t>
+std::vector<State<simulator_t>> State<simulator_t>::StateConstructor(arma::mat values)
+{
+  std::vector<State<simulator_t>> states;
+  for (int i = 0; i < values.n_rows; ++i) {
+    std::vector<double> state = mtools_.to_std_vec(values.row(i));
+    double alti_diff = state.back();
+    state.pop_back();
+    std::vector<double> dists_3D = state();
+    states.emplace_back(dists_3D, alti_diff);
+  }
+  return states;  
 }
 
 template <class simulator_t>

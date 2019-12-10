@@ -30,7 +30,7 @@ public:
   std::vector<double> distances_3D() const;
   std::vector<double> estimated_distances() const;
 
-  State StateConstructor(arma::rowvec values);
+  std::vector<State> StateConstructor(arma::rowvec values);
 
 private:
 
