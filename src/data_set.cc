@@ -1,49 +1,54 @@
 # include "include/data_set.hh"
 
-DataSet::DataSet() :
-  line_number_(0)
+DataSet::DataSet()
 {}
 
-void DataSet::read_data_set_file(std::string file_name)
+void DataSet::read_dataset_file()
 {
+  dataset_.load(dataset__file, csv_ascii);
 
-  std::string line;
-  std::ifstream fs;
-  fs.open(file_name);
+    // We need to create a state from the first 3 column from a matrix
+  // It is much better to parse data set line by line into state, actions, nextstate , etc
+  /*  Then all the parsed state and actions can be agglomerated into matries.
+   Then it should be easy to read each line of these matrices since they are seperated */
 
-  while (std::getline(fs, line))
-    {
-      /*
-	   parse each line by itself and put the result into the data
-	   structure. Find all the delimiter and replace them with
-	   space then split the values from the string into a vector
-	   If the number of matrix element change, we only need to
-	   change the two numbers in the following code.
-      */
-      line_number_++;
-
-      line = line.substr(11);
-      std::vector<std::string> values;
-      std::replace_if(line.begin(), line.end(), boost::is_any_of(",[]") , ' ');
-      boost::split(values, line, boost::is_any_of(" "), boost::token_compress_on);
-
-      values.resize(6);
-      std::vector<double> double_values(values.size());
-
-      std::transform(values.begin(), values.end(), double_values.begin(), [](const std::string& val)
-      									  {
-      									    return std::stod(val);
-      									  });
-      data_set_.push_back(double_values);
-
+  /*  Get the indices for state, actions etc... */
+  for (int i = 0; i < dataset_.n_cols; ++i) {
+    if (dataset_(0,i) ==  and (dataset_(0,i) == 0  or dataset_(0,i) == 1)) {
+      
     }
-  fs.close();
-
+  }
+  
+  arma::mat st_mat = dataset_(span(0 ,dataset_.n_rows -1 ), span(0,2 ));
+  arma::mat at_mat = dataset_(span(0 ,dataset_.n_rows -1 ), span(3, ));
+  arma::mat st_1_mat = dataset_(span(0 ,dataset_.n_rows -1 ), span(, ));
+  arma::mat at_1_mat = dataset_(span(0 ,dataset_.n_rows -1 ), span(, ));
+  arma::mat st_2_mat = dataset_(span(0 ,dataset_.n_rows -1 ), span(, ));
+  
+  st_vec_ = StateConstructor(st_mat);
+  at_vec_ = ActionConstructor(at_ma);
+  st_1_vec_ = StateConstructor(st_1_mat);
+  at_1_vec_ = ActionConstructor(at_1_mat);
+  st_2_vec_ = StateConstructor(st_2_mat);  
 }
 
-std::vector<std::vector<double>>  DataSet::data_set() const
-{  return data_set_; }
+arma::mat DataSet::dataset() const
+{ return dataset_; }
 
+std::vector<State<simulator_t>> st_vec() const
+{ return st_vec_; }
+
+std::vector<Actions::Action> at_vec() const
+{ return at_vec_; }
+
+std::vector<State<simulator_t>>  st_1_vec() const
+{ return st_1_vec_; }
+
+std::vector<Actions::Action> at_1_vec() const
+{ return at_1_vec_; }
+
+std::vector<State<simulator_t>> st_2_vec() const
+{ return st_2_vec_; }
 
 void DataSet::init_dataset_directory()
 {

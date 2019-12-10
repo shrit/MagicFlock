@@ -19,6 +19,8 @@
 # include <boost/date_time/posix_time/posix_time.hpp>
 
 /*  local defined include */
+# include "action.hh"
+# include "state.hh"
 # include "global.hh"
 # include "plot.hh"
 
@@ -32,7 +34,7 @@ public:
 
   DataSet();
 
-  void read_data_set_file(std::string file_name);
+  void read_dataset_file(std::string file_name);
 
   template <typename Arg, typename... Args>
   void write_data_set_file(std::ofstream& file, Arg&& arg, Args&&... args);
@@ -60,22 +62,28 @@ public:
 
   void init_dataset_directory();
 
-  std::vector<lt::rssi<double>>  rssi_vector() const;
-  std::vector<int> action_vector() const;
-  std::vector<lt::error<double>> error_vector() const;
-  std::vector<std::vector<double>> data_set() const;
+  std::vector<State<simulator_t>> st_vec() const;
+  std::vector<Actions::Action> at_vec() const;
+  std::vector<State<simulator_t>>  st_1_vec() const;
+  std::vector<Actions::Action> at_1_vec() const;
+  std::vector<State<simulator_t>> st_2_vec() const;
+  arma::mat dataset() const;
 
 private:
-
-  int line_number_;
-
+  arma::mat dataset_;
+  
   std::string dataset_file_name_;
   std::string error_file_name_;
   std::string result_file_name_;
   std::string count_file_name_;
   std::string histogram_file_name_;
 
-  std::vector<std::vector<double>> data_set_;
+
+  std::vector<State<simulator_t>> st_vec_;
+  std::vector<Actions::Action> at_vec_;
+  std::vector<State<simulator_t>> st_1_vec_;
+  std::vector<Actions::Action> at_1_vec_;
+  std::vector<State<simulator_t>> st_2_vec_;
 };
 
 # include "data_set.hxx"
