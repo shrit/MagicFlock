@@ -21,21 +21,20 @@
 
 namespace lt = local_types;
 
-
 class StatisticalPredictor
 {
 public:
   StatisticalPredictor(std::string dataset_file);
   
-  std::tuple<arma::mat, arma::uword, Actions::Action> predict(arma::mat& features);
+  void predict();
   Actions::Action get_predicted_action();
   
   StatisticalPredictor(StatisticalPredictor const&) = delete;
   StatisticalPredictor(StatisticalPredictor &&) = default;
   
 private:
-  
-  arma::mat dataset;
+  Math_tools mtools_;
+  typename std::vector<Quadrotor<simulator_t>>::iterator quad_;
   
 };
 

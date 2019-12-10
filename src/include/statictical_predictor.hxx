@@ -5,41 +5,48 @@
 
 StatisticalPredictor::StatisticalPredictor(std::string dataset_file,
 					   typename std::vector<Quadrotor<simulator_t>>::iterator quad)
+  :quad_(quad)
 {
-  dataset.load(dataset_file, csv_ascii);  
+  dataset_.read_csv_from_file(dataset_file);
 }
 
 void StatisticalPredictor::predict()
 {
-
-  // We need to create a state from the first 3 column from a matrix
-  // It is much better to parse data set line by line into state, actions, nextstate , etc
-  /*  Then all the parsed state and actions can be agglomerated into matries.
-   Then it should be easy to read each line of these matrices since they are seperated */
-  std::vector<double> state = dataset.each_row([](){
-						 std::vector<double> vec;
-						 arma::colvec
-						 return vec;
-					       });
-  
-
-  StateConstructor(/*  Armadillo row state matrix */);
-  ActionConstructor(/*  Armadillo row state matrix */)
     
   // Iterate thought out the entire state vectors constructed from the matrix
+  std::vector<State> s_t =  dataset_.st_vec();
+  std::vector<Actions::Action> a_t =  dataset_.at_vec();
+  std::vector<State> s_t_1 =  dataset_.st_1_vec();
+  std::vector<tuple<int, int> > dist_ref; 
   
-  for(; it != it_end; ++it) {
-    
-    if (quad.current_state() == it.current_state()) {
-      // Get actions and s t+1 from the data set,
-      // do hamming and eculdian distance test
+  for (int i = 0; i < s_t.size(); ++i) {
+    if (quad_->last_state() == s_t.at(i)) {
+      
+      if (quad_->current_action() == a_t.at(i)) {
+	//return tuple index and distances put them in a vector
+	auto dist = mtools_.ecludian_disatnce_states(quad_->last_state(),
+						     quad_->current_state(),
+						     s_t, s_t_1, 0);
+	
+	dist_ref.push_back(dist);
+      } else  {
+	auto dist = mtools_.ecludian_disatnce_states(quad_->last_state(),
+						     quad_->current_state(),
+						     s_t, s_t_1, 1);
+
+	dist_ref.push_back(dist);
+	
+      }
+      /*  Print using spdlog the values of the value of the iterator  */
       // do argmin on the distances.
+      auto it = std::min_element(dist_ref.begin(), dist_ref.end());
+      
+	
+
+      
       // do argmin on st+2. get the best action at+1
     }    
-  }
-
-  
-  
+  }    
 }
 
 Actions::Action StatisticalPredictor::get_predicted_action()
