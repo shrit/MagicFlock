@@ -43,6 +43,8 @@ public:
   Action int_to_action(int action_value);
   std::vector<Action> all_possible_actions() const;
 
+  std::vector<Action> ActionConstructor(arma::mat values);
+  
   /*  Random action generator */
   Action random_action_generator();
 

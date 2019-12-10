@@ -5,6 +5,18 @@ Actions::Actions()
    generator_(random_dev())
 {}
 
+
+std::vector<Action> ActionConstructor(arma::mat values)
+{
+  std::vector<Action> actions;
+  for (int i = 0; i < values.n_rows; ++i) {
+    std::vector<double> action = mtools_.to_std_vec(values.row(i));
+    int action_value = mtools_.from_one_hot_encoding(action);
+    actions.push_back(static_cast<Action>(action_value));
+  }
+  return actions;    
+}
+
 std::string Actions::action_to_str(Action action)
 {
   std::string string_action = "";
