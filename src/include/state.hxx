@@ -75,17 +75,21 @@ inline std::ostream& operator<< (std::ostream& out, const State<simulator_t>& s)
 }
 
 template <class simulator_t>
-inline bool operator< (const State<simulator_t>& s, const State<simulator_t>& s1)
+inline State<simulator_t> operator- (const State<simulator_t>& s, const State<simulator_t>& s1)
 {
-  //  if (s.dists_3D_.)
-  
+  State<simulator_t> s_result;
+  s_result.alti_diff = s.height_diff() - s1.height_diff();
+  s_result.distance_3D() = s.distance_3D() - s1.distance_3D();  
+  return s_result;
 }
 
-
 template <class simulator_t>
-inline bool operator> (const State<simulator_t>& s, const State<simulator_t>& s1)
+inline State<simulator_t> operator+ (const State<simulator_t>& s, const State<simulator_t>& s1)
 {
-  
+  State<simulator_t> s_result;
+  s_result.alti_diff = s.height_diff() + s1.height_diff();
+  s_result.distance_3D() = s.distance_3D() + s1.distance_3D();  
+  return s_result;
 }
 
 template <class simulator_t>
