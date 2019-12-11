@@ -14,5 +14,20 @@ StateDistance<simulator_t>::StateDistance(State<simulator_t> quad_last_state,
   distance_ = d1 + d2;    
 }
 
+double StateDistance<simulator_t>::sum_fabs(State<simulator_t> s)
+{
+  double value = 0;
+  double sum = 0;
+  double alti = std::fabs(s.height_diff());
+  std::vector<double> d;
+  
+  for (auto it : s.distance_3D()) {
+    sum = sum + std::fabs(it);
+  }
+  
+  return value = alti + sum;
+}
+
 double StateDistance<simulator_t>::distance() const
 { return distance_; }
+
