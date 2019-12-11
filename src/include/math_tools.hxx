@@ -132,7 +132,7 @@ bool Math_tools::hamming_distance_one_hot(std::vector<Arg> v1, std::vector<Arg> 
 
 int Math_tools::ecludian_distance(double d1, double d2)
 {
-  double distance = std::sqrt(std::pow((d1), 2) +
+  double distance = std::sqrt(std::pow((d1), 2) -
 			      std::pow((d2), 2));    
   return distance;
 }
