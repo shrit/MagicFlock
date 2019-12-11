@@ -45,21 +45,6 @@ namespace local_types {
     T w;
   };
   
-  /*  These two are no longer required, Deprecated, they are not generic  */
-  template <class position_t>
-  struct positions {
-    position_t leader;
-    position_t follower_1;
-    position_t follower_2;
-  };
-
-  template <typename orientation_t>
-  struct orientations {
-    orientation<orientation_t> leader;
-    orientation<orientation_t> follower_1;
-    orientation<orientation_t> follower_2;
-  };
-
   template<typename T>
   struct triangle
   {
@@ -116,7 +101,6 @@ namespace ILMR {
       return false;
   }      
 }
-
 
 /*  Overloading the << operator to print local structs, vectors and classes */
 template <typename T>
@@ -182,6 +166,34 @@ std::ostream& operator<< (std::ostream& out, const std::vector<T>& v)
   }
   return out;
 }
+
+template <typename T>
+const std::vector<T>  operator- (const std::vector<T>& v, const std::vector<T>& v1)
+{
+  std::vector<T> result;
+  result.resize (v);
+  std::transform(v.begin(), v.end(), v1.begin(), result.begin(), std::minus<T>());
+  return result;
+}
+
+template <typename T>
+const std::vector<T> operator+ (const std::vector<T>& v, const std::vector<T>& v1)
+{
+  std::vector<T> result;
+  result.resize (v);
+  std::transform(v.begin(), v.end(), v1.begin(), result.begin(), std::plus<T>());
+  return result;
+}
+
+template <typename T>
+const std::vector<T>  operator* (const std::vector<T>& v, const std::vector<T>& v1)
+{
+  std::vector<T> result;
+  result.resize (v);
+  std::transform(v.begin(), v.end(), v1.begin(), result.begin(), std::multiplies<T>());
+  return result;
+}
+
 
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const std::vector<std::vector<T>>& v)
