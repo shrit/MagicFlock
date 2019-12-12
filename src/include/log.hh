@@ -4,9 +4,7 @@
 # include <sstream>
 # include <fstream>
 # include <experimental/filesystem>
-
 # include <boost/date_time/posix_time/posix_time.hpp>
-
 
 // For release builds, don't show debug printfs, and just discard it into the NullStream.
 class NullStream {
@@ -57,7 +55,6 @@ public:
       }
 
       boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
-
       std::cout << "[" << now.time_of_day();
 
         switch (_log_level) {
@@ -85,9 +82,8 @@ public:
 	file_ << s_.rdbuf();
 	file_.flush();
 	file_.close();
-
     }
-
+  
     Log(const Log &) = delete;
     void operator=(const Log &) = delete;
 
@@ -98,7 +94,6 @@ private:
   std::string file_name_;
   std::stringstream s_;
   std::stringstream date_stream_, time_stream_;
-
 };
 
 class LogDebug : public Log {
@@ -106,7 +101,6 @@ public:
     LogDebug() : Log()
     {
         _log_level = LogLevel::Debug;
-
     }
 };
 

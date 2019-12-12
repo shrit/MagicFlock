@@ -34,8 +34,11 @@ add_library(ILMR SHARED
   src/keyboard.cc
   src/joystick.cc
   src/log.cc
+  src/logger.cc
   src/px4_device.cc
   src/settings.cc
+  src/timer.cc
+  src/time_steps.cc
   ${HEADER_LIST}
   ${HEADER_LIST_XX}
   )
