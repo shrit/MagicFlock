@@ -67,10 +67,10 @@ public:
   
   std::vector<Actions::Action> at_vec() const;
 
-  state_vec<simulator_t> st_1_vec() const;  
+  std::vector<State<simulator_t>> st_1_vec() const;  
   std::vector<Actions::Action> at_1_vec() const;
 
-  state_vec<simulator_t> st_2_vec() const;
+  std::vector<State<simulator_t>> st_2_vec() const;
   
   arma::mat dataset() const;
 

@@ -65,7 +65,7 @@ private:
   std::vector<Actions::Action> all_actions_;
 
   Math_tools mtools_;
-  DataSet data_set_;
+  DataSet<simulator_t> data_set_;
 
   State<simulator_t> current_state_;
   State<simulator_t> last_state_;

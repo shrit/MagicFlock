@@ -14,6 +14,7 @@ StateDistance<simulator_t>::StateDistance(State<simulator_t> quad_last_state,
   distance_ = d1 + d2;    
 }
 
+template <class simulator_t>
 double StateDistance<simulator_t>::sum_fabs(State<simulator_t> s)
 {
   double value = 0;
@@ -28,6 +29,7 @@ double StateDistance<simulator_t>::sum_fabs(State<simulator_t> s)
   return value = alti + sum;
 }
 
+template <class simulator_t>
 double StateDistance<simulator_t>::distance() const
 { return distance_; }
 

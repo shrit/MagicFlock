@@ -32,7 +32,7 @@ public:
   bool land();
   bool land_specific_quadrotor(unsigned int id);
   
-  lt::positions<lt::position_GPS<double>> positions_GPS();
+  std::vector<lt::position_GPS<double>> positions_GPS();
 
   bool takeoff(float meters);  
   bool takeoff_specific_quadrotor(float meters, unsigned int id);

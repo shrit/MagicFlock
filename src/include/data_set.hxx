@@ -7,33 +7,36 @@ DataSet<simulator_t>::DataSet()
 {}
 
 template <class simulator_t>
-void DataSet<simulator_t>::read_dataset_file()
+void DataSet<simulator_t>::read_dataset_file(std::string file_name)
 {
-  dataset_.load(dataset__file, csv_ascii);
+  dataset_.load(file_name, arma::csv_ascii);
 
     // We need to create a state from the first 3 column from a matrix
   // It is much better to parse data set line by line into state, actions, nextstate , etc
   /*  Then all the parsed state and actions can be agglomerated into matries.
    Then it should be easy to read each line of these matrices since they are seperated */
 
-  /*  Get the indices for state, actions etc... */
-  for (int i = 0; i < dataset_.n_cols; ++i) {
-    if (dataset_(0,i) ==  and (dataset_(0,i) == 0  or dataset_(0,i) == 1)) {
+  // /*  Get the indices for state, actions etc... */
+  /*  This should be the standard method to parse the dataset */
+  // for (int i = 0; i < dataset_.n_cols; ++i) {
+  //   if ((dataset_(0,i) ==  and (dataset_(0,i) == 0  or dataset_(0,i) == 1)) {
       
-    }
-  }
+  //   }
+  // }
   
-  arma::mat st_mat = dataset_(arma::span(0 ,dataset_.n_rows -1 ), span(0,2 ));
-  arma::mat at_mat = dataset_(arma::span(0 ,dataset_.n_rows -1 ), span(3, ));
-  arma::mat st_1_mat = dataset_(arma::span(0 ,dataset_.n_rows -1 ), span(, ));
-  arma::mat at_1_mat = dataset_(arma::span(0 ,dataset_.n_rows -1 ), span(, ));
-  arma::mat st_2_mat = dataset_(arma::span(0 ,dataset_.n_rows -1 ), span(, ));
-  
-  st_vec_ = StateConstructor(st_mat);
-  at_vec_ = ActionConstructor(at_ma);
-  st_1_vec_ = StateConstructor(st_1_mat);
-  at_1_vec_ = ActionConstructor(at_1_mat);
-  st_2_vec_ = StateConstructor(st_2_mat);  
+  arma::mat st_mat = dataset_(arma::span(0 ,dataset_.n_rows -1 ), arma::span(0, 2));
+  arma::mat at_mat = dataset_(arma::span(0 ,dataset_.n_rows -1 ), arma::span(3, 9));
+  arma::mat st_1_mat = dataset_(arma::span(0 ,dataset_.n_rows -1 ), arma::span(10, 12));
+  arma::mat at_1_mat = dataset_(arma::span(0 ,dataset_.n_rows -1 ), arma::span(13, 19));
+  arma::mat st_2_mat = dataset_(arma::span(0 ,dataset_.n_rows -1 ), arma::span(20, 22));
+
+  State<simulator_t> state;
+  Actions action;
+  st_vec_ = state.StateConstructor(st_mat);
+  at_vec_ = action.ActionConstructor(at_mat);
+  st_1_vec_ = state.StateConstructor(st_1_mat);
+  at_1_vec_ = action.ActionConstructor(at_1_mat);
+  st_2_vec_ = state.StateConstructor(st_2_mat);  
 }
 
 template <class simulator_t>
@@ -41,23 +44,23 @@ arma::mat DataSet<simulator_t>::dataset() const
 { return dataset_; }
 
 template <class simulator_t>
-std::vector<State<simulator_t>> st_vec() const
+std::vector<State<simulator_t>> DataSet<simulator_t>::st_vec() const
 { return st_vec_; }
 
 template <class simulator_t>
-std::vector<Actions::Action> at_vec() const
+std::vector<Actions::Action> DataSet<simulator_t>::at_vec() const
 { return at_vec_; }
 
 template <class simulator_t>
-std::vector<State<simulator_t>>  st_1_vec() const
+std::vector<State<simulator_t>> DataSet<simulator_t>::st_1_vec() const
 { return st_1_vec_; }
 
 template <class simulator_t>
-std::vector<Actions::Action> at_1_vec() const
+std::vector<Actions::Action> DataSet<simulator_t>::at_1_vec() const
 { return at_1_vec_; }
 
 template <class simulator_t>
-std::vector<State<simulator_t>> st_2_vec() const
+std::vector<State<simulator_t>> DataSet<simulator_t>::st_2_vec() const
 { return st_2_vec_; }
 
 template <class simulator_t>
@@ -89,7 +92,8 @@ void DataSet<simulator_t>::init_dataset_directory()
     "../dataset/" + date_stream.str() + "/figure" + time_stream.str();
 }
 
-template <typename Arg, typename... Args, class simulator_t>
+template <class simulator_t>
+template <typename Arg, typename... Args>
 void DataSet<simulator_t>::write_data_set_file(std::ofstream& file, Arg&& arg, Args&&... args)
 {
   std::stringstream time;
@@ -105,7 +109,8 @@ void DataSet<simulator_t>::write_data_set_file(std::ofstream& file, Arg&& arg, A
   file.flush();
 }
 
-template <typename Arg, typename... Args, class simulator_t>
+template<class simulator_t>
+template <typename Arg, typename... Args>
 void DataSet<simulator_t>::save_csv_data_set(Arg&& arg, Args&&... args)
 {
   std::ofstream file;
@@ -120,7 +125,8 @@ void DataSet<simulator_t>::save_csv_data_set(Arg&& arg, Args&&... args)
   file.close();
 }
 
-template <typename Arg, typename... Args, class simulator_t>
+template<class simulator_t>
+template <typename Arg, typename... Args>
 void DataSet<simulator_t>::save_csv_data_set_2_file(std::string file_name, Arg&& arg, Args&&... args)
 {
   std::ofstream file;
@@ -135,7 +141,8 @@ void DataSet<simulator_t>::save_csv_data_set_2_file(std::string file_name, Arg&&
   file.close();
 }
 
-template <typename Arg, class simulator_t>
+template<class simulator_t>
+template <typename Arg>
 void DataSet<simulator_t>::save_error_file(Arg&& arg)
 {
   std::ofstream file;
@@ -148,7 +155,8 @@ void DataSet<simulator_t>::save_error_file(Arg&& arg)
   file.close();
 }
 
-template <typename Arg, class simulator_t>
+template<class simulator_t>
+template <typename Arg>
 void DataSet<simulator_t>::save_histogram(Arg&& arg)
 {
   std::ofstream file;
@@ -158,12 +166,12 @@ void DataSet<simulator_t>::save_histogram(Arg&& arg)
   for (auto& [key, value]: arg) {
     file << key << " " << value << "\n";
   }
-
   file.flush();
   file.close();
 }
 
-template <typename Arg, class simulator_t>
+template<class simulator_t>
+template <typename Arg >
 void DataSet<simulator_t>::save_controller_count(Arg&& arg)
 {
   std::ofstream file;
@@ -176,7 +184,8 @@ void DataSet<simulator_t>::save_controller_count(Arg&& arg)
   file.close();
 }
 
-template <typename Arg, typename... Args, class simulator_t>
+template<class simulator_t>
+template <typename Arg, typename... Args>
 void DataSet<simulator_t>::plot(std::string title,
 		   std::string xlabel,
 		   std::string ylabel,
@@ -200,5 +209,4 @@ void DataSet<simulator_t>::plot(std::string title,
   // 	     Points(x_zero.begin(), x_zero.end(), y_zero.begin(), "No reward"));
 
   plt.Flush();
-
 }

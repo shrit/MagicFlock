@@ -194,12 +194,12 @@ land_specific_quadrotor(unsigned int id)
 }
 
 template<class flight_controller_t>
-lt::positions<lt::position_GPS<double>> SwarmDevice<flight_controller_t>::
+std::vector<lt::position_GPS<double>> SwarmDevice<flight_controller_t>::
 positions_GPS()
 {
-  lt::positions<lt::position_GPS<double>> positions;
-  positions.leader = iris_x_.at(0)->get_position_GPS();
-  positions.follower_1 = iris_x_.at(1)->get_position_GPS();
-  positions.follower_2 = iris_x_.at(2)->get_position_GPS();
+  std::vector<lt::position_GPS<double>> positions;
+  positions.push_back(iris_x_.at(0)->get_position_GPS());
+  positions.push_back(iris_x_.at(1)->get_position_GPS());
+  positions.push_back(iris_x_.at(2)->get_position_GPS());
   return positions;
 }
