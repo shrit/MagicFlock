@@ -15,6 +15,7 @@
 # include <ILMR/action.hh>
 # include <ILMR/global.hh>
 # include <ILMR/log.hh>
+# include <ILMR/time_steps.hh>
 
 namespace lt = local_types;
 
@@ -22,6 +23,7 @@ template<class flight_controller_t,
 	 class simulator_t>
 class Statistic
 {
+
 public:
   Statistic(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 	    const std::vector<Quadrotor<simulator_t>>& quadrotors,
@@ -36,8 +38,8 @@ public:
   Statistic(Statistic &&) = default;
 
 private:
-  
-  int count_;
+ 
+  TimeSteps time_steps;
   int episode_; 
   int max_episode_ ;
   std::shared_ptr<simulator_t> sim_interface_;
@@ -49,3 +51,5 @@ private:
   typename std::vector<Quadrotor<simulator_t>>::iterator follower_1_;
   typename std::vector<Quadrotor<simulator_t>>::iterator follower_2_;
 };
+
+# include "statistic.hxx"

@@ -95,5 +95,5 @@ int main(int argc, char* argv[])
 
   /*  Test the trained model and improve it  */
   Statistic<Px4Device, Gazebo> stat(iris_x, quadrotors, gz);
-  stat.run();  
+  stat.run();
 }
