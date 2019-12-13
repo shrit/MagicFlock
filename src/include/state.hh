@@ -10,7 +10,6 @@
 /*  Local includes */
 # include "global.hh"
 # include "math_tools.hh"
-//# include "propagation_model.hh"
 
 namespace lt = local_types;
 
@@ -24,13 +23,15 @@ public:
 	unsigned int id,
 	std::vector<unsigned int> nearest_neighbors);
 
+  State(std::vector<double> distances, double altitude_diff);
+  
   double height_difference() const;
   double rt_height_difference();
   
   std::vector<double> distances_3D() const;
   std::vector<double> estimated_distances() const;
 
-  std::vector<State> StateConstructor(arma::rowvec values);
+  std::vector<State> StateConstructor(arma::mat values);
 
 private:
 
@@ -41,7 +42,9 @@ private:
   /*  Create a shared pointer to a simulator interface The interface
       need to have all the required data about the quadcopter*/
   std::shared_ptr<simulator_t> sim_interface_;
-  // Propagation_model<double> pmodel_;
+  
+  std::vector<lt::position3D<double>>::iterator leader_;
+  std::vector<lt::position3D<double>>::iterator follower_;  
 };
 
 # include "state.hxx"

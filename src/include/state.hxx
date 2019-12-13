@@ -12,20 +12,19 @@ State<simulator_t>::State(std::shared_ptr<simulator_t> sim_interface,
 			  std::vector<unsigned int> nearest_neighbors)
   : sim_interface_(std::move(sim_interface))
 {
-  auto leader =  sim_interface_->positions().begin();
-  auto follower = sim_interface_->positions().begin() + id;
-  //  estimated_dists_3D_ = pmodel_.distances_3D();
+  leader_ =  sim_interface_->positions().begin();
+  follower_ = sim_interface_->positions().begin() + id;
   dists_3D_ = mtools_.distances_to_neighbors(id,
 					     nearest_neighbors,
 					     sim_interface_->positions());
-  alti_diff_ = (leader->z - follower->z);
+  alti_diff_ = (leader_->z - follower_->z);
 }
 
 template <class simulator_t>
 State<simulator_t>::State(std::vector<double> distances, double altitude_diff)
 {
   dists_3D_ = distances;
-  atli_diff_ = altitude_diff;  
+  alti_diff_ = altitude_diff;  
 }
 
 template <class simulator_t>
@@ -33,10 +32,10 @@ std::vector<State<simulator_t>> State<simulator_t>::StateConstructor(arma::mat v
 {
   std::vector<State<simulator_t>> states;
   for (int i = 0; i < values.n_rows; ++i) {
-    std::vector<double> state = mtools_.to_std_vec(values.row(i));
+    std::vector<double> state = mtools_.to_std_vector(values.row(i));
     double alti_diff = state.back();
     state.pop_back();
-    std::vector<double> dists_3D = state();
+    std::vector<double> dists_3D = state;
     states.emplace_back(dists_3D, alti_diff);
   }
   return states;  
@@ -51,7 +50,7 @@ template <class simulator_t>
 double State<simulator_t>::
 rt_height_difference() 
 {
-  alti_diff_ = (leader->z - follower->z);
+  alti_diff_ = (leader_->z - follower_->z);
   return alti_diff_;
 }
 
@@ -92,6 +91,17 @@ inline State<simulator_t> operator+ (const State<simulator_t>& s, const State<si
   return s_result;
 }
 
+namespace ILMR {
+  bool comparator(double d1, double d2)
+  {
+    double epsilon = 0.5;
+    if ((d1 -d2) < epsilon) {      
+      return true;
+    } else
+      return false;
+  }      
+}
+
 template <class simulator_t>
 inline bool operator== (const State<simulator_t>& s, const State<simulator_t>& s1)
 {
@@ -104,7 +114,7 @@ inline bool operator== (const State<simulator_t>& s, const State<simulator_t>& s
   bool result_height = comparator(s.height_difference(), s1.height_difference());
   
   bool result = false;
-  if (result_distace and result_height) {
+  if (result_distance and result_height) {
     result = true;
   }    
   return result;

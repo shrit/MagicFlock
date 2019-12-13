@@ -6,13 +6,13 @@ Actions::Actions()
 {}
 
 
-std::vector<Action> ActionConstructor(arma::mat values)
+std::vector<Actions::Action> Actions::ActionConstructor(arma::mat values)
 {
-  std::vector<Action> actions;
-  for (int i = 0; i < values.n_rows; ++i) {
-    std::vector<double> action = mtools_.to_std_vec(values.row(i));
+  std::vector<Actions::Action> actions;
+  for (arma::uword i = 0; i < values.n_rows; ++i) {
+    std::vector<double> action = mtools_.to_std_vector(values.row(i));
     int action_value = mtools_.from_one_hot_encoding(action);
-    actions.push_back(static_cast<Action>(action_value));
+    actions.push_back(static_cast<Actions::Action>(action_value));
   }
   return actions;    
 }

@@ -109,7 +109,7 @@ std::vector<bool> Math_tools::to_one_hot_encoding(Arg arg, Arg2 number_of_class)
 }
 
 template <typename Arg>
-int Math_tools::to_one_hot_encoding(std::vector<Arg> values)
+int Math_tools::from_one_hot_encoding(std::vector<Arg> values)
 {
   auto it = std::find(values.begin(), values.end(), 1);
   int index = std::distance(values.begin(), it);

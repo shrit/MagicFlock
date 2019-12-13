@@ -13,10 +13,10 @@ void TimeSteps::tic()
 }
 
 int TimeSteps::steps() const
-{ return count_; }
+{ return counter_; }
 
 void TimeSteps::reset_time_steps()
-{ count_ = 0; }
+{ counter_ = 0; }
 
 double TimeSteps::elapsed_time_between_last_2_steps() const
 { return elapsed_time_; }
