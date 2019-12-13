@@ -91,17 +91,6 @@ namespace local_types {
   using topic_name = std::string;
 }
 
-namespace ILMR {
-  bool comparator(double d1, double d2)
-  {
-    double epsilon = 0.5;
-    if ((d1 -d2) < 0.5) {      
-      return true;
-    } else
-      return false;
-  }      
-}
-
 /*  Overloading the << operator to print local structs, vectors and classes */
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const local_types::dist3D<T>& v)
@@ -125,17 +114,6 @@ std::ostream& operator<< (std::ostream& out, const local_types::position_GPS<T>&
       << p.longitude_deg <<", "
       << p.absolute_altitude_m <<", "
       << p.relative_altitude_m <<"]";
-  return out;
-}
-
-template <typename T>
-std::ostream& operator<< (std::ostream& out,
-			  const local_types::positions<T>& p)
-{
-  out << "[ Leader: "<< p.leader <<",\n Fake F:  "
-      << p.follower_1
-      << ",\n True F: "
-      << p.follower_2 <<"]";
   return out;
 }
 
