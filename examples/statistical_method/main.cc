@@ -22,6 +22,7 @@
 # include <ILMR/quadrotor.hh>
 # include <ILMR/log.hh>
 # include <ILMR/px4_device.hh>
+# include <ILMR/logger.hh>
 
 /*  CLI11 library headers */
 # include <CLI/CLI.hpp>
@@ -29,6 +30,8 @@
 /*
  *  Main file: Start generate dataset
  */
+int main(int argc, char* argv[])
+{
   /*  Init configs */
   Configs configs("/meta/lemon/quad.ini");
   /*  Init logging system */
@@ -37,7 +40,7 @@
   
   CLI::App app{""};
   
-  std::string model_name = "default";
+  std::string dataset_filename = "default";
   app.add_option("-f,--file", dataset_filename, "Full Path to the model files for quadrotor")
     ->required()
     ->check(CLI::ExistingFile);      

@@ -23,8 +23,8 @@ Statistic(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
 
 template <class flight_controller_t,
 	  class simulator_t>
-void Supervised_learning<flight_controller_t,
-		simulator_t>::
+void Statistic<flight_controller_t,
+	       simulator_t>::
 generate_trajectory_using_model(bool change_leader_action,
 				bool stop_down_action)
 {
@@ -126,7 +126,7 @@ generate_trajectory_using_model(bool change_leader_action,
 
 template <class flight_controller_t,
 	  class simulator_t>
-void Supervised_learning<flight_controller_t, simulator_t>::
+void Statistic<flight_controller_t, simulator_t>::
 run()
 {   
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
