@@ -28,10 +28,11 @@
 
 namespace lt = local_types;
 
+template <class simulator_t>
 class DataSet {
 
 public:
-
+  
   DataSet();
 
   void read_dataset_file(std::string file_name);
@@ -63,10 +64,14 @@ public:
   void init_dataset_directory();
 
   std::vector<State<simulator_t>> st_vec() const;
+  
   std::vector<Actions::Action> at_vec() const;
-  std::vector<State<simulator_t>>  st_1_vec() const;
+
+  state_vec<simulator_t> st_1_vec() const;  
   std::vector<Actions::Action> at_1_vec() const;
-  std::vector<State<simulator_t>> st_2_vec() const;
+
+  state_vec<simulator_t> st_2_vec() const;
+  
   arma::mat dataset() const;
 
 private:
@@ -77,12 +82,13 @@ private:
   std::string result_file_name_;
   std::string count_file_name_;
   std::string histogram_file_name_;
-
-
+  
   std::vector<State<simulator_t>> st_vec_;
   std::vector<Actions::Action> at_vec_;
+
   std::vector<State<simulator_t>> st_1_vec_;
   std::vector<Actions::Action> at_1_vec_;
+
   std::vector<State<simulator_t>> st_2_vec_;
 };
 
