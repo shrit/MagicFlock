@@ -1,6 +1,6 @@
 #pragma once
 
-# include "statictical_predictor.hh"
+# include "statistical_predictor.hh"
 
 
 StatisticalPredictor::StatisticalPredictor(std::string dataset_file,

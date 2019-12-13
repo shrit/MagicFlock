@@ -38,4 +38,4 @@ private:
   
 };
 
-# include "statictical_predictor.hxx"
+# include "statistical_predictor.hxx"
