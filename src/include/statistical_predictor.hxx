@@ -8,7 +8,7 @@ StatisticalPredictor(std::string dataset_file,
 		     typename std::vector<Quadrotor<simulator_t>>::iterator quad)
   :quad_(quad)
 {
-  dataset_.read_csv_from_file(dataset_file);
+  dataset_.read_dataset_file(dataset_file);
 }
 
 template<class simulator_t>

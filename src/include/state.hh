@@ -27,6 +27,7 @@ public:
   
   double height_difference() const;
   double rt_height_difference();
+  double rt_height();
   
   std::vector<double> distances_3D() const;
   std::vector<double> estimated_distances() const;
@@ -35,6 +36,7 @@ public:
 
 private:
 
+  double altitude_;
   double alti_diff_;
   Math_tools mtools_;
   std::vector<double> dists_3D_;

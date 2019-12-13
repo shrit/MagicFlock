@@ -43,6 +43,14 @@ std::vector<State<simulator_t>> State<simulator_t>::StateConstructor(arma::mat v
 
 template <class simulator_t>
 double State<simulator_t>::
+rt_height() 
+{
+  altitude_ = follower_->z;
+  return altitude_;
+}
+
+template <class simulator_t>
+double State<simulator_t>::
 height_difference() const
 { return alti_diff_; }
 
