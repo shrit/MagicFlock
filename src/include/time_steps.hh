@@ -17,4 +17,4 @@ public:
 private:  
   int counter_ = 0;
   double elapsed_time_ = 0;
-}
+};

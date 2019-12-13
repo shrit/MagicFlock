@@ -1,5 +1,8 @@
 #pragma once
 
+# include <sstream>
+
+
 /*  Speed log include  */
 #include <spdlog/spdlog.h>
 #include <spdlog/logger.h>
