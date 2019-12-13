@@ -29,14 +29,12 @@ add_library(ILMR SHARED
   src/action.cc
   src/reward.cc  
   src/config_ini.cc
-  src/data_set.cc
   src/gazebo.cc
   src/keyboard.cc
   src/joystick.cc
   src/log.cc
   src/logger.cc
   src/px4_device.cc
-  src/settings.cc
   src/timer.cc
   src/time_steps.cc
   ${HEADER_LIST}
