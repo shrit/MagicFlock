@@ -43,4 +43,9 @@ namespace ILMR
 
     return logger;
   }
+
+  void create_library_logger(std::shared_ptr<spdlog::logger> logger)
+  {
+    logger_ = logger;
+  }
 }
