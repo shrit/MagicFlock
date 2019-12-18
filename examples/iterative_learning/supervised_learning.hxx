@@ -68,7 +68,7 @@ generate_trajectory_using_model(bool change_leader_action,
   follower_2_->sample_state();
     
   Predictor<simulator_t> predict_f1("regression",
-				    "/meta/lemon/model/regression_models/h0/model.txt",
+				    "/meta/lemon/examples/iterative_learning/build/f1/model.txt",
 				    "model",
 				    follower_1_);
 
@@ -90,7 +90,7 @@ generate_trajectory_using_model(bool change_leader_action,
   follower_2_->sample_state();
   
   Predictor<simulator_t> predict_f2("regression",
-				    "/meta/lemon/model/regression_models/h0/model.txt",
+				    "/meta/lemon/examples/iterative_learning/build/f2/model.txt",
 				    "model",				    
 				    follower_2_);
   
@@ -128,14 +128,7 @@ template <class flight_controller_t,
 	  class simulator_t>
 void Supervised_learning<flight_controller_t, simulator_t>::
 run()
-{   
-  /*  To be removed just check that every thing is fine */  
-  /*  Recover the initial state as an observer state */
-  /*  This state will be used directly instead of original_dist */
-  // Quadrotor::State<simulator_t> ObserverState(sim_interface_);
-  // original_dist_ = ObserverState.distances_3D();
-  // height_diff_ = ObserverState.height_difference();
-  
+{     
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
 
     /* Intilization phase, in each episode we should reset the
@@ -198,11 +191,14 @@ run()
 	time_step_vector_.push_back(count_);
 	
 	/*  Check the geometrical shape */
-	bool shape = false;
+	std::vector<bool> shapes;
 	for (auto it : quadrotors_) {
-	  shape = it.examin_geometric_shape();
+	  shapes.push_back(it.examin_geometric_shape());
 	}
-	if (!shape) {
+	if (std::any_of(shapes.begin(), shapes.end(), [](const bool& shape){
+							if (!shape) return true;
+							else return false;
+						      })) {
 	  LogInfo() << "The geometrical is no longer conserved";
 	  break;
 	}	
@@ -231,7 +227,7 @@ run()
     
     LogInfo() << "The quadcopters have been reset...";
     LogInfo() << "Waiting untill the kalaman filter to reset...";    
-    std::this_thread::sleep_for(std::chrono::seconds(20));
+    std::this_thread::sleep_for(std::chrono::seconds(25));
     LogInfo() << "Kalaman filter reset...";        
   }
 }

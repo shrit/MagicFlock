@@ -20,8 +20,12 @@
 # include <ILMR/gazebo.hh>
 # include <ILMR/config_ini.hh>
 # include <ILMR/quadrotor.hh>
-# include <ILMR/log.hh>
 # include <ILMR/px4_device.hh>
+# include <ILMR/log.hh>
+# include <ILMR/logger.hh>
+
+/*  CLI11 library headers */
+# include <CLI/CLI.hpp>
 
 /*
  *  Main file: Start generate dataset
@@ -33,6 +37,18 @@ int main(int argc, char* argv[])
   /*  Init logging system */
   Log log;
   log.init();
+  
+  CLI::App app{
+	       "This example shows how the library can be used to create iterative
+learning\n. This example requires model files to be used to generate
+trajectory.\n. At first, users need to generate dataset, then train it
+using the training example to aquire these model files.\n
+"};
+  
+  std::string model_name = "default";
+  app.add_option("-f,--file", dataset_filename, "Full Path to the model files for quadrotor")
+    ->required()
+    ->check(CLI::ExistingFile);      
 
   std::vector<lt::port_type> ports = configs.quads_ports();
   
@@ -85,5 +101,4 @@ int main(int argc, char* argv[])
   /*  Test the trained model and improve it  */
   Supervised_learning<Px4Device, Gazebo> slearning(iris_x, quadrotors, gz);
   slearning.run();  
-
 }

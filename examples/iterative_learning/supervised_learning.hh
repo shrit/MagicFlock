@@ -5,13 +5,10 @@
 # include <chrono>
 # include <cmath>
 # include <numeric>
-# include <random>
 # include <thread>
-# include <tuple>
 # include <vector>
 
 /* local includes  */
-
 # include <ILMR/predictor.hh>
 # include <ILMR/quadrotor.hh>
 # include <ILMR/swarm_device.hh>
@@ -41,7 +38,6 @@ public:
 private:
 
   int count_;
-  bool classification_;
   int episode_;
   std::vector<double> flight_errors_;
   int max_episode_ ;
