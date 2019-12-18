@@ -1,6 +1,6 @@
 #pragma once
 
-# include "supervised_learning.hh"
+# include "iterative_learning.hh"
 
 template <class flight_controller_t,
 	  class simulator_t>

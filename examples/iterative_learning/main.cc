@@ -14,7 +14,7 @@
 # include <vector>
 
 /*  local  defined include */
-# include "supervised_learning.hh"
+# include "iterative_learning.hh"
 
 /* ILMR library include  */
 # include <ILMR/gazebo.hh>
@@ -38,17 +38,19 @@ int main(int argc, char* argv[])
   Log log;
   log.init();
   
-  CLI::App app{
-	       "This example shows how the library can be used to create iterative
-learning\n. This example requires model files to be used to generate
-trajectory.\n. At first, users need to generate dataset, then train it
-using the training example to aquire these model files.\n
-"};
-  
-  std::string model_name = "default";
-  app.add_option("-f,--file", dataset_filename, "Full Path to the model files for quadrotor")
-    ->required()
-    ->check(CLI::ExistingFile);      
+  CLI::App app{"This example shows how to use the library to do iterative learning. This example requires two model files to be used to generate trajectory. Users need to generate dataset, then train it using the training example to aquire these model files."};
+	app.require_subcommand(1);
+	auto model_files = app.add_subcommand("model_files", "Add model files, the first one is for follower 1 and the second one is for follower 2. etc...");
+
+	std::vector<std::string> model_files_name;	
+  model_files->add_option("files", model_files_name, "Model files to add");
+
+	model_files->callback( [&](){
+     std::cout << "Adding:";
+	    if(model_files_name.empty()) {
+           std::cout<< "No files have been added" << std::endl;
+           exit(0);
+        }});
 
   std::vector<lt::port_type> ports = configs.quads_ports();
   
@@ -59,7 +61,7 @@ using the training example to aquire these model files.\n
   
   for (auto& it : ports) {    
     iris_x.push_back(std::make_shared<Px4Device>("udp", it));
-    LogInfo() << "Add an iris QCopter! " ;
+    LogInfo() << "Add an iris QCopter! ";
   }
   
   LogInfo() << "Ports number: "<< ports;      
