@@ -12,7 +12,7 @@ namespace lt = local_types;
 class Configs
 {
 public:
-  
+
   Configs();
   Configs(std::string file_name);
 

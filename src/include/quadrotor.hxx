@@ -45,14 +45,14 @@ std::vector<State<simulator_t>> Quadrotor<simulator_t>::all_states() const
 { return all_states_; }
 
 template <class simulator_t>
-State<simulator_t> Quadrotor<simulator_t>::last_state()  
+State<simulator_t> Quadrotor<simulator_t>::last_state()
 {
   if (all_states_.size() > 1) {
     auto it_state = all_states_.rbegin();
     it_state = std::next(it_state, 1);
     last_state_ = (*it_state);
-  }  
-  return last_state_; 
+  }
+  return last_state_;
 }
 
 template <class simulator_t>
@@ -62,8 +62,8 @@ State<simulator_t> Quadrotor<simulator_t>::before_last_state()
     auto it_state = all_states_.rbegin();
     it_state = std::next(it_state, 2);
     before_last_state_ = (*it_state);
-  }  
-  return before_last_state_;  
+  }
+  return before_last_state_;
 }
 
 template <class simulator_t>
@@ -79,7 +79,7 @@ void Quadrotor<simulator_t>::current_action(Actions::Action action)
 
 template <class simulator_t>
 Actions::Action Quadrotor<simulator_t>::current_action() const
-{ return current_action_; } 
+{ return current_action_; }
 
 template <class simulator_t>
 Actions::Action Quadrotor<simulator_t>::last_action()
@@ -95,7 +95,7 @@ Actions::Action Quadrotor<simulator_t>::last_action()
 template <class simulator_t>
 std::vector<Actions::Action> Quadrotor<simulator_t>::all_actions() const
 { return all_actions_; }
-  
+
 template <class simulator_t>
 void Quadrotor<simulator_t>::reset_all_actions()
 { all_actions_.clear(); }
@@ -104,11 +104,11 @@ template <class simulator_t>
 void Quadrotor<simulator_t>::register_data_set()
 {
   data_set_.save_csv_data_set_2_file(name_,
-				     before_last_state(),				      
+				     before_last_state(),
 				     mtools_.to_one_hot_encoding(last_action(), 7),
 				     last_state(),
 				     mtools_.to_one_hot_encoding(current_action(), 7),
-				     current_state()	      
+				     current_state()
 				     );
 }
 
@@ -129,14 +129,14 @@ bool Quadrotor<simulator_t>::examin_geometric_shape()
 {
   bool shape = mtools_.is_good_shape(id_,
 				     nearest_neighbors_,
-				     sim_interface_->positions());        
+				     sim_interface_->positions());
   return shape;
 }
 
 template <class simulator_t>
 void Quadrotor<simulator_t>::set_speed(double speed)
 {
-  speed_ = speed;  
+  speed_ = speed;
 }
 
 template <class simulator_t>

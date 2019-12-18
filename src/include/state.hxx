@@ -24,7 +24,7 @@ template <class simulator_t>
 State<simulator_t>::State(std::vector<double> distances, double altitude_diff)
 {
   dists_3D_ = distances;
-  alti_diff_ = altitude_diff;  
+  alti_diff_ = altitude_diff;
 }
 
 template <class simulator_t>
@@ -38,12 +38,12 @@ std::vector<State<simulator_t>> State<simulator_t>::StateConstructor(arma::mat v
     std::vector<double> dists_3D = state;
     states.emplace_back(dists_3D, alti_diff);
   }
-  return states;  
+  return states;
 }
 
 template <class simulator_t>
 double State<simulator_t>::
-rt_height() 
+rt_height()
 {
   altitude_ = follower_->z;
   return altitude_;
@@ -56,7 +56,7 @@ height_difference() const
 
 template <class simulator_t>
 double State<simulator_t>::
-rt_height_difference() 
+rt_height_difference()
 {
   alti_diff_ = (leader_->z - follower_->z);
   return alti_diff_;
@@ -86,7 +86,7 @@ inline State<simulator_t> operator- (const State<simulator_t>& s, const State<si
 {
   State<simulator_t> s_result;
   s_result.alti_diff = s.height_diff() - s1.height_diff();
-  s_result.distance_3D() = s.distance_3D() - s1.distance_3D();  
+  s_result.distance_3D() = s.distance_3D() - s1.distance_3D();
   return s_result;
 }
 
@@ -95,7 +95,7 @@ inline State<simulator_t> operator+ (const State<simulator_t>& s, const State<si
 {
   State<simulator_t> s_result;
   s_result.alti_diff = s.height_diff() + s1.height_diff();
-  s_result.distance_3D() = s.distance_3D() + s1.distance_3D();  
+  s_result.distance_3D() = s.distance_3D() + s1.distance_3D();
   return s_result;
 }
 
@@ -103,11 +103,11 @@ namespace ILMR {
   bool comparator(double d1, double d2)
   {
     double epsilon = 0.5;
-    if ((d1 -d2) < epsilon) {      
+    if ((d1 -d2) < epsilon) {
       return true;
     } else
       return false;
-  }      
+  }
 }
 
 template <class simulator_t>
@@ -116,15 +116,14 @@ inline bool operator== (const State<simulator_t>& s, const State<simulator_t>& s
   bool result_distance = std::equal(s.distances_3D().begin(), s.distances_3D().end(),
 			   s1.distances_3D().begin(), [](const double& d, const double& d1) {
 							bool result = ILMR::comparator(d, d1);
-							return result;			       
+							return result;
 						      });
-  
+
   bool result_height = comparator(s.height_difference(), s1.height_difference());
-  
+
   bool result = false;
   if (result_distance and result_height) {
     result = true;
-  }    
+  }
   return result;
 }
-

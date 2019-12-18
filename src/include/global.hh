@@ -21,14 +21,14 @@ namespace local_types {
     T d2;
     T d3;
   };
- 
+
   template <class T>
   struct position3D {
     T x;
     T y;
     T z;
   };
-  
+
   template <class T>
   struct position_GPS {
     T latitude_deg ;
@@ -36,7 +36,7 @@ namespace local_types {
     T absolute_altitude_m;
     T relative_altitude_m;
   };
-  
+
   template <typename T>
   struct orientation {
     T x;
@@ -44,7 +44,7 @@ namespace local_types {
     T z;
     T w;
   };
-  
+
   template<typename T>
   struct triangle
   {

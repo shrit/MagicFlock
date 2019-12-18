@@ -11,7 +11,7 @@ Predictor<simulator_t>::Predictor(std::string name,/*  Classification or regress
    real_time_loss_(0),
    model_path_(full_path_to_model),
    model_name_(model_name),
-   quad_(quad)      
+   quad_(quad)
 {
   classification_ = false;
   regression_ = false;
@@ -21,15 +21,15 @@ Predictor<simulator_t>::Predictor(std::string name,/*  Classification or regress
     regression_ = true;
   } else {
     LogInfo() << "Please entre either classification or regression to star the prediction";
-  }   
+  }
 }
 
 /* Estimate the features (distances) using propagation model from RSSI */
 template<class simulator_t>
 arma::mat Predictor<simulator_t>::
-create_estimated_features_matrix()				 
+create_estimated_features_matrix()
 {
-  arma::mat features; 
+  arma::mat features;
   arma::rowvec row;
 
   std::vector<Actions::Action> actions =
@@ -68,14 +68,14 @@ create_estimated_features_matrix()
 
 template<class simulator_t>
 arma::mat Predictor<simulator_t>::
-create_absolute_features_matrix()			        
+create_absolute_features_matrix()
 {
   arma::mat features;
   arma::rowvec row;
 
   std::vector<Actions::Action> actions =
     action_.all_possible_actions();
-    
+
   for (int i = 0; i < 7; ++i) {
     /*  State */
     row << quad_->last_state().distances_3D().at(0)
@@ -168,18 +168,18 @@ template<class simulator_t>
 double Predictor<simulator_t>::
 real_time_loss() const
 { return real_time_loss_; }
-    
+
 template<class simulator_t>
 std::tuple<arma::mat, arma::uword, Actions::Action> Predictor<simulator_t>::
 predict(arma::mat& features)
 {
   mlpack::ann::FFN<mlpack::ann::SigmoidCrossEntropyError<>,
 		   mlpack::ann::RandomInitialization> classification_model;
-  
+
   mlpack::ann::FFN<mlpack::ann::MeanSquaredError<>,
 		   mlpack::ann::RandomInitialization> regression_model;
-  
-  if (classification_) {  
+
+  if (classification_) {
     mlpack::data::Load(model_path_, model_name_, classification_model, true);
   } else if(regression_) {
     mlpack::data::Load(model_path_, model_name_, regression_model, true);
@@ -190,13 +190,13 @@ predict(arma::mat& features)
   /*  Take the action index for the highest class
       given back by the model */
   arma::mat label;
-  
+
   if (classification_) {
-    classification_model.Predict(features, label);  
+    classification_model.Predict(features, label);
   } else if (regression_) {
     regression_model.Predict(features, label);
   }
-  
+
   /* Transpose to the original format */
   features = features.t();
   label = label.t();
@@ -209,21 +209,21 @@ predict(arma::mat& features)
   LogInfo() << value;
 
   /*  Get the follower action now !! and store it directly */
-  Actions::Action action_follower = action_.int_to_action(value);  
+  Actions::Action action_follower = action_.int_to_action(value);
   return make_tuple(label, value, action_follower);
 }
 
 template<class simulator_t>
 Actions::Action Predictor<simulator_t>::
 get_predicted_action()
-{  
+{
   Actions::Action predicted_follower_action;
   /*  Test the trained model using the absolute gazebo distance feature */
-  arma::mat features = create_absolute_features_matrix();  
+  arma::mat features = create_absolute_features_matrix();
   /*  Predict the next state using the above data */
   auto matrix_best_action = predict(features);
   real_time_loss_ = real_time_loss (matrix_best_action);
   std::tie(std::ignore, std::ignore, predicted_follower_action) = matrix_best_action;
 
-  return predicted_follower_action;  
+  return predicted_follower_action;
 }

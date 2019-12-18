@@ -18,17 +18,17 @@ class State {
 
 public:
 
-  State();  
+  State();
   State(std::shared_ptr<simulator_t> sim_interface,
 	unsigned int id,
 	std::vector<unsigned int> nearest_neighbors);
 
   State(std::vector<double> distances, double altitude_diff);
-  
+
   double height_difference() const;
   double rt_height_difference();
   double rt_height();
-  
+
   std::vector<double> distances_3D() const;
   std::vector<double> estimated_distances() const;
 
@@ -44,9 +44,9 @@ private:
   /*  Create a shared pointer to a simulator interface The interface
       need to have all the required data about the quadcopter*/
   std::shared_ptr<simulator_t> sim_interface_;
-  
+
   std::vector<lt::position3D<double>>::iterator leader_;
-  std::vector<lt::position3D<double>>::iterator follower_;  
+  std::vector<lt::position3D<double>>::iterator follower_;
 };
 
 # include "state.hxx"

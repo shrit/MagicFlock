@@ -5,16 +5,16 @@
 class TimeSteps {
 
 public:
-  
+
   TimeSteps();
 
   void tic();
   int steps() const;
 
-  void reset_time_steps();  
+  void reset_time_steps();
   double elapsed_time_between_last_2_steps() const;
-  
-private:  
+
+private:
   int counter_ = 0;
   double elapsed_time_ = 0;
 };

@@ -20,10 +20,10 @@ void DataSet<simulator_t>::read_dataset_file(std::string file_name)
   /*  This should be the standard method to parse the dataset */
   // for (int i = 0; i < dataset_.n_cols; ++i) {
   //   if ((dataset_(0,i) ==  and (dataset_(0,i) == 0  or dataset_(0,i) == 1)) {
-      
+
   //   }
   // }
-  
+
   arma::mat st_mat = dataset_(arma::span(0 ,dataset_.n_rows -1 ), arma::span(0, 2));
   arma::mat at_mat = dataset_(arma::span(0 ,dataset_.n_rows -1 ), arma::span(3, 9));
   arma::mat st_1_mat = dataset_(arma::span(0 ,dataset_.n_rows -1 ), arma::span(10, 12));
@@ -36,7 +36,7 @@ void DataSet<simulator_t>::read_dataset_file(std::string file_name)
   at_vec_ = action.ActionConstructor(at_mat);
   st_1_vec_ = state.StateConstructor(st_1_mat);
   at_1_vec_ = action.ActionConstructor(at_1_mat);
-  st_2_vec_ = state.StateConstructor(st_2_mat);  
+  st_2_vec_ = state.StateConstructor(st_2_mat);
 }
 
 template <class simulator_t>

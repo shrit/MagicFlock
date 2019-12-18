@@ -73,7 +73,7 @@ public:
   void left(float speed, unsigned int milliseconds_);
   void forward(float speed, unsigned int milliseconds_);
   void backward(float speed, unsigned int milliseconds_);
-  
+
   /*  Turn around itself */
   void turnToLeft();
   void turnToRight();
@@ -83,7 +83,7 @@ public:
   void forward_right(float speed);
   void backward_left(float speed);
   void backward_right(float speed);
-    
+
   void init_speed();
   bool start_offboard_mode();
   bool stop_offboard_mode();
@@ -117,7 +117,7 @@ public:
 
   bool execute_px4_shell_command(Shell::ShellMessage message);
   bool receive_px4_shell_reponse();
-  
+
   /*  Handles plugin results. */
 
   inline void action_error_exit(Action::Result result, const std::string &message);
@@ -139,12 +139,12 @@ private:
 
   Telemetry::LandedState _landed_state;
   mutable std::mutex _landed_state_mutex{};
-  
+
   Telemetry::FlightMode _flight_mode;
   mutable std::mutex _flight_mode_mutex{};
 
   Shell::ShellMessage _shell_reponse;
-  
+
   std::shared_ptr<mavsdk::Action> action_;
   std::shared_ptr<mavsdk::Calibration> calibration_;
   std::shared_ptr<mavsdk::Offboard> offboard_;

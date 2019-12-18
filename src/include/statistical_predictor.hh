@@ -27,18 +27,18 @@ class StatisticalPredictor
 public:
   StatisticalPredictor(std::string dataset_file,
 		       typename std::vector<Quadrotor<simulator_t>>::iterator quad);
-  
+
   void predict();
   Actions::Action get_predicted_action() const;
-  
+
   StatisticalPredictor(StatisticalPredictor const&) = delete;
   StatisticalPredictor(StatisticalPredictor &&) = default;
-  
+
 private:
   DataSet<simulator_t> dataset_;
   Math_tools mtools_;
   Actions::Action predicted_follower_action_;
-  typename std::vector<Quadrotor<simulator_t>>::iterator quad_;  
+  typename std::vector<Quadrotor<simulator_t>>::iterator quad_;
 };
 
 # include "statistical_predictor.hxx"

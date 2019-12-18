@@ -36,21 +36,21 @@ template<class simulator_t>
 class Predictor
 {
 public:
-      
+
   Predictor(std::string name,
 	    std::string full_path_to_model,
 	    std::string model_name,
 	    typename std::vector<Quadrotor<simulator_t>>::iterator quad);
-  
+
   arma::mat
   create_absolute_features_matrix();
-				  
+
   arma::mat
   create_estimated_features_matrix();
 
   std::vector<double>
   estimate_action_from_distance(arma::mat& matrix);
-  
+
   int index_of_best_action_classification(arma::mat& matrix);
   int index_of_best_action_regression(arma::mat& matrix);
 
@@ -60,10 +60,10 @@ public:
   double real_time_loss() const;
 
   Actions::Action get_predicted_action();
-  
+
   Predictor(Predictor const&) = delete;
   Predictor(Predictor &&) = default;
-  
+
 private:
   std::string model_path_;
   std::string model_name_;

@@ -5,7 +5,6 @@ Actions::Actions()
    generator_(random_dev())
 {}
 
-
 std::vector<Actions::Action> Actions::ActionConstructor(arma::mat values)
 {
   std::vector<Actions::Action> actions;
@@ -14,7 +13,7 @@ std::vector<Actions::Action> Actions::ActionConstructor(arma::mat values)
     int action_value = mtools_.from_one_hot_encoding(action);
     actions.push_back(static_cast<Actions::Action>(action_value));
   }
-  return actions;    
+  return actions;
 }
 
 std::string Actions::action_to_str(Action action)
@@ -25,7 +24,7 @@ std::string Actions::action_to_str(Action action)
     string_action = "Forward";
     break;
   case Action::backward:
-   string_action =  "Backward"; 
+   string_action =  "Backward";
     break;
   case Action::left:
     string_action =  "Left";
@@ -44,9 +43,9 @@ std::string Actions::action_to_str(Action action)
     break;
   case Action::Unknown:
     string_action =  "Unknown";
-    break;    
+    break;
   }
-  return string_action;    
+  return string_action;
 }
 
 /* Get the best action from the model according to the best values */
@@ -56,8 +55,8 @@ extract_action_from_index(arma::mat features, arma::uword index)
   /*  just a HACK, need to find a dynamic solution later */
   Action action = Action::Unknown;
   /*  Access matrix values according to a given index  */
-  /*  Only one action exist that equal 1 in each row of 
-   a matrix */  
+  /*  Only one action exist that equal 1 in each row of
+   a matrix */
   if (features(index, 14) == 1) {
     action = Action::forward;
   } else if (features(index, 15) == 1) {
@@ -72,7 +71,7 @@ extract_action_from_index(arma::mat features, arma::uword index)
     action = Action::down;
   } else if (features(index, 20) == 1) {
     action = Action::NoMove;
-  }  
+  }
   return action;
 }
 
@@ -80,7 +79,7 @@ Actions::Action Actions::
 int_to_action(int action_value)
 {
   Action action;
-  return action = static_cast<Action>(action_value);  
+  return action = static_cast<Action>(action_value);
 }
 
 std::vector<Actions::Action> Actions::
@@ -91,7 +90,7 @@ Actions::Action Actions::
 random_action_generator()
 {
   int random_action = distribution_int_(generator_);
-  Action action = static_cast<Action>(random_action);  
+  Action action = static_cast<Action>(random_action);
   return action;
 }
 
@@ -104,7 +103,7 @@ Actions::Action Actions::
 random_action_generator_with_all_conditions(Action action)
 {
   Action action_ = Action::Unknown;
-  
+
   if (action == Action::backward) {
     action_ = random_action_generator();
     while (action_ == Action::forward or
@@ -156,7 +155,7 @@ Actions::Action Actions::
 random_action_generator_with_only_opposed_condition(Action action)
 {
   Action action_ = Action::Unknown;
-  
+
   if (action == Action::backward) {
     action_ = random_action_generator();
     while (action_ == Action::forward) {

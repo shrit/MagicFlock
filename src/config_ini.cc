@@ -1,8 +1,7 @@
 # include "include/config_ini.hh"
 
 Configs::Configs()
-{
-}
+{}
 
 Configs::Configs(std::string file_name)
 {

@@ -14,15 +14,15 @@
 # include "data_set.hh"
 # include "math_tools.hh"
 
-template <class simulator_t>  
+template <class simulator_t>
 class Quadrotor {
 
 public:
-  
+
   Quadrotor(unsigned int id,
 	    std::string name,
 	    std::shared_ptr<simulator_t> sim_interface);
-  
+
   unsigned int id() const;
   std::string name() const;
 
@@ -54,10 +54,10 @@ public:
   double increase_speed();
   double decrease_speed();
   double increase_speed_by_value(double speed);
-  double decrease_speed_by_value(double speed);  
-  
+  double decrease_speed_by_value(double speed);
+
   bool examin_geometric_shape();
-  
+
 private:
 
   Actions::Action current_action_{Actions::Action::Unknown};

@@ -32,7 +32,7 @@ template <class simulator_t>
 class DataSet {
 
 public:
-  
+
   DataSet();
 
   void read_dataset_file(std::string file_name);
@@ -45,7 +45,7 @@ public:
 
   template <typename Arg, typename... Args>
   void save_csv_data_set_2_file(std::string file_name, Arg&& arg, Args&&... args);
-  
+
   template <typename Arg>
   void save_error_file(Arg&& arg);
 
@@ -64,25 +64,25 @@ public:
   void init_dataset_directory();
 
   std::vector<State<simulator_t>> st_vec() const;
-  
+
   std::vector<Actions::Action> at_vec() const;
 
-  std::vector<State<simulator_t>> st_1_vec() const;  
+  std::vector<State<simulator_t>> st_1_vec() const;
   std::vector<Actions::Action> at_1_vec() const;
 
   std::vector<State<simulator_t>> st_2_vec() const;
-  
+
   arma::mat dataset() const;
 
 private:
   arma::mat dataset_;
-  
+
   std::string dataset_file_name_;
   std::string error_file_name_;
   std::string result_file_name_;
   std::string count_file_name_;
   std::string histogram_file_name_;
-  
+
   std::vector<State<simulator_t>> st_vec_;
   std::vector<Actions::Action> at_vec_;
 

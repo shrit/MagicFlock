@@ -54,8 +54,8 @@ index_of_min_value(const std::vector<T>& vec)
 }
 
 bool Math_tools::
-is_good_shape(unsigned int id,                               
-	      std::vector<unsigned int> nearest_neighbors,   
+is_good_shape(unsigned int id,
+	      std::vector<unsigned int> nearest_neighbors,
 	      std::vector<lt::position3D<double>> positions)
 {
   bool value = false;
@@ -66,11 +66,11 @@ is_good_shape(unsigned int id,
 							    (i < upper_threshold_)) {
 							  return true;
 							}
-							else return false;	
+							else return false;
 						     })) {
-    
+
     value = true;
-  }  
+  }
   return value;
 }
 
@@ -122,7 +122,7 @@ bool Math_tools::hamming_distance_one_hot(std::vector<Arg> v1, std::vector<Arg> 
   bool distance = false;
   if (v1.size() == v2.size()) {
     if (v1 == v2) {
-      distance = true;      
+      distance = true;
     }
   } else {
     LogErr() << "Can not calculate hamming on different size vectors";
@@ -133,7 +133,7 @@ bool Math_tools::hamming_distance_one_hot(std::vector<Arg> v1, std::vector<Arg> 
 int Math_tools::ecludian_distance(double d1, double d2)
 {
   double distance = std::sqrt(std::pow((d1), 2) -
-			      std::pow((d2), 2));    
+			      std::pow((d2), 2));
   return distance;
 }
 
@@ -146,7 +146,7 @@ std::vector<double> Math_tools::to_std_vector(Arg arg)
   }
   if (std::is_same<Arg, arma::rowvec>::value) {
     vec.resize(arg.n_cols);
-    vec = arma::conv_to<std::vector<double>>::from(arg);    
+    vec = arma::conv_to<std::vector<double>>::from(arg);
   } else if (std::is_same<Arg, arma::colvec>::value) {
     vec.resize(arg.n_rows);
     vec = arma::conv_to<std::vector<double>>::from(arg);
@@ -165,10 +165,10 @@ double Math_tools::distance_a_2_b(std::vector<lt::position3D<double>> positions,
     dist.x = positions.at(id_a).x - positions.at(id_b).x;
     dist.y = positions.at(id_a).y - positions.at(id_b).y;
     dist.z = positions.at(id_a).z - positions.at(id_b).z;
-    
+
     double distance = std::sqrt(std::pow((dist.x), 2) +
 				std::pow((dist.y), 2) +
-				std::pow((dist.z), 2));    
+				std::pow((dist.z), 2));
     return distance;
 }
 
@@ -193,16 +193,16 @@ double Math_tools::traveled_distances(lt::position3D<T> pos_t,
   dist.x =  pos_t.x - pos_t_1.x;
   dist.y =  pos_t.y - pos_t_1.y;
   dist.z =  pos_t.z - pos_t_1.z;
-  
+
   double traveled_distance;
 
   /*  Summing up vectors, the total is the distance travelled by each
       agent during each trajectory */
-  
+
   /*  Distance travelled by the leader */
   traveled_distance = std::sqrt(std::pow((dist.x), 2) +
 				std::pow((dist.y), 2) +
-				std::pow((dist.z), 2));  
+				std::pow((dist.z), 2));
   return traveled_distance;
 }
 
