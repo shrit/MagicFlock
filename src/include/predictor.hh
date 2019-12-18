@@ -30,9 +30,6 @@
 namespace lt = local_types;
 
 template<class simulator_t>
-using quadrotors_vec = std::vector<Quadrotor<simulator_t>>;
-
-template<class simulator_t>
 class Predictor
 {
 public:

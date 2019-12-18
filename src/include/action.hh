@@ -13,8 +13,6 @@
 /*  Armadillo includes  */
 # include <armadillo>
 
-# include "global.hh"
-# include "log.hh"
 # include "math_tools.hh"
 
 class Actions {

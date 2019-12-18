@@ -26,7 +26,6 @@
 # include <string>
 # include <sstream>
 
-
 #define JS_EVENT_BUTTON 0x01 // button pressed/released
 #define JS_EVENT_AXIS   0x02 // joystick moved
 #define JS_EVENT_INIT   0x80 // initial state of device
@@ -38,30 +37,26 @@ struct JoystickEvent
    * The timestamp of the event, in milliseconds.
    */
   unsigned int time;
-  
+
   /**
    * The value associated with this joystick event.
    * For buttons this will be either 1 (down) or 0 (up).
    * For axes, this will range between MIN_AXES_VALUE and MAX_AXES_VALUE.
    */
   short value;
-  
+
   /**
    * The event type.
    */
   unsigned char type;
-  
+
   /**
    * The axis/button number.
    */
   unsigned char number;
-  
 };
 
-/**
- * Stream insertion function so you can do this:
- *    cout << event << endl;
- */
+
 std::ostream& operator<<(std::ostream& os, const JoystickEvent& e);
 
 /**
@@ -69,7 +64,7 @@ std::ostream& operator<<(std::ostream& os, const JoystickEvent& e);
  */
 class Joystick  : private JoystickEvent
 {
-  
+
 public:
 
   /**
@@ -105,12 +100,12 @@ public:
   Joystick(std::string devicePath, bool blocking);
 
   ~Joystick();
-  
+
   /**
    * Returns true if the joystick was found and may be used, otherwise false.
    */
   bool isFound();
-  
+
   /**
    * Attempts to populate the provided JoystickEvent instance with data
    * from the joystick. Returns true if data is available, otherwise false.
@@ -137,10 +132,10 @@ public:
   bool ButtonStartChanged(JoystickEvent& event);
 
   bool ButtonGuideChanged(JoystickEvent& event);
-  
+
   int RightAxisXChanged(JoystickEvent& event);
   int RightAxisYChanged(JoystickEvent& event);
-  
+
   int LeftAxisXChanged(JoystickEvent& event);
   int LeftAxisYChanged(JoystickEvent& event);
 
@@ -164,25 +159,22 @@ public:
    * internal data structures.
    */
   friend std::ostream& operator<<(std::ostream& os, const JoystickEvent& e);
- 
+
 private:
-      
+
   /**
    * Returns true if this event is the result of a button press.
    */
-
   bool isButton(JoystickEvent& event);
- 
+
   /**
    * Returns true if this event is the result of an axis movement.
    */
   bool isAxis(JoystickEvent& event);
 
   void openPath(std::string devicePath, bool blocking=false);
-  
+
   int _fd;
-  
-  
 };
 
 #endif
