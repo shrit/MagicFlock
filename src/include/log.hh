@@ -28,8 +28,6 @@ public:
     s_()
   {}
 
-  void init ();
-
   template<typename T> Log &operator<<(const T &x)
   {
     /*  Print to the standard output */
