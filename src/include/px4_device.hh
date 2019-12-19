@@ -3,11 +3,8 @@
 /**
  * @file px4_device.hh
  * @brief An interface to MAVSDK, it allows users to handle quadcopters
- * using keyboard or joystick
  * @author: Omar Shrit <shrit@lri.fr>
- * @date 2018-06-13
  */
-
 /*  C++ Standard includes */
 # include <chrono>
 # include <cmath>
@@ -28,11 +25,13 @@
 
 /*  local includes */
 # include "global.hh"
+# include "logger.hh"
 
 using namespace mavsdk;
 using std::this_thread::sleep_for;
 using std::chrono::milliseconds;
 using std::chrono::seconds;
+using namespace ILMR;
 
 #define ERROR_CONSOLE_TEXT "\033[31m" // Turn text on console red
 #define TELEMETRY_CONSOLE_TEXT "\033[34m" // Turn text on console blue
