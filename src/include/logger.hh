@@ -2,7 +2,6 @@
 
 # include <sstream>
 
-
 /*  Speed log include  */
 #include <spdlog/spdlog.h>
 #include <spdlog/logger.h>
@@ -15,11 +14,16 @@
 # include <boost/date_time/posix_time/posix_time.hpp>
 
 /*  Init the logging system */
-
 namespace ILMR
 {
-  std::shared_ptr<spdlog::logger> setup_logger(std::vector<spdlog::sink_ptr> sinks);
-  std::shared_ptr<spdlog::logger> init();
-  void create_library_logger(std::shared_ptr<spdlog::logger> logger);
-  std::shared_ptr<spdlog::logger> logger_(nullptr);
+  class logger
+  {
+  public:
+    static std::shared_ptr<spdlog::logger> setup_logger(std::vector<spdlog::sink_ptr> sinks);
+    static std::shared_ptr<spdlog::logger> init();
+    static void create_library_logger(std::shared_ptr<spdlog::logger> logger);
+    static std::shared_ptr<spdlog::logger> logger_;
+  };
 }
+
+
