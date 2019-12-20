@@ -1,8 +1,10 @@
 #pragma once
 
 # include "global.hh"
+# include "logger.hh"
 
 namespace lt = local_types;
+using namespace ILMR;
 
 class Rewards {
 

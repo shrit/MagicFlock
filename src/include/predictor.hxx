@@ -20,7 +20,7 @@ Predictor<simulator_t>::Predictor(std::string name,/*  Classification or regress
   } else if (name == "regression"){
     regression_ = true;
   } else {
-    LogInfo() << "Please entre either classification or regression to star the prediction";
+    logger::logger_->info("Please entre either classification or regression to star the prediction");
   }
 }
 
@@ -72,7 +72,6 @@ create_absolute_features_matrix()
 {
   arma::mat features;
   arma::rowvec row;
-
   std::vector<Actions::Action> actions =
     action_.all_possible_actions();
 
@@ -144,7 +143,7 @@ index_of_best_action_regression(arma::mat& matrix)
 {
   std::vector<double> distances = estimate_action_from_distance(matrix);
   std::reverse(distances.begin(), distances.end());
-  LogInfo() << "Sum of distances: " << distances;
+  logger::logger_->info("Sum of distances: {}", distances);
   int value =
     std::min_element(distances.begin(),
 		     distances.end()) - distances.begin();
@@ -154,7 +153,7 @@ index_of_best_action_regression(arma::mat& matrix)
 template<class simulator_t>
 double Predictor<simulator_t>::
 real_time_loss(std::tuple<arma::mat, arma::uword,
-	       Actions::Action> matrix_best_action)
+               Actions::Action> matrix_best_action)
 {
   arma::mat matrix;
   arma::uword index_of_best_estimation;
@@ -201,12 +200,12 @@ predict(arma::mat& features)
   features = features.t();
   label = label.t();
 
-  LogInfo() << "Size of features: " << arma::size(features);
-  LogInfo() << features;
-  LogInfo() << label;
+  logger::logger_->info("Size of features matrix: {}", arma::size(features));
+  logger::logger_->info("Feature matrix: {}" features);
+  logger::logger_->info("Label matrix: {}" label);
 
   arma::uword value = index_of_best_action_regression(label);
-  LogInfo() << value;
+  logger::logger_->info("Index of best action regression: {}", value);
 
   /*  Get the follower action now !! and store it directly */
   Actions::Action action_follower = action_.int_to_action(value);
@@ -224,6 +223,5 @@ get_predicted_action()
   auto matrix_best_action = predict(features);
   real_time_loss_ = real_time_loss (matrix_best_action);
   std::tie(std::ignore, std::ignore, predicted_follower_action) = matrix_best_action;
-
   return predicted_follower_action;
 }

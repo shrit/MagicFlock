@@ -4,14 +4,14 @@ Rewards::Reward Rewards::
 evaluate_current_state(const lt::triangle<double>& old_dist,
 			const lt::triangle<double>& new_dist)
 {
-  LogInfo() << "F1 differences: " << std::fabs(old_dist.f1 - new_dist.f1);
-  LogInfo() << "F2 differences: " << std::fabs(old_dist.f2 - new_dist.f2);
+  logger::logger_->info("F1 differences: {}",std::fabs(old_dist.f1 - new_dist.f1));
+  logger::logger_->info("F2 differences: {}",std::fabs(old_dist.f2 - new_dist.f2));
 
   double diff_f1 = std::fabs(old_dist.f1 - new_dist.f1);
   double diff_f2 = std::fabs(old_dist.f2 - new_dist.f2);
 
   Reward reward = Reward::Unknown;
-  
+
   if (0.5  > diff_f1 + diff_f2 ) {
     reward = Reward::very_good;
   } else if ( 1.0  > diff_f1 + diff_f2 and

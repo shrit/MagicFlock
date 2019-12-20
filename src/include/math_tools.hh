@@ -9,11 +9,13 @@
 # include <utility>
 
 # include <armadillo>
+
 /* local includes */
-# include "log.hh"
 # include "global.hh"
+# include "logger.hh"
 
 namespace lt = local_types;
+using namespace ILMR;
 
 class Math_tools {
 

@@ -30,6 +30,8 @@ void DataSet<simulator_t>::read_dataset_file(std::string file_name)
   arma::mat at_1_mat = dataset_(arma::span(0 ,dataset_.n_rows -1 ), arma::span(13, 19));
   arma::mat st_2_mat = dataset_(arma::span(0 ,dataset_.n_rows -1 ), arma::span(20, 22));
 
+  logger::logger_->debug("Matrix: S_t => t=0: {}", st_mat);
+
   State<simulator_t> state;
   Actions action;
   st_vec_ = state.StateConstructor(st_mat);
@@ -37,6 +39,8 @@ void DataSet<simulator_t>::read_dataset_file(std::string file_name)
   st_1_vec_ = state.StateConstructor(st_1_mat);
   at_1_vec_ = action.ActionConstructor(at_1_mat);
   st_2_vec_ = state.StateConstructor(st_2_mat);
+
+  logger::logger_->debug("Vector: S_t => t=0: {}", st_vec_);
 }
 
 template <class simulator_t>

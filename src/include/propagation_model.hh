@@ -3,8 +3,10 @@
 # include <cmath>
 
 # include "global.hh"
-# include "log.hh"
+# include "logger.hh"
 # include "math_tools.hh"
+
+using namespace ILMR;
 
 constexpr double PI           = 3.14159265358979323846;  /* pi */
 constexpr double speed_of_light = 299792458;

@@ -23,11 +23,12 @@
 
 /* local includes  */
 # include "global.hh"
-# include "log.hh"
+# include "logger.hh"
 # include "math_tools.hh"
 # include "quadrotor.hh"
 
 namespace lt = local_types;
+using namespace ILMR;
 
 template<class simulator_t>
 class Predictor

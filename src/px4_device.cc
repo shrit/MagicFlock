@@ -443,7 +443,7 @@ bool Px4Device::receive_px4_shell_reponse()
                          shell_->result_code_str(shell_results));
     return false;
   }
-  LogInfo () <<_shell_reponse;
+  logger::logger_->info(_shell_reponse);
   return true;
 }
 

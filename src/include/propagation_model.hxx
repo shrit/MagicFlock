@@ -27,8 +27,8 @@ friis_convert_watt_to_distance(double receiver_power)
   /*  ensure initialization  */
   /*  Convert everything to watt before calculation */
   receiver_power = dbm_to_watt(receiver_power);
-  LogInfo () << "R Power in Watt: " << receiver_power;
-  LogInfo () << "Wave length: " << wave_length_;
+  logger::logger_->info("R Power in Watt: {}", receiver_power);
+  logger::logger_->info("Wave length: {}", wave_length_);
 
   double distance = wave_length_ /(4*PI) *
     std::sqrt(transmitter_power_ * transmitter_gain_ * receiver_gain_
@@ -45,7 +45,6 @@ friis_convert_dbm_to_distance(double receiver_power)
   double D_log = std::log10(wave_length_) - std::log10(4*PI) - value;
   double distance = std::pow(10, D_log);
   distance =  mtools_.pythagore_leg(diff_heights, distance);
-
   return distance;
 }
 
@@ -95,7 +94,7 @@ template <class rssi_t>
 void Propagation_model<rssi_t>::channel_to_frequency(int channel)
 {
   if (channel > 13 and channel < 1) {
-    LogErr() << "No valid channel number";
+    logger::logger_->error("No valid channel number");
   }
   double ref_channel = 1;
   frequency_ = ((channel - ref_channel)*5 +  2412) * 1000000 ;
