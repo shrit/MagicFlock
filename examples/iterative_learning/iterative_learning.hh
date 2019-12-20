@@ -19,21 +19,21 @@
 namespace lt = local_types;
 
 template<class flight_controller_t,
-	 class simulator_t>
-class Supervised_learning
+         class simulator_t>
+class Iterative_learning
 {
 public:
-  Supervised_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
-		      const std::vector<Quadrotor<simulator_t>>& quadrotors,
-		      std::shared_ptr<simulator_t> gzs);
-  
+  Iterative_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
+                     const std::vector<Quadrotor<simulator_t>>& quadrotors,
+                     std::shared_ptr<simulator_t> gzs);
+
   void generate_trajectory_using_model(bool random_leader_action,
-				       bool stop_down_action);
-  
+                                       bool stop_down_action);
+
   void run();
 
-  Supervised_learning(Supervised_learning const&) = delete;
-  Supervised_learning(Supervised_learning &&) = default;
+  Iterative_learning(Iterative_learning const&) = delete;
+  Iterative_learning(Iterative_learning &&) = default;
 
 private:
 

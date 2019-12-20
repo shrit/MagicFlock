@@ -21,7 +21,6 @@
 # include <ILMR/config_ini.hh>
 # include <ILMR/quadrotor.hh>
 # include <ILMR/px4_device.hh>
-# include <ILMR/log.hh>
 # include <ILMR/logger.hh>
 
 /*  CLI11 library headers */
@@ -34,15 +33,12 @@ int main(int argc, char* argv[])
 {
   /*  Init configs */
   Configs configs("/meta/lemon/quad.ini");
-  /*  Init logging system */
-  Log log;
-  log.init();
-  
+
   CLI::App app{"This example shows how to use the library to do iterative learning. This example requires two model files to be used to generate trajectory. Users need to generate dataset, then train it using the training example to aquire these model files."};
 	app.require_subcommand(1);
 	auto model_files = app.add_subcommand("model_files", "Add model files, the first one is for follower 1 and the second one is for follower 2. etc...");
 
-	std::vector<std::string> model_files_name;	
+	std::vector<std::string> model_files_name;
   model_files->add_option("files", model_files_name, "Model files to add");
 
 	model_files->callback( [&](){
@@ -53,37 +49,36 @@ int main(int argc, char* argv[])
         }});
 
   std::vector<lt::port_type> ports = configs.quads_ports();
-  
+
   /* Create a vector of controllers. Each controller connect to one
    * quadcopters at a time
    */
   std::vector<std::shared_ptr<Px4Device>> iris_x;
-  
-  for (auto& it : ports) {    
+
+  for (auto& it : ports) {
     iris_x.push_back(std::make_shared<Px4Device>("udp", it));
     LogInfo() << "Add an iris QCopter! ";
   }
-  
-  LogInfo() << "Ports number: "<< ports;      
-  
+
+  LogInfo() << "Ports number: "<< ports;
+
   /*  Gazebo simulator */
   std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(argc, argv, configs);
-  
   gz->subscriber(configs.positions());
-  
-  /* Verify the numbers to subscribe to the good signal strength */  
+
+  /* Verify the numbers to subscribe to the good signal strength */
   gz->subscriber(configs.rssi_1_2());
   gz->subscriber(configs.rssi_1_3());
   gz->subscriber(configs.rssi_2_3());
-  
+
   gz->publisher(configs.reset_1());
   gz->publisher(configs.reset_2());
   gz->publisher(configs.reset_3());
-  
+
   /* Wait for 10 seconds, Just to finish subscribe to
    * gazebo topics */
   std::this_thread::sleep_for(std::chrono::seconds(10));
-  
+
   /*  Create a vector of quadrotors, each one has an id + a name  */
   /*  Try to see if it is possible or efficient to merge quadrotors +
       device controller */
@@ -92,7 +87,7 @@ int main(int argc, char* argv[])
   quadrotors.emplace_back(1, "follower_1", gz);
   quadrotors.emplace_back(2, "follower_2", gz);
 
-    /*  Add neighbors list  */
+  /*  Add neighbors list  */
   quadrotors.at(0).add_nearest_neighbor_id(1);
   quadrotors.at(0).add_nearest_neighbor_id(2);
   quadrotors.at(1).add_nearest_neighbor_id(0);
@@ -101,6 +96,6 @@ int main(int argc, char* argv[])
   quadrotors.at(2).add_nearest_neighbor_id(1);
 
   /*  Test the trained model and improve it  */
-  Supervised_learning<Px4Device, Gazebo> slearning(iris_x, quadrotors, gz);
-  slearning.run();  
+  Iterative_learning<Px4Device, Gazebo> ilearning(iris_x, quadrotors, gz);
+  ilearning.run();
 }
