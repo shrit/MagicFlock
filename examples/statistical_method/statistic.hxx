@@ -67,7 +67,7 @@ generate_trajectory_using_model(bool change_leader_action,
   follower_1_->sample_state();
   follower_2_->sample_state();
 
-  StatisticalPredictor<simulator_t> predict_f1("/meta/lemon/examples/iterative_learning/build/f1/model.txt",
+  StatisticalPredictor<simulator_t> predict_f1("/meta/lemon/examples/iterative_learning/dataset/2019-Dec-04/23:56:14_follower_1",
                                                follower_1_);
 
   Actions::Action follower_1_action = predict_f1.get_predicted_action();
@@ -87,7 +87,7 @@ generate_trajectory_using_model(bool change_leader_action,
   follower_1_->sample_state();
   follower_2_->sample_state();
 
-  StatisticalPredictor<simulator_t> predict_f2("/meta/lemon/examples/iterative_learning/build/f2/model.txt",
+  StatisticalPredictor<simulator_t> predict_f2("/meta/lemon/examples/iterative_learning/dataset/2019-Dec-04/23:56:14_follower_2",
                                                follower_2_);
 
   Actions::Action follower_2_action = predict_f2.get_predicted_action();
@@ -146,13 +146,13 @@ run()
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
     if (!stop_episode_) {
-      time_steps.reset_time_steps();
+      time_steps_.reset_time_steps();
       while (!stop_episode_) {
 
-        if (time_steps.steps() == 0 ) {
+        if (time_steps_.steps() == 0 ) {
           generate_trajectory_using_model(true, false);
           //Change each 10 times the direction of the leader
-        } else if (time_steps.steps() % 10 == 0) {
+        } else if (time_steps_.steps() % 10 == 0) {
           generate_trajectory_using_model(true, false);
 
         } else if (leader_->current_state().rt_height() < 15
@@ -187,12 +187,13 @@ run()
           logger_->info("The geometrical is no longer conserved");
           break;
         }
-        time_steps.tic();
+        time_steps_.tic();
+        logger_->flush();
       }
     }
 
-    follower_1_->register_histogram(time_steps.steps());
-    follower_2_->register_histogram(time_steps.steps());
+    follower_1_->register_histogram(time_steps_.steps());
+    follower_2_->register_histogram(time_steps_.steps());
     swarm_.land();
 
     /* Resetting the entire swarm after the end of each episode*/

@@ -19,6 +19,7 @@
 # include <ILMR/time_steps.hh>
 
 namespace lt = local_types;
+using namespace ILMR;
 
 template<class flight_controller_t,
 	 class simulator_t>
@@ -41,7 +42,7 @@ public:
 
 private:
 
-  TimeSteps time_steps;
+  TimeSteps time_steps_;
   int episode_;
   int max_episode_ ;
   std::shared_ptr<simulator_t> sim_interface_;

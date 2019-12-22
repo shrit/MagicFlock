@@ -73,11 +73,23 @@ generate_trajectory_using_model(bool change_leader_action,
   Actions::Action follower_1_action = predict_f1.get_predicted_action();
   follower_1_->current_action(follower_1_action);
 
-  threads.push_back(std::thread([&](){
+	Predictor<simulator_t> predict_f2("regression",
+                                    "/meta/lemon/examples/iterative_learning/build/f2/model.txt",
+                                    "model",
+                                    follower_2_);
+
+  Actions::Action follower_2_action = predict_f2.get_predicted_action();
+  follower_2_->current_action(follower_2_action);
+
+	threads.push_back(std::thread([&](){
                                   swarm_.one_quad_execute_trajectory(follower_1_->id(),
                                                                      follower_1_->current_action(),
-                                                                     follower_1_->speed(),
-                                                                     1000);
+                                                                     follower_1_->speed(),1000);
+                                }));
+  threads.push_back(std::thread([&](){
+                                  swarm_.one_quad_execute_trajectory(follower_2_->id(),
+                                                                     follower_2_->current_action(),
+                                                                     follower_2_->speed(),1000);
                                 }));
 
   /* We need to wait until the quadcopters finish their actions */
@@ -86,22 +98,6 @@ generate_trajectory_using_model(bool change_leader_action,
   /*  Sample the state at time t + 2 */
   follower_1_->sample_state();
   follower_2_->sample_state();
-
-  Predictor<simulator_t> predict_f2("regression",
-                                    "/meta/lemon/examples/iterative_learning/build/f2/model.txt",
-                                    "model",
-                                    follower_2_);
-
-  Actions::Action follower_2_action = predict_f2.get_predicted_action();
-  follower_2_->current_action(follower_2_action);
-
-  threads.push_back(std::thread([&](){
-                                  swarm_.one_quad_execute_trajectory(follower_2_->id(),
-                                                                     follower_2_->current_action(),
-                                                                     follower_2_->speed(),
-                                                                     1000);
-
-                                }));
 
   for (auto& thread : threads) {
     thread.join();
@@ -142,9 +138,6 @@ run()
     /* Stop the episode if one of the quad has fallen to takoff */
     bool takeoff = swarm_.takeoff(25);
     if (!takeoff)
-      stop_episode_ = true;
-
-    /*  Setting up speed_ is important to switch the mode */
     swarm_.init_speed();
 
     /*  Switch to offboard mode, Allow the control */
@@ -156,9 +149,9 @@ run()
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
     if (!stop_episode_) {
-
+			time_steps_.reset_time_steps_();
       while (!stop_episode_) {
-        if (count_ == 0 ) {
+        if (time_steps_.steps() == 0)  {
           generate_trajectory_using_model(true, false);
           //Change each 10 times the direction of the leader
         } else if (count_ % 10 == 0) {
@@ -180,8 +173,7 @@ run()
         follower_2_->reset_all_states();
         follower_1_->reset_all_actions();
         follower_2_->reset_all_actions();
-        time_step_vector_.push_back(count_);
-
+        
         /*  Check the geometrical shape */
         std::vector<bool> shapes;
         for (auto it : quadrotors_) {
@@ -194,8 +186,8 @@ run()
           logger::logger_->info("The geometrical shape is no longer conserved");
           break;
         }
-        ++count_;
-        logger::logger_->flush();
+       time_steps_.tic();
+       logger::logger_->flush();
       }
     }
     follower_1_->register_histogram(count_);

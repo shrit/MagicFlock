@@ -30,9 +30,7 @@ int main(int argc, char* argv[])
   /*  Init configs */
   Configs configs("/meta/lemon/quad.ini");
   /*  Init logging system */
-  Log log;
-  log.init();
-  
+ 
   std::vector<lt::port_type> ports = configs.quads_ports();
   
   /* Create a vector of controllers. Each controller connect to one

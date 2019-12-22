@@ -37,13 +37,12 @@ public:
 
 private:
 
-  int count_;
   int episode_;
-  std::vector<double> flight_errors_;
-  int max_episode_ ;
+ 	std::vector<double> flight_errors_;
+  int max_episode_;
   std::shared_ptr<simulator_t> sim_interface_;
   std::vector<double> step_errors_;
-  std::vector<int>  time_step_vector_;
+  TimeSteps time_steps_;
   SwarmDevice<flight_controller_t> swarm_;
   bool stop_episode_;
   std::vector<Quadrotor<simulator_t>> quadrotors_;
