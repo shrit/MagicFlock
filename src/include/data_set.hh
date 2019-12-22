@@ -35,8 +35,10 @@ public:
 
   DataSet();
 
-  void read_dataset_file(std::string file_name);
-
+  void parse_dataset_file(std::string file_name);
+  void load_dataset_file(std::string file_name);
+  void set_label_column_number(int x);
+  
   template <typename Arg, typename... Args>
   void write_data_set_file(std::ofstream& file, Arg&& arg, Args&&... args);
 

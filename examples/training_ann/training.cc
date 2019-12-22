@@ -19,7 +19,7 @@ double Train::accuracy(const arma::Row<size_t>& predLabels,
 }
 
 /*  HACK, Waiting until callback pull request to be merged into ensmallen
-    library, meanwhile this calculation is used to print the value of the 
+    library, meanwhile this calculation is used to print the value of the
     loss during the training. Print Loss callback in going to be merged
     in the next months*/
 double Train::accuracy_mse(const arma::mat& predLabels, const arma::mat& LabelY)
@@ -43,29 +43,29 @@ arma::Row<size_t> Train::getLabels(const arma::mat& predOut)
 }
 
 void Train::load_data_set(std::string&& dataset_file)
-{  
+{
   // Load the training set.
   mlpack::data::Load(dataset_file, dataset_, true);
   mlpack::data::Split(dataset_, trainset_, testset_, ratio_);
 }
 
 /* This function define the number of columns used for features and
-   labels. Note that, mlpack is column major. Thus, rows are columns   
+   labels. Note that, mlpack is column major. Thus, rows are columns
    @param x is the number of columns used for label*/
 void Train::define_label_column_size(int x) {
   // Split the labels from the training set.
   train_features_ = trainset_.submat(0, 0,
 				     trainset_.n_rows - (x + 1),
 				     trainset_.n_cols - 1);
-  
+
   // Split the data from the training set.
   train_labels_ = trainset_.submat(trainset_.n_rows - x, 0,
 				  trainset_.n_rows - 1, trainset_.n_cols - 1);
-  
+
   test_features_ = testset_.submat(0, 0,
 				   testset_.n_rows - (x + 1),
 				   testset_.n_cols - 1);
-  
+
   test_labels_ = testset_.submat(testset_.n_rows - x, 0,
 				 testset_.n_rows - 1, testset_.n_cols - 1);
 }
@@ -119,11 +119,11 @@ void Train::classification()
   double testAccuracy = accuracy(predtestlabel, YTestlabels);
 
   LogInfo() << "Testing Accuracy = "<< testAccuracy<< "%,";
- 
+
   predtest = predtest.t();
   predtest.save("result.csv", arma::raw_ascii);
 
-  mlpack::data::Save("model.xml", "model", model, false);  
+  mlpack::data::Save("model.xml", "model", model, false);
 }
 
 void Train::regression()
@@ -145,7 +145,7 @@ void Train::regression()
 
   optimizer.Tolerance() = -1;
   optimizer.MaxIterations() = 0;
-  
+
   for (int i = 0; i < 1; ++i) {
     LogInfo() << "Starting.....";
     auto t1 = std::chrono::high_resolution_clock::now();
@@ -159,38 +159,38 @@ void Train::regression()
 
     auto t2 = std::chrono::high_resolution_clock::now();
     std::cout << std::endl;
-    std::cout << "Training time: " 
+    std::cout << "Training time: "
               << std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
               << " seconds" << std::endl;
-    
+
     optimizer.ResetPolicy() = false;
-      
+
     arma::mat pred;
     model.Predict(train_features_, pred);
-    model.Evaluate(train_features_, pred);          
+    model.Evaluate(train_features_, pred);
   }
   LogInfo() << "Training Finished...";
   LogInfo() << "Test with Independent part...";
-  
+
   arma::mat predtest;
-    
+
   model.Predict(test_features_, predtest);
   model.Evaluate(test_features_, predtest);
- 
-  double testAccuracy = accuracy_mse(predtest, test_labels_);    
+
+  double testAccuracy = accuracy_mse(predtest, test_labels_);
   std::cout << "LOSS  = "<< testAccuracy<< "%,"
 	    << std::endl;
-    
+
   predtest = predtest.t();
-  predtest.save("result.csv", arma::raw_ascii);    
-  mlpack::data::Save("model.txt", "model", model, false);  
+  predtest.save("result.csv", arma::raw_ascii);
+  mlpack::data::Save("model.txt", "model", model, false);
 }
 
 void Train::run(std::string&& name)
 {
   if (name == "classification") {
-    classification();    
+    classification();
   } else if (name == "regression") {
     regression();
-  }      
+  }
 }

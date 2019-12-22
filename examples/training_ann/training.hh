@@ -20,14 +20,8 @@ public:
 
   double accuracy(const arma::Row<size_t>& predLabels,
 		  const arma::Row<size_t>& LabelY);
-  
-  double accuracy_mse(const arma::mat& predLabels,
-		      const arma::mat& LabelY);
-  
+
   arma::Row<size_t> getLabels(const arma::mat& predOut);
-  
-  void load_data_set(std::string&& dataset_file);
-  void define_label_column_size(int x);
   
   void run(std::string&& name);
   void classification();
@@ -36,19 +30,4 @@ public:
   Train(Train const&) = delete;
 
   Train(Train &&) = default;
-
-private:
-
-  arma::mat dataset_;
-
-  arma::mat trainset_;
-  arma::mat testset_;
-  
-  arma::mat train_features_;
-  arma::mat train_labels_;
-
-  arma::mat test_features_;
-  arma::mat test_labels_;
-
-  double ratio_ = 0.1;
 };
