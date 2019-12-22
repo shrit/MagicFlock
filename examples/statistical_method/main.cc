@@ -34,12 +34,10 @@ int main(int argc, char* argv[])
 {
   /*  Init configs */
   Configs configs("/meta/lemon/quad.ini");
-  /*  Init logging system */
-  Log log;
-  log.init();
 
 	/*Start using the new loggin system*/
-  auto logger = ILMR::init();
+  auto logger = ILMR::logger::init();
+  ILMR::logger::create_library_logger(logger);
 
   CLI::App app{"This app use statistic method in order to maintain the swarm of quadrotor."};
 
