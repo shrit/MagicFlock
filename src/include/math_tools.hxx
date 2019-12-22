@@ -149,7 +149,7 @@ std::vector<double> Math_tools::to_std_vector(Arg arg)
     vec = arma::conv_to<std::vector<double>>::from(arg);
   }
   std::reverse(vec.begin(), vec.end());
-  logger::logger_->info("Vector control prediction: {}", vec);
+  logger::logger_->info("Converted to std vector: {}", vec);
   return vec;
 }
 

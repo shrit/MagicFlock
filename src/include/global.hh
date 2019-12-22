@@ -6,9 +6,9 @@
 # include <vector>
 # include <iterator>
 
-# include "log.hh"
+# include "logger.hh"
 
-
+using namespace ILMR;
 /*  Global name space for the simulation
     It contain a namespace with several
     defintion used in all files
@@ -148,6 +148,9 @@ std::ostream& operator<< (std::ostream& out, const std::vector<T>& v)
 template <typename T>
 const std::vector<T>  operator- (const std::vector<T>& v, const std::vector<T>& v1)
 {
+  if (v.size() != v1.size()) {
+    logger::logger_->error("Can not preform operation on vectors of different sizes");
+  }
   std::vector<T> result;
   result.resize (v);
   std::transform(v.begin(), v.end(), v1.begin(), result.begin(), std::minus<T>());
@@ -157,6 +160,9 @@ const std::vector<T>  operator- (const std::vector<T>& v, const std::vector<T>& 
 template <typename T>
 const std::vector<T> operator+ (const std::vector<T>& v, const std::vector<T>& v1)
 {
+  if (v.size() != v1.size()) {
+    logger::logger_->error("Can not preform operation on vectors of different sizes");
+  }
   std::vector<T> result;
   result.resize (v);
   std::transform(v.begin(), v.end(), v1.begin(), result.begin(), std::plus<T>());

@@ -32,7 +32,9 @@ std::vector<State<simulator_t>> State<simulator_t>::StateConstructor(arma::mat v
 {
   std::vector<State<simulator_t>> states;
   for (int i = 0; i < values.n_rows; ++i) {
-    std::vector<double> state = mtools_.to_std_vector(values.row(i));
+    arma::rowvec state_row = values.row(i);
+    logger::logger_->info("state vector row vec: {}", state_row);
+    std::vector<double> state = mtools_.to_std_vector(state_row);
     double alti_diff = state.back();
     state.pop_back();
     std::vector<double> dists_3D = state;
