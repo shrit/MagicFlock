@@ -201,8 +201,8 @@ predict(arma::mat& features)
   label = label.t();
 
   logger::logger_->info("Size of features matrix: {}", arma::size(features));
-  logger::logger_->info("Feature matrix: {}" features);
-  logger::logger_->info("Label matrix: {}" label);
+  logger::logger_->info("Feature matrix: {}", features);
+  logger::logger_->info("Label matrix: {}", label);
 
   arma::uword value = index_of_best_action_regression(label);
   logger::logger_->info("Index of best action regression: {}", value);
