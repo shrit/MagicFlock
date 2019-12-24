@@ -19,15 +19,14 @@
 # include <boost/date_time/posix_time/posix_time.hpp>
 
 /* MLPack includes*/
-#include <mlpack/core/data/split_data.hpp>
+# include <mlpack/core.hpp>
+# include <mlpack/core/data/split_data.hpp>
 
 /*  local defined include */
 # include "action.hh"
 # include "state.hh"
 # include "global.hh"
 # include "plot.hh"
-
-# include <armadillo>
 
 namespace lt = local_types;
 

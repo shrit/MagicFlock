@@ -19,7 +19,7 @@
 # include <ILMR/gazebo.hh>
 # include <ILMR/config_ini.hh>
 # include <ILMR/quadrotor.hh>
-# include <ILMR/log.hh>
+# include <ILMR/logger.hh>
 # include <ILMR/px4_device.hh>
 
 /*
@@ -29,8 +29,11 @@ int main(int argc, char* argv[])
 {
   /*  Init configs */
   Configs configs("/meta/lemon/quad.ini");
-  /*  Init logging system */
  
+	/*Start using the new loggin system*/
+  auto logger = ILMR::logger::init();
+  ILMR::logger::create_library_logger(logger);
+
   std::vector<lt::port_type> ports = configs.quads_ports();
   
   /* Create a vector of controllers. Each controller connect to one
@@ -40,11 +43,10 @@ int main(int argc, char* argv[])
   
   for (auto& it : ports) {    
     iris_x.push_back(std::make_shared<Px4Device>("udp", it));
-    LogInfo() << "Add an iris QCopter! " ;
-  }
+    logger::logger_->info("Add an iris QCopter! ");   
+    }
   
-  LogInfo() << "Ports number: "<< ports;      
-  
+  logger::logger_->info("Ports number: {}", ports);   
   /*  Gazebo simulator */
   std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(argc, argv, configs);
   
@@ -79,6 +81,6 @@ int main(int argc, char* argv[])
   quadrotors.at(2).add_nearest_neighbor_id(1);
   
   /*  Generate a dataset  */
-  Generator<Px4Device, Gazebo> generator(iris_x, quadrotors, gz);
-  generator.run();    
+  Generator<Px4Device, Gazebo> generator(iris_x, quadrotors, gz, logger);
+  generator.run(); 
 }

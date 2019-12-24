@@ -6,14 +6,15 @@ template<class flight_controller_t,
 	 class simulator_t>
 Generator<flight_controller_t, simulator_t>::
 Generator(std::vector<std::shared_ptr<flight_controller_t>> quads,
-	  const std::vector<Quadrotor<simulator_t>>& quadrotors,
-	  std::shared_ptr<simulator_t> sim_interface)
-  :count_(0),
-   episode_(0),
+	  			const std::vector<Quadrotor<simulator_t>>& quadrotors,
+	  			std::shared_ptr<simulator_t> sim_interface,
+          std::shared_ptr<spdlog::logger> logger)
+  :episode_(0),
    max_episode_(10000),
    sim_interface_(std::move(sim_interface)),
    swarm_(std::move(quads)),
-   quadrotors_(std::move(quadrotors))
+   quadrotors_(std::move(quadrotors)),
+   logger_(logger)
 {
   /*  Allow easier access and debugging to all quadrotors state */
   leader_ = quadrotors_.begin();
@@ -47,7 +48,8 @@ generate_trajectory(bool change_leader_action)
   follower_1_->current_action(Actions::Action::NoMove);
   follower_2_->current_action(Actions::Action::NoMove);
   
-  LogInfo() << "Current action leader" << action.action_to_str(leader_->current_action());
+  logger::logger_->info("Current action leader: {}", 
+  action.action_to_str(leader_->current_action()));
   /*  Threading Quadrotors */
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory(leader_->id(),
@@ -60,7 +62,7 @@ generate_trajectory(bool change_leader_action)
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   
   /* Get the next state at time t + 1  */
-  LogInfo() << "Sampling states at t +1";
+  logger::logger_->info("Sampling states at t +1");
   follower_1_->sample_state();
   follower_2_->sample_state();
 
@@ -69,34 +71,38 @@ generate_trajectory(bool change_leader_action)
 			      action.random_action_generator_with_only_opposed_condition
 			      (follower_1_->last_action()));
   
-  LogInfo() << "Current action follower 1" << action.action_to_str(follower_1_->current_action());
-  
+  logger::logger_->info("Current action follower 1: {}", 
+  action.action_to_str(follower_1_->current_action()));
+ 
+  /*  Do a random action at t+2 for the follower 2 */
+  follower_2_->current_action(
+			    action.random_action_generator_with_only_opposed_condition
+			    (follower_2_->last_action()));
+
+  logger::logger_->info("Current action follower 2: {}",
+  action.action_to_str(follower_2_->current_action()));  
+
   threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory(follower_1_->id(),
 								     follower_1_->current_action(),
 								     follower_1_->speed(),
 								     1000);
 				}));
-  
-  /* We need to wait until the Quadrotors finish their actions */
-  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-  
-  /* Get the next state at time t + 2  */
-  LogInfo() << "Sampling states at t+2";
-  follower_1_->sample_state();
-  follower_2_->sample_state();
-  
-  /*  Do a random action at t+2 for the follower 2 */
-  follower_2_->current_action(
-			    action.random_action_generator_with_only_opposed_condition
-			    (follower_2_->last_action()));
-  LogInfo() << "Current action follower 2" << action.action_to_str(follower_2_->current_action());
-  threads.push_back(std::thread([&](){
+
+	threads.push_back(std::thread([&](){
 				  swarm_.one_quad_execute_trajectory(follower_2_->id(),
 								     follower_2_->current_action(),
 								     follower_2_->speed(),
 								     1000);
 				}));
+  /* We need to wait until the Quadrotors finish their actions */
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  
+  /* Get the next state at time t + 2  */
+  logger::logger_->info("Sampling states at t+2");
+  follower_1_->sample_state();
+  follower_2_->sample_state();
+ 
   for(auto& thread : threads) {
     thread.join();
   }
@@ -105,7 +111,7 @@ generate_trajectory(bool change_leader_action)
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   
   /* Get the next state at time t + 3 */
-  LogInfo() << "Sampling states at t +3";
+  logger::logger_->info("Sampling states at t +3");
   follower_2_->sample_state();
 }
 
@@ -114,10 +120,7 @@ template<class flight_controller_t,
 void Generator<flight_controller_t, simulator_t>::
 run()
 {
-  std::vector<lt::position3D<double>> original_positions = sim_interface_->positions();
-  LogInfo() << "Starting positions : " << original_positions;
-
-  for (episode_ = 0; episode_ < max_episode_; ++episode_) {
+	for (episode_ = 0; episode_ < max_episode_; ++episode_) {
 
     /* Intilization phase: an episode start when the quadrotors
      * takeoff and end when they land and reset. Each episode contain
@@ -127,9 +130,9 @@ run()
      * dist(t-1), a(t-1), dist(t), a(t). Where dist contain distance
      * between the (TF and TL) and (TF and FF)
      */    
-    LogInfo() << "Episode : " << episode_ ;
+	  logger::logger_->info("Episode : {}", episode_);
 
-    /* Stop the episode if one of the quad has fallen to arm */    
+    /* ); top the episode if one of the quad has fallen to arm */    
     stop_episode_ = false;
     bool arm = swarm_.arm();
     if(!arm)
@@ -157,10 +160,10 @@ run()
     
     /*  Start the First phase */
     /*  Collect dataset by creating a set of trajectories, each time
-	the leader_ and the follower execute their trajectory randomly,
-	we check the triangle (whether the follower is too close or
-	too far) finally we break the loop after 10 trajectorise of 1
-	second each */
+		the leader_ and the follower execute their trajectory randomly,
+		we check the triangle (whether the follower is too close or
+		too far) finally we break the loop after 10 trajectorise of 1
+		second each */
     
     if (!stop_episode_) {
       /*  Verify that vectors are clear when starting new episode */
@@ -168,17 +171,16 @@ run()
       follower_2_->reset_all_states();
       follower_1_->reset_all_actions();
       follower_2_->reset_all_actions();
-      count_ = 0;
       
       while (!stop_episode_) {
-	
+      time_steps_.reset();
 	std::vector<lt::position3D<double>> positions_before_action =
 	  sim_interface_->positions();       
 	
 	/* Choose one random trajectory for the leader_ in the first
 	   count. Then, keep the same action until the end of the
 	   episode */	
-	if (count_ == 0) {
+	if (time_steps_.steps() == 0) {
 	  generate_trajectory(true);
 	} else {
 	  generate_trajectory(false);
@@ -189,8 +191,7 @@ run()
 		
 	follower_1_->register_data_set();
 	follower_2_->register_data_set();
-	
-	
+
 	/*  Clear vectors after each generated line in the dataset */
 	follower_1_->reset_all_states();
 	follower_2_->reset_all_states();	
@@ -206,16 +207,18 @@ run()
 							if (!shape) return true;
 							else return false;
 						      })) {
-	  LogInfo() << "The geometrical is no longer conserved";
+
+	  logger::logger_->info("The geometrical figure is no longer conserved");
 	  break;
 	}
-	++count_;					
-      }
+	time_steps_.tic();
+logger::logger_->flush();
+}
     }
     
     /*  Save a version of the time steps to create a histogram */
-    follower_1_->register_histogram(count_);
-    follower_2_->register_histogram(count_);
+    follower_1_->register_histogram(time_steps_.steps());
+    follower_2_->register_histogram(time_steps_.steps());
     
     /* Landing is blocking untill touching the ground*/
     swarm_.land();
@@ -223,7 +226,7 @@ run()
     /* Resetting the entire swarm after the end of each episode*/
     sim_interface_->reset_models();
 
-    LogInfo() << "All quadrotors have been reset...";
+    logger::logger_->info("All quadrotors have been reset..."); 
     
     std::this_thread::sleep_for(std::chrono::seconds(15));
 
@@ -245,7 +248,7 @@ run()
      * accelerometer values without any problems!
      */
 
-    /*  I have quite tested a lot of different solution. Frankly,if I am going
+    /*  I have quite tested a lot of different solution. Frankly, if I am going
      * to find a better one, I will replace it directly. */
   }
 }
