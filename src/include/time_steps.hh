@@ -11,7 +11,7 @@ public:
   void tic();
   int steps() const;
 
-  void reset_time_steps();
+  void reset();
   double elapsed_time_between_last_2_steps() const;
 
 private:

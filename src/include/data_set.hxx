@@ -43,7 +43,8 @@ void DataSet<simulator_t>::parse_dataset_file(std::string file_name)
   logger::logger_->debug("Vector: S_t => t=0: {}", st_vec_);
 }
 
-void Train::load_dataset_file(std::string&& dataset_file)
+template <class simulator_t>
+void DataSet<simulator_t>::load_dataset_file(std::string&& dataset_file)
 {
   // Load the training set.
   mlpack::data::Load(dataset_file, dataset_, true);
@@ -53,7 +54,9 @@ void Train::load_dataset_file(std::string&& dataset_file)
 /* This function define the number of columns used for features and
    labels. Note that, mlpack is column major. Thus, rows are columns
    @param x is the number of columns used for label*/
-void Train::set_label_column_number(int x) {
+template <class simulator_t>
+void DataSet<simulator_t>::set_label_column_number(int x) 
+{
   // Split the labels from the training set.
   train_features_ = trainset_.submat(0, 0,
 				     trainset_.n_rows - (x + 1),
@@ -71,10 +74,33 @@ void Train::set_label_column_number(int x) {
 				 testset_.n_rows - 1, testset_.n_cols - 1);
 }
 
-
 template <class simulator_t>
 arma::mat DataSet<simulator_t>::dataset() const
 { return dataset_; }
+
+template <class simulator_t>
+arma::mat DataSet<simulator_t>::trainset() const
+{ return trainset_; }
+
+template <class simulator_t>
+arma::mat DataSet<simulator_t>::testset() const
+{ return testset_; }
+
+template <class simulator_t>
+arma::mat DataSet<simulator_t>::train_features() const
+{ return train_features_; }
+
+template <class simulator_t>
+arma::mat DataSet<simulator_t>::train_labels() const
+{ return train_labels_; }
+
+template <class simulator_t>
+arma::mat DataSet<simulator_t>::test_labels() const
+{ return test_labels_; }
+
+template <class simulator_t>
+arma::mat DataSet<simulator_t>::test_features() const
+{ return test_features_; }
 
 template <class simulator_t>
 std::vector<State<simulator_t>> DataSet<simulator_t>::st_vec() const

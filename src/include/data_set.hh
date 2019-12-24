@@ -18,6 +18,9 @@
 # include <boost/algorithm/string.hpp>
 # include <boost/date_time/posix_time/posix_time.hpp>
 
+/* MLPack includes*/
+#include <mlpack/core/data/split_data.hpp>
+
 /*  local defined include */
 # include "action.hh"
 # include "state.hh"
@@ -36,7 +39,7 @@ public:
   DataSet();
 
   void parse_dataset_file(std::string file_name);
-  void load_dataset_file(std::string file_name);
+  void load_dataset_file(std::string&& file_name);
   void set_label_column_number(int x);
   
   template <typename Arg, typename... Args>
@@ -59,9 +62,9 @@ public:
 
   template <typename Arg, typename... Args>
   void plot(std::string title,
-	    std::string xlabel,
-	    std::string ylabel,
-	    Arg arg, Arg argv, Args... args);
+				    std::string xlabel,
+				    std::string ylabel,
+				    Arg arg, Arg argv, Args... args);
 
   void init_dataset_directory();
 
@@ -76,8 +79,26 @@ public:
 
   arma::mat dataset() const;
 
+	arma::mat test_features() const;
+	arma::mat test_labels() const;
+	arma::mat train_features() const;
+	arma::mat train_labels() const;
+	arma::mat trainset() const;
+	arma::mat testset() const;
+
 private:
   arma::mat dataset_;
+
+  arma::mat trainset_;
+  arma::mat testset_;
+
+  arma::mat train_features_;
+  arma::mat train_labels_;
+
+  arma::mat test_features_;
+  arma::mat test_labels_;
+
+  double ratio_ = 0.1;
 
   std::string dataset_file_name_;
   std::string error_file_name_;

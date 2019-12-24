@@ -149,12 +149,12 @@ run()
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
     if (!stop_episode_) {
-			time_steps_.reset_time_steps_();
+			time_steps_.reset();
       while (!stop_episode_) {
         if (time_steps_.steps() == 0)  {
           generate_trajectory_using_model(true, false);
           //Change each 10 times the direction of the leader
-        } else if (count_ % 10 == 0) {
+        } else if (time_steps_.steps() % 10 == 0) {
           generate_trajectory_using_model(true, false);
         } else if (sim_interface_->positions().at(0).z < 15
                    or sim_interface_->positions().at(1).z < 15) {
@@ -190,8 +190,8 @@ run()
        logger::logger_->flush();
       }
     }
-    follower_1_->register_histogram(count_);
-    follower_2_->register_histogram(count_);
+    follower_1_->register_histogram(time_steps_.steps());
+    follower_2_->register_histogram(time_steps_.steps());
     step_errors_.clear();
     swarm_.land();
 

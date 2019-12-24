@@ -15,6 +15,7 @@
 # include <ILMR/action.hh>
 # include <ILMR/global.hh>
 # include <ILMR/log.hh>
+# include <ILMR/time_steps.hh>
 
 namespace lt = local_types;
 
