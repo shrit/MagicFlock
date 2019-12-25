@@ -164,20 +164,64 @@ const std::vector<T> operator+ (const std::vector<T>& v, const std::vector<T>& v
     logger::logger_->error("Can not preform operation on vectors of different sizes");
   }
   std::vector<T> result;
-  result.resize (v);
   std::transform(v.begin(), v.end(), v1.begin(), result.begin(), std::plus<T>());
   return result;
 }
 
 template <typename T>
+bool operator< (const std::vector<T>& v, const std::vector<T>& v1)
+{
+	bool value = false;
+  if (v.size() != v1.size()) {
+    logger::logger_->error("Can not preform operation on vectors of different sizes");
+  }  
+	std::vector<T> result;
+  std::transform(v.begin(), v.end(), v1.begin(), result.begin(),
+                 [&](const double& v, const double& v1){
+		if (v < v1) {
+			result.push_back(1);
+			return true;
+		} else return false;
+		
+	});
+	if (std::equal(result.begin() + 1, result.end(), result.begin())) {
+    value = true;
+	}
+  return value;
+}
+
+template <typename T>
+bool operator> (const std::vector<T>& v, const std::vector<T>& v1)
+{
+	bool value = false;
+  if (v.size() != v1.size()) {
+    logger::logger_->error("Can not preform operation on vectors of different sizes");
+  }  
+	std::vector<T> result;
+  std::transform(v.begin(), v.end(), v1.begin(), result.begin(),
+                 [&](const double& v, const double& v1){
+		if (v > v1) {
+			result.push_back(1);
+			return true;
+		} else return false;
+	});
+	if (std::equal(result.begin() + 1, result.end(), result.begin())) {
+    value = true;
+	}
+  return value;
+}
+
+template <typename T>
 const std::vector<T>  operator* (const std::vector<T>& v, const std::vector<T>& v1)
 {
+   if (v.size() != v1.size()) {
+    logger::logger_->error("Can not preform operation on vectors of different sizes");
+  }
   std::vector<T> result;
   result.resize (v);
   std::transform(v.begin(), v.end(), v1.begin(), result.begin(), std::multiplies<T>());
   return result;
 }
-
 
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const std::vector<std::vector<T>>& v)
