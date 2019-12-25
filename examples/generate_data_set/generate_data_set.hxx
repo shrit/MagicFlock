@@ -33,6 +33,7 @@ generate_trajectory(bool change_leader_action)
   
   /*  Sample the state at time t */
   follower_1_->sample_state();
+ 	follower_2_->sample_state();
 
   /*  Create a random action for the leader_s, with the opposed condition */
   if (change_leader_action == true) {
@@ -66,20 +67,26 @@ generate_trajectory(bool change_leader_action)
   follower_1_->sample_state();
   follower_2_->sample_state();
 
-  /*  Do a random action at t+1 for the follower 1 */
   follower_1_->current_action(
-			      action.random_action_generator_with_only_opposed_condition
-			      (follower_1_->last_action()));
-  
+								action.deduce_action_from_distance
+			      		(follower_1_->last_state().distances_3D(),
+								follower_1_->last_state().height_diff(),
+			       		follower_1_->current_state().distances_3D(),
+								follower_1_->last_state().height_diff(),
+		      		 	follower_2_->last_action());
+
   logger::logger_->info("Current action follower 1: {}", 
   action.action_to_str(follower_1_->current_action()));
  
-  /*  Do a random action at t+2 for the follower 2 */
   follower_2_->current_action(
-			    action.random_action_generator_with_only_opposed_condition
-			    (follower_2_->last_action()));
+								action.deduce_action_from_distance
+			      		(follower_2_->last_state().distances_3D(),
+								follower_2_->last_state().height_diff(),
+			       		follower_2_->current_state().distances_3D(),
+								follower_2_->last_state().height_diff(),
+		      		  follower_1_->last_action());
 
-  logger::logger_->info("Current action follower 2: {}",
+	logger::logger_->info("Current action follower 2: {}",
   action.action_to_str(follower_2_->current_action()));  
 
   threads.push_back(std::thread([&](){
@@ -109,11 +116,7 @@ generate_trajectory(bool change_leader_action)
 
   /* We need to wait until the Quadrotors finish their actions */
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-  
-  /* Get the next state at time t + 3 */
-  logger::logger_->info("Sampling states at t +3");
-  follower_2_->sample_state();
-}
+ }
 
 template<class flight_controller_t,
 	 class simulator_t>
@@ -163,8 +166,7 @@ run()
 		the leader_ and the follower execute their trajectory randomly,
 		we check the triangle (whether the follower is too close or
 		too far) finally we break the loop after 10 trajectorise of 1
-		second each */
-    
+		second each */ 
     if (!stop_episode_) {
       /*  Verify that vectors are clear when starting new episode */
       follower_1_->reset_all_states();
@@ -208,13 +210,13 @@ run()
 							else return false;
 						      })) {
 
-	  logger::logger_->info("The geometrical figure is no longer conserved");
-	  break;
+	logger::logger_->info("The geometrical figure is no longer conserved");
+	break;
 	}
 	time_steps_.tic();
-logger::logger_->flush();
+	logger::logger_->flush();
+	}
 }
-    }
     
     /*  Save a version of the time steps to create a histogram */
     follower_1_->register_histogram(time_steps_.steps());

@@ -2,6 +2,7 @@
 
 Actions::Actions()
   :distribution_int_(0, 5),
+   distribution_real_(0, 1),
    generator_(random_dev())
 {}
 
@@ -95,6 +96,11 @@ random_action_generator()
   return action;
 }
 
+double Actions::generate_real_random()
+{
+	double random_double = distribution_real_(generator_);
+	return random_double;
+}
 /*  The condition is to generate an action that is not the same to the
     parameter action and not opposed to this action. This is more
     comfortable since the opposed action apply high noise on traveled
@@ -192,4 +198,39 @@ random_action_generator_with_only_opposed_condition(Action action)
     action_ = random_action_generator();
   }
   return action_;
+}
+
+Actions::Action Actions::deduce_action_from_distance(std::vector<double> distance_t_1,
+                                                     double alti_diff_t_1,
+																										 std::vector<double> distance_t,
+                                                     double alti_diff_t,
+																										 Actions::Action action_of_other)
+{
+	Actions::Action action_ = Action::Unknown;
+	if (distance_t > distance_t_1 and action_of_other == Action::NoMove) {
+		if (generate_real_random() > 0.5) {
+			action_ = Action::forward;
+		} else {
+			action_ = Action::right;
+		}
+	} else if (distance_t > distance_t_1 and action_of_other == Action::forward) {
+				action_ = Action::right;
+	} else if (distance_t > distance_t_1 and action_of_other == Action::right) {
+				action_ = Action::forward;
+	} else if (distance_t < distance_t_1 and action_of_other == Action::NoMove) { 
+		if (generate_real_random() > 0.5) {
+			action_ = Action::backward;
+		} else {
+			action_ = Action::left;
+		}
+	} else if (distance_t < distance_t_1 and action_of_other == Action::backward) { 
+			action_ = Action::left;
+	} else if (distance_t < distance_t_1 and action_of_other == Action::left) {
+			action_ = Action::backward;
+	} else if ((alti_diff_t_1 - alti_diff_t) > 0.5) {
+		action_ = Action::down;
+	} else {
+		action_ = Action::up;
+	}
+	return action_; 
 }
