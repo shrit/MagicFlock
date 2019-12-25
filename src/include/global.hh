@@ -175,14 +175,13 @@ bool operator< (const std::vector<T>& v, const std::vector<T>& v1)
   if (v.size() != v1.size()) {
     logger::logger_->error("Can not preform operation on vectors of different sizes");
   }  
-	std::vector<T> result;
+	std::vector<double> result;
+	result.resize(v.size());
   std::transform(v.begin(), v.end(), v1.begin(), result.begin(),
                  [&](const double& v, const double& v1){
-		if (v < v1) {
-			result.push_back(1);
+		if ((v -v1) > -0.15) {
 			return true;
 		} else return false;
-		
 	});
 	if (std::equal(result.begin() + 1, result.end(), result.begin())) {
     value = true;
@@ -198,10 +197,10 @@ bool operator> (const std::vector<T>& v, const std::vector<T>& v1)
     logger::logger_->error("Can not preform operation on vectors of different sizes");
   }  
 	std::vector<T> result;
+	result.resize(v.size());
   std::transform(v.begin(), v.end(), v1.begin(), result.begin(),
                  [&](const double& v, const double& v1){
-		if (v > v1) {
-			result.push_back(1);
+		if ((v - v1) > 0.15) {
 			return true;
 		} else return false;
 	});

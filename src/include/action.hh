@@ -55,7 +55,6 @@ public:
 
 	Action
 	deduce_action_from_distance(std::vector<double> distances_t_1,
-	                            double alti_diff_t_1,
 															std::vector<double> distances_t,
 															double alti_diff_t,
 															Actions::Action action_of_other);
