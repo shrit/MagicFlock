@@ -82,5 +82,5 @@ int main(int argc, char* argv[])
   
   /*  Generate a dataset  */
   Generator<Px4Device, Gazebo> generator(iris_x, quadrotors, gz, logger);
-  generator.run(); 
+  generator.run();
 }

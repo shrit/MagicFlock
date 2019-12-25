@@ -70,10 +70,10 @@ generate_trajectory(bool change_leader_action)
   follower_1_->current_action(
 								action.deduce_action_from_distance
 			      		(follower_1_->last_state().distances_3D(),
-								follower_1_->last_state().height_diff(),
+								follower_1_->last_state().height_difference(),
 			       		follower_1_->current_state().distances_3D(),
-								follower_1_->last_state().height_diff(),
-		      		 	follower_2_->last_action());
+								follower_1_->last_state().height_difference(),
+		      		 	follower_2_->last_action()));
 
   logger::logger_->info("Current action follower 1: {}", 
   action.action_to_str(follower_1_->current_action()));
@@ -81,10 +81,10 @@ generate_trajectory(bool change_leader_action)
   follower_2_->current_action(
 								action.deduce_action_from_distance
 			      		(follower_2_->last_state().distances_3D(),
-								follower_2_->last_state().height_diff(),
+								follower_2_->last_state().height_difference(),
 			       		follower_2_->current_state().distances_3D(),
-								follower_2_->last_state().height_diff(),
-		      		  follower_1_->last_action());
+								follower_2_->last_state().height_difference(),
+		      		  follower_1_->last_action()));
 
 	logger::logger_->info("Current action follower 2: {}",
   action.action_to_str(follower_2_->current_action()));  
