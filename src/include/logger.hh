@@ -1,12 +1,14 @@
 #pragma once
 
+# include <memory>
 # include <sstream>
-
+# include <thread>
 /*  Speed log include  */
 #include <spdlog/spdlog.h>
 #include <spdlog/logger.h>
+#include <spdlog/async.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/fmt/ostr.h>
 
 /*  Boost and file system includes */

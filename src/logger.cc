@@ -9,9 +9,12 @@ namespace ILMR
     if (not logger) {
       if (sinks.size() > 0) {
 
-        logger = std::make_shared<spdlog::logger>(logger_name,
-                                                  std::begin(sinks),
-                                                  std::end(sinks));
+				spdlog::init_thread_pool(8192,1);
+				logger = std::make_shared<spdlog::async_logger>("",
+																										  sinks.begin(),
+																										  sinks.end(),
+																											spdlog::thread_pool(),
+                                                      spdlog::async_overflow_policy::block   );
         spdlog::register_logger(logger);
       } else {
         logger = spdlog::stdout_color_mt(logger_name);
@@ -34,11 +37,11 @@ namespace ILMR
     auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
     console_sink->set_level(spdlog::level::info);
 
-    auto file_sink =
-      std::make_shared<spdlog::sinks::basic_file_sink_mt>(log_file_name, true);
-    file_sink->set_level(spdlog::level::trace);
+    auto rotating_sink = std::make_shared
+    <spdlog::sinks::rotating_file_sink_mt>(log_file_name, 1024*1024*10, 3);
+    rotating_sink->set_level(spdlog::level::trace);
 
-    std::vector<spdlog::sink_ptr> sinks {file_sink, console_sink};
+    std::vector<spdlog::sink_ptr> sinks {rotating_sink, console_sink};
     auto logger = setup_logger(sinks);
     return logger;
   }
