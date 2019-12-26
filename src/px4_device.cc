@@ -38,9 +38,9 @@ ConnectionResult Px4Device::connect_to_quad(std::string connection_url)
 bool Px4Device::discover_system()
 {
   bool discovered_system = false;
-  logger::logger_->info("Waiting to discover system...");
+  logger::logger_->debug("Waiting to discover system...");
   mavsdk_.register_on_discover([&discovered_system](uint64_t uuid) {
-                                 logger::logger_->info("Discovered system with UUID: {} ",
+                                 logger::logger_->debug("Discovered system with UUID: {} ",
                                                      uuid);
                                  discovered_system = true;
                                });
@@ -63,16 +63,16 @@ bool Px4Device::takeoff()
   while (true) {
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
     if (flight_mode() == Telemetry::FlightMode::TAKEOFF) {
-      logger::logger_->info("Flight Mode : {}",
+      logger::logger_->debug("Flight Mode : {}",
                     telemetry_->flight_mode_str(flight_mode()));
       break;
     }
   }
   while (flight_mode() == Telemetry::FlightMode::TAKEOFF) {
-    logger::logger_->info("Taking off...");
+    logger::logger_->debug("Taking off...");
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
   }
-  logger::logger_->info("Taking off has finished successfully...");
+  logger::logger_->debug("Taking off has finished successfully...");
   return true;
 }
 
@@ -92,16 +92,16 @@ bool Px4Device::takeoff(float meters)
   while (true) {
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
     if (flight_mode() == Telemetry::FlightMode::TAKEOFF) {
-      logger::logger_->info("Flight Mode :{}",
+      logger::logger_->debug("Flight Mode :{}",
                     telemetry_->flight_mode_str(flight_mode()));
       break;
     }
   }
   while (flight_mode() == Telemetry::FlightMode::TAKEOFF) {
-    logger::logger_->info("Taking off...");
+    logger::logger_->debug("Taking off...");
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
   }
-  logger::logger_->info("Taking off has finished successfully...");
+  logger::logger_->debug("Taking off has finished successfully...");
   return true;
 }
 
@@ -120,16 +120,16 @@ bool Px4Device::land()
   }
 
   while (telemetry_->in_air()) {
-    logger::logger_->info("Landing...") ;
+    logger::logger_->debug("Landing...") ;
     std::this_thread::sleep_for(std::chrono::seconds(1));
   }
-  logger::logger_->info("Landed.");
+  logger::logger_->debug("Landed.");
   return true;
 }
 
 bool Px4Device::return_to_launch()
 {
-  logger::logger_->info("return to launch position...");
+  logger::logger_->debug("return to launch position...");
   const Action::Result rtl_result = action_->return_to_launch();
   if (rtl_result != Action::Result::SUCCESS) {
     logger::logger_->error("return to launch position failed: {}",
@@ -141,7 +141,7 @@ bool Px4Device::return_to_launch()
 
 bool Px4Device::set_takeoff_altitude(float meters)
 {
-  logger::logger_->info("Setting altitude takeoff to: {} ",meters, "meters");
+  logger::logger_->debug("Setting altitude takeoff to: {} ",meters, "meters");
   const Action::Result takeoff_altitude =
     action_->set_takeoff_altitude(meters);
   if (takeoff_altitude != Action::Result::SUCCESS) {
@@ -154,7 +154,7 @@ bool Px4Device::set_takeoff_altitude(float meters)
 
 bool Px4Device::set_altitude_rtl_max(float meters)
 {
-  logger::logger_->info("set altitude rtl...");
+  logger::logger_->debug("set altitude rtl...");
   const Action::Result rtl_altitude =
     action_->set_return_to_launch_return_altitude(meters);
   if (rtl_altitude != Action::Result::SUCCESS) {
@@ -196,7 +196,7 @@ bool Px4Device::stop_offboard_mode()
     dataset */
 void Px4Device::up(float speed, unsigned int milliseconds_)
 {
-  logger::logger_->info("Up !");
+  logger::logger_->debug("Up !");
   offboard_->set_velocity_body({0.0f, 0.0f, -speed, 0.0f});
   sleep_for(milliseconds(milliseconds_));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
@@ -204,7 +204,7 @@ void Px4Device::up(float speed, unsigned int milliseconds_)
 
 void Px4Device::down(float speed, unsigned int milliseconds_)
 {
-  logger::logger_->info("Down !");
+  logger::logger_->debug("Down !");
   offboard_->set_velocity_body({0.0f, 0.0f, +speed, 0.0f});
   sleep_for(milliseconds(milliseconds_));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
@@ -212,7 +212,7 @@ void Px4Device::down(float speed, unsigned int milliseconds_)
 
 void Px4Device::right(float speed, unsigned int milliseconds_)
 {
-  logger::logger_->info("Right now !");
+  logger::logger_->debug("Right now !");
   offboard_->set_velocity_body({0.0f, +speed, 0.0f, 0.0f});
   sleep_for(milliseconds(milliseconds_));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
@@ -220,7 +220,7 @@ void Px4Device::right(float speed, unsigned int milliseconds_)
 
 void Px4Device::left(float speed, unsigned int milliseconds_)
 {
-  logger::logger_->info("Left now !");
+  logger::logger_->debug("Left now !");
   offboard_->set_velocity_body({0.0f, -speed, 0.0f, 0.0f});
   sleep_for(milliseconds(milliseconds_));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
@@ -228,7 +228,7 @@ void Px4Device::left(float speed, unsigned int milliseconds_)
 
 void Px4Device::forward(float speed, unsigned int milliseconds_)
 {
-  logger::logger_->info("Forward !");
+  logger::logger_->debug("Forward !");
   offboard_->set_velocity_body({speed, 0.0f, 0.0f, 0.0f});
   sleep_for(milliseconds(milliseconds_));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
@@ -236,7 +236,7 @@ void Px4Device::forward(float speed, unsigned int milliseconds_)
 
 void Px4Device::backward(float speed, unsigned int milliseconds_)
 {
-  logger::logger_->info("Backward !");
+  logger::logger_->debug("Backward !");
   offboard_->set_velocity_body({-speed, 0.0f, 0.0f, 0.0f});
   sleep_for(milliseconds(milliseconds_));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
@@ -252,7 +252,7 @@ void Px4Device::backward(float speed, unsigned int milliseconds_)
     impossible to ensure the distances between the quadrotors*/
 void Px4Device::up(float speed)
 {
-  logger::logger_->info("Up !");
+  logger::logger_->debug("Up !");
   offboard_->set_velocity_body({0.0f, 0.0f, -speed, 0.0f});
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
@@ -260,7 +260,7 @@ void Px4Device::up(float speed)
 
 void Px4Device::down(float speed)
 {
-  logger::logger_->info("Down !");
+  logger::logger_->debug("Down !");
   offboard_->set_velocity_body({0.0f, 0.0f, +speed, 0.0f});
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
@@ -268,7 +268,7 @@ void Px4Device::down(float speed)
 
 void Px4Device::right(float speed)
 {
-  logger::logger_->info("Right !");
+  logger::logger_->debug("Right !");
   offboard_->set_velocity_body({0.0f, +speed, 0.0f, 0.0f});
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
@@ -276,7 +276,7 @@ void Px4Device::right(float speed)
 
 void Px4Device::left(float speed)
 {
-  logger::logger_->info("Left !");
+  logger::logger_->debug("Left !");
   offboard_->set_velocity_body({0.0f, -speed, 0.0f, 0.0f});
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
@@ -285,7 +285,7 @@ void Px4Device::left(float speed)
 /*  Speed in m/s */
 void Px4Device::forward(float speed)
 {
-  logger::logger_->info("Forward !");
+  logger::logger_->debug("Forward !");
   offboard_->set_velocity_body({speed, 0.0f, 0.0f, 0.0f});
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
@@ -294,7 +294,7 @@ void Px4Device::forward(float speed)
 /* Going forward and left at the same time in a circular movement */
 void Px4Device::forward_left(float speed)
 {
-  logger::logger_->info("Forward !");
+  logger::logger_->debug("Forward !");
   offboard_->set_velocity_body({speed, 0.0f, 0.0f, -30.0f});
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
@@ -303,7 +303,7 @@ void Px4Device::forward_left(float speed)
 /* Going forward and right at the same time in a circular movement */
 void Px4Device::forward_right(float speed)
 {
-  logger::logger_->info("Forward !");
+  logger::logger_->debug("Forward !");
   offboard_->set_velocity_body({speed, 0.0f, 0.0f, 30.0f});
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
@@ -311,7 +311,7 @@ void Px4Device::forward_right(float speed)
 
 void Px4Device::backward(float speed)
 {
-  logger::logger_->info("Backward !");
+  logger::logger_->debug("Backward !");
   offboard_->set_velocity_body({-speed, 0.0f, 0.0f, 0.0f});
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
@@ -320,7 +320,7 @@ void Px4Device::backward(float speed)
 /* Going backward and left at the same time in a circular movement */
 void Px4Device::backward_left(float speed)
 {
-  logger::logger_->info("Backward !");
+  logger::logger_->debug("Backward !");
   offboard_->set_velocity_body({-speed, 0.0f, 0.0f, -30.0f});
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
@@ -329,7 +329,7 @@ void Px4Device::backward_left(float speed)
 /* Going backward and right at the same time in a circular movement */
 void Px4Device::backward_right(float speed)
 {
-  logger::logger_->info("Backward !");
+  logger::logger_->debug("Backward !");
   offboard_->set_velocity_body({-speed, 0.0f, 0.0f, 30.0f});
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
@@ -338,7 +338,7 @@ void Px4Device::backward_right(float speed)
 // add later the angular yaw speed
 void Px4Device::turnToLeft()
 {
-  logger::logger_->info("Rotate left!");
+  logger::logger_->debug("Rotate left!");
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 270.0f});
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
@@ -346,7 +346,7 @@ void Px4Device::turnToLeft()
 // add later the angular yaw speed
 void Px4Device::turnToRight()
 {
-  logger::logger_->info("Rotate right");
+  logger::logger_->debug("Rotate right");
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 90.0f});
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({0.0f, 0.0f, 0.0f, 0.0f});
@@ -365,7 +365,7 @@ bool Px4Device::arm()
 
 bool Px4Device::reboot()
 {
-  logger::logger_->info("Rebooting...");
+  logger::logger_->debug("Rebooting...");
   Action::Result reboot_result = action_->reboot();
   if(reboot_result != Action::Result::SUCCESS){
     logger::logger_->error("Rebooting failed: {}",
@@ -443,7 +443,7 @@ bool Px4Device::receive_px4_shell_reponse()
                          shell_->result_code_str(shell_results));
     return false;
   }
-  logger::logger_->info(_shell_reponse);
+  logger::logger_->debug(_shell_reponse);
   return true;
 }
 
@@ -481,17 +481,17 @@ Px4Device::create_calibration_callback(std::promise<void> &calibration_promise)
                                 const Calibration::ProgressData progress_data) {
            switch (result) {
            case Calibration::Result::SUCCESS:
-             logger::logger_->info("--- Calibration succeeded!");
+             logger::logger_->debug("--- Calibration succeeded!");
              calibration_promise.set_value();
              break;
            case Calibration::Result::IN_PROGRESS:
-             logger::logger_->info("--- Progress: {} ", progress_data.progress);
+             logger::logger_->debug("--- Progress: {} ", progress_data.progress);
              break;
            case Calibration::Result::INSTRUCTION:
-             logger::logger_->info("--- Instruction:{}", progress_data.status_text) ;
+             logger::logger_->debug("--- Instruction:{}", progress_data.status_text) ;
              break;
            default:
-             logger::logger_->info("--- Calibration failed with message: {}",Calibration::result_str(result));
+             logger::logger_->debug("--- Calibration failed with message: {}",Calibration::result_str(result));
              calibration_promise.set_value();
              break;
            }
@@ -500,7 +500,7 @@ Px4Device::create_calibration_callback(std::promise<void> &calibration_promise)
 
 void Px4Device::calibrate_accelerometer()
 {
-  logger::logger_->info("Calibrating accelerometer...");
+  logger::logger_->debug("Calibrating accelerometer...");
   std::promise<void> calibration_promise;
   auto calibration_future = calibration_promise.get_future();
 
