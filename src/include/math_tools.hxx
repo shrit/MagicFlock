@@ -58,7 +58,7 @@ is_good_shape(unsigned int id,
 {
   bool value = false;
   std::vector<double> distances = distances_to_neighbors(id, nearest_neighbors, positions);
-  logger::logger_->info("Distances to other quadrotors: {} ",distances);
+  logger::logger_->debug("Distances to other quadrotors: {} ",distances);
   if (std::any_of(distances.begin(), distances.end(),[&](const double& i){
                                                        if ((i > lower_threshold_)  and
                                                            (i < upper_threshold_)) {
@@ -66,7 +66,6 @@ is_good_shape(unsigned int id,
                                                        }
                                                        else return false;
                                                      })) {
-
     value = true;
   }
   return value;

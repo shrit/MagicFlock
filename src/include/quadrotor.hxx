@@ -162,3 +162,12 @@ double Quadrotor<simulator_t>::decrease_speed_by_value(double speed)
 {
   speed_ = speed_ - speed;
 }
+
+template <class simulator_t>
+std::vector<double> Quadrotor<simulator_t>::distances_to_neighbors()
+{
+	std::vector<double> distances;
+	distances = mtools_.distances_to_neighbors(id_, nearest_neighbors_,
+	                                           sim_interface_->positions());
+	return distances;
+}

@@ -57,6 +57,7 @@ public:
   double decrease_speed_by_value(double speed);
 
   bool examin_geometric_shape();
+	std::vector<double> distances_to_neighbors();
 
 private:
 
