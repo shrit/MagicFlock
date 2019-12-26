@@ -90,7 +90,7 @@ private:
 
   std::map <int, int> histo_;
   double lower_threshold_ = 1; /*  1 meters minimum distance between quadrotors */
-  double upper_threshold_ = 7; /*  4 meters maximum distance between quadrotors */
+  double upper_threshold_ = 5; /*  5 meters maximum distance between quadrotors */
 };
 
 # include "math_tools.hxx"

@@ -38,20 +38,18 @@ namespace gazebo
     {
       // Apply a small linear velocity to the model.
       if (_msg->x() == 1){
-	this->model->Reset();
-	this->model->ResetPhysicsStates();	
+				this->model->Reset();
+				this->model->ResetPhysicsStates();
       }
     }
-
     // Pointer to the model
   private: physics::ModelPtr model;
-    
+   
     /// \brief A node used for transport
   private: transport::NodePtr node;
-    
+   
   private: transport::SubscriberPtr sub;
-        
-    
+  
   };
 
   // Register this plugin with the simulator

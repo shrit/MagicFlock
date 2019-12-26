@@ -20,7 +20,7 @@
 namespace lt = local_types;
 
 template<class flight_controller_t,
-	 class simulator_t>
+				class simulator_t>
 class Generator {
 
 public:
@@ -28,7 +28,7 @@ public:
 	    			const std::vector<Quadrotor<simulator_t>>& quadrotors,
 	    			std::shared_ptr<simulator_t> sim_interface,
       			std::shared_ptr<spdlog::logger> logger);
-  
+
   void generate_trajectory(bool random_leader_action);
   void run();
 
@@ -42,7 +42,7 @@ private:
   bool stop_episode_;  
   SwarmDevice<flight_controller_t> swarm_;
   std::vector<Quadrotor<simulator_t>> quadrotors_;
- 	TimeSteps time_steps_;
+  TimeSteps time_steps_;
   std::shared_ptr<spdlog::logger> logger_;
   typename std::vector<Quadrotor<simulator_t>>::iterator leader_;
   typename std::vector<Quadrotor<simulator_t>>::iterator follower_1_;

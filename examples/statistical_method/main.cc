@@ -20,9 +20,8 @@
 # include <ILMR/gazebo.hh>
 # include <ILMR/config_ini.hh>
 # include <ILMR/quadrotor.hh>
-# include <ILMR/log.hh>
-# include <ILMR/px4_device.hh>
 # include <ILMR/logger.hh>
+# include <ILMR/px4_device.hh>
 
 /*  CLI11 library headers */
 # include <CLI/CLI.hpp>

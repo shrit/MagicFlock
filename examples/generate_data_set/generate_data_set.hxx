@@ -108,7 +108,7 @@ generate_trajectory(bool change_leader_action)
   follower_1_->sample_state();
   follower_2_->sample_state();
  
-  for(auto& thread : threads) {
+  for (auto& thread : threads) {
     thread.join();
   }
 
@@ -117,7 +117,7 @@ generate_trajectory(bool change_leader_action)
  }
 
 template<class flight_controller_t,
-	 class simulator_t>
+				class simulator_t>
 void Generator<flight_controller_t, simulator_t>::
 run()
 {
@@ -133,10 +133,10 @@ run()
      */    
 	  logger::logger_->info("Episode : {}", episode_);
 
-    /* ); top the episode if one of the quad has fallen to arm */    
+    /* Stop the episode if one of the quad has fallen to arm */    
     stop_episode_ = false;
     bool arm = swarm_.arm();
-    if(!arm)
+    if (!arm)
       stop_episode_ = true;
     
     std::this_thread::sleep_for(std::chrono::seconds(2));
@@ -153,69 +153,67 @@ run()
     /* Stop the episode is the one quadcopter have fallen to set
        offbaord mode */    
     bool offboard_mode = swarm_.start_offboard_mode();
-    if(!offboard_mode)
+    if (!offboard_mode)
       stop_episode_ = true;
     
     /*  Wait to complete the take off process */
     std::this_thread::sleep_for(std::chrono::seconds(1));
     
-    /*  Start the First phase */
     /*  Collect dataset by creating a set of trajectories, each time
-		the leader_ and the follower execute their trajectory randomly,
-		we check the triangle (whether the follower is too close or
-		too far) finally we break the loop after 10 trajectorise of 1
-		second each */ 
-    if (!stop_episode_) {
-      /*  Verify that vectors are clear when starting new episode */
+				the leader_and the follower execute their trajectory randomly,
+				we check the geometrical figure (whether the follower is too close or
+				too far) finally we break the loop after 10 trajectorise of 1
+				second each */ 
+		if (!stop_episode_) {
+			/*  Verify that vectors are clear when starting new episode */
       follower_1_->reset_all_states();
       follower_2_->reset_all_states();
       follower_1_->reset_all_actions();
       follower_2_->reset_all_actions();
-      
+
+			time_steps_.reset();
       while (!stop_episode_) {
-      time_steps_.reset();
-	std::vector<lt::position3D<double>> positions_before_action =
-	  sim_interface_->positions();       
+				std::vector<lt::position3D<double>> positions_before_action =
+	  		sim_interface_->positions();       
 	
-	/* Choose one random trajectory for the leader_ in the first
-	   count. Then, keep the same action until the end of the
-	   episode */	
-	if (time_steps_.steps() == 0) {
-	  generate_trajectory(true);
-	} else {
-	  generate_trajectory(false);
-	}
-	
-	std::vector<lt::position3D<double>> positions_after_action =
-	  sim_interface_->positions();
-		
-	follower_1_->register_data_set();
-	follower_2_->register_data_set();
+			/* Choose one random trajectory for the leader_ in the first
+			count. Then, keep the same action until the end of the
+			episode */
+			if (time_steps_.steps() == 0) {
+				generate_trajectory(true);
+			} else {
+				generate_trajectory(false);
+			}
 
-	/*  Clear vectors after each generated line in the dataset */
-	follower_1_->reset_all_states();
-	follower_2_->reset_all_states();	
-	follower_1_->reset_all_actions();
-	follower_2_->reset_all_actions();
-	
-	/*  Check the geometrical shape */
-	std::vector<bool> shapes;
-	for (auto it : quadrotors_) {
-	  shapes.push_back(it.examin_geometric_shape());
-	}
-	if (std::any_of(shapes.begin(), shapes.end(), [](const bool& shape){
-							if (!shape) return true;
-							else return false;
-						      })) {
+			std::vector<lt::position3D<double>> positions_after_action =
+			sim_interface_->positions();
 
-	logger::logger_->info("The geometrical figure is no longer conserved");
-	break;
-	}
-	time_steps_.tic();
-	logger::logger_->flush();
+			follower_1_->register_data_set();
+			follower_2_->register_data_set();
+
+			/*  Clear vectors after each generated line in the dataset */
+			follower_1_->reset_all_states();
+			follower_2_->reset_all_states();	
+			follower_1_->reset_all_actions();
+			follower_2_->reset_all_actions();
+	
+			/*  Check the geometrical shape */
+			std::vector<bool> shapes;
+			for (auto it : quadrotors_) {
+			shapes.push_back(it.examin_geometric_shape());
+		}
+		if (std::any_of(shapes.begin(), shapes.end(), [](const bool& shape){
+				if (!shape) return true;
+				else return false;
+      })) {
+
+						logger::logger_->info("The geometrical figure is no longer conserved");
+						break;
+					}
+			time_steps_.tic();
+			logger::logger_->flush();
 	}
 }
-    
     /*  Save a version of the time steps to create a histogram */
     follower_1_->register_histogram(time_steps_.steps());
     follower_2_->register_histogram(time_steps_.steps());

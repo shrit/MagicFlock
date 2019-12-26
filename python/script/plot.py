@@ -161,8 +161,8 @@ def plot_two_cumulative_histogram(histogram_file_name,
     x, y = cumulative_histogram(histogram_file_name)
     i, j = cumulative_histogram(histogram_file_name_2)
         
-    plt.plot(x, y, color='blue', label="Trained controller")
-    plt.plot(x, j, color='green', label="Random controller")
+    plt.plot(x, y, color='blue', label="controller Phase 1")
+    plt.plot(x, j, color='green', label="controller Phase 2")
 
     plt.title("Cumulative distribution function of random and trained controller")
     plt.xlabel('Number of time steps executed by the follower per episode')
@@ -171,7 +171,7 @@ def plot_two_cumulative_histogram(histogram_file_name,
     plt.grid()
     figure = plt.gcf() # get current figure
     figure.set_size_inches(25, 6)    
-    plt.savefig(histogram_file_name + "two_cumulative_.svg", dpi=100)
+    plt.savefig(histogram_file_name + "two_cumulative_.png", dpi=100)
 
 if __name__ == '__main__':
 
