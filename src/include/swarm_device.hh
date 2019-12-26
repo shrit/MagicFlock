@@ -36,7 +36,8 @@ public:
 
   bool takeoff(float meters);
   bool takeoff_specific_quadrotor(float meters, unsigned int id);
-
+  bool in_air(float meters);
+  
   SwarmDevice(SwarmDevice const&) = delete;
   SwarmDevice(SwarmDevice &&) = default;
 

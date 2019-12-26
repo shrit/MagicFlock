@@ -203,3 +203,34 @@ positions_GPS()
   positions.push_back(iris_x_.at(2)->get_position_GPS());
   return positions;
 }
+
+/* This function do arming, takoff, and offboard mode for a swarm*/
+template<class flight_controller_t>
+bool SwarmDevice<flight_controller_t>::in_air(float meters)
+{
+  bool start_episode = true;
+  bool arm = this->arm();
+  if (!arm) {
+     start_episode = false;
+  } else if (arm) {  
+    std::this_thread::sleep_for(std::chrono::seconds(2));  
+ 	  /* Stop the episode if one of the quad has fallen to takoff */
+  	 bool takeoff = this->takeoff(meters);
+  	 if (!takeoff) {
+   	  start_episode = false;
+  	 } else if (takeoff) {
+ 		 /*  Setting up speed in order to switch the mode */
+  		this->init_speed();
+    /*  Switch to offboard mode, Allow the control */
+    /* Stop the episode is the one quadcopter have fallen to set
+       offbaord mode */    
+    bool offboard_mode = this->start_offboard_mode();
+    if (!offboard_mode)
+      start_episode = false;
+    
+	    /*  Wait to complete the take off process */
+  	  std::this_thread::sleep_for(std::chrono::seconds(1));
+   	 }
+  }
+	return start_episode;
+}

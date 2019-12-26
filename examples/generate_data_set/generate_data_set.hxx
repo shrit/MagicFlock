@@ -11,6 +11,7 @@ Generator(std::vector<std::shared_ptr<flight_controller_t>> quads,
           std::shared_ptr<spdlog::logger> logger)
   :episode_(0),
    max_episode_(10000),
+   start_episode_(false),
    sim_interface_(std::move(sim_interface)),
    swarm_(std::move(quads)),
    quadrotors_(std::move(quadrotors)),
@@ -131,39 +132,13 @@ run()
      * between the (TF and TL) and (TF and FF)
      */    
 	  logger::logger_->info("Episode : {}", episode_);
-
-    /* Stop the episode if one of the quad has fallen to arm */    
-    stop_episode_ = false;
-    bool arm = swarm_.arm();
-    if (!arm)
-      stop_episode_ = true;
-    
-    std::this_thread::sleep_for(std::chrono::seconds(2));
-    
-    /* Stop the episode if one of the quad has fallen to takoff */
-    bool takeoff = swarm_.takeoff(15);
-    if (!takeoff)
-      stop_episode_ = true;
-    
-    /*  Setting up speed in order to switch the mode */
-    swarm_.init_speed();
-    
-    /*  Switch to offboard mode, Allow the control */
-    /* Stop the episode is the one quadcopter have fallen to set
-       offbaord mode */    
-    bool offboard_mode = swarm_.start_offboard_mode();
-    if (!offboard_mode)
-      stop_episode_ = true;
-    
-    /*  Wait to complete the take off process */
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    
+		start_episode_ = swarm_.in_air(15);
     /*  Collect dataset by creating a set of trajectories, each time
 				the leader_and the follower execute their trajectory randomly,
 				we check the geometrical figure (whether the follower is too close or
 				too far) finally we break the loop after 10 trajectorise of 1
 				second each */ 
-		if (!stop_episode_) {
+		if (start_episode_) {
 			/*  Verify that vectors are clear when starting new episode */
       follower_1_->reset_all_states();
       follower_2_->reset_all_states();
@@ -171,7 +146,7 @@ run()
       follower_2_->reset_all_actions();
 
 			time_steps_.reset();
-      while (!stop_episode_) {
+      while (start_episode_) {
 				logger::logger_->info("leader distance to followers after actions, {}", leader_->distances_to_neighbors());
 			/* Choose one random trajectory for the leader_ in the first
 			count. Then, keep the same action until the end of the
@@ -202,7 +177,6 @@ run()
 				if (!shape) return true;
 				else return false;
       })) {
-
 						logger::logger_->info("The geometrical figure is no longer conserved");
 						break;
 					}

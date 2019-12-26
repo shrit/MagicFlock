@@ -38,8 +38,8 @@ public:
 private:
   int episode_;
   int max_episode_;
-  std::shared_ptr<simulator_t> sim_interface_;
-  bool stop_episode_;  
+	bool start_episode_;
+	std::shared_ptr<simulator_t> sim_interface_;
   SwarmDevice<flight_controller_t> swarm_;
   std::vector<Quadrotor<simulator_t>> quadrotors_;
   TimeSteps time_steps_;
