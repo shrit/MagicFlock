@@ -49,7 +49,9 @@ generate_trajectory(bool change_leader_action)
       block the follower and log not move*/
   follower_1_->current_action(Actions::Action::NoMove);
   follower_2_->current_action(Actions::Action::NoMove);
-  
+
+	logger::logger_->info("leader distance to followers before actions, {}", leader_->distances_to_neighbors());
+	 
   logger::logger_->info("Current action leader: {}", 
   action.action_to_str(leader_->current_action()));
   /*  Threading Quadrotors */
@@ -62,11 +64,13 @@ generate_trajectory(bool change_leader_action)
 
   /* We need to wait until the Quadrotors finish their actions */
   std::this_thread::sleep_for(std::chrono::milliseconds(1500));
-  
+
+	logger::logger_->info("leader distance to followers after actions, {}", leader_->distances_to_neighbors());
+
   /* Get the next state at time t + 1  */
   logger::logger_->info("Sampling states at t +1");
 
-	threads.push_back(std::thread([&](){
+		threads.push_back(std::thread([&](){
 			follower_1_->sample_state();
 			follower_1_->current_action(
 									action.deduce_action_from_distance
@@ -122,15 +126,7 @@ void Generator<flight_controller_t, simulator_t>::
 run()
 {
 	for (episode_ = 0; episode_ < max_episode_; ++episode_) {
-
-    /* Intilization phase: an episode start when the quadrotors
-     * takeoff and end when they land and reset. Each episode contain
-     * a count number (steps). Each count represents one line in the
-     * dataset. Several trajectories might be executed in one count.
-     * Now. We execute only two trajectories in one count, thus means
-     * dist(t-1), a(t-1), dist(t), a(t). Where dist contain distance
-     * between the (TF and TL) and (TF and FF)
-     */    
+ 
 	  logger::logger_->info("Episode : {}", episode_);
 		start_episode_ = swarm_.in_air(15);
     /*  Collect dataset by creating a set of trajectories, each time
@@ -140,15 +136,9 @@ run()
 				second each */ 
 		if (start_episode_) {
 			/*  Verify that vectors are clear when starting new episode */
-      follower_1_->reset_all_states();
-      follower_2_->reset_all_states();
-      follower_1_->reset_all_actions();
-      follower_2_->reset_all_actions();
-
 			time_steps_.reset();
       while (start_episode_) {
-				logger::logger_->info("leader distance to followers after actions, {}", leader_->distances_to_neighbors());
-			/* Choose one random trajectory for the leader_ in the first
+		/* Choose one random trajectory for the leader_ in the first
 			count. Then, keep the same action until the end of the
 			episode */
 //			if (time_steps_.steps() == 0) {
@@ -156,8 +146,6 @@ run()
 //			} else {
 //				generate_trajectory(false);
 //			}
-
-			logger::logger_->info("leader distance to followers before actions, {}", leader_->distances_to_neighbors());
 
 			follower_1_->register_data_set();
 			follower_2_->register_data_set();
