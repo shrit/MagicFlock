@@ -30,8 +30,9 @@ public:
   double rt_height();
 
   std::vector<double> distances_3D() const;
-  std::vector<double> estimated_distances() const;
+	double distance_to(int id);
 
+  std::vector<double> estimated_distances() const;
   std::vector<State> StateConstructor(arma::mat values);
 
 private:

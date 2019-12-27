@@ -70,6 +70,14 @@ distances_3D() const
 { return dists_3D_; }
 
 template <class simulator_t>
+double State<simulator_t>::
+distance_to(int id)
+{ 
+	double distance = dists_3D_.at(id);
+	return distance;
+}
+
+template <class simulator_t>
 std::vector<double> State<simulator_t>::
 estimated_distances() const
 { return estimated_dists_3D_; }
