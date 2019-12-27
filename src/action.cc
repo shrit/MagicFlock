@@ -207,31 +207,43 @@ Actions::Action Actions::deduce_action_from_distance(double distance_t_1,
 {
 	Actions::Action action_ = Action::Unknown;
 	if (distance_t > distance_t_1 and action_of_other == Action::NoMove 
-			and std::fabs(alti_diff_t) < 0.3) {
+			and std::fabs(alti_diff_t) < 0.4) {
 		if (generate_real_random() > 0.5) {
 			action_ = Action::forward;
 		} else {
 			action_ = Action::left;
 		}
 	} else if (distance_t > distance_t_1 and action_of_other == Action::forward
-	   and std::fabs(alti_diff_t) < 0.3) {
+	   and std::fabs(alti_diff_t) < 0.4) {
 				action_ = Action::left;
 	} else if (distance_t > distance_t_1 and action_of_other == Action::left
-	   and std::fabs(alti_diff_t) < 0.3) {
+	   and std::fabs(alti_diff_t) < 0.4) {
 				action_ = Action::forward;
+	} else if (distance_t > distance_t_1 and action_of_other == Action::right 
+			 and std::fabs(alti_diff_t) < 0.4) {
+			action_ = Action::forward;	
+	} else if (distance_t > distance_t_1 and action_of_other == Action::backward 
+			 and std::fabs(alti_diff_t) < 0.4) {
+			action_ = Action::right;
 	} else if (distance_t < distance_t_1 and action_of_other == Action::NoMove 
-			and std::fabs(alti_diff_t) < 0.3) { 
+			and std::fabs(alti_diff_t) < 0.4) { 
 		if (generate_real_random() > 0.5) {
 			action_ = Action::backward;
 		} else {
 			action_ = Action::right;
 		}
 	} else if (distance_t < distance_t_1 and action_of_other == Action::backward
-	     and std::fabs(alti_diff_t) < 0.3) { 
+	     and std::fabs(alti_diff_t) < 0.4) { 
 			action_ = Action::right;
 	} else if (distance_t < distance_t_1 and action_of_other == Action::right 
-			 and std::fabs(alti_diff_t) < 0.3) {
+			 and std::fabs(alti_diff_t) < 0.4) {
 			action_ = Action::backward;
+	}	else if (distance_t < distance_t_1 and action_of_other == Action::forward 
+			 and std::fabs(alti_diff_t) < 0.4) {
+			action_ = Action::right;
+	} else if (distance_t < distance_t_1 and action_of_other == Action::left 
+			 and std::fabs(alti_diff_t) < 0.4) {
+			action_ = Action::backward;	
 	} else if ((alti_diff_t) > 0.7) {
 		action_ = Action::up;
 	} else {

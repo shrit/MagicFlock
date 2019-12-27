@@ -53,6 +53,9 @@ generate_trajectory(bool change_leader_action)
 	logger::logger_->info("Follower 1 distance to others before leader actions, {}", 
 	follower_1_->distances_to_neighbors());
 	 
+	logger::logger_->info("Follower 2 distance to others before leader actions, {}", 
+	follower_2_->distances_to_neighbors());
+	 
   logger::logger_->info("Current action leader: {}", 
   action.action_to_str(leader_->current_action()));
   /*  Threading Quadrotors */
@@ -68,6 +71,9 @@ generate_trajectory(bool change_leader_action)
 
 	logger::logger_->info("Follower 1 distance to others after leader actions, {}", 
 	follower_1_->distances_to_neighbors());
+
+	logger::logger_->info("Follower 2 distance to others after leader actions, {}", 
+	follower_2_->distances_to_neighbors());
 
   /* Get the next state at time t + 1  */
   logger::logger_->info("Sampling states at t +1");
@@ -86,7 +92,7 @@ generate_trajectory(bool change_leader_action)
 	      				(follower_2_->last_state().distance_to(leader_->id()),
 								follower_2_->current_state().distance_to(leader_->id()),
 								follower_2_->current_state().height_difference(),
-	      				 follower_1_->current_action()));
+      				  follower_1_->current_action()));
 
 		threads.push_back(std::thread([&](){
 						logger::logger_->info("Current action follower 1: {}", 
