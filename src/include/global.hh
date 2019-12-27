@@ -179,7 +179,7 @@ bool operator< (const std::vector<T>& v, const std::vector<T>& v1)
 	result.resize(v.size());
   std::transform(v.begin(), v.end(), v1.begin(), result.begin(),
                  [&](const double& v, const double& v1){
-		if ((v -v1) > -0.15) {
+	if ((v + 0.15) < v1) {
 			return true;
 		} else return false;
 	});
@@ -200,7 +200,7 @@ bool operator> (const std::vector<T>& v, const std::vector<T>& v1)
 	result.resize(v.size());
   std::transform(v.begin(), v.end(), v1.begin(), result.begin(),
                  [&](const double& v, const double& v1){
-		if ((v - v1) > 0.15) {
+		if (v > (v1 + 0.15)) {
 			return true;
 		} else return false;
 	});
