@@ -200,39 +200,39 @@ random_action_generator_with_only_opposed_condition(Action action)
   return action_;
 }
 
-Actions::Action Actions::deduce_action_from_distance(std::vector<double> distance_t_1,
-    																								 std::vector<double> distance_t,
+Actions::Action Actions::deduce_action_from_distance(double distance_t_1,
+    																								 double distance_t,
                                                      double alti_diff_t,
 																										 Actions::Action action_of_other)
 {
 	Actions::Action action_ = Action::Unknown;
 	if (distance_t > distance_t_1 and action_of_other == Action::NoMove 
-			and std::fabs(alti_diff_t) < 0.4) {
+			and std::fabs(alti_diff_t) < 0.3) {
 		if (generate_real_random() > 0.5) {
 			action_ = Action::forward;
 		} else {
-			action_ = Action::right;
+			action_ = Action::left;
 		}
 	} else if (distance_t > distance_t_1 and action_of_other == Action::forward
-	   and std::fabs(alti_diff_t) < 0.4) {
-				action_ = Action::right;
-	} else if (distance_t > distance_t_1 and action_of_other == Action::right
-	   and std::fabs(alti_diff_t) < 0.5) {
+	   and std::fabs(alti_diff_t) < 0.3) {
+				action_ = Action::left;
+	} else if (distance_t > distance_t_1 and action_of_other == Action::left
+	   and std::fabs(alti_diff_t) < 0.3) {
 				action_ = Action::forward;
 	} else if (distance_t < distance_t_1 and action_of_other == Action::NoMove 
-			and std::fabs(alti_diff_t) < 0.4) { 
+			and std::fabs(alti_diff_t) < 0.3) { 
 		if (generate_real_random() > 0.5) {
 			action_ = Action::backward;
 		} else {
-			action_ = Action::left;
+			action_ = Action::right;
 		}
 	} else if (distance_t < distance_t_1 and action_of_other == Action::backward
-	     and std::fabs(alti_diff_t) < 0.4) { 
-			action_ = Action::left;
-	} else if (distance_t < distance_t_1 and action_of_other == Action::left 
-			 and std::fabs(alti_diff_t) < 0.4) {
+	     and std::fabs(alti_diff_t) < 0.3) { 
+			action_ = Action::right;
+	} else if (distance_t < distance_t_1 and action_of_other == Action::right 
+			 and std::fabs(alti_diff_t) < 0.3) {
 			action_ = Action::backward;
-	} else if ((alti_diff_t) > 0.5) {
+	} else if ((alti_diff_t) > 0.7) {
 		action_ = Action::up;
 	} else {
 		action_ = Action::down;

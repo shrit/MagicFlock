@@ -54,8 +54,8 @@ public:
   random_action_generator_with_all_conditions(Action action);
 
 	Action
-	deduce_action_from_distance(std::vector<double> distances_t_1,
-															std::vector<double> distances_t,
+	deduce_action_from_distance(double distances_t_1,
+															double distances_t,
 															double alti_diff_t,
 															Actions::Action action_of_other);
 

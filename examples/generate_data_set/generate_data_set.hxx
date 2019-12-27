@@ -50,7 +50,8 @@ generate_trajectory(bool change_leader_action)
   follower_1_->current_action(Actions::Action::NoMove);
   follower_2_->current_action(Actions::Action::NoMove);
 
-	logger::logger_->info("leader distance to followers before actions, {}", leader_->distances_to_neighbors());
+	logger::logger_->info("Follower 1 distance to others before leader actions, {}", 
+	follower_1_->distances_to_neighbors());
 	 
   logger::logger_->info("Current action leader: {}", 
   action.action_to_str(leader_->current_action()));
@@ -65,38 +66,39 @@ generate_trajectory(bool change_leader_action)
   /* We need to wait until the Quadrotors finish their actions */
   std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 
-	logger::logger_->info("leader distance to followers after actions, {}", leader_->distances_to_neighbors());
+	logger::logger_->info("Follower 1 distance to others after leader actions, {}", 
+	follower_1_->distances_to_neighbors());
 
   /* Get the next state at time t + 1  */
   logger::logger_->info("Sampling states at t +1");
 
-		threads.push_back(std::thread([&](){
-			follower_1_->sample_state();
-			follower_1_->current_action(
-									action.deduce_action_from_distance
-			  	    		(follower_1_->last_state().distances_3D(),
-			    	   		follower_1_->current_state().distances_3D(),
-									follower_1_->current_state().height_difference(),
-		      			 	follower_2_->current_action()));
+		follower_1_->sample_state();
+		follower_2_->sample_state();
+		follower_1_->current_action(
+							action.deduce_action_from_distance
+	  	    		(follower_1_->last_state().distance_to(leader_->id()),
+	    	   		follower_1_->current_state().distance_to(leader_->id()),
+							follower_1_->current_state().height_difference(),
+  	 	  		  follower_2_->current_action()));
 
-				logger::logger_->info("Current action follower 1: {}", 
-				action.action_to_str(follower_1_->current_action()));
-				swarm_.one_quad_execute_trajectory(follower_1_->id(),
+		follower_2_->current_action(
+								action.deduce_action_from_distance
+	      				(follower_2_->last_state().distance_to(leader_->id()),
+								follower_2_->current_state().distance_to(leader_->id()),
+								follower_2_->current_state().height_difference(),
+	      				 follower_1_->current_action()));
+
+		threads.push_back(std::thread([&](){
+						logger::logger_->info("Current action follower 1: {}", 
+						action.action_to_str(follower_1_->current_action()));
+   					swarm_.one_quad_execute_trajectory(follower_1_->id(),
 								     follower_1_->current_action(),
 								     follower_1_->speed(),
 								     1000);
 				}));
 
-	threads.push_back(std::thread([&](){
-				follower_2_->sample_state();
-				follower_2_->current_action(
-										action.deduce_action_from_distance
-			      				(follower_2_->last_state().distances_3D(),
-										follower_2_->current_state().distances_3D(),
-										follower_2_->current_state().height_difference(),
-										follower_1_->current_action()));
-
-				logger::logger_->info("Current action follower 2: {}",  
+		threads.push_back(std::thread([&](){
+			 logger::logger_->info("Current action follower 2: {}",  
 				action.action_to_str(follower_2_->current_action()));
 				swarm_.one_quad_execute_trajectory(follower_2_->id(),
 								     follower_2_->current_action(),
