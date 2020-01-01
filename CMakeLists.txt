@@ -37,6 +37,7 @@ add_library(ILMR SHARED
   src/px4_device.cc
   src/timer.cc
   src/time_steps.cc
+  src/evaluate_model.cc
   ${HEADER_LIST}
   ${HEADER_LIST_XX}
   )
