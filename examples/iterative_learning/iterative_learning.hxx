@@ -45,7 +45,7 @@ generate_trajectory_using_model(bool change_leader_action,
 
   /*  Sample the state at time t = 0 only for the first follower */
   follower_1_->sample_state();
-
+	follower_2_->sample_state();
   /* Followers actions always equal to no move at this instant t */
   follower_1_->current_action(Actions::Action::NoMove);
   follower_2_->current_action(Actions::Action::NoMove);
@@ -102,11 +102,6 @@ generate_trajectory_using_model(bool change_leader_action,
   for (auto& thread : threads) {
     thread.join();
   }
-
-  /*  Get error of deformation to improve percision later and to
-      verify the model accuracy */
-  /*  Sample the state at time t + 3 final state */
-  follower_2_->sample_state();
 
   /* Take a tuple here  */
   double loss_f1 = predict_f1.real_time_loss();

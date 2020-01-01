@@ -34,6 +34,9 @@ int main(int argc, char* argv[])
   /*  Init configs */
   Configs configs("/meta/lemon/quad.ini");
 
+  auto logger = ILMR::logger::init();
+  ILMR::logger::create_library_logger(logger);
+
   CLI::App app{"This example shows how to use the library to do iterative learning. This example requires two model files to be used to generate trajectory. Users need to generate dataset, then train it using the training example to aquire these model files."};
 	app.require_subcommand(1);
 	auto model_files = app.add_subcommand("model_files", "Add model files, the first one is for follower 1 and the second one is for follower 2. etc...");
@@ -57,10 +60,10 @@ int main(int argc, char* argv[])
 
   for (auto& it : ports) {
     iris_x.push_back(std::make_shared<Px4Device>("udp", it));
-    LogInfo() << "Add an iris QCopter! ";
+    logger::logger_->info("Add an iris QuadCopter!");
   }
 
-  LogInfo() << "Ports number: "<< ports;
+  logger::logger_->info("Ports number: {}", ports);
 
   /*  Gazebo simulator */
   std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(argc, argv, configs);

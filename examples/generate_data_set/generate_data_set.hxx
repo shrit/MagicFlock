@@ -192,7 +192,7 @@ run()
 
     logger::logger_->info("All quadrotors have been reset..."); 
     
-    std::this_thread::sleep_for(std::chrono::seconds(15));
+    std::this_thread::sleep_for(std::chrono::seconds(25));
 
     /*BIAS accelerometer problem after resetting the models*/
 
