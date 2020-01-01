@@ -27,11 +27,13 @@ public:
   double deformation_error_one_follower(lt::triangle<T> old_dist,
 					lt::triangle<T> new_dist);
 
+	template <typename T>
   std::vector<double> distances_to_neighbors(unsigned int id,
 					     std::vector<unsigned int> nearest_neighbors,
-					     std::vector<lt::position3D<double>> positions);
+					     std::vector<lt::position3D<T>> positions);
 
-  double distance_a_2_b(std::vector<lt::position3D<double>> positions,
+	template <typename T>
+  double distance_a_2_b(std::vector<lt::position3D<T>> positions,
 			unsigned int id_a,
 			unsigned int id_b);
 
@@ -46,9 +48,10 @@ public:
   long long unsigned int
   index_of_min_value(const std::vector<T>& vec);
 
+	template <typename T>
   bool is_good_shape(unsigned int id,
 		     std::vector<unsigned int> nearest_neighbors,
-		     std::vector<lt::position3D<double>> positions);
+		     std::vector<lt::position3D<T>> positions);
 
   template <typename T>
   std::map<T, T> get_histogram();
@@ -61,7 +64,8 @@ public:
 
   template <typename Arg, typename Arg2>
   std::vector<bool> to_one_hot_encoding(Arg arg,
-					Arg2 number_of_class);
+																				Arg2 number_of_class);
+  
   template <typename Arg>
   int from_one_hot_encoding(std::vector<Arg> values);
 
@@ -71,11 +75,12 @@ public:
   template <typename Arg>
   bool hamming_distance_one_hot(std::vector<Arg> v1, std::vector<Arg> v2);
 
-  int ecludian_distance(double d1, double d2);
+	template <typename T>
+  int ecludian_distance(T d1, T d2);
 
   template <typename T>
-  double traveled_distances(lt::position3D<T> pos_t,
-			    lt::position3D<T> pos_t_1);
+  double traveled_distances(lt::position3D<T> pos_t, 
+  lt::position3D<T> pos_t_1);
 
   template <typename T>
   T pythagore_leg(T leg, T hypotenuse);
@@ -87,7 +92,6 @@ public:
   Arg variance(std::vector<Arg> vec);
 
 private:
-
   std::map <int, int> histo_;
   double lower_threshold_ = 1; /*  1 meters minimum distance between quadrotors */
   double upper_threshold_ = 5; /*  5 meters maximum distance between quadrotors */

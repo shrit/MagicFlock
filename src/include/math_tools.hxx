@@ -1,7 +1,5 @@
 #pragma once
 
-# include "math_tools.hh"
-
 template <typename T>
 double Math_tools::deformation_error_one_follower(lt::triangle<T> old_dist,
                                                   lt::triangle<T> new_dist)
@@ -51,10 +49,11 @@ index_of_min_value(const std::vector<T>& vec)
   return std::distance(vec.begin(), highest);
 }
 
+template <typename T>
 bool Math_tools::
 is_good_shape(unsigned int id,
               std::vector<unsigned int> nearest_neighbors,
-              std::vector<lt::position3D<double>> positions)
+              std::vector<lt::position3D<T>> positions)
 {
   bool value = false;
   std::vector<double> distances = distances_to_neighbors(id, nearest_neighbors, positions);
@@ -126,7 +125,8 @@ bool Math_tools::hamming_distance_one_hot(std::vector<Arg> v1, std::vector<Arg> 
   return distance;
 }
 
-int Math_tools::ecludian_distance(double d1, double d2)
+template <typename T>
+int Math_tools::ecludian_distance(T d1, T d2)
 {
   double distance = std::sqrt(std::pow((d1), 2) -
                               std::pow((d2), 2));
@@ -152,7 +152,8 @@ std::vector<double> Math_tools::to_std_vector(Arg arg)
   return vec;
 }
 
-double Math_tools::distance_a_2_b(std::vector<lt::position3D<double>> positions,
+template <typename T>
+double Math_tools::distance_a_2_b(std::vector<lt::position3D<T>> positions,
                                   unsigned int id_a,
                                   unsigned int id_b)
 {
@@ -168,9 +169,10 @@ double Math_tools::distance_a_2_b(std::vector<lt::position3D<double>> positions,
   return distance;
 }
 
+template <typename T>
 std::vector<double> Math_tools::distances_to_neighbors(unsigned int id,
                                                        std::vector<unsigned int> nearest_neighbors,
-                                                       std::vector<lt::position3D<double>> positions)
+                                                       std::vector<lt::position3D<T>> positions)
 {
   std::vector<double> distances;
   for (auto&& i : nearest_neighbors) {
