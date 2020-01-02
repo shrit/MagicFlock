@@ -59,7 +59,11 @@ public:
   template <typename T>
   void histogram(T times);
 
-  template <typename Arg>
+	template<typename KeyType, typename ValueType>
+	std::pair<KeyType,ValueType> 
+	get_max_histogram(const std::map<KeyType,ValueType>& x);
+
+	template <typename Arg>
   Arg mean(std::vector<Arg> vec);
 
   template <typename Arg, typename Arg2>

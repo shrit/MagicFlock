@@ -89,6 +89,17 @@ get_histogram()
   return histo_;
 }
 
+template<typename KeyType, typename ValueType>
+std::pair<KeyType,ValueType> Math_tools::
+get_max_histogram(const std::map<KeyType,ValueType>& x) 
+{  
+  return *std::max_element(x.begin(), x.end(), 
+	    	[] (const std::pair<KeyType,ValueType>& p1, 
+	    			const std::pair<KeyType, ValueType>& p2) {
+						return p1.second < p2.second;
+	    }); 
+}
+
 /*  Simple implementation, need more logical one */
 template <typename Arg, typename Arg2>
 std::vector<bool> Math_tools::to_one_hot_encoding(Arg arg, Arg2 number_of_class)
@@ -96,7 +107,7 @@ std::vector<bool> Math_tools::to_one_hot_encoding(Arg arg, Arg2 number_of_class)
   std::vector<bool> one_hot (number_of_class, 0);
 
   if( number_of_class > static_cast<int>(arg)) {
-    one_hot.at(static_cast<int>(arg)) = 1 ;
+    one_hot.at(static_cast<int>(arg)) = 1;
   } else {
     logger::logger_->error("Can not convert to one hot, please add more classes...");
   }
