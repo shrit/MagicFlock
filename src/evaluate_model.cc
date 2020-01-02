@@ -7,13 +7,15 @@ EvaluateModel::EvaluateModel()
 	 count_bad_action_f1_(0),
 	 count_bad_action_f2_(0),
 	 count_not_bad_f1_(0),
-	 count_not_bad_f2_(0)
+	 count_not_bad_f2_(0),
+	 global_count_(0.0)
 {}
 
 void EvaluateModel::input(Actions::Action leader_action, 
 												 Actions::Action follower_1_action,
 												 Actions::Action follower_2_action)
 {
+	global_count_++;
 	if (leader_action == follower_1_action) {
 		count_follower_1_++;
 	} 
@@ -67,13 +69,16 @@ evaluate_not_similar_actions(Actions::Action leader_action,
 
 std::vector<double> EvaluateModel::output()
 {
-	std::vector<double> output(7);
-	output.at(0) = count_both_actions_;
-	output.at(1) = count_follower_1_;
-	output.at(2) = count_follower_2_;
-	output.at(3) = count_bad_action_f1_;
-	output.at(4) = count_bad_action_f2_;
-	output.at(5) = count_not_bad_f1_;
-	output.at(6) = count_not_bad_f2_;
+	std::vector<double> output(8);
+	if (global_count_ != 0) {
+		output.at(0) = count_both_actions_ / global_count_;
+		output.at(1) = count_follower_1_ / global_count_;
+		output.at(2) = count_follower_2_ / global_count_ ;
+		output.at(3) = count_bad_action_f1_ / global_count_;
+		output.at(4) = count_bad_action_f2_ / global_count_;
+		output.at(5) = count_not_bad_f1_ / global_count_;
+		output.at(6) = count_not_bad_f2_ / global_count_;
+		output.at(7) = global_count_;
+	}
 	return output;
 }

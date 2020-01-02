@@ -1,9 +1,7 @@
 #pragma once 
 
 # include <vector>
-
 # include "action.hh"
-
 
 class EvaluateModel 
 {
@@ -29,6 +27,7 @@ private:
 	int count_bad_action_f2_;
 	int count_not_bad_f1_;
 	int count_not_bad_f2_;
+	double global_count_;
 };
 
 
