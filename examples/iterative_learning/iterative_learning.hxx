@@ -94,8 +94,11 @@ generate_trajectory_using_model(bool change_leader_action,
 
   /* We need to wait until the quadcopters finish their actions */
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	evaluate_model.input(leader_->current_action(),
+                      follower_1_->current_action(),
+                      follower_2_->current_action());
 
-  /*  Sample the state at time t + 2 */
+/*  Sample the state at time t + 2 */
   follower_1_->sample_state();
   follower_2_->sample_state();
 
@@ -116,36 +119,12 @@ void Iterative_learning<flight_controller_t, simulator_t>::
 run()
 {
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
-    /* Intilization phase, in each episode we should reset the
-     * position of each quadcopter to the initial position.
-     * From here we can start automatically the quads:
-     * Arm + takeoff + offboard mode + moving + land
-     * Then: repeat each episode.
-     */
     logger::logger_->info("Episode : {}", episode_);
+		start_episode_ = swarm_.in_air(25);
 
-    /* Stop the episode if one of the quad has fallen to arm */
-    stop_episode_ = false;
-    bool arm = swarm_.arm();
-    if (!arm)
-      stop_episode_ = true;
-
-    /* Stop the episode if one of the quad has fallen to takoff */
-    bool takeoff = swarm_.takeoff(25);
-    if (!takeoff)
-    swarm_.init_speed();
-
-    /*  Switch to offboard mode, Allow the control */
-    bool offboard_mode = swarm_.start_offboard_mode();
-    if (!offboard_mode)
-      stop_episode_ = true;
-
-    /*  Wait to complete the take off process */
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-
-    if (!stop_episode_) {
+    if (start_episode_) {
 			time_steps_.reset();
-      while (!stop_episode_) {
+      while (start_episode_) {
         if (time_steps_.steps() == 0)  {
           generate_trajectory_using_model(true, false);
           //Change each 10 times the direction of the leader
@@ -189,6 +168,23 @@ run()
     follower_2_->register_histogram(time_steps_.steps());
     step_errors_.clear();
     swarm_.land();
+
+		logger::logger_->info("Model evaluation: Both Same Action as leader : {}",
+			evaluate_model.output().at(0));
+		logger::logger_->info("Follower 1 and leader same action {}",
+			evaluate_model.output().at(1));
+		logger::logger_->info("Follower 2 and leader same action {}",
+			evaluate_model.output().at(2));
+		logger::logger_->info("Bad action follower 1 {}",
+			evaluate_model.output().at(3));
+		logger::logger_->info("Bad action follower 2 {}",
+			evaluate_model.output().at(4));
+		logger::logger_->info("good action follower 1 {}",
+			evaluate_model.output().at(5));
+		logger::logger_->info("good action follower 2 {}",
+			evaluate_model.output().at(6));
+		logger::logger_->info("Total count: {}",
+			evaluate_model.output().at(7));
 
     /* Resetting the entire swarm after the end of each episode*/
     sim_interface_->reset_models();

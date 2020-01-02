@@ -13,6 +13,7 @@
 # include <ILMR/quadrotor.hh>
 # include <ILMR/swarm_device.hh>
 # include <ILMR/action.hh>
+# include <ILMR/evaluate_model.hh>
 # include <ILMR/global.hh>
 # include <ILMR/log.hh>
 # include <ILMR/time_steps.hh>
@@ -37,15 +38,15 @@ public:
   Iterative_learning(Iterative_learning &&) = default;
 
 private:
-
   int episode_;
- 	std::vector<double> flight_errors_;
+  EvaluateModel evaluate_model;
+  std::vector<double> flight_errors_;
   int max_episode_;
   std::shared_ptr<simulator_t> sim_interface_;
   std::vector<double> step_errors_;
   TimeSteps time_steps_;
   SwarmDevice<flight_controller_t> swarm_;
-  bool stop_episode_;
+  bool start_episode_;
   std::vector<Quadrotor<simulator_t>> quadrotors_;
 
   typename std::vector<Quadrotor<simulator_t>>::iterator leader_;
