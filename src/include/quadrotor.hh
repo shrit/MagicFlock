@@ -15,7 +15,8 @@
 # include "math_tools.hh"
 
 template <class simulator_t>
-class Quadrotor {
+class Quadrotor 
+{
 
 public:
 
@@ -43,8 +44,11 @@ public:
   Actions::Action last_action();
   std::vector<Actions::Action> all_actions() const;
   void reset_all_actions();
+	Actions::Action most_used_action();
 
-  /*  Data set related functions */
+	Actions::Action most_frequent_action_in_container();
+	void save_action_in_container(Actions::Action action);
+	/*  Data set related functions */
   void register_data_set();
   void register_histogram(int count);
 
@@ -64,7 +68,7 @@ private:
   Actions::Action current_action_{Actions::Action::Unknown};
   Actions::Action last_action_{Actions::Action::Unknown};
   std::vector<Actions::Action> all_actions_;
-
+  std::vector<Actions::Action> action_container_; 
   Math_tools mtools_;
   DataSet<simulator_t> data_set_;
 

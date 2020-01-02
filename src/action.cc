@@ -26,25 +26,25 @@ std::string Actions::action_to_str(Action action)
     string_action = "Forward";
     break;
   case Action::backward:
-   string_action =  "Backward";
+   string_action = "Backward";
     break;
   case Action::left:
-    string_action =  "Left";
+    string_action = "Left";
     break;
   case Action::right:
-    string_action =  "right";
+    string_action = "Right";
     break;
   case Action::up:
-    string_action =  "Up";
+    string_action = "Up";
     break;
   case Action::down:
-    string_action =  "Down";
+    string_action = "Down";
     break;
   case Action::NoMove:
-    string_action =  "NoMove";
+    string_action = "NoMove";
     break;
   case Action::Unknown:
-    string_action =  "Unknown";
+    string_action = "Unknown";
     break;
   }
   return string_action;

@@ -96,6 +96,63 @@ template <class simulator_t>
 std::vector<Actions::Action> Quadrotor<simulator_t>::all_actions() const
 { return all_actions_; }
 
+template<class simulator_t>
+Actions::Action Quadrotor<simulator_t>::most_used_action()
+{
+	std::vector<double> most_used_action(7);
+	most_used_action.at(0) = 
+	std::count(all_actions_.begin(), all_actions_.end(), Actions::Action::forward);
+	most_used_action.at(1) = 
+	std::count(all_actions_.begin(), all_actions_.end(), Actions::Action::backward);
+	most_used_action.at(2) = 
+	std::count(all_actions_.begin(), all_actions_.end(), Actions::Action::left);
+	most_used_action.at(3) = 
+	std::count(all_actions_.begin(), all_actions_.end(), Actions::Action::right);
+	most_used_action.at(4) = 
+	std::count(all_actions_.begin(), all_actions_.end(), Actions::Action::up);
+	most_used_action.at(5) = 
+	std::count(all_actions_.begin(), all_actions_.end(), Actions::Action::down);
+	most_used_action.at(6) = 
+	std::count(all_actions_.begin(), all_actions_.end(), Actions::Action::NoMove);
+	Actions action;
+	logger::logger_->info("most used action {}", most_used_action);
+	Actions::Action most_used = action.int_to_action(
+															mtools_.index_of_max_value(most_used_action));
+	return most_used;
+}
+
+template<class simulator_t>
+Actions::Action Quadrotor<simulator_t>::most_frequent_action_in_container()
+{
+	std::vector<double> most_used_action(7);
+	most_used_action.at(0) = 
+	std::count(action_container_.begin(), action_container_.end(), Actions::Action::forward);
+	most_used_action.at(1) = 
+	std::count(action_container_.begin(), action_container_.end(), Actions::Action::backward);
+	most_used_action.at(2) = 
+	std::count(action_container_.begin(), action_container_.end(), Actions::Action::left);
+	most_used_action.at(3) = 
+	std::count(action_container_.begin(), action_container_.end(), Actions::Action::right);
+	most_used_action.at(4) = 
+	std::count(action_container_.begin(), action_container_.end(), Actions::Action::up);
+	most_used_action.at(5) = 
+	std::count(action_container_.begin(), action_container_.end(), Actions::Action::down);
+	most_used_action.at(6) = 
+	std::count(action_container_.begin(), action_container_.end(), Actions::Action::NoMove);
+	Actions action;
+	logger::logger_->info("most used action {}", most_used_action);
+	Actions::Action most_used = action.int_to_action(
+															mtools_.index_of_max_value(most_used_action));
+	return most_used;
+}
+
+template <class simulator_t>
+void Quadrotor<simulator_t>::save_action_in_container(Actions::Action action)
+{
+	action_container_.push_back(action);
+}
+
+
 template <class simulator_t>
 void Quadrotor<simulator_t>::reset_all_actions()
 { all_actions_.clear(); }
@@ -108,8 +165,7 @@ void Quadrotor<simulator_t>::register_data_set()
 				     mtools_.to_one_hot_encoding(last_action(), 7),
 				     last_state(),
 				     mtools_.to_one_hot_encoding(current_action(), 7),
-				     current_state()
-				     );
+				     current_state());
 }
 
 template <class simulator_t>
