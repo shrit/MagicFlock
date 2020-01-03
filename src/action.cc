@@ -1,12 +1,13 @@
 #include "include/action.hh"
 
 Actions::Actions()
-  :distribution_int_(0, 5),
-   distribution_real_(0, 1),
-   generator_(random_dev())
+  : distribution_int_(0, 5)
+  , distribution_real_(0, 1)
+  , generator_(random_dev())
 {}
 
-std::vector<Actions::Action> Actions::ActionConstructor(arma::mat values)
+std::vector<Actions::Action>
+Actions::ActionConstructor(arma::mat values)
 {
   std::vector<Actions::Action> actions;
   for (arma::uword i = 0; i < values.n_rows; ++i) {
@@ -18,41 +19,42 @@ std::vector<Actions::Action> Actions::ActionConstructor(arma::mat values)
   return actions;
 }
 
-std::string Actions::action_to_str(Action action)
+std::string
+Actions::action_to_str(Action action)
 {
   std::string string_action = "";
   switch (action) {
-  case Action::forward:
-    string_action = "Forward";
-    break;
-  case Action::backward:
-   string_action = "Backward";
-    break;
-  case Action::left:
-    string_action = "Left";
-    break;
-  case Action::right:
-    string_action = "Right";
-    break;
-  case Action::up:
-    string_action = "Up";
-    break;
-  case Action::down:
-    string_action = "Down";
-    break;
-  case Action::NoMove:
-    string_action = "NoMove";
-    break;
-  case Action::Unknown:
-    string_action = "Unknown";
-    break;
+    case Action::forward:
+      string_action = "Forward";
+      break;
+    case Action::backward:
+      string_action = "Backward";
+      break;
+    case Action::left:
+      string_action = "Left";
+      break;
+    case Action::right:
+      string_action = "Right";
+      break;
+    case Action::up:
+      string_action = "Up";
+      break;
+    case Action::down:
+      string_action = "Down";
+      break;
+    case Action::NoMove:
+      string_action = "NoMove";
+      break;
+    case Action::Unknown:
+      string_action = "Unknown";
+      break;
   }
   return string_action;
 }
 
 /* Get the best action from the model according to the best values */
-Actions::Action Actions::
-extract_action_from_index(arma::mat features, arma::uword index)
+Actions::Action
+Actions::extract_action_from_index(arma::mat features, arma::uword index)
 {
   /*  just a HACK, need to find a dynamic solution later */
   Action action = Action::Unknown;
@@ -77,78 +79,74 @@ extract_action_from_index(arma::mat features, arma::uword index)
   return action;
 }
 
-Actions::Action Actions::
-int_to_action(int action_value)
+Actions::Action
+Actions::int_to_action(int action_value)
 {
   Action action;
   return action = static_cast<Action>(action_value);
 }
 
-std::vector<Actions::Action> Actions::
-all_possible_actions() const
-{ return possible_actions_; }
+std::vector<Actions::Action>
+Actions::all_possible_actions() const
+{
+  return possible_actions_;
+}
 
-Actions::Action Actions::
-random_action_generator()
+Actions::Action
+Actions::random_action_generator()
 {
   int random_action = distribution_int_(generator_);
   Action action = static_cast<Action>(random_action);
   return action;
 }
 
-double Actions::generate_real_random()
+double
+Actions::generate_real_random()
 {
-	double random_double = distribution_real_(generator_);
-	return random_double;
+  double random_double = distribution_real_(generator_);
+  return random_double;
 }
 /*  The condition is to generate an action that is not the same to the
     parameter action and not opposed to this action. This is more
     comfortable since the opposed action apply high noise on traveled
     distance. Also this is more logic, since allow more variability in
     the data set */
-Actions::Action Actions::
-random_action_generator_with_all_conditions(Action action)
+Actions::Action
+Actions::random_action_generator_with_all_conditions(Action action)
 {
   Action action_ = Action::Unknown;
 
   if (action == Action::backward) {
     action_ = random_action_generator();
-    while (action_ == Action::forward or
-	   action_ == Action::backward) {
+    while (action_ == Action::forward or action_ == Action::backward) {
       action_ = random_action_generator();
     }
   } else if (action == Action::down) {
     action_ = random_action_generator();
-    while (action_ == Action::up or
-	   action_ == Action::down) {
+    while (action_ == Action::up or action_ == Action::down) {
       action_ = random_action_generator();
     }
   } else if (action == Action::up) {
     action_ = random_action_generator();
-    while (action_ == Action::down or
-	   action_ == Action::up) {
+    while (action_ == Action::down or action_ == Action::up) {
       action_ = random_action_generator();
     }
   } else if (action == Action::forward) {
     action_ = random_action_generator();
-    while (action_ == Action::backward or
-	   action_ == Action::forward) {
+    while (action_ == Action::backward or action_ == Action::forward) {
       action_ = random_action_generator();
     }
   } else if (action == Action::right) {
     action_ = random_action_generator();
-    while (action_ == Action::left or
-	   action_ == Action::right) {
+    while (action_ == Action::left or action_ == Action::right) {
       action_ = random_action_generator();
     }
   } else if (action == Action::left) {
     action_ = random_action_generator();
-    while (action_ == Action::right or
-	   action_ == Action::left) {
+    while (action_ == Action::right or action_ == Action::left) {
       action_ = random_action_generator();
     }
-  } else if (action == Action::Unknown or
-	     action == Action::NoMove) {
+  } else if (action == Action::Unknown or action == Action::NoMove) {
     action_ = random_action_generator();
   }
   return action_;
@@ -158,8 +156,8 @@ random_action_generator_with_all_conditions(Action action)
     action. This is more comfortable since the opposed action apply
     high noise on traveled distance. Also this is more logic, since
     allow more variability in the data set */
-Actions::Action Actions::
-random_action_generator_with_only_opposed_condition(Action action)
+Actions::Action
+Actions::random_action_generator_with_only_opposed_condition(Action action)
 {
   Action action_ = Action::Unknown;
 
@@ -193,61 +191,40 @@ random_action_generator_with_only_opposed_condition(Action action)
     while (action_ == Action::right) {
       action_ = random_action_generator();
     }
-  } else if (action == Action::Unknown or
-	     action == Action::NoMove) {
+  } else if (action == Action::Unknown or action == Action::NoMove) {
     action_ = random_action_generator();
   }
   return action_;
 }
 
-Actions::Action Actions::deduce_action_from_distance(double distance_t_1,
-    																								 double distance_t,
-                                                     double alti_diff_t,
-																										 Actions::Action action_of_other)
+Actions::Action
+Actions::deduce_action_from_distance(double distance_t_1_b,
+                                     double distance_t_b,
+                                     double distance_t_1_c,
+                                     double distance_t_c,
+                                     double alti_diff_t)
 {
-	Actions::Action action_ = Action::Unknown;
-	if (distance_t > distance_t_1 and action_of_other == Action::NoMove 
-			and std::fabs(alti_diff_t) < 0.4) {
-		if (generate_real_random() > 0.5) {
-			action_ = Action::forward;
-		} else {
-			action_ = Action::left;
-		}
-	} else if (distance_t > distance_t_1 and action_of_other == Action::forward
-	   and std::fabs(alti_diff_t) < 0.4) {
-				action_ = Action::left;
-	} else if (distance_t > distance_t_1 and action_of_other == Action::left
-	   and std::fabs(alti_diff_t) < 0.4) {
-				action_ = Action::forward;
-	} else if (distance_t > distance_t_1 and action_of_other == Action::right 
-			 and std::fabs(alti_diff_t) < 0.4) {
-			action_ = Action::forward;	
-	} else if (distance_t > distance_t_1 and action_of_other == Action::backward 
-			 and std::fabs(alti_diff_t) < 0.4) {
-			action_ = Action::right;
-	} else if (distance_t < distance_t_1 and action_of_other == Action::NoMove 
-			and std::fabs(alti_diff_t) < 0.4) { 
-		if (generate_real_random() > 0.5) {
-			action_ = Action::backward;
-		} else {
-			action_ = Action::right;
-		}
-	} else if (distance_t < distance_t_1 and action_of_other == Action::backward
-	     and std::fabs(alti_diff_t) < 0.4) { 
-			action_ = Action::right;
-	} else if (distance_t < distance_t_1 and action_of_other == Action::right 
-			 and std::fabs(alti_diff_t) < 0.4) {
-			action_ = Action::backward;
-	}	else if (distance_t < distance_t_1 and action_of_other == Action::forward 
-			 and std::fabs(alti_diff_t) < 0.4) {
-			action_ = Action::right;
-	} else if (distance_t < distance_t_1 and action_of_other == Action::left 
-			 and std::fabs(alti_diff_t) < 0.4) {
-			action_ = Action::backward;	
-	} else if ((alti_diff_t) > 0.7) {
-		action_ = Action::up;
-	} else {
-		action_ = Action::down;
-	}
-	return action_; 
+  Actions::Action action = Action::Unknown;
+  if (distance_t_b > distance_t_1_b and distance_t_c > distance_t_1_c and
+      std::fabs(alti_diff_t) < 0.4) {
+    action = Action::forward;
+
+  } else if (distance_t_b > distance_t_1_b and distance_t_c < distance_t_1_c and
+             std::fabs(alti_diff_t) < 0.4) {
+    action = Action::right;
+
+  } else if (distance_t_b < distance_t_1_b and distance_t_c < distance_t_1_c and
+             std::fabs(alti_diff_t) < 0.4) {
+    action = Action::backward;
+
+  } else if (distance_t_b < distance_t_1_b and distance_t_c > distance_t_1_c and
+             std::fabs(alti_diff_t) < 0.4) {
+    action = Action::left;
+
+  } else if ((alti_diff_t) > 0.7) {
+    action = Action::up;
+  } else {
+    action = Action::down;
+  }
+  return action;
 }
