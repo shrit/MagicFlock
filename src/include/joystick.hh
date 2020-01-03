@@ -16,20 +16,19 @@
 #define __JOYSTICK_HH__
 
 /*  Posix library headers */
-# include <sys/types.h>
-# include <sys/stat.h>
-# include <unistd.h>
-# include <fcntl.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 /* C++ Standard library  */
-# include <iostream>
-# include <string>
-# include <sstream>
+#include <iostream>
+#include <sstream>
+#include <string>
 
 #define JS_EVENT_BUTTON 0x01 // button pressed/released
-#define JS_EVENT_AXIS   0x02 // joystick moved
-#define JS_EVENT_INIT   0x80 // initial state of device
-
+#define JS_EVENT_AXIS 0x02   // joystick moved
+#define JS_EVENT_INIT 0x80   // initial state of device
 
 struct JoystickEvent
 {
@@ -56,17 +55,16 @@ struct JoystickEvent
   unsigned char number;
 };
 
-
-std::ostream& operator<<(std::ostream& os, const JoystickEvent& e);
+std::ostream&
+operator<<(std::ostream& os, const JoystickEvent& e);
 
 /**
  * Represents a joystick device. Allows data to be sampled from it.
  */
-class Joystick  : private JoystickEvent
+class Joystick : private JoystickEvent
 {
 
 public:
-
   /**
    * Initialises an instance for the first joystick: /dev/input/js0
    */
@@ -91,7 +89,7 @@ public:
   /**
    * Joystick objects can be moved
    */
-  Joystick(Joystick &&) = default;
+  Joystick(Joystick&&) = default;
 
   /**
    * Initialises an instance for the joystick device specified and provide
@@ -112,8 +110,7 @@ public:
    */
   bool read_event(JoystickEvent* event);
 
-
-    /** Minimum value of axes range */
+  /** Minimum value of axes range */
   static const short MIN_AXES_VALUE = -32768;
 
   /** Maximum value of axes range */
@@ -149,10 +146,7 @@ public:
    * Returns true if this event is part of the initial state obtained when
    * the joystick is first connected to.
    */
-  bool isInitialState()
-  {
-    return (type & JS_EVENT_INIT) != 0;
-  }
+  bool isInitialState() { return (type & JS_EVENT_INIT) != 0; }
 
   /**
    * The ostream inserter needs to be a friend so it can access the
@@ -161,7 +155,6 @@ public:
   friend std::ostream& operator<<(std::ostream& os, const JoystickEvent& e);
 
 private:
-
   /**
    * Returns true if this event is the result of a button press.
    */
@@ -172,7 +165,7 @@ private:
    */
   bool isAxis(JoystickEvent& event);
 
-  void openPath(std::string devicePath, bool blocking=false);
+  void openPath(std::string devicePath, bool blocking = false);
 
   int _fd;
 };

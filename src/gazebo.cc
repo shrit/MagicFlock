@@ -1,19 +1,20 @@
-# include "include/gazebo.hh"
+#include "include/gazebo.hh"
 
 Gazebo::Gazebo(int argc, char* argv[], Configs config)
-  : node_(new gazebo::transport::Node()),
-    _positions(3,lt::position3D<double>()),
-    _orientations(3,lt::orientation<double>()),
-    config_(config)
+  : node_(new gazebo::transport::Node())
+  , _positions(3, lt::position3D<double>())
+  , _orientations(3, lt::orientation<double>())
+  , config_(config)
 {
   gazebo::client::setup(argc, argv);
   node_->Init();
 }
 
-void Gazebo::subscriber(lt::topic_name name)
+void
+Gazebo::subscriber(lt::topic_name name)
 {
-  if (name == "/gazebo/default/1/2" ) {
-  subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_rssi_msg_0, this));
+  if (name == "/gazebo/default/1/2") {
+    subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_rssi_msg_0, this));
   } else if (name == "/gazebo/default/1/3") {
     subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_rssi_msg_1, this));
   } else if (name == "/gazebo/default/2/3") {
@@ -23,7 +24,8 @@ void Gazebo::subscriber(lt::topic_name name)
   }
 }
 
-void Gazebo::publisher(lt::topic_name name)
+void
+Gazebo::publisher(lt::topic_name name)
 {
   if (name == "/gazebo/default/iris_1/model_reset") {
     pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));
@@ -34,7 +36,8 @@ void Gazebo::publisher(lt::topic_name name)
   }
 }
 
-void Gazebo::reset_models()
+void
+Gazebo::reset_models()
 {
   for (auto it : pubs_) {
     if (it->WaitForConnection(5)) {
@@ -47,30 +50,34 @@ void Gazebo::reset_models()
   }
 }
 
-  /*  Parsing the RSSI send by NS3 */
-void Gazebo::Parse_rssi_msg_0(ConstVector2dPtr& msg)
+/*  Parsing the RSSI send by NS3 */
+void
+Gazebo::Parse_rssi_msg_0(ConstVector2dPtr& msg)
 {
   _signal.f3(msg->x());
 }
 
-  /*  Parsing the RSSI send by NS3 */
-void Gazebo::Parse_rssi_msg_1(ConstVector2dPtr& msg)
+/*  Parsing the RSSI send by NS3 */
+void
+Gazebo::Parse_rssi_msg_1(ConstVector2dPtr& msg)
 {
-  _signal.f1 (msg->x());
+  _signal.f1(msg->x());
 }
 
 /*  Parsing the RSSI send by NS3 */
-void Gazebo::Parse_rssi_msg_2(ConstVector2dPtr& msg)
+void
+Gazebo::Parse_rssi_msg_2(ConstVector2dPtr& msg)
 {
-  _signal.f2 (msg->x());
+  _signal.f2(msg->x());
 }
 
 /*  positin msg received from gazebo */
-void Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
+void
+Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
 {
   /*  Get the model name from the config ini file */
-  for (int i =0; i < posesStamped->pose_size(); ++i) {
-    const ::gazebo::msgs::Pose &pose = posesStamped->pose(i);
+  for (int i = 0; i < posesStamped->pose_size(); ++i) {
+    const ::gazebo::msgs::Pose& pose = posesStamped->pose(i);
     std::string name = pose.name();
     if (name == std::string(config_.quad_names().at(0))) {
       const ::gazebo::msgs::Vector3d& position = pose.position();
@@ -92,7 +99,7 @@ void Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
       _positions.at(1).x = position.x();
       _positions.at(1).y = position.y();
       _positions.at(1).z = position.z();
-      
+
       const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
 
       _orientations.at(1).x = orientation.x();
@@ -117,19 +124,22 @@ void Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
   }
 }
 
-lt::rssi<double> Gazebo::rssi() const
+lt::rssi<double>
+Gazebo::rssi() const
 {
   std::lock_guard<std::mutex> lock(_signal_mutex);
   return _signal;
 }
 
-std::vector<lt::position3D<double>> Gazebo::positions() const
+std::vector<lt::position3D<double>>
+Gazebo::positions() const
 {
   std::lock_guard<std::mutex> lock(_positions_mutex);
   return _positions;
 }
 
-std::vector<lt::orientation<double>> Gazebo::orientations() const
+std::vector<lt::orientation<double>>
+Gazebo::orientations() const
 {
   std::lock_guard<std::mutex> lock(_orientations_mutex);
   return _orientations;

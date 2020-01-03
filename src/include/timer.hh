@@ -1,17 +1,15 @@
 #pragma once
 
-# include <chrono>
+#include <chrono>
 
-class Timer {
+class Timer
+{
 
 public:
-
   Timer();
   void start();
   double stop();
 
 private:
-
   std::chrono::steady_clock::time_point starting_time_;
-
 };

@@ -5,23 +5,23 @@
  *
  * This file implement the state of a quadrotor
  *
-*/
+ */
 
 /*  Local includes */
-# include "global.hh"
-# include "math_tools.hh"
+#include "global.hh"
+#include "math_tools.hh"
 
 namespace lt = local_types;
 
-template <class simulator_t>
-class State {
+template<class simulator_t>
+class State
+{
 
 public:
-
   State();
   State(std::shared_ptr<simulator_t> sim_interface,
-	unsigned int id,
-	std::vector<unsigned int> nearest_neighbors);
+        unsigned int id,
+        std::vector<unsigned int> nearest_neighbors);
 
   State(std::vector<double> distances, double altitude_diff);
 
@@ -30,13 +30,12 @@ public:
   double rt_height();
 
   std::vector<double> distances_3D() const;
-	double distance_to(int id);
+  double distance_to(int id);
 
   std::vector<double> estimated_distances() const;
   std::vector<State> StateConstructor(arma::mat values);
 
 private:
-
   double altitude_;
   double alti_diff_;
   Math_tools mtools_;
@@ -49,4 +48,4 @@ private:
   std::vector<lt::position3D<double>>::iterator follower_;
 };
 
-# include "state.hxx"
+#include "state.hxx"

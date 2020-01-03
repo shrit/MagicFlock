@@ -1,69 +1,73 @@
 #pragma once
 
-# include <algorithm>
-# include <chrono>
-# include <ctime>
-# include <fstream>
-# include <experimental/filesystem>
-# include <iomanip>
-# include <iostream>
-# include <iterator>
-# include <sstream>
-# include <string>
-# include <vector>
-# include <unordered_map>
-# include <utility>
+#include <algorithm>
+#include <chrono>
+#include <ctime>
+#include <experimental/filesystem>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <iterator>
+#include <sstream>
+#include <string>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 /*  Boost library include */
-# include <boost/algorithm/string.hpp>
-# include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 /* MLPack includes*/
-# include <mlpack/core.hpp>
-# include <mlpack/core/data/split_data.hpp>
+#include <mlpack/core.hpp>
+#include <mlpack/core/data/split_data.hpp>
 
 /*  local defined include */
-# include "action.hh"
-# include "state.hh"
-# include "global.hh"
-# include "plot.hh"
+#include "action.hh"
+#include "global.hh"
+#include "plot.hh"
+#include "state.hh"
 
 namespace lt = local_types;
 
-template <class simulator_t>
-class DataSet {
+template<class simulator_t>
+class DataSet
+{
 
 public:
-
   DataSet();
 
   void parse_dataset_file(std::string file_name);
   void load_dataset_file(std::string&& file_name);
   void set_label_column_number(int x);
-  
-  template <typename Arg, typename... Args>
+
+  template<typename Arg, typename... Args>
   void write_data_set_file(std::ofstream& file, Arg&& arg, Args&&... args);
 
-  template <typename Arg, typename... Args>
+  template<typename Arg, typename... Args>
   void save_csv_data_set(Arg&& arg, Args&&... args);
 
-  template <typename Arg, typename... Args>
-  void save_csv_data_set_2_file(std::string file_name, Arg&& arg, Args&&... args);
+  template<typename Arg, typename... Args>
+  void save_csv_data_set_2_file(std::string file_name,
+                                Arg&& arg,
+                                Args&&... args);
 
-  template <typename Arg>
+  template<typename Arg>
   void save_error_file(Arg&& arg);
 
-  template <typename Arg>
+  template<typename Arg>
   void save_histogram(Arg&& arg);
 
-  template <typename Arg>
+  template<typename Arg>
   void save_controller_count(Arg&& arg);
 
-  template <typename Arg, typename... Args>
+  template<typename Arg, typename... Args>
   void plot(std::string title,
-				    std::string xlabel,
-				    std::string ylabel,
-				    Arg arg, Arg argv, Args... args);
+            std::string xlabel,
+            std::string ylabel,
+            Arg arg,
+            Arg argv,
+            Args... args);
 
   void init_dataset_directory();
 
@@ -78,12 +82,12 @@ public:
 
   arma::mat dataset() const;
 
-	arma::mat test_features() const;
-	arma::mat test_labels() const;
-	arma::mat train_features() const;
-	arma::mat train_labels() const;
-	arma::mat trainset() const;
-	arma::mat testset() const;
+  arma::mat test_features() const;
+  arma::mat test_labels() const;
+  arma::mat train_features() const;
+  arma::mat train_labels() const;
+  arma::mat trainset() const;
+  arma::mat testset() const;
 
 private:
   arma::mat dataset_;
@@ -114,4 +118,4 @@ private:
   std::vector<State<simulator_t>> st_2_vec_;
 };
 
-# include "data_set.hxx"
+#include "data_set.hxx"

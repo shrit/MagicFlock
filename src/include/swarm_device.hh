@@ -1,25 +1,25 @@
 #pragma once
 
 /*  Standard C++ includes */
-# include <algorithm>
-# include <chrono>
-# include <thread>
-# include <vector>
+#include <algorithm>
+#include <chrono>
+#include <thread>
+#include <vector>
 
 /*  Local includes */
-# include "global.hh"
+#include "global.hh"
 
 template<class flight_controller_t>
-class SwarmDevice {
+class SwarmDevice
+{
 
 public:
-
   SwarmDevice(std::vector<std::shared_ptr<flight_controller_t>> quads);
 
   void one_quad_execute_trajectory(unsigned int id,
-				   Actions::Action action,
-				   int speed,
-				   unsigned int milliseconds);
+                                   Actions::Action action,
+                                   int speed,
+                                   unsigned int milliseconds);
   bool arm();
   bool arm_specific_quadrotor(unsigned int id);
 
@@ -37,12 +37,12 @@ public:
   bool takeoff(float meters);
   bool takeoff_specific_quadrotor(float meters, unsigned int id);
   bool in_air(float meters);
-  
+
   SwarmDevice(SwarmDevice const&) = delete;
-  SwarmDevice(SwarmDevice &&) = default;
+  SwarmDevice(SwarmDevice&&) = default;
 
 private:
   std::vector<std::shared_ptr<flight_controller_t>> iris_x_;
 };
 
-# include "swarm_device.hxx"
+#include "swarm_device.hxx"

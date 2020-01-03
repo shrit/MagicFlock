@@ -1,7 +1,6 @@
-# include "include/config_ini.hh"
+#include "include/config_ini.hh"
 
-Configs::Configs()
-{}
+Configs::Configs() {}
 
 Configs::Configs(std::string file_name)
 {
@@ -11,7 +10,8 @@ Configs::Configs(std::string file_name)
   parse_ini();
 }
 
-void Configs::parse_ini()
+void
+Configs::parse_ini()
 {
 
   /*Parse Simulation section*/
@@ -21,7 +21,6 @@ void Configs::parse_ini()
   std::string joystick = ini_.get("simulation").get("use_joystick");
   std::istringstream(joystick) >> std::boolalpha >> joystick_;
 
-
   std::string keyboard = ini_.get("simulation").get("use_keyboard");
   std::istringstream(keyboard) >> std::boolalpha >> keyboard_;
 
@@ -30,20 +29,20 @@ void Configs::parse_ini()
   std::string just_fly = ini_.get("simulation").get("just_fly");
   std::istringstream(keyboard) >> std::boolalpha >> just_fly_;
 
-    /*Parse quadcopter section*/
+  /*Parse quadcopter section*/
 
   quad_names_.push_back(ini_.get("quadcopter_01").get("model_name"));
   quad_names_.push_back(ini_.get("quadcopter_02").get("model_name"));
   quad_names_.push_back(ini_.get("quadcopter_03").get("model_name"));
 
-  ports_.push_back(static_cast<lt::port_type>
-		   (std::stoi(ini_.get("quadcopter_01").get("port"))));
+  ports_.push_back(static_cast<lt::port_type>(
+    std::stoi(ini_.get("quadcopter_01").get("port"))));
 
-  ports_.push_back(static_cast<lt::port_type>
-  		   (std::stoi(ini_.get("quadcopter_02").get("port"))));
+  ports_.push_back(static_cast<lt::port_type>(
+    std::stoi(ini_.get("quadcopter_02").get("port"))));
 
-  ports_.push_back(static_cast<lt::port_type>
-  		   (std::stoi(ini_.get("quadcopter_03").get("port"))));
+  ports_.push_back(static_cast<lt::port_type>(
+    std::stoi(ini_.get("quadcopter_03").get("port"))));
 
   /* Parse subscribe topic section */
 
@@ -60,63 +59,74 @@ void Configs::parse_ini()
   reset_3_ = ini_.get("publish_topics").get("reset_3");
 }
 
-
-bool Configs::just_fly() const
+bool
+Configs::just_fly() const
 {
   return just_fly_;
 }
 
-int Configs::quad_number() const
+int
+Configs::quad_number() const
 {
   return number_of_quads_;
 }
 
-std::vector<std::string> Configs::quad_names() const
+std::vector<std::string>
+Configs::quad_names() const
 {
   return quad_names_;
 }
 
-std::vector<lt::port_type> Configs::quads_ports() const
+std::vector<lt::port_type>
+Configs::quads_ports() const
 {
   return ports_;
 }
 
-std::string Configs::positions() const
+std::string
+Configs::positions() const
 {
   return positions_;
 }
 
-std::string Configs::rssi_1_2() const
+std::string
+Configs::rssi_1_2() const
 {
   return rssi_1_2_;
 }
 
-std::string Configs::rssi_1_3() const
+std::string
+Configs::rssi_1_3() const
 {
   return rssi_1_3_;
 }
 
-std::string Configs::rssi_2_3() const
+std::string
+Configs::rssi_2_3() const
 {
   return rssi_2_3_;
 }
 
-std::string Configs::reset_1() const
+std::string
+Configs::reset_1() const
 {
   return reset_1_;
 }
 
-std::string Configs::reset_2() const
+std::string
+Configs::reset_2() const
 {
   return reset_2_;
 }
 
-std::string Configs::reset_3() const
+std::string
+Configs::reset_3() const
 {
   return reset_3_;
 }
 
-float Configs::speed() const
+float
+Configs::speed() const
 {
   return speed_;
 }

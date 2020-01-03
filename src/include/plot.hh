@@ -27,6 +27,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef PLOT_CPP_
 #define PLOT_CPP_
 
+#include <algorithm>
 #include <cstdint>
 #include <cstdio>
 #include <iostream>
@@ -35,41 +36,52 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <tuple>
 #include <type_traits>
 #include <vector>
-#include <algorithm>
 
 namespace plotcpp {
 
-enum class PlottingType { Points, Lines };
+enum class PlottingType
+{
+  Points,
+  Lines
+};
 
-template <typename Ix, typename Iy, typename Iz>
-struct PlottingItem {
+template<typename Ix, typename Iy, typename Iz>
+struct PlottingItem
+{
   using value_type = typename Ix::value_type;
   PlottingItem(PlottingType pt, Ix startX, Ix endX, Iy startY, std::string name)
-      : startX(startX), endX(endX), startY(startY), plotType(pt), name(name) {}
+    : startX(startX)
+    , endX(endX)
+    , startY(startY)
+    , plotType(pt)
+    , name(name)
+  {}
   PlottingItem(PlottingType pt,
                Ix startX,
                Ix endX,
                Iy startY,
                Iz startZ,
                std::string name)
-      : startX(startX),
-        endX(endX),
-        startY(startY),
-        startZ(startZ),
-        plotType(pt),
-        name(name) {}
+    : startX(startX)
+    , endX(endX)
+    , startY(startY)
+    , startZ(startZ)
+    , plotType(pt)
+    , name(name)
+  {}
   PlottingItem(PlottingType pt,
                Ix startX,
                Ix endX,
                Iy startY,
                std::string name,
                std::string options)
-      : startX(startX),
-        endX(endX),
-        startY(startY),
-        plotType(pt),
-        name(name),
-        options(options) {}
+    : startX(startX)
+    , endX(endX)
+    , startY(startY)
+    , plotType(pt)
+    , name(name)
+    , options(options)
+  {}
   PlottingItem(PlottingType pt,
                Ix startX,
                Ix endX,
@@ -77,15 +89,17 @@ struct PlottingItem {
                Iy startZ,
                std::string name,
                std::string options)
-      : startX(startX),
-        endX(endX),
-        startY(startY),
-        startZ(startZ),
-        plotType(pt),
-        name(name),
-        options(options) {}
+    : startX(startX)
+    , endX(endX)
+    , startY(startY)
+    , startZ(startZ)
+    , plotType(pt)
+    , name(name)
+    , options(options)
+  {}
 
-  const char* GetTypeStr() const {
+  const char* GetTypeStr() const
+  {
     if (plotType == PlottingType::Points)
       return "points";
     if (plotType == PlottingType::Lines)
@@ -101,51 +115,57 @@ struct PlottingItem {
   std::string options;
 };
 
-template <typename Ix, typename Iy>
-auto Lines(Ix startX,
-           Ix endX,
-           Iy startY,
-           std::string name,
-           std::string options = {}) {
-  return PlottingItem<Ix, Iy, int>(PlottingType::Lines, startX, endX, startY,
-                                                        name, options);
+template<typename Ix, typename Iy>
+auto
+Lines(Ix startX, Ix endX, Iy startY, std::string name, std::string options = {})
+{
+  return PlottingItem<Ix, Iy, int>(
+    PlottingType::Lines, startX, endX, startY, name, options);
 }
 
-template <typename Ix, typename Iy, typename Iz>
-auto Lines3D(Ix startX,
-             Ix endX,
-             Iy startY,
-             Iz startZ,
-             std::string name,
-             std::string options = {}) {
-  return PlottingItem<Ix, Iy, Iz>(PlottingType::Lines, startX, endX, startY,
-                                                       startZ, name, options);
+template<typename Ix, typename Iy, typename Iz>
+auto
+Lines3D(Ix startX,
+        Ix endX,
+        Iy startY,
+        Iz startZ,
+        std::string name,
+        std::string options = {})
+{
+  return PlottingItem<Ix, Iy, Iz>(
+    PlottingType::Lines, startX, endX, startY, startZ, name, options);
 }
 
-template <typename Ix, typename Iy>
-auto Points(Ix startX,
-            Ix endX,
-            Iy startY,
-            std::string name,
-            std::string options = {}) {
-  return PlottingItem<Ix, Iy, int>(PlottingType::Points, startX, endX, startY,
-                                                         name, options);
+template<typename Ix, typename Iy>
+auto
+Points(Ix startX,
+       Ix endX,
+       Iy startY,
+       std::string name,
+       std::string options = {})
+{
+  return PlottingItem<Ix, Iy, int>(
+    PlottingType::Points, startX, endX, startY, name, options);
 }
 
-template <typename Ix, typename Iy, typename Iz>
-auto Points3D(Ix startX,
-              Ix endX,
-              Iy startY,
-              Iz startZ,
-              std::string name,
-              std::string options = {}) {
-  return PlottingItem<Ix, Iy, Iz>(PlottingType::Points, startX, endX, startY,
-                                                        startZ, name, options);
+template<typename Ix, typename Iy, typename Iz>
+auto
+Points3D(Ix startX,
+         Ix endX,
+         Iy startY,
+         Iz startZ,
+         std::string name,
+         std::string options = {})
+{
+  return PlottingItem<Ix, Iy, Iz>(
+    PlottingType::Points, startX, endX, startY, startZ, name, options);
 }
 
-class Plot {
- public:
-  Plot(bool persist = false) {
+class Plot
+{
+public:
+  Plot(bool persist = false)
+  {
     if (persist)
       pipe_ = popen("gnuplot -p", "w");
     else
@@ -153,7 +173,8 @@ class Plot {
     if (pipe_ == nullptr)
       throw std::runtime_error("Can't open pipe to gnuplot");
   }
-  ~Plot() {
+  ~Plot()
+  {
     auto err = pclose(pipe_);
     if (err == -1)
       std::cerr << "Error closing gnuplot pipe \n";
@@ -170,19 +191,22 @@ class Plot {
   void SetAutoscale() { write("set autoscale", ""); }
   void GnuplotCommand(const std::string& cmd) { write(cmd, ""); }
 
-  void SetXRange(double min, double max) {
+  void SetXRange(double min, double max)
+  {
     std::stringstream range_str;
     range_str << "set xrange [" << min << ":" << max << "]";
     write(range_str.str(), "");
   }
 
-  void SetYRange(double min, double max) {
+  void SetYRange(double min, double max)
+  {
     std::stringstream range_str;
     range_str << "set yrange [" << min << ":" << max << "]";
     write(range_str.str(), "");
   }
 
-  void SetZRange(double min, double max) {
+  void SetZRange(double min, double max)
+  {
     std::stringstream range_str;
     range_str << "set zrange [" << min << ":" << max << "]";
     write(range_str.str(), "");
@@ -196,13 +220,15 @@ class Plot {
 
   void SetZTics(const Tics& tics) { SetTics("ztics", tics); }
 
-  void Flush() {
+  void Flush()
+  {
     if (fflush(pipe_) < 0)
       std::cerr << "Failed to flush gnuplot pipe \n";
   }
 
-  template <typename Tx, typename Ty = Tx, typename Tz = Tx>
-  struct DrawState {
+  template<typename Tx, typename Ty = Tx, typename Tz = Tx>
+  struct DrawState
+  {
     std::string cmd;
     std::vector<Tx> startX;
     std::vector<Tx> endX;
@@ -210,22 +236,25 @@ class Plot {
     std::vector<Tz> startZ;
   };
 
-  template <typename Tx, typename Ty = Tx>
-  auto StartDraw2D() {
+  template<typename Tx, typename Ty = Tx>
+  auto StartDraw2D()
+  {
     DrawState<Tx, Ty, int> state;
     state.cmd = "plot ";
     return state;
   }
 
-  template <typename Tx, typename Ty = Tx, typename Tz= Tx>
-  auto StartDraw3D() {
+  template<typename Tx, typename Ty = Tx, typename Tz = Tx>
+  auto StartDraw3D()
+  {
     DrawState<Tx, Ty, Tz> state;
     state.cmd = "splot ";
     return state;
   }
 
-  template <typename S, typename I>
-  void AddDrawing(S& state, I item) {
+  template<typename S, typename I>
+  void AddDrawing(S& state, I item)
+  {
     state.cmd += MakePlotParam(item);
     state.cmd += ",";
     state.startX.push_back(item.startX);
@@ -234,50 +263,55 @@ class Plot {
     state.startZ.push_back(item.startZ);
   }
 
-  template <typename S>
-  void EndDraw2D(S state) {
+  template<typename S>
+  void EndDraw2D(S state)
+  {
     write(state.cmd, "");
     auto iex = state.endX.begin();
     auto iy = state.startY.begin();
-    std::for_each(state.startX.begin(), state.startX.end(),[&](auto ix){
-        DrawBinary(ix, *iex, *iy);
-        ++iex;
-        ++iy;
+    std::for_each(state.startX.begin(), state.startX.end(), [&](auto ix) {
+      DrawBinary(ix, *iex, *iy);
+      ++iex;
+      ++iy;
     });
   }
 
-  template <typename S>
-  void EndDraw3D(S state) {
+  template<typename S>
+  void EndDraw3D(S state)
+  {
     write(state.cmd, "");
     auto iex = state.endX.begin();
     auto iy = state.startY.begin();
     auto iz = state.startZ.begin();
-    std::for_each(state.startX.begin(), state.startX.end(),[&](auto ix){
-        DrawBinary(ix, *iex, *iy, *iz);
-        ++iex;
-        ++iy;
-        ++iz;
+    std::for_each(state.startX.begin(), state.startX.end(), [&](auto ix) {
+      DrawBinary(ix, *iex, *iy, *iz);
+      ++iex;
+      ++iy;
+      ++iz;
     });
   }
 
-  template <typename... Args>
-  void Draw2D(Args... items) {
-    std::string cmd{"plot "};
+  template<typename... Args>
+  void Draw2D(Args... items)
+  {
+    std::string cmd{ "plot " };
     MakePlotParams(cmd, items...);
     write(cmd, "");
     DrawBinaries(items...);
   }
 
-  template <typename... Args>
-  void Draw3D(Args... items) {
-    std::string cmd{"splot "};
+  template<typename... Args>
+  void Draw3D(Args... items)
+  {
+    std::string cmd{ "splot " };
     MakePlotParams(cmd, items...);
     write(cmd, "");
     DrawBinaries3D(items...);
   }
 
- private:
-  void SetTics(const std::string& header, const Tics& tics) {
+private:
+  void SetTics(const std::string& header, const Tics& tics)
+  {
     std::stringstream xtics_labels;
     xtics_labels << "set " << header << " (";
 #if __cplusplus > 201402L
@@ -294,20 +328,23 @@ class Plot {
     write(xtics_labels.str(), "");
   }
 
-  template <typename T>
-  void MakePlotParams(std::string& base, const T& item) {
+  template<typename T>
+  void MakePlotParams(std::string& base, const T& item)
+  {
     base += MakePlotParam(item);
   }
 
-  template <typename T, typename... Args>
-  void MakePlotParams(std::string& base, const T& item, Args... items) {
+  template<typename T, typename... Args>
+  void MakePlotParams(std::string& base, const T& item, Args... items)
+  {
     base += MakePlotParam(item);
     base += ",";
     MakePlotParams(base, items...);
   }
 
-  template <typename T>
-  std::string MakePlotParam(const T& item) const {
+  template<typename T>
+  std::string MakePlotParam(const T& item) const
+  {
     auto n = std::distance(item.startX, item.endX);
     std::stringstream cmd;
     cmd << R"("-" binary format=")";
@@ -324,8 +361,9 @@ class Plot {
     return cmd.str();
   }
 #if __cplusplus > 201402L
-  template <typename T>
-  constexpr const char* GetFormat() const {
+  template<typename T>
+  constexpr const char* GetFormat() const
+  {
     if constexpr (std::is_same<std::int8_t, T>::value)
       return "%int8";
     else if constexpr (std::is_same<std::uint8_t, T>::value)
@@ -351,64 +389,74 @@ class Plot {
     return nullptr;
   }
 #else
-  template <typename T>
+  template<typename T>
   constexpr typename std::enable_if<std::is_same<std::int8_t, T>::value,
                                     const char*>::type
-  GetFormat() const {
+  GetFormat() const
+  {
     return "%int8";
   }
-  template <typename T>
+  template<typename T>
   constexpr typename std::enable_if<std::is_same<std::uint8_t, T>::value,
                                     const char*>::type
-  GetFormat() const {
+  GetFormat() const
+  {
     return "%uint8";
   }
-  template <typename T>
+  template<typename T>
   constexpr typename std::enable_if<std::is_same<std::int16_t, T>::value,
                                     const char*>::type
-  GetFormat() const {
+  GetFormat() const
+  {
     return "%int16";
   }
-  template <typename T>
+  template<typename T>
   constexpr typename std::enable_if<std::is_same<std::uint16_t, T>::value,
                                     const char*>::type
-  GetFormat() const {
+  GetFormat() const
+  {
     return "%uint16";
   }
-  template <typename T>
+  template<typename T>
   constexpr typename std::enable_if<std::is_same<std::int32_t, T>::value,
                                     const char*>::type
-  GetFormat() const {
+  GetFormat() const
+  {
     return "%int32";
   }
-  template <typename T>
+  template<typename T>
   constexpr typename std::enable_if<std::is_same<std::uint32_t, T>::value,
                                     const char*>::type
-  GetFormat() const {
+  GetFormat() const
+  {
     return "%uint32";
   }
-  template <typename T>
+  template<typename T>
   constexpr typename std::enable_if<std::is_same<std::int64_t, T>::value,
                                     const char*>::type
-  GetFormat() const {
+  GetFormat() const
+  {
     return "%int64";
   }
-  template <typename T>
+  template<typename T>
   constexpr typename std::enable_if<std::is_same<std::uint64_t, T>::value,
                                     const char*>::type
-  GetFormat() const {
+  GetFormat() const
+  {
     return "%uint64";
   }
-  template <typename T>
+  template<typename T>
   constexpr
-      typename std::enable_if<std::is_same<float, T>::value, const char*>::type
-      GetFormat() const {
+    typename std::enable_if<std::is_same<float, T>::value, const char*>::type
+    GetFormat() const
+  {
     return "%float";
   }
-  template <typename T>
+  template<typename T>
   constexpr
-      typename std::enable_if<std::is_same<double, T>::value, const char*>::type
-      GetFormat() const {
+    typename std::enable_if<std::is_same<double, T>::value, const char*>::type
+    GetFormat() const
+  {
     return "%double";
   }
 #endif
@@ -416,20 +464,23 @@ class Plot {
   void DrawBinaries() {}
   void DrawBinaries3D() {}
 
-  template <typename T, typename... Args>
-  void DrawBinaries(const T& item, Args... items) {
+  template<typename T, typename... Args>
+  void DrawBinaries(const T& item, Args... items)
+  {
     DrawBinary(item.startX, item.endX, item.startY);
     DrawBinaries(items...);
   }
 
-  template <typename T, typename... Args>
-  void DrawBinaries3D(const T& item, Args... items) {
+  template<typename T, typename... Args>
+  void DrawBinaries3D(const T& item, Args... items)
+  {
     DrawBinary3D(item.startX, item.endX, item.startY, item.startZ);
     DrawBinaries3D(items...);
   }
 
-  template <typename Ix, typename Iy>
-  void DrawBinary(Ix startX, Ix endX, Iy startY) {
+  template<typename Ix, typename Iy>
+  void DrawBinary(Ix startX, Ix endX, Iy startY)
+  {
     typename Ix::value_type data[2];
     while (startX != endX) {
       data[0] = *startX;
@@ -442,8 +493,9 @@ class Plot {
     }
   }
 
-  template <typename Ix, typename Iy, typename Iz>
-  void DrawBinary3D(Ix startX, Ix endX, Iy startY, Iz startZ) {
+  template<typename Ix, typename Iy, typename Iz>
+  void DrawBinary3D(Ix startX, Ix endX, Iy startY, Iz startZ)
+  {
     typename Ix::value_type data[3];
     while (startX != endX) {
       data[0] = *startX;
@@ -458,7 +510,8 @@ class Plot {
     }
   }
 
-  void write(const std::string& cmd, const std::string& param) {
+  void write(const std::string& cmd, const std::string& param)
+  {
     const char* fmt = "%s\n";
     if (!param.empty()) {
       fmt = "%s \"%s\"\n";
@@ -468,9 +521,9 @@ class Plot {
     }
   }
 
- private:
+private:
   FILE* pipe_;
 };
-}  // namespace plotcpp
+} // namespace plotcpp
 
-#endif  // PLOT_CPP_
+#endif // PLOT_CPP_

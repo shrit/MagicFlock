@@ -1,10 +1,9 @@
-# include "include/time_steps.hh"
+#include "include/time_steps.hh"
 
+TimeSteps::TimeSteps() {}
 
-TimeSteps::TimeSteps()
-{}
-
-void TimeSteps::tic()
+void
+TimeSteps::tic()
 {
   Timer timer;
   elapsed_time_ = timer.stop();
@@ -12,11 +11,20 @@ void TimeSteps::tic()
   timer.start();
 }
 
-int TimeSteps::steps() const
-{ return counter_; }
+int
+TimeSteps::steps() const
+{
+  return counter_;
+}
 
-void TimeSteps::reset()
-{ counter_ = 0; }
+void
+TimeSteps::reset()
+{
+  counter_ = 0;
+}
 
-double TimeSteps::elapsed_time_between_last_2_steps() const
-{ return elapsed_time_; }
+double
+TimeSteps::elapsed_time_between_last_2_steps() const
+{
+  return elapsed_time_;
+}

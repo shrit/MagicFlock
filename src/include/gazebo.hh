@@ -1,26 +1,25 @@
 #ifndef GAZEBO_HH_
 #define GAZEBO_HH_
 
-# include <gazebo/gazebo_config.h>
-# include <gazebo/transport/transport.hh>
-# include <gazebo/gazebo_client.hh>
-# include <gazebo/msgs/msgs.hh>
-# include <gazebo/msgs/pose.pb.h>
+#include <gazebo/gazebo_client.hh>
+#include <gazebo/gazebo_config.h>
+#include <gazebo/msgs/msgs.hh>
+#include <gazebo/msgs/pose.pb.h>
+#include <gazebo/transport/transport.hh>
 
-# include <mutex>
+#include <mutex>
 
-# include "global.hh"
-# include "log.hh"
-# include "config_ini.hh"
+#include "config_ini.hh"
+#include "global.hh"
+#include "log.hh"
 
 namespace lt = local_types;
 
 class Gazebo
 {
 public:
-
-  using SubPtr  = gazebo::transport::SubscriberPtr;
-  using PubPtr  = gazebo::transport::PublisherPtr;
+  using SubPtr = gazebo::transport::SubscriberPtr;
+  using PubPtr = gazebo::transport::PublisherPtr;
   using NodePtr = gazebo::transport::NodePtr;
 
   Gazebo(int argc, char* argv[], Configs config);
@@ -39,10 +38,9 @@ public:
   std::vector<lt::orientation<double>> orientations() const;
 
   Gazebo(Gazebo const&) = delete;
-  Gazebo(Gazebo &&) = default;
+  Gazebo(Gazebo&&) = default;
 
 private:
-
   double rssi_;
   std::vector<SubPtr> subs_;
   std::vector<PubPtr> pubs_;

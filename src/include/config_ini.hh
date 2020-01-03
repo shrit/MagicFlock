@@ -1,18 +1,17 @@
 #ifndef CONFIG_INI_HH_
 #define CONFIG_INI_HH_
 
-# include <iostream>
-# include <string>
+#include <iostream>
+#include <string>
 
-# include "ini.hh"
-# include "global.hh"
+#include "global.hh"
+#include "ini.hh"
 
 namespace lt = local_types;
 
 class Configs
 {
 public:
-
   Configs();
   Configs(std::string file_name);
 
@@ -39,12 +38,11 @@ public:
   bool just_fly() const;
 
 private:
-
   mINI::INIStructure ini_;
 
   int number_of_quads_;
 
-  lt::port_type	port_;
+  lt::port_type port_;
 
   std::vector<lt::port_type> ports_;
   std::vector<std::string> quad_names_;
@@ -62,7 +60,6 @@ private:
   std::string reset_1_;
   std::string reset_2_;
   std::string reset_3_;
-
 };
 
 #endif

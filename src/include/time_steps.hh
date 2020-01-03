@@ -1,11 +1,11 @@
 #pragma once
 
-# include "timer.hh"
+#include "timer.hh"
 
-class TimeSteps {
+class TimeSteps
+{
 
 public:
-
   TimeSteps();
 
   void tic();

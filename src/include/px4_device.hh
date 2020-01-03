@@ -6,43 +6,43 @@
  * @author: Omar Shrit <shrit@lri.fr>
  */
 /*  C++ Standard includes */
-# include <chrono>
-# include <cmath>
-# include <iostream>
-# include <thread>
-# include <memory>
-# include <mutex>
-# include <atomic>
-# include <future>
+#include <atomic>
+#include <chrono>
+#include <cmath>
+#include <future>
+#include <iostream>
+#include <memory>
+#include <mutex>
+#include <thread>
 
 /*  DronecodeSDK includes */
-# include <mavsdk/plugins/action/action.h>
-# include <mavsdk/plugins/calibration/calibration.h>
-# include <mavsdk/mavsdk.h>
-# include <mavsdk/plugins/offboard/offboard.h>
-# include <mavsdk/plugins/shell/shell.h>
-# include <mavsdk/plugins/telemetry/telemetry.h>
+#include <mavsdk/mavsdk.h>
+#include <mavsdk/plugins/action/action.h>
+#include <mavsdk/plugins/calibration/calibration.h>
+#include <mavsdk/plugins/offboard/offboard.h>
+#include <mavsdk/plugins/shell/shell.h>
+#include <mavsdk/plugins/telemetry/telemetry.h>
 
 /*  local includes */
-# include "global.hh"
-# include "logger.hh"
+#include "global.hh"
+#include "logger.hh"
 
 using namespace mavsdk;
-using std::this_thread::sleep_for;
 using std::chrono::milliseconds;
 using std::chrono::seconds;
+using std::this_thread::sleep_for;
 using namespace ILMR;
 
-#define ERROR_CONSOLE_TEXT "\033[31m" // Turn text on console red
+#define ERROR_CONSOLE_TEXT "\033[31m"     // Turn text on console red
 #define TELEMETRY_CONSOLE_TEXT "\033[34m" // Turn text on console blue
-#define NORMAL_CONSOLE_TEXT "\033[0m" // Restore normal console colour
+#define NORMAL_CONSOLE_TEXT "\033[0m"     // Restore normal console colour
 
 namespace lt = local_types;
 
-class Px4Device {
+class Px4Device
+{
 
 public:
-
   Px4Device(lt::connection_type socket, lt::port_type port);
 
   bool arm();
@@ -65,7 +65,7 @@ public:
   void forward(float speed);
   void backward(float speed);
 
-    /*  Linear trajectories with a specific duaration */
+  /*  Linear trajectories with a specific duaration */
   void up(float speed, unsigned int milliseconds_);
   void down(float speed, unsigned int milliseconds_);
   void right(float speed, unsigned int milliseconds_);
@@ -98,8 +98,8 @@ public:
   Telemetry::PositionVelocityNED get_position_ned() const;
   void position_ned_async();
 
-  Calibration::calibration_callback_t
-  create_calibration_callback(std::promise<void> &calibration_promise);
+  Calibration::calibration_callback_t create_calibration_callback(
+    std::promise<void>& calibration_promise);
 
   void calibrate_accelerometer();
 
@@ -119,22 +119,24 @@ public:
 
   /*  Handles plugin results. */
 
-  inline void action_error_exit(Action::Result result, const std::string &message);
-  inline void offboard_error_exit(Offboard::Result result, const std::string &message);
-  inline void connection_error_exit(ConnectionResult result, const std::string &message);
+  inline void action_error_exit(Action::Result result,
+                                const std::string& message);
+  inline void offboard_error_exit(Offboard::Result result,
+                                  const std::string& message);
+  inline void connection_error_exit(ConnectionResult result,
+                                    const std::string& message);
 
   Px4Device(Px4Device const&) = delete;
-  Px4Device(Px4Device &&) = default;
+  Px4Device(Px4Device&&) = default;
 
 private:
-
-  double CalculateDistance (Telemetry::PositionVelocityNED& a,
-			    Telemetry::PositionVelocityNED& b);
+  double CalculateDistance(Telemetry::PositionVelocityNED& a,
+                           Telemetry::PositionVelocityNED& b);
 
   Mavsdk mavsdk_;
   Telemetry::Health health_;
-  Telemetry::PositionVelocityNED _position_ned{{0, 0, 0}, {0, 0, 0}};
-  Telemetry::Position position_{0, 0, 0, 0};
+  Telemetry::PositionVelocityNED _position_ned{ { 0, 0, 0 }, { 0, 0, 0 } };
+  Telemetry::Position position_{ 0, 0, 0, 0 };
 
   Telemetry::LandedState _landed_state;
   mutable std::mutex _landed_state_mutex{};
