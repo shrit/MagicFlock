@@ -8,9 +8,6 @@
 # include <tuple>
 # include <vector>
 
-/*  Armadillo includes  */
-# include <armadillo>
-
 /* local includes  */
 # include "data_set.hh"
 # include "distance_state.hh"

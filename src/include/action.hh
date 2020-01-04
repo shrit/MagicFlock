@@ -10,9 +10,6 @@
 #include <random>
 #include <utility>
 
-/*  Armadillo includes  */
-#include <armadillo>
-
 #include "math_tools.hh"
 
 class Actions

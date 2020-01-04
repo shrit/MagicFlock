@@ -11,15 +11,12 @@
 #include <vector>
 
 /*  MLPack includes */
-#include <ensmallen_bits/adam/adam_update.hpp>
 #include <mlpack/core.hpp>
 #include <mlpack/methods/ann/ffn.hpp>
 #include <mlpack/methods/ann/layer/layer.hpp>
 #include <mlpack/methods/ann/loss_functions/mean_squared_error.hpp>
 #include <mlpack/methods/ann/loss_functions/sigmoid_cross_entropy_error.hpp>
-
-/*  Armadillo includes  */
-#include <armadillo>
+#include <ensmallen_bits/adam/adam_update.hpp>
 
 /* local includes  */
 #include "global.hh"
