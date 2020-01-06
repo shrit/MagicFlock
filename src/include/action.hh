@@ -47,11 +47,28 @@ public:
 
   Action random_action_generator_with_all_conditions(Action action);
 
-  Action deduce_action_from_distance(double distances_t_1_b,
-                                     double distances_t_b,
-                                     double distance_t_1_c,
-                                     double distance_t_c,
-                                     double alti_diff_t);
+  std::tuple<Actions::Action, Actions::Action> deduce_action_from_distance(
+    double distances_t_1_b,
+    double distances_t_b,
+    double distance_t_1_c,
+    double distance_t_c,
+    double alti_diff_t,
+    double score_b,
+    double score_c);
+
+  Actions::Action undo_action(Actions::Action action);
+
+  Action deduce_oracle_action_from_distance(double distances_t_1_b,
+                                            double distances_t_b,
+                                            double distance_t_1_c,
+                                            double distance_t_c,
+                                            double alti_diff_t);
+
+  Action generate_leader_action(bool change_leader_action,
+                                bool stop_going_down,
+                                double distance_to_b,
+                                double disatance_to_c,
+                                Action last_action);
 
   double generate_real_random();
 

@@ -198,11 +198,108 @@ Actions::random_action_generator_with_only_opposed_condition(Action action)
 }
 
 Actions::Action
+undo_action(Actions::Action action) 
+{
+ Actions::Action undo_action = Actions::Action::Unknown;
+  switch (action) {
+    case Actions::Action::forward:
+      undo_action = Actions::Action::backward;
+      break;
+    case Actions::Action::backward:
+      undo_action = Actions::Action::forward;
+      break;
+    case Actions::Action::left:
+      undo_action = Actions::Action::right;
+      break;
+    case Actions::Action::right:
+      undo_action = Actions::Action::left;
+      break;
+    case Actions::Action::up:
+      undo_action = Actions::Action::down;
+      break;
+    case Actions::Action::down:
+      undo_action = Actions::Action::up;
+      break;
+    case Actions::Action::NoMove:
+      undo_action = Actions::Action::NoMove;
+      break;
+    case Actions::Action::Unknown:
+      undo_action = Actions::Action::Unknown;
+      break;
+  }
+  return undo_action; 
+}
+
+std::tuple<Actions::Action, Actions::Action>
 Actions::deduce_action_from_distance(double distance_t_1_b,
                                      double distance_t_b,
                                      double distance_t_1_c,
                                      double distance_t_c,
-                                     double alti_diff_t)
+                                     double alti_diff_t,
+                                     double score_b,
+                                     double score_c)
+{
+  Actions::Action action_b = Action::Unknown;
+  Actions::Action action_c = Action::Unknown;
+
+  if (score_b == 0 or score_c == 0) {  
+    // undo b action  and give score = 1
+    // do good action if score == 1
+
+  } else if (distance_t_b > distance_t_1_b and distance_t_c > distance_t_1_c and
+      std::fabs(alti_diff_t) < 0.4) {
+    if (generate_real_random() > 0.5) {
+      action_b = Action::forward;
+      action_c = Action::left;
+    } else {
+      action_b = Action::right;
+      action_c = Action::forward;
+    }
+
+  } else if (distance_t_b > distance_t_1_b and distance_t_c < distance_t_1_c and
+             std::fabs(alti_diff_t) < 0.4) {
+    if (generate_real_random() > 0.5) {
+      action_b = Action::right;
+      action_c = Action::backward;
+    } else {
+      action_b = Action::right;
+      action_c = Action::forward;
+    }
+  } else if (distance_t_b < distance_t_1_b and distance_t_c < distance_t_1_c and
+             std::fabs(alti_diff_t) < 0.4) {
+    if (generate_real_random() > 0.5) {
+      action_b = Action::backward;
+      action_c = Action::right;
+    } else {
+      action_b = Action::left;
+      action_c = Action::backward;
+    }
+  } else if (distance_t_b < distance_t_1_b and distance_t_c > distance_t_1_c and
+             std::fabs(alti_diff_t) < 0.4) {
+    if (generate_real_random() > 0.5) {
+      action_b = Action::left;
+      action_c = Action::forward;
+    } else {
+      action_b = Action::backward;
+      action_c = Action::left;
+    }
+
+  } else if ((alti_diff_t) > 0.7) {
+    action_b = Action::up;
+    action_c = Action::up; 
+    } else {
+    action_b = Action::down;
+    action_c = Action::down;
+    }
+  return std::make_tuple(action_b, action_c);
+}
+
+Actions::Action
+Actions::deduce_oracle_action_from_distance(double distance_t_1_b,
+                                            double distance_t_b,
+                                            double distance_t_1_c,
+                                            double distance_t_c,
+                                            double alti_diff_t)
 {
   Actions::Action action = Action::Unknown;
   if (distance_t_b > distance_t_1_b and distance_t_c > distance_t_1_c and
@@ -227,4 +324,26 @@ Actions::deduce_action_from_distance(double distance_t_1_b,
     action = Action::down;
   }
   return action;
+}
+
+Actions::Action
+Actions::generate_leader_action(bool change_leader_action,
+                                bool stop_going_down,
+                                double distance_to_b,
+                                double distance_to_c,
+                                Actions::Action last_action)
+{
+  Actions::Action leader_action;
+  if (distance_to_b > 4 and distance_to_c > 4) {
+    leader_action = Action::NoMove;
+  } else if (change_leader_action == true) {
+    leader_action =
+      random_action_generator_with_only_opposed_condition(last_action);
+  } else if (stop_going_down == true) {
+    leader_action =
+      random_action_generator_with_only_opposed_condition(last_action);
+  } else {
+    leader_action = last_action;
+  }
+  return leader_action;
 }
