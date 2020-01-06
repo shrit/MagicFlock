@@ -122,6 +122,18 @@ Quadrotor<simulator_t>::last_action()
 }
 
 template<class simulator_t>
+Actions::Action
+Quadrotor<simulator_t>::before_last_action()
+{
+  if (all_actions_.size() > 2) {
+    auto it_action = all_actions_.rbegin();
+    it_action = std::next(it_action, 2);
+    before_last_action_ = (*it_action);
+  }
+  return before_last_action_;
+}
+
+template<class simulator_t>
 std::vector<Actions::Action>
 Quadrotor<simulator_t>::all_actions() const
 {
@@ -152,6 +164,18 @@ Quadrotor<simulator_t>::most_used_action()
   Actions::Action most_used =
     action.int_to_action(mtools_.index_of_max_value(most_used_action));
   return most_used;
+}
+
+template<class simulator_t>
+double 
+Quadrotor<simulator_t>::get_score_of_before_last_actions()
+{
+  double score = -1;
+  if (current_state_.distances_3D().at(0) - before_last_state_.distances_3D().at(0) > 1
+      and current_state_.distances_3D().at(1) - before_last_state_.distances_3D().at(1) > 1) {
+  score = 0;    
+  }
+  return score;
 }
 
 template<class simulator_t>

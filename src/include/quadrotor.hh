@@ -7,7 +7,10 @@
  */
 #pragma once
 
+#include <queue>
+#include <stack>
 #include <utility>
+#include <vector>
 
 #include "action.hh"
 #include "data_set.hh"
@@ -41,12 +44,14 @@ public:
   Actions::Action current_action() const;
   void current_action(Actions::Action action);
   Actions::Action last_action();
+  Actions::Action before_last_action();
   std::vector<Actions::Action> all_actions() const;
   void reset_all_actions();
   Actions::Action most_used_action();
-
   Actions::Action most_frequent_action_in_container();
   void save_action_in_container(Actions::Action action);
+  double get_score_of_before_last_actions();
+  
   /*  Data set related functions */
   void register_data_set();
   void register_histogram(int count);
@@ -65,8 +70,12 @@ public:
 private:
   Actions::Action current_action_{ Actions::Action::Unknown };
   Actions::Action last_action_{ Actions::Action::Unknown };
+  Actions::Action before_last_action_{ Actions::Action::Unknown };
   std::vector<Actions::Action> all_actions_;
   std::vector<Actions::Action> action_container_;
+  std::stack<Actions::Action> stack_of_future_actions_;
+  std::queue<Actions::Action> queue_of_future_actions_;
+
   Math_tools mtools_;
   DataSet<simulator_t> data_set_;
 
