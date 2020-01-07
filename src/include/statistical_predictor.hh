@@ -1,35 +1,43 @@
 #pragma once
 
 /*  Standard C++ includes  */
-# include <algorithm>
-# include <chrono>
-# include <cmath>
-# include <numeric>
-# include <tuple>
-# include <vector>
+#include <algorithm>
+#include <chrono>
+#include <cmath>
+#include <numeric>
+#include <tuple>
+#include <vector>
+
+/* MLPack includes */
+#include <mlpack/core.hpp>
+#include <mlpack/methods/neighbor_search/neighbor_search.hpp>
 
 /* local includes  */
-# include "data_set.hh"
-# include "distance_state.hh"
-# include "global.hh"
-# include "log.hh"
-# include "math_tools.hh"
-# include "quadrotor.hh"
+#include "data_set.hh"
+#include "distance_state.hh"
+#include "global.hh"
+#include "log.hh"
+#include "math_tools.hh"
+#include "quadrotor.hh"
 
 namespace lt = local_types;
 
 template<class simulator_t>
-class StatisticalPredictor
+class KnnPredictor
 {
 public:
-  StatisticalPredictor(std::string dataset_file,
-		       typename std::vector<Quadrotor<simulator_t>>::iterator quad);
+  KnnPredictor(
+    std::string dataset_file,
+    typename std::vector<Quadrotor<simulator_t>>::iterator quad);
 
-  void predict();
+  void predict(int knn_neighbors);
   Actions::Action get_predicted_action() const;
 
-  StatisticalPredictor(StatisticalPredictor const&) = delete;
-  StatisticalPredictor(StatisticalPredictor &&) = default;
+  std::vector<double> estimate_action_from_distance(arma::mat& matrix);  
+  int index_of_best_action_regression(arma::mat& matrix);
+
+  KnnPredictor(KnnPredictor const&) = delete;
+  KnnPredictor(KnnPredictor&&) = default;
 
 private:
   DataSet<simulator_t> dataset_;
@@ -38,4 +46,4 @@ private:
   typename std::vector<Quadrotor<simulator_t>>::iterator quad_;
 };
 
-# include "statistical_predictor.hxx"
+#include "knn_predictor.hxx"

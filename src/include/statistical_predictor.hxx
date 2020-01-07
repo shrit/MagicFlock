@@ -1,59 +1,79 @@
 #pragma once
 
-# include "statistical_predictor.hh"
+#include "knn_predictor.hh"
 
 template<class simulator_t>
-StatisticalPredictor<simulator_t>::
-StatisticalPredictor(std::string dataset_file,
-		     typename std::vector<Quadrotor<simulator_t>>::iterator quad)
-  :quad_(quad)
+KnnPredictor<simulator_t>::KnnPredictor(
+  std::string dataset_file,
+  typename std::vector<Quadrotor<simulator_t>>::iterator quad)
+  : quad_(quad)
 {
   dataset_.read_dataset_file(dataset_file);
 }
 
 template<class simulator_t>
-void StatisticalPredictor<simulator_t>::predict()
+void
+KnnPredictor<simulator_t>::predict(int knn_neighbors)
 {
-  std::vector<State<simulator_t>> s_t =  dataset_.st_vec();
-  std::vector<Actions::Action> a_t =  dataset_.at_vec();
-  std::vector<State<simulator_t>> s_t_1 =  dataset_.st_1_vec();
-  std::vector<Actions::Action> a_t_1 =  dataset_.at_1_vec();
+  arma::mat s_a_s_t_1 = dataset_.s_a_s_t_1();
+  arma::mat a_t_1 = dataset_.at_1_mat();
+  arma::mat s_t_2 = dataset_.s_t_2_mat();
   std::vector<std::tuple<double, int>> dist_ref;
 
-  for (int i = 0; i < s_t.size(); ++i) {
-    if (quad_->last_state() == s_t.at(i)) {
+  arma::mat query = dataset_.conv_state_action_state_to_arma_state(
+    quad_->last_state(), quad_->current_action(), quad_->current_state());
 
-      if (quad_->current_action() == a_t.at(i)) {
+  mlpack::neighbor::NeighborSearch<mlpack::neighbor::NearestNeighborSort,
+                                   mlpack::metric::EuclideanDistance>
+    knn(s_a_s_t_1);
+  arma::Mat<size_t> close_neighbors;
+  arma::mat distances;
 
-        StateDistance<simulator_t> state_distance(quad_->last_state(),
-						  quad_->current_state(),
-						  s_t, s_t_1);
+  knn.Search(query, 4, close_neighbor, distances);
+  logger_->debug("Closest neigh neibors indices are: {} ", close_neighbors);
+  logger_->debug("distances to neibors are: {} ", distances);
 
-	double distance = state_distance.distance();
-	dist_ref.push_back(std::make_tuple(distance, i));
+  arma::mat result_state = data_set_.submat_using_indices(s_t_2, distances);
+  arma::uword value = index_of_best_action_regression(result_state);
+  logger::logger_->debug("Index of best action: {}", value);
 
-      } else {
-	StateDistance<simulator_t> state_distance(quad_->last_state(),
-						  quad_->current_state(),
-						  s_t, s_t_1);
-
-	double distance = state_distance.distance();
-	distance ++; // Adding one since the actions are not the same
-	dist_ref.push_back(std::make_tuple(distance, i));
-      }
-    }
-  }
-
-  /*  Print using spdlog the values of the value of the iterator  */
-  // do argmin on the distances.
-  auto it = std::min_element(dist_ref.begin(), dist_ref.end());
-  int index = 0;
-  std::tie(std::ignore, index) = (*it);
-  // do argmin on st+2. get the best action at+1
-  predicted_follower_action_ = a_t_1.at(index);
+  predicted_follower_action_ = a_t_1.at(value);
 }
 
 template<class simulator_t>
-Actions::Action StatisticalPredictor<simulator_t>
-::get_predicted_action() const
-{ return predicted_follower_action_; }
+int
+KnnPredictor<simulator_t>::index_of_best_action_regression(arma::mat& matrix)
+{
+  std::vector<double> distances = estimate_action_from_distance(matrix);
+  std::reverse(distances.begin(), distances.end());
+  logger::logger_->info("Sum of distances: {}", distances);
+  int value =
+    std::min_element(distances.begin(), distances.end()) - distances.begin();
+  return value;
+}
+
+template<class simulator_t>
+std::vector<double>
+KnnPredictor<simulator_t>::estimate_action_from_distance(arma::mat& matrix)
+{
+  std::vector<double> sum_of_distances;
+  double d1, d2;
+  double original_d1 = 3;
+  double original_d2 = 3;
+  double height_diff;
+  for (arma::uword i = 0; i < matrix.n_rows; ++i) {
+    d1 = std::fabs(original_d1 - matrix(i, 0));
+    d2 = std::fabs(original_d2 - matrix(i, 1));
+    height_diff =
+      std::fabs(quad_->current_state().height_difference() - matrix(i, 2));
+    sum_of_distances.push_back(d1 + d2 + height_diff);
+  }
+  return sum_of_distances;
+}
+
+template<class simulator_t>
+Actions::Action
+KnnPredictor<simulator_t>::get_predicted_action() const
+{
+  return predicted_follower_action_;
+}
