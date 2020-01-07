@@ -49,6 +49,12 @@ DataSet<simulator_t>::parse_dataset_file(std::string file_name)
   st_2_vec_ = state.StateConstructor(st_2_mat);
 
   logger::logger_->debug("Vector: S_t => t=0: {}", st_vec_);
+  
+  st_mat_ = st_mat.t();
+  at_mat_ = at_mat.t();
+  st_1_mat_ = st_1_mat.t();
+  at_1_mat_ = at_1_mat.t();
+  st_2_mat_ = st_2_mat.t();
 }
 
 template<class simulator_t>
@@ -164,6 +170,41 @@ std::vector<State<simulator_t>>
 DataSet<simulator_t>::st_2_vec() const
 {
   return st_2_vec_;
+}
+
+template<class simulator_t>
+arma::mat
+DataSet<simulator_t>::st_mat() const
+{
+  return st_mat_;
+}
+
+template<class simulator_t>
+arma::mat
+DataSet<simulator_t>::at_mat() const
+{
+  return at_mat_;
+}
+
+template<class simulator_t>
+arma::mat
+DataSet<simulator_t>::st_1_mat() const
+{
+  return st_1_mat_;
+}
+
+template<class simulator_t>
+arma::mat
+DataSet<simulator_t>::at_1_mat() const
+{
+  return at_1_mat_;
+}
+
+template<class simulator_t>
+arma::mat
+DataSet<simulator_t>::st_2_mat() const
+{
+  return st_2_mat_;
 }
 
 template<class simulator_t>
@@ -323,4 +364,14 @@ DataSet<simulator_t>::plot(std::string title,
   // 	     Points(x_zero.begin(), x_zero.end(), y_zero.begin(), "No reward"));
 
   plt.Flush();
+}
+
+arma::mat
+DataSet<simulator_t>::conv_state_to_arma_state(State<simulator_t> state)
+{
+  arma::mat state(3, 1);
+  state(0, 0) = state.distance_3D().at(0);
+  state(1, 0) = state.distance_3D().at(1);
+  state(2, 0) = state.distance_3D().at(2);
+  return state;
 }

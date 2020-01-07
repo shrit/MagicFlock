@@ -80,8 +80,15 @@ public:
 
   std::vector<State<simulator_t>> st_2_vec() const;
 
-  arma::mat dataset() const;
+  arma::mat conv_state_to_arma_state(State<simulator_t> state);
 
+  arma::mat st_mat() const;
+  arma::mat at_mat() const;
+  arma::mat st_1_mat() const;
+  arma::mat at_1_mat() const;
+  arma::mat st_2_mat() const;
+
+  arma::mat dataset() const;
   arma::mat test_features() const;
   arma::mat test_labels() const;
   arma::mat train_features() const;
@@ -111,11 +118,15 @@ private:
 
   std::vector<State<simulator_t>> st_vec_;
   std::vector<Actions::Action> at_vec_;
-
   std::vector<State<simulator_t>> st_1_vec_;
   std::vector<Actions::Action> at_1_vec_;
-
   std::vector<State<simulator_t>> st_2_vec_;
+
+  arma::mat st_mat_;
+  arma::mat at_mat_;
+  arma::mat st_1_mat_;
+  arma::mat at_1_mat_;
+  arma::mat st_2_mat_;
 };
 
 #include "data_set.hxx"
