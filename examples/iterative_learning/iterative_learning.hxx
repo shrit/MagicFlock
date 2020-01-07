@@ -31,19 +31,15 @@ Iterative_learning<flight_controller_t, simulator_t>::
   std::vector<std::thread> threads;
 
   /*  Pick leader action, change it or keep it */
-  if (change_leader_action == true) {
-    leader_->current_action(
-      action.random_action_generator_with_only_opposed_condition(
-        leader_->last_action()));
-  } else if (stop_down_action == true) {
-    while (leader_->current_action() == Actions::Action::down) {
-      leader_->current_action(
-        action.random_action_generator_with_only_opposed_condition(
-          leader_->last_action()));
-    }
+  while (leader_->current_action() == Actions::Action::down) {
+    leader_->current_action(action.generate_leader_action(change_leader_action,
+                                                   stop_down_action,
+                                                   leader_->current_state().distance_to(follower_1_->id()),
+                                                   leader_->current_state().distance_to(follower_2_->id()),
+                                                   leader_->last_action()));
   }
 
-  /*  Sample the state at time t = 0 only for the first follower */
+ /*  Sample the state at time t = 0 only for the first follower */
   follower_1_->sample_state();
   follower_2_->sample_state();
   /* Followers actions always equal to no move at this instant t */
@@ -106,46 +102,7 @@ Iterative_learning<flight_controller_t, simulator_t>::
                                        follower_2_->speed(),
                                        1000);
   }));
-  // } else if ((follower_1_action == Actions::Action::forward and
-  // 					follower_2_action ==
-  // Actions::Action::left)
-  // or 					(follower_1_action == Actions::Action::backward and
-  // follower_2_action
-  // == Actions::Action::right) or 					(follower_1_action ==
-  // Actions::Action::left
-  // and 					follower_2_action == Actions::Action::backward) or
-  // (follower_1_action
-  // == Actions::Action::right and 					follower_2_action
-  // == Actions::Action::forward)) {
-
-  //   			follower_1_->current_action(follower_1_action);
-  // 		  	follower_2_->current_action(follower_2_action);
-
-  /*  } else {
-      follower_1_->save_action_in_container(follower_1_action);
-      follower_2_->save_action_in_container(follower_2_action);
-      logger::logger_->info("Follower 1 action:{}",
-                            follower_1_->current_action());
-      logger::logger_->info("Follower 2 action:{}",
-                            follower_2_->current_action());
-
-      threads.push_back(std::thread([&]() {
-        swarm_.one_quad_execute_trajectory(
-          follower_1_->id(),
-          follower_1_->most_frequent_action_in_container(),
-          follower_1_->speed(),
-          1000);
-      }));
-      threads.push_back(std::thread([&]() {
-        swarm_.one_quad_execute_trajectory(
-          follower_2_->id(),
-          follower_2_->most_frequent_action_in_container(),
-          follower_2_->speed(),
-          1000);
-      }));
-    }
-
-  */  /* We need to wait until the quadcopters finish their actions */
+    /* We need to wait until the quadcopters finish their actions */
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   evaluate_model.input(leader_->current_action(),
                        follower_1_->current_action(),

@@ -9,11 +9,11 @@
 #include <vector>
 
 /* local includes  */
+#include <ILMR/predictor.hh>
 #include <ILMR/action.hh>
 #include <ILMR/evaluate_model.hh>
 #include <ILMR/global.hh>
 #include <ILMR/logger.hh>
-#include <ILMR/predictor.hh>
 #include <ILMR/quadrotor.hh>
 #include <ILMR/swarm_device.hh>
 #include <ILMR/time_steps.hh>
