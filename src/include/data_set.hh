@@ -80,8 +80,12 @@ public:
 
   std::vector<State<simulator_t>> st_2_vec() const;
 
-  arma::mat conv_state_to_arma_state(State<simulator_t> state);
+  arma::mat conv_state_to_arma(State<simulator_t> state);
 
+  arma::mat conv_state_arm_state_to_arma(State<simulator_t> state,
+                                         Actions::Action action,
+                                         State<simulator_t> state_2);
+  arma::mat submat_using_indices(arma::mat, arma::mat);
   arma::mat st_mat() const;
   arma::mat at_mat() const;
   arma::mat st_1_mat() const;
