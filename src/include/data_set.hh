@@ -25,6 +25,7 @@
 /*  local defined include */
 #include "action.hh"
 #include "global.hh"
+#include "math_tools.hh"
 #include "plot.hh"
 #include "state.hh"
 
@@ -131,6 +132,8 @@ private:
   arma::mat st_1_mat_;
   arma::mat at_1_mat_;
   arma::mat st_2_mat_;
+
+  Math_tools mtools_;
 };
 
 #include "data_set.hxx"

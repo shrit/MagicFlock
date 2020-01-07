@@ -370,11 +370,11 @@ template<class simulator_t>
 arma::mat
 DataSet<simulator_t>::conv_state_to_arma(State<simulator_t> state)
 {
-  arma::mat state(3, 1);
-  state(0, 0) = state.distance_3D().at(0);
-  state(1, 0) = state.distance_3D().at(1);
-  state(2, 0) = state.distance_3D().at(2);
-  return state;
+  arma::mat mat(3, 1);
+  mat(0, 0) = state.distance_3D().at(0);
+  mat(1, 0) = state.distance_3D().at(1);
+  mat(2, 0) = state.distance_3D().at(2);
+  return mat;
 }
 
 template<class simulator_t>
@@ -387,7 +387,7 @@ DataSet<simulator_t>::conv_state_arm_state_to_arma(State<simulator_t> state,
   mat(0, 0) = state.distance_3D().at(0);
   mat(1, 0) = state.distance_3D().at(1);
   mat(2, 0) = state.distance_3D().at(2);
-  std::vector<int> act = mtools_.to_one_hot_encoding(action);
+  std::vector<int> act = mtools_.to_one_hot_encoding(action, 7);
   mat(3, 0) = act.at(0);
   mat(4, 0) = act.at(1);
   mat(5, 0) = act.at(2);
@@ -409,8 +409,8 @@ DataSet<simulator_t>::submat_using_indices(arma::mat matrix_to_sub,
   arma::rowvec row;
   arma::mat submatrix;
   for (arma::uword i = 0; i < indices.n_cols; ++i) {
-    row = matrix_to_sub(arma::sub(i, i), arma::sub(0, matrix_to_sub.n_cols));
-    submatrix.insert(0, row);
+    row = matrix_to_sub(arma::span(i, i), arma::span(0, matrix_to_sub.n_cols));
+    submatrix.insert_rows(0, row);
   }
   return submatrix;
 }
