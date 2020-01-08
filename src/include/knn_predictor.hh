@@ -21,6 +21,7 @@
 #include "quadrotor.hh"
 
 namespace lt = local_types;
+using namespace ILMR;
 
 template<class simulator_t>
 class KnnPredictor

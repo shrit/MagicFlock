@@ -8,7 +8,7 @@ KnnPredictor<simulator_t>::KnnPredictor(
   typename std::vector<Quadrotor<simulator_t>>::iterator quad)
   : quad_(quad)
 {
-  dataset_.read_dataset_file(dataset_file);
+  dataset_.parse_dataset_file(dataset_file);
 }
 
 template<class simulator_t>
@@ -29,11 +29,11 @@ KnnPredictor<simulator_t>::predict(int knn_neighbors)
   arma::Mat<size_t> close_neighbors;
   arma::mat distances;
 
-  knn.Search(query, 4, close_neighbor, distances);
-  logger_->debug("Closest neigh neibors indices are: {} ", close_neighbors);
-  logger_->debug("distances to neibors are: {} ", distances);
+  knn.Search(query, 4, close_neighbors, distances);
+  logger::logger_->debug("Closest neigh neibors indices are: {} ", close_neighbors);
+  logger::logger_->debug("distances to neibors are: {} ", distances);
 
-  arma::mat result_state = data_set_.submat_using_indices(s_t_2, distances);
+  arma::mat result_state = dataset_.submat_using_indices(s_t_2, distances);
   arma::uword value = index_of_best_action_regression(result_state);
   logger::logger_->debug("Index of best action: {}", value);
 
