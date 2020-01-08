@@ -11,6 +11,7 @@ State<simulator_t>::State(std::shared_ptr<simulator_t> sim_interface,
                           unsigned int id,
                           std::vector<unsigned int> nearest_neighbors)
   : sim_interface_(std::move(sim_interface))
+  , id_(id)
 {
   leader_ = sim_interface_->positions().begin();
   follower_ = sim_interface_->positions().begin() + id;
@@ -47,7 +48,8 @@ template<class simulator_t>
 double
 State<simulator_t>::rt_height()
 {
-  altitude_ = follower_->z;
+  auto quad = sim_interface_->positions().begin() + id_;
+  altitude_ = quad->z;
   return altitude_;
 }
 

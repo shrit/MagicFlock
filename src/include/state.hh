@@ -36,6 +36,7 @@ public:
   std::vector<State> StateConstructor(arma::mat values);
 
 private:
+  int id_;
   double altitude_;
   double alti_diff_;
   Math_tools mtools_;
