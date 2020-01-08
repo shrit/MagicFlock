@@ -213,7 +213,7 @@ Predictor<simulator_t>::predict(arma::mat& features)
   logger::logger_->info("Label matrix: {}", label);
 
   arma::uword value = index_of_best_action_regression(label);
-  logger::logger_->info("Index of best action regression: {}", value);
+  logger::logger_->info("Index of best action: {}", value);
 
   /*  Get the follower action now !! and store it directly */
   Actions::Action action_follower = action_.int_to_action(value);

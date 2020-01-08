@@ -171,6 +171,7 @@ Math_tools::to_std_vector(Arg arg)
     vec.resize(arg.n_rows);
     vec = arma::conv_to<std::vector<double>>::from(arg);
   }
+  // Can not remember the reason for this reverse, verify for ann
   std::reverse(vec.begin(), vec.end());
   logger::logger_->info("Converted to std vector: {}", vec);
   return vec;
