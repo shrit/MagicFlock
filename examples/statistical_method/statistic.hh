@@ -9,7 +9,7 @@
 
 /* local includes  */
 
-# include <ILMR/statistical_predictor.hh>
+# include <ILMR/knn_predictor.hh>
 # include <ILMR/quadrotor.hh>
 # include <ILMR/swarm_device.hh>
 # include <ILMR/action.hh>
