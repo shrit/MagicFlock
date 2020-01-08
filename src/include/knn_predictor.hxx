@@ -9,18 +9,18 @@ KnnPredictor<simulator_t>::KnnPredictor(
   : quad_(quad)
 {
   dataset_.parse_dataset_file(dataset_file);
+  dataset_.load_knn_dataset(dataset_file);
 }
 
 template<class simulator_t>
 void
 KnnPredictor<simulator_t>::predict(int knn_neighbors)
 {
-  arma::mat s_a_s_t_1 = dataset_.s_a_s_t_1();
+  arma::mat s_a_s_t_1 = dataset_.s_a_s_t_1_mat();
   arma::mat a_t_1 = dataset_.at_1_mat();
-  arma::mat s_t_2 = dataset_.s_t_2_mat();
-  std::vector<std::tuple<double, int>> dist_ref;
+  arma::mat s_t_2 = dataset_.st_2_mat();
 
-  arma::mat query = dataset_.conv_state_action_state_to_arma_state(
+  arma::mat query = dataset_.conv_state_action_state_to_arma(
     quad_->last_state(), quad_->current_action(), quad_->current_state());
 
   mlpack::neighbor::NeighborSearch<mlpack::neighbor::NearestNeighborSort,
@@ -29,20 +29,32 @@ KnnPredictor<simulator_t>::predict(int knn_neighbors)
   arma::Mat<size_t> close_neighbors;
   arma::mat distances;
 
-  knn.Search(query, 4, close_neighbors, distances);
-  logger::logger_->debug("Closest neigh neibors indices are: {} ", close_neighbors);
-  logger::logger_->debug("distances to neibors are: {} ", distances);
-
-  arma::mat result_state = dataset_.submat_using_indices(s_t_2, distances);
-  arma::uword value = index_of_best_action_regression(result_state);
-  logger::logger_->debug("Index of best action: {}", value);
-
-  predicted_follower_action_ = a_t_1.at(value);
+  knn.Search(query, knn_neighbors, close_neighbors, distances);
+  logger::logger_->info("Closest neighbors indices are: {} ", close_neighbors);
+  logger::logger_->info("distances to neighbors are: {} ", distances);
+  logger::logger_->info("State matrix size: {}", arma::size(s_t_2));
+  s_t_2 = s_t_2.t(); // transpose the matrix into row major
+  logger::logger_->info("Neighbor matrix size: {}",
+                        arma::size(close_neighbors));
+  arma::mat result_state =
+    dataset_.submat_using_indices(s_t_2, close_neighbors);
+  arma::uword value = index_of_best_state(result_state);
+  logger::logger_->debug("Index of best state: {}", value);
+  a_t_1 = a_t_1.t();
+  arma::rowvec action =
+    a_t_1(arma::span(close_neighbors(value, 0), close_neighbors(value, 0)),
+          arma::span(0, a_t_1.n_cols - 1));
+  logger::logger_->info("action before converting: {}", action);
+  std::vector action_vec = mtools_.to_std_vector(action);
+  std::reverse(action_vec.begin(), action_vec.end());
+  Actions actions;
+  predicted_follower_action_ =
+    actions.int_to_action(mtools_.from_one_hot_encoding(action_vec));
 }
 
 template<class simulator_t>
 int
-KnnPredictor<simulator_t>::index_of_best_action_regression(arma::mat& matrix)
+KnnPredictor<simulator_t>::index_of_best_state(arma::mat& matrix)
 {
   std::vector<double> distances = estimate_action_from_distance(matrix);
   std::reverse(distances.begin(), distances.end());

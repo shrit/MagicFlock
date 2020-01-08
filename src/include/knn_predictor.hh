@@ -11,6 +11,8 @@
 /* MLPack includes */
 #include <mlpack/core.hpp>
 #include <mlpack/methods/neighbor_search/neighbor_search.hpp>
+#include <mlpack/core/metrics/lmetric.hpp>
+#include <mlpack/core/util/prefixedoutstream.hpp>
 
 /* local includes  */
 #include "data_set.hh"
@@ -35,7 +37,7 @@ public:
   Actions::Action get_predicted_action() const;
 
   std::vector<double> estimate_action_from_distance(arma::mat& matrix);  
-  int index_of_best_action_regression(arma::mat& matrix);
+  int index_of_best_state(arma::mat& matrix);
 
   KnnPredictor(KnnPredictor const&) = delete;
   KnnPredictor(KnnPredictor&&) = default;
