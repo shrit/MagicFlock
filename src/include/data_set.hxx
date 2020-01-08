@@ -40,13 +40,13 @@ DataSet<simulator_t>::parse_dataset_file(std::string file_name)
 
   logger::logger_->debug("Matrix: S_t => t=0: {}", st_mat);
 
-  State<simulator_t> state;
-  Actions action;
-  st_vec_ = state.StateConstructor(st_mat);
-  at_vec_ = action.ActionConstructor(at_mat);
-  st_1_vec_ = state.StateConstructor(st_1_mat);
-  at_1_vec_ = action.ActionConstructor(at_1_mat);
-  st_2_vec_ = state.StateConstructor(st_2_mat);
+  // State<simulator_t> state;
+  // Actions action;
+  // st_vec_ = state.StateConstructor(st_mat);
+  // at_vec_ = action.ActionConstructor(at_mat);
+  // st_1_vec_ = state.StateConstructor(st_1_mat);
+  // at_1_vec_ = action.ActionConstructor(at_1_mat);
+  // st_2_vec_ = state.StateConstructor(st_2_mat);
 
   logger::logger_->debug("Vector: S_t => t=0: {}", st_vec_);
 
@@ -55,6 +55,18 @@ DataSet<simulator_t>::parse_dataset_file(std::string file_name)
   st_1_mat_ = st_1_mat.t();
   at_1_mat_ = at_1_mat.t();
   st_2_mat_ = st_2_mat.t();
+}
+
+template<class simulator_t>
+void
+DataSet<simulator_t>::load_knn_dataset(std::string dataset_file)
+{
+  // Load the training set.
+  mlpack::data::Load(dataset_file, dataset_knn_, true);
+  s_a_s_t_1_mat_ = dataset_knn_.submat(0, 0, 12, dataset_knn_.n_cols - 1);
+  logger::logger_->info(
+    "First line of knn_dataset:  {}",
+    s_a_s_t_1_mat_(arma::span(0, s_a_s_t_1_mat_.n_rows - 1), arma::span(0, 0)));
 }
 
 template<class simulator_t>
@@ -205,6 +217,13 @@ arma::mat
 DataSet<simulator_t>::st_2_mat() const
 {
   return st_2_mat_;
+}
+
+template<class simulator_t>
+arma::mat
+DataSet<simulator_t>::s_a_s_t_1_mat() const
+{
+  return s_a_s_t_1_mat_;
 }
 
 template<class simulator_t>
@@ -371,45 +390,45 @@ arma::mat
 DataSet<simulator_t>::conv_state_to_arma(State<simulator_t> state)
 {
   arma::mat mat(3, 1);
-  mat(0, 0) = state.distance_3D().at(0);
-  mat(1, 0) = state.distance_3D().at(1);
-  mat(2, 0) = state.distance_3D().at(2);
+  mat(0, 0) = state.distances_3D().at(0);
+  mat(1, 0) = state.distances_3D().at(1);
+  mat(2, 0) = state.height_difference();
   return mat;
 }
 
 template<class simulator_t>
 arma::mat
-DataSet<simulator_t>::conv_state_arm_state_to_arma(State<simulator_t> state,
-                                                   Actions::Action action,
-                                                   State<simulator_t> state_2)
+DataSet<simulator_t>::conv_state_action_state_to_arma(
+  State<simulator_t> state,
+  Actions::Action action,
+  State<simulator_t> state_2)
 {
-  arma::mat mat(13, 1);
-  mat(0, 0) = state.distance_3D().at(0);
-  mat(1, 0) = state.distance_3D().at(1);
-  mat(2, 0) = state.distance_3D().at(2);
-  std::vector<int> act = mtools_.to_one_hot_encoding(action, 7);
-  mat(3, 0) = act.at(0);
-  mat(4, 0) = act.at(1);
-  mat(5, 0) = act.at(2);
-  mat(6, 0) = act.at(3);
-  mat(7, 0) = act.at(4);
-  mat(8, 0) = act.at(5);
-  mat(9, 0) = act.at(6);
-  mat(10, 0) = state_2.distance_3D().at(0);
-  mat(11, 0) = state_2.distance_3D().at(1);
-  mat(12, 0) = state_2.distance_3D().at(2);
+  arma::mat mat;
+  arma::rowvec row;
+  std::vector<bool> act = mtools_.to_one_hot_encoding(action, 7);
+  logger::logger_->info("Last State: {}", state);
+  logger::logger_->info("State: {}", state_2);
+  row << state.distances_3D().at(0) << state.distances_3D().at(1)
+      << state.height_difference() << act.at(0) << act.at(1) << act.at(2)
+      << act.at(3) << act.at(4) << act.at(5) << act.at(6)
+      << state_2.distances_3D().at(0) << state_2.distances_3D().at(1)
+      << state_2.height_difference();
+  mat.insert_rows(0, row);
+  mat = mat.t();
+  logger::logger_->info("Query Matrix: {}", mat);
   return mat;
 }
 
 template<class simulator_t>
 arma::mat
 DataSet<simulator_t>::submat_using_indices(arma::mat matrix_to_sub,
-                                           arma::mat indices)
+                                           arma::Mat<size_t> indices)
 {
   arma::rowvec row;
   arma::mat submatrix;
-  for (arma::uword i = 0; i < indices.n_cols; ++i) {
-    row = matrix_to_sub(arma::span(i, i), arma::span(0, matrix_to_sub.n_cols));
+  for (arma::uword i = 0; i < indices.n_rows; ++i) {
+    row = matrix_to_sub(arma::span(indices(i, 0), indices(i, 0)),
+                        arma::span(0, matrix_to_sub.n_cols - 1));
     submatrix.insert_rows(0, row);
   }
   return submatrix;

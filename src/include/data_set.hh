@@ -40,6 +40,7 @@ public:
 
   void parse_dataset_file(std::string file_name);
   void load_dataset_file(std::string&& file_name);
+  void load_knn_dataset(std::string file_name);
   void set_label_column_number(int x);
 
   template<typename Arg, typename... Args>
@@ -83,16 +84,17 @@ public:
 
   arma::mat conv_state_to_arma(State<simulator_t> state);
 
-  arma::mat conv_state_arm_state_to_arma(State<simulator_t> state,
+  arma::mat conv_state_action_state_to_arma(State<simulator_t> state,
                                          Actions::Action action,
                                          State<simulator_t> state_2);
-  arma::mat submat_using_indices(arma::mat, arma::mat);
+  arma::mat submat_using_indices(arma::mat, arma::Mat<size_t>);
   arma::mat st_mat() const;
   arma::mat at_mat() const;
   arma::mat st_1_mat() const;
   arma::mat at_1_mat() const;
   arma::mat st_2_mat() const;
-
+  arma::mat s_a_s_t_1_mat() const;
+  
   arma::mat dataset() const;
   arma::mat test_features() const;
   arma::mat test_labels() const;
@@ -103,7 +105,7 @@ public:
 
 private:
   arma::mat dataset_;
-
+  arma::mat dataset_knn_;  
   arma::mat trainset_;
   arma::mat testset_;
 
@@ -132,6 +134,7 @@ private:
   arma::mat st_1_mat_;
   arma::mat at_1_mat_;
   arma::mat st_2_mat_;
+  arma::mat s_a_s_t_1_mat_;
 
   Math_tools mtools_;
 };
