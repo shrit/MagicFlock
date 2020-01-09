@@ -88,6 +88,18 @@ Quadrotor<simulator_t>::before_last_state()
 }
 
 template<class simulator_t>
+State<simulator_t>
+Quadrotor<simulator_t>::before_2_last_state()
+{
+  if (all_states_.size() > 3) {
+    auto it_state = all_states_.rbegin();
+    it_state = std::next(it_state, 3);
+    before_2_last_state_ = (*it_state);
+  }
+  return before_2_last_state_;
+}
+
+template<class simulator_t>
 void
 Quadrotor<simulator_t>::reset_all_states()
 {
@@ -134,6 +146,18 @@ Quadrotor<simulator_t>::before_last_action()
 }
 
 template<class simulator_t>
+Actions::Action
+Quadrotor<simulator_t>::before_2_last_action()
+{
+  if (all_actions_.size() > 3) {
+    auto it_action = all_actions_.rbegin();
+    it_action = std::next(it_action, 3);
+    before_2_last_action_ = (*it_action);
+  }
+  return before_2_last_action_;
+}
+
+template<class simulator_t>
 std::vector<Actions::Action>
 Quadrotor<simulator_t>::all_actions() const
 {
@@ -167,13 +191,20 @@ Quadrotor<simulator_t>::most_used_action()
 }
 
 template<class simulator_t>
-double 
+double
 Quadrotor<simulator_t>::get_score_of_before_last_actions()
 {
   double score = -1;
-  if (current_state_.distances_3D().at(0) - before_last_state_.distances_3D().at(0) > 1
-      and current_state_.distances_3D().at(1) - before_last_state_.distances_3D().at(1) > 1) {
-  score = 0;    
+  if (before_2_last_action_ == Actions::Action::Unknown) {
+    score = -1;
+
+  } else if ((current_state_.distances_3D().at(0) -
+                before_last_state_.distances_3D().at(0)) >
+              0.7 and
+             (current_state_.distances_3D().at(1) -
+                before_last_state_.distances_3D().at(1)) >
+              0.7) {
+    score = 0;
   }
   return score;
 }
@@ -303,7 +334,9 @@ std::vector<double>
 Quadrotor<simulator_t>::distances_to_neighbors()
 {
   std::vector<double> distances;
-  distances = mtools_.distances_to_neighbors(
+  std::map<unsigned int, double> neigh_distances;
+  neigh_distances = mtools_.distances_to_neighbors(
     id_, nearest_neighbors_, sim_interface_->positions());
+  distances = mtools_.map_to_vector(neigh_distances);
   return distances;
 }

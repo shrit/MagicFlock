@@ -37,6 +37,7 @@ public:
   State<simulator_t> current_state() const;
   State<simulator_t> last_state();
   State<simulator_t> before_last_state();
+  State<simulator_t> before_2_last_state();
   std::vector<State<simulator_t>> all_states() const;
   void reset_all_states();
 
@@ -45,6 +46,7 @@ public:
   void current_action(Actions::Action action);
   Actions::Action last_action();
   Actions::Action before_last_action();
+  Actions::Action before_2_last_action();
   std::vector<Actions::Action> all_actions() const;
   void reset_all_actions();
   Actions::Action most_used_action();
@@ -71,6 +73,7 @@ private:
   Actions::Action current_action_{ Actions::Action::Unknown };
   Actions::Action last_action_{ Actions::Action::Unknown };
   Actions::Action before_last_action_{ Actions::Action::Unknown };
+  Actions::Action before_2_last_action_{ Actions::Action::Unknown };
   std::vector<Actions::Action> all_actions_;
   std::vector<Actions::Action> action_container_;
   std::stack<Actions::Action> stack_of_future_actions_;
@@ -82,13 +85,13 @@ private:
   State<simulator_t> current_state_;
   State<simulator_t> last_state_;
   State<simulator_t> before_last_state_;
+  State<simulator_t> before_2_last_state_;  
   std::vector<State<simulator_t>> all_states_;
 
   unsigned int id_;  /* Quadrotor id */
   std::string name_; /* Quadrotor name */
   double speed_ = 1; /*  Quadrotors speed. Default speed is equal to 1 m/s */
   std::vector<unsigned int> nearest_neighbors_;
-
   std::shared_ptr<simulator_t> sim_interface_;
 };
 
