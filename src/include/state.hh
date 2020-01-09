@@ -41,6 +41,7 @@ private:
   double alti_diff_;
   Math_tools mtools_;
   std::vector<double> dists_3D_;
+  std::map<unsigned int, double> neighbor_dists_3D_;
   std::vector<double> estimated_dists_3D_;
   /*  Create a shared pointer to a simulator interface The interface
       need to have all the required data about the quadcopter*/

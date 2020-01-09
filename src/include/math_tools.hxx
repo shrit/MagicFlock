@@ -63,7 +63,7 @@ Math_tools::is_good_shape(unsigned int id,
 {
   bool value = false;
   std::vector<double> distances =
-    distances_to_neighbors(id, nearest_neighbors, positions);
+    map_to_vector(distances_to_neighbors(id, nearest_neighbors, positions));
   logger::logger_->debug("Distances to other quadrotors: {} ", distances);
   if (std::any_of(distances.begin(), distances.end(), [&](const double& i) {
         if ((i > lower_threshold_) and (i < upper_threshold_)) {
@@ -177,6 +177,17 @@ Math_tools::to_std_vector(Arg arg)
   return vec;
 }
 
+template<typename T1, typename T2>
+std::vector<T2>
+Math_tools::map_to_vector(std::map<T1, T2> m)
+{
+  std::vector<T2> vec;
+  for (typename std::map<T1, T2>::iterator it = m.begin(); it != m.end(); ++it) {
+    vec.push_back(it->second);
+  }
+  return vec;
+}
+
 template<typename T>
 double
 Math_tools::distance_a_2_b(std::vector<lt::position3D<T>> positions,
@@ -195,14 +206,14 @@ Math_tools::distance_a_2_b(std::vector<lt::position3D<T>> positions,
 }
 
 template<typename T>
-std::vector<double>
+std::map<unsigned int, double>
 Math_tools::distances_to_neighbors(unsigned int id,
                                    std::vector<unsigned int> nearest_neighbors,
                                    std::vector<lt::position3D<T>> positions)
 {
-  std::vector<double> distances;
+  std::map<unsigned int, double> distances;
   for (auto&& i : nearest_neighbors) {
-    distances.push_back(distance_a_2_b(positions, id, i));
+    distances.insert({ i, distance_a_2_b(positions, id, i) });
   }
   return distances;
 }

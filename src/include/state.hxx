@@ -15,8 +15,9 @@ State<simulator_t>::State(std::shared_ptr<simulator_t> sim_interface,
 {
   leader_ = sim_interface_->positions().begin();
   follower_ = sim_interface_->positions().begin() + id;
-  dists_3D_ = mtools_.distances_to_neighbors(
+  neighbor_dists_3D_ = mtools_.distances_to_neighbors(
     id, nearest_neighbors, sim_interface_->positions());
+  dists_3D_ = mtools_.map_to_vector(neighbor_dists_3D_);
   alti_diff_ = (leader_->z - follower_->z);
 }
 
@@ -79,7 +80,7 @@ template<class simulator_t>
 double
 State<simulator_t>::distance_to(int id)
 {
-  double distance = dists_3D_.at(id);
+  double distance = neighbor_dists_3D_.at(id);
   return distance;
 }
 
