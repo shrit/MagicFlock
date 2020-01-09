@@ -48,15 +48,21 @@ public:
   Action random_action_generator_with_all_conditions(Action action);
 
   std::tuple<Actions::Action, Actions::Action> deduce_action_from_distance(
-    double distances_t_1_b,
-    double distances_t_b,
+    double distance_t_1_b,
+    double distance_t_b,
+    Actions::Action b_last_action,
+    Actions::Action b_before_2_last_action,
     double distance_t_1_c,
     double distance_t_c,
+    Actions::Action c_last_action,
+    Actions::Action c_before_2_last_action,
     double alti_diff_t,
-    double score_b,
-    double score_c);
+    double& score_b,
+    double& score_c);
 
   Actions::Action undo_action(Actions::Action action);
+  Actions::Action pair_action_bob(Actions::Action action);
+  Actions::Action pair_action_charlie(Actions::Action action);
 
   Action deduce_oracle_action_from_distance(double distances_t_1_b,
                                             double distances_t_b,

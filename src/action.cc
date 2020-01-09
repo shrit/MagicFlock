@@ -198,9 +198,9 @@ Actions::random_action_generator_with_only_opposed_condition(Action action)
 }
 
 Actions::Action
-undo_action(Actions::Action action) 
+Actions::undo_action(Actions::Action action)
 {
- Actions::Action undo_action = Actions::Action::Unknown;
+  Actions::Action undo_action = Actions::Action::Unknown;
   switch (action) {
     case Actions::Action::forward:
       undo_action = Actions::Action::backward;
@@ -227,70 +227,153 @@ undo_action(Actions::Action action)
       undo_action = Actions::Action::Unknown;
       break;
   }
-  return undo_action; 
+  return undo_action;
+}
+
+Actions::Action
+Actions::pair_action_bob(Actions::Action action)
+{
+  Actions::Action pair_action = Actions::Action::Unknown;
+  switch (action) {
+    case Actions::Action::forward:
+      pair_action = Actions::Action::right;
+      break;
+    case Actions::Action::backward:
+      pair_action = Actions::Action::left;
+      break;
+    case Actions::Action::left:
+      pair_action = Actions::Action::backward;
+      break;
+    case Actions::Action::right:
+      pair_action = Actions::Action::forward;
+      break;
+    case Actions::Action::up:
+      pair_action = Actions::Action::up;
+      break;
+    case Actions::Action::down:
+      pair_action = Actions::Action::down;
+      break;
+    case Actions::Action::NoMove:
+      pair_action = Actions::Action::NoMove;
+      break;
+    case Actions::Action::Unknown:
+      pair_action = Actions::Action::Unknown;
+      break;
+  }
+  return pair_action;
+}
+
+Actions::Action
+Actions::pair_action_charlie(Actions::Action action)
+{
+  Actions::Action pair_action = Actions::Action::Unknown;
+  switch (action) {
+    case Actions::Action::forward:
+      pair_action = Actions::Action::left;
+      break;
+    case Actions::Action::backward:
+      pair_action = Actions::Action::right;
+      break;
+    case Actions::Action::left:
+      pair_action = Actions::Action::forward;
+      break;
+    case Actions::Action::right:
+      pair_action = Actions::Action::backward;
+      break;
+    case Actions::Action::up:
+      pair_action = Actions::Action::up;
+      break;
+    case Actions::Action::down:
+      pair_action = Actions::Action::down;
+      break;
+    case Actions::Action::NoMove:
+      pair_action = Actions::Action::NoMove;
+      break;
+    case Actions::Action::Unknown:
+      pair_action = Actions::Action::Unknown;
+      break;
+  }
+  return pair_action;
 }
 
 std::tuple<Actions::Action, Actions::Action>
 Actions::deduce_action_from_distance(double distance_t_1_b,
                                      double distance_t_b,
+                                     Actions::Action b_last_action,
+                                     Actions::Action b_before_2_last_action,
                                      double distance_t_1_c,
                                      double distance_t_c,
+                                     Actions::Action c_last_action,
+                                     Actions::Action c_before_2_last_action,
                                      double alti_diff_t,
-                                     double score_b,
-                                     double score_c)
+                                     double& score_b,
+                                     double& score_c)
 {
   Actions::Action action_b = Action::Unknown;
   Actions::Action action_c = Action::Unknown;
 
-  if (score_b == 0 or score_c == 0) {  
-    // undo b action  and give score = 1
-    // do good action if score == 1
+  if (score_b == 0) {
+    action_b = undo_action(b_last_action);
+    score_b = 1;
 
-  } else if (distance_t_b > distance_t_1_b and distance_t_c > distance_t_1_c and
-      std::fabs(alti_diff_t) < 0.4) {
-    if (generate_real_random() > 0.5) {
-      action_b = Action::forward;
-      action_c = Action::left;
-    } else {
-      action_b = Action::right;
-      action_c = Action::forward;
-    }
+  } else if (score_c == 0) {
+    action_c = undo_action(c_last_action);
+    score_c = 1;
 
-  } else if (distance_t_b > distance_t_1_b and distance_t_c < distance_t_1_c and
-             std::fabs(alti_diff_t) < 0.4) {
-    if (generate_real_random() > 0.5) {
-      action_b = Action::right;
-      action_c = Action::backward;
-    } else {
-      action_b = Action::right;
-      action_c = Action::forward;
-    }
-  } else if (distance_t_b < distance_t_1_b and distance_t_c < distance_t_1_c and
-             std::fabs(alti_diff_t) < 0.4) {
-    if (generate_real_random() > 0.5) {
-      action_b = Action::backward;
-      action_c = Action::right;
-    } else {
-      action_b = Action::left;
-      action_c = Action::backward;
-    }
-  } else if (distance_t_b < distance_t_1_b and distance_t_c > distance_t_1_c and
-             std::fabs(alti_diff_t) < 0.4) {
-    if (generate_real_random() > 0.5) {
-      action_b = Action::left;
-      action_c = Action::forward;
-    } else {
-      action_b = Action::backward;
-      action_c = Action::left;
-    }
+  } else if (score_b == 1) {
+    action_b = pair_action_bob(b_before_2_last_action);
+    score_b = -1;
+  } else if (score_c == 1) {
+    action_c = pair_action_charlie(c_before_2_last_action);
+    score_c = -1;
+  } else {
 
-  } else if ((alti_diff_t) > 0.7) {
-    action_b = Action::up;
-    action_c = Action::up; 
+    if (distance_t_b > distance_t_1_b and distance_t_c > distance_t_1_c and
+        std::fabs(alti_diff_t) < 0.4) {
+      if (generate_real_random() > 0.5) {
+        action_b = Action::forward;
+        action_c = Action::left;
+      } else {
+        action_b = Action::right;
+        action_c = Action::forward;
+      }
+
+    } else if (distance_t_b > distance_t_1_b and
+               distance_t_c < distance_t_1_c and std::fabs(alti_diff_t) < 0.4) {
+      if (generate_real_random() > 0.5) {
+        action_b = Action::right;
+        action_c = Action::backward;
+      } else {
+        action_b = Action::forward;
+        action_c = Action::right;
+      }
+    } else if (distance_t_b < distance_t_1_b and
+               distance_t_c < distance_t_1_c and std::fabs(alti_diff_t) < 0.4) {
+      if (generate_real_random() > 0.5) {
+        action_b = Action::backward;
+        action_c = Action::right;
+      } else {
+        action_b = Action::left;
+        action_c = Action::backward;
+      }
+    } else if (distance_t_b < distance_t_1_b and
+               distance_t_c > distance_t_1_c and std::fabs(alti_diff_t) < 0.4) {
+      if (generate_real_random() > 0.5) {
+        action_b = Action::left;
+        action_c = Action::forward;
+      } else {
+        action_b = Action::backward;
+        action_c = Action::left;
+      }
+
+    } else if ((alti_diff_t) > 0.7) {
+      action_b = Action::up;
+      action_c = Action::up;
     } else {
-    action_b = Action::down;
-    action_c = Action::down;
+      action_b = Action::down;
+      action_c = Action::down;
     }
+  }
   return std::make_tuple(action_b, action_c);
 }
 
@@ -334,7 +417,7 @@ Actions::generate_leader_action(bool change_leader_action,
                                 Actions::Action last_action)
 {
   Actions::Action leader_action;
-  if (distance_to_b > 4 and distance_to_c > 4) {
+  if (distance_to_b > 3.4 and distance_to_c > 3.4) {
     leader_action = Action::NoMove;
   } else if (change_leader_action == true) {
     leader_action =
