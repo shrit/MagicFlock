@@ -32,17 +32,25 @@ Generator<flight_controller_t, simulator_t>::generate_trajectory(
   std::vector<std::thread> threads;
 
   /*  Sample the state at time t */
+  leader_->sample_state();
   follower_1_->sample_state();
   follower_2_->sample_state();
 
-  /*  Create a random action for the leader_s, with the opposed condition */
-  if (change_leader_action == true) {
-    leader_->current_action(
-      action.random_action_generator_with_only_opposed_condition(
-        leader_->last_action()));
-  } else {
-    leader_->current_action(leader_->last_action());
-  }
+  /*  Generate action for the leader */
+  leader_->current_action(action.generate_leader_action(
+    change_leader_action,
+    false,
+    leader_->current_state().distance_to(follower_2_->id()),
+    leader_->current_state().distance_to(follower_1_->id()),
+    leader_->last_action()));
+
+  logger::logger_->info(
+    "Leader distances to Bob: {}",
+    leader_->current_state().distance_to(follower_2_->id()));
+
+  logger::logger_->info(
+    "Leader distances to Charlie: {}",
+    leader_->current_state().distance_to(follower_1_->id()));
 
   /*  Do not allow follower to move, at this time step,
       block the follower and log not move*/
@@ -50,11 +58,11 @@ Generator<flight_controller_t, simulator_t>::generate_trajectory(
   follower_2_->current_action(Actions::Action::NoMove);
 
   logger::logger_->info(
-    "Follower 1 distance to others before leader actions, {}",
+    "Follower 1 distances to others before leader actions, {}",
     follower_1_->distances_to_neighbors());
 
   logger::logger_->info(
-    "Follower 2 distance to others before leader actions, {}",
+    "Follower 2 distances to others before leader actions, {}",
     follower_2_->distances_to_neighbors());
 
   logger::logger_->info("Current action leader: {}",
@@ -69,11 +77,11 @@ Generator<flight_controller_t, simulator_t>::generate_trajectory(
   std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 
   logger::logger_->info(
-    "Follower 1 distance to others after leader actions, {}",
+    "Follower 1 distances to others after leader actions, {}",
     follower_1_->distances_to_neighbors());
 
   logger::logger_->info(
-    "Follower 2 distance to others after leader actions, {}",
+    "Follower 2 distances to others after leader actions, {}",
     follower_2_->distances_to_neighbors());
 
   /* Get the next state at time t + 1  */
@@ -82,19 +90,28 @@ Generator<flight_controller_t, simulator_t>::generate_trajectory(
   follower_1_->sample_state();
   follower_2_->sample_state();
 
-  follower_1_->current_action(action.deduce_action_from_distance(
-    follower_2_->last_state().distance_to(leader_->id()),
-    follower_2_->current_state().distance_to(leader_->id()),    
-    follower_1_->last_state().distance_to(leader_->id()),
-    follower_1_->current_state().distance_to(leader_->id()),
-    follower_1_->current_state().height_difference()));
-
-  follower_2_->current_action(action.deduce_action_from_distance(
+  Actions::Action temp_f1, temp_f2;
+  std::tie(temp_f2, temp_f1) = action.deduce_action_from_distance(
     follower_2_->last_state().distance_to(leader_->id()),
     follower_2_->current_state().distance_to(leader_->id()),
+    follower_2_->last_action(),
+    follower_2_->before_2_last_action(),
     follower_1_->last_state().distance_to(leader_->id()),
     follower_1_->current_state().distance_to(leader_->id()),
-    follower_2_->current_state().height_difference()));
+    follower_1_->last_action(),
+    follower_1_->before_2_last_action(),
+    follower_1_->current_state().height_difference(),
+    score_b_,
+    score_c_);
+
+  logger::logger_->info("Score b: {}", score_b_);
+  logger::logger_->info("Score c: {}", score_c_);
+
+  score_c_ = follower_1_->get_score_of_before_last_actions();
+  score_b_ = follower_2_->get_score_of_before_last_actions();
+  
+  follower_1_->current_action(temp_f1);
+  follower_2_->current_action(temp_f2);
 
   threads.push_back(std::thread([&]() {
     logger::logger_->info("Current action follower 1: {}",
@@ -143,27 +160,19 @@ Generator<flight_controller_t, simulator_t>::run()
        trajectory randomly, we check the geometrical figure (whether the
        follower is too close or too far) finally we break the loop after 10
        trajectorise of 1 second each */
+
     if (start_episode_) {
       /*  Verify that vectors are clear when starting new episode */
       time_steps_.reset();
       while (start_episode_) {
-        /* Choose one random trajectory for the leader_ in the first
-                count. Then, keep the same action until the end of the
-                episode */
-        //			if (time_steps_.steps() == 0) {
-        generate_trajectory(true);
-        //			} else {
-        //				generate_trajectory(false);
-        //			}
+        if (time_steps_.steps() % 10) {
+          generate_trajectory(true);
+        } else {
+          generate_trajectory(false);
+        }
 
         follower_1_->register_data_set();
         follower_2_->register_data_set();
-
-        /*  Clear vectors after each generated line in the dataset */
-        follower_1_->reset_all_states();
-        follower_2_->reset_all_states();
-        follower_1_->reset_all_actions();
-        follower_2_->reset_all_actions();
 
         /*  Check the geometrical shape */
         std::vector<bool> shapes;

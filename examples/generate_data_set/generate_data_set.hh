@@ -10,10 +10,10 @@
 #include <vector>
 
 /* ILMR includes  */
+#include <ILMR/quadrotor.hh>
 #include <ILMR/action.hh>
 #include <ILMR/global.hh>
 #include <ILMR/logger.hh>
-#include <ILMR/quadrotor.hh>
 #include <ILMR/swarm_device.hh>
 #include <ILMR/time_steps.hh>
 
@@ -44,6 +44,10 @@ private:
   std::vector<Quadrotor<simulator_t>> quadrotors_;
   TimeSteps time_steps_;
   std::shared_ptr<spdlog::logger> logger_;
+  double reference_score_b = 0;
+  double reference_score_c = 0;
+  double score_c_ = -1;
+  double score_b_ = -1;
   typename std::vector<Quadrotor<simulator_t>>::iterator leader_;
   typename std::vector<Quadrotor<simulator_t>>::iterator follower_1_;
   typename std::vector<Quadrotor<simulator_t>>::iterator follower_2_;
