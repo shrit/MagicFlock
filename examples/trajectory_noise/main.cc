@@ -76,6 +76,14 @@ main(int argc, char* argv[])
   quadrotors.emplace_back(1, "follower_1", gz);
   quadrotors.emplace_back(2, "follower_2", gz);
 
+  /*  Add neighbors list  */
+  quadrotors.at(0).add_nearest_neighbor_id(1);
+  quadrotors.at(0).add_nearest_neighbor_id(2);
+  quadrotors.at(1).add_nearest_neighbor_id(0);
+  quadrotors.at(1).add_nearest_neighbor_id(2);
+  quadrotors.at(2).add_nearest_neighbor_id(0);
+  quadrotors.at(2).add_nearest_neighbor_id(1);
+
   TrajectoryNoise<Px4Device, Gazebo> trajectory_noise(
     iris_x, quadrotors, gz, logger);
   trajectory_noise.run();
