@@ -46,9 +46,9 @@ TrajectoryNoise<flight_controller_t, simulator_t>::test_trajectory(
 
   /*  Execute a trajectory for 1 seconds */
 
-  threads.push_back(std::thread([&]() {  
+  threads.push_back(std::thread([&]() {
     swarm_.one_quad_execute_trajectory(
-    leader_->id(), leader_->current_action(), leader_->speed(), 1000);
+      leader_->id(), leader_->current_action(), leader_->speed(), 1000);
   }));
 
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -59,10 +59,8 @@ TrajectoryNoise<flight_controller_t, simulator_t>::test_trajectory(
   threads.push_back(std::thread([&]() {
     logger::logger_->info("Current action follower 1: {}",
                           action.action_to_str(follower_1_->current_action()));
-    swarm_.one_quad_execute_trajectory(follower_1_->id(),
-                                       leader_->current_action(),
-                                       follower_1_->speed(),
-                                       1000);
+    swarm_.one_quad_execute_trajectory(
+      follower_1_->id(), leader_->current_action(), follower_1_->speed(), 1000);
   }));
 
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -72,10 +70,8 @@ TrajectoryNoise<flight_controller_t, simulator_t>::test_trajectory(
   threads.push_back(std::thread([&]() {
     logger::logger_->info("Current action follower 2: {}",
                           action.action_to_str(follower_2_->current_action()));
-    swarm_.one_quad_execute_trajectory(follower_2_->id(),
-                                       leader_->current_action(),
-                                       follower_2_->speed(),
-                                       1000);
+    swarm_.one_quad_execute_trajectory(
+      follower_2_->id(), leader_->current_action(), follower_2_->speed(), 1000);
   }));
 
   for (auto& thread : threads) {
@@ -108,12 +104,17 @@ TrajectoryNoise<flight_controller_t, simulator_t>::run()
     if (start_episode_) {
       count_ = 0;
       while (count_ < 1000) {
-       /*  Verify that the quadrotors is not close to the ground */
+        /*  Verify that the quadrotors is not close to the ground */
         if (sim_interface_->positions().at(1).z < 15) {
           test_trajectory(true);
         } else {
           test_trajectory(false);
         }
+        logger_->info("Distance to neighbors: {}",
+                      follower_1_->last_state().neighbor_dists_3D());
+        logger_->info("Distance to neighbors: {}",
+                      follower_2_->last_state().neighbor_dists_3D());
+
         double d1 = follower_1_->last_state().distance_to(leader_->id());
         double d2 = follower_1_->current_state().distance_to(leader_->id());
 

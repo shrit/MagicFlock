@@ -77,6 +77,13 @@ State<simulator_t>::distances_3D() const
 }
 
 template<class simulator_t>
+std::map<unsigned int,double>
+State<simulator_t>::neighbor_dists_3D() const
+{
+  return neighbor_dists_3D_;
+}
+
+template<class simulator_t>
 double
 State<simulator_t>::distance_to(int id)
 {

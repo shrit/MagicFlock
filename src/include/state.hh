@@ -30,6 +30,7 @@ public:
   double rt_height();
 
   std::vector<double> distances_3D() const;
+  std::map<unsigned int, double> neighbor_dists_3D() const;
   double distance_to(int id);
 
   std::vector<double> estimated_distances() const;
