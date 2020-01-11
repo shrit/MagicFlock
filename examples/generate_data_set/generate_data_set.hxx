@@ -165,7 +165,7 @@ Generator<flight_controller_t, simulator_t>::run()
       /*  Verify that vectors are clear when starting new episode */
       time_steps_.reset();
       while (start_episode_) {
-        if (time_steps_.steps() % 10) {
+        if (time_steps_.steps() % 10 == 0) {
           generate_trajectory(true);
         } else {
           generate_trajectory(false);
