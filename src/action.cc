@@ -297,92 +297,68 @@ Actions::pair_action_charlie(Actions::Action action)
 }
 
 std::tuple<Actions::Action, Actions::Action>
-Actions::deduce_action_from_distance(double distance_t_1_b,
-                                     double distance_t_b,
-                                     Actions::Action b_last_action,
-                                     Actions::Action b_before_2_last_action,
-                                     double distance_t_1_c,
-                                     double distance_t_c,
-                                     Actions::Action c_last_action,
-                                     Actions::Action c_before_2_last_action,
-                                     double alti_diff_t,
-                                     double& score_b,
-                                     double& score_c)
+Actions::generate_followers_action_using_distance(double distance_t_1_b,
+                                                  double distance_t_b,
+                                                  double distance_t_1_c,
+                                                  double distance_t_c,
+                                                  double alti_diff_t)
 {
-  Actions::Action action_b = Action::Unknown;
-  Actions::Action action_c = Action::Unknown;
+  Actions::Action action_b = Action::NoMove;
+  Actions::Action action_c = Action::NoMove;
 
-  if (score_b == 0) {
-    action_b = undo_action(b_last_action);
-    score_b = 1;
-
-  } else if (score_c == 0) {
-    action_c = undo_action(c_last_action);
-    score_c = 1;
-
-  } else if (score_b == 1) {
-    action_b = pair_action_bob(b_before_2_last_action);
-    score_b = -1;
-  } else if (score_c == 1) {
-    action_c = pair_action_charlie(c_before_2_last_action);
-    score_c = -1;
-  } else {
-
-    if (distance_t_b > distance_t_1_b and distance_t_c > distance_t_1_c and
-        std::fabs(alti_diff_t) < 0.4) {
-      if (generate_real_random() > 0.5) {
-        action_b = Action::forward;
-        action_c = Action::left;
-      } else {
-        action_b = Action::right;
-        action_c = Action::forward;
-      }
-
-    } else if (distance_t_b > distance_t_1_b and
-               distance_t_c < distance_t_1_c and std::fabs(alti_diff_t) < 0.4) {
-      if (generate_real_random() > 0.5) {
-        action_b = Action::right;
-        action_c = Action::backward;
-      } else {
-        action_b = Action::forward;
-        action_c = Action::right;
-      }
-    } else if (distance_t_b < distance_t_1_b and
-               distance_t_c < distance_t_1_c and std::fabs(alti_diff_t) < 0.4) {
-      if (generate_real_random() > 0.5) {
-        action_b = Action::backward;
-        action_c = Action::right;
-      } else {
-        action_b = Action::left;
-        action_c = Action::backward;
-      }
-    } else if (distance_t_b < distance_t_1_b and
-               distance_t_c > distance_t_1_c and std::fabs(alti_diff_t) < 0.4) {
-      if (generate_real_random() > 0.5) {
-        action_b = Action::left;
-        action_c = Action::forward;
-      } else {
-        action_b = Action::backward;
-        action_c = Action::left;
-      }
-
-    } else if ((alti_diff_t) > 0.7) {
-      action_b = Action::up;
-      action_c = Action::up;
+  if (distance_t_b > distance_t_1_b and distance_t_c > distance_t_1_c and
+      std::fabs(alti_diff_t) < 0.4) {
+    if (generate_real_random() > 0.5) {
+      action_b = Action::forward;
+      action_c = Action::left;
     } else {
-      action_b = Action::down;
-      action_c = Action::down;
+      action_b = Action::right;
+      action_c = Action::forward;
     }
+
+  } else if (distance_t_b > distance_t_1_b and distance_t_c < distance_t_1_c and
+             std::fabs(alti_diff_t) < 0.4) {
+    if (generate_real_random() > 0.5) {
+      action_b = Action::right;
+      action_c = Action::backward;
+    } else {
+      action_b = Action::forward;
+      action_c = Action::right;
+    }
+  } else if (distance_t_b < distance_t_1_b and distance_t_c < distance_t_1_c and
+             std::fabs(alti_diff_t) < 0.4) {
+    if (generate_real_random() > 0.5) {
+      action_b = Action::backward;
+      action_c = Action::right;
+    } else {
+      action_b = Action::left;
+      action_c = Action::backward;
+    }
+  } else if (distance_t_b < distance_t_1_b and distance_t_c > distance_t_1_c and
+             std::fabs(alti_diff_t) < 0.4) {
+    if (generate_real_random() > 0.5) {
+      action_b = Action::left;
+      action_c = Action::forward;
+    } else {
+      action_b = Action::backward;
+      action_c = Action::left;
+    }
+  } else if ((alti_diff_t) > 0.7) {
+    action_b = Action::up;
+    action_c = Action::up;
+  } else {
+    action_b = Action::down;
+    action_c = Action::down;
   }
   return std::make_tuple(action_b, action_c);
 }
 
 Actions::Action
-Actions::deduce_oracle_action_from_distance(double distance_t_1_b,
-                                            double distance_t_b,
-                                            double distance_t_1_c,
-                                            double distance_t_c,
-                                            double alti_diff_t)
+Actions::generate_follower_action_using_oracle(double distance_t_1_b,
+                                               double distance_t_b,
+                                               double distance_t_1_c,
+                                               double distance_t_c,
+                                               double alti_diff_t)
 {
   Actions::Action action = Action::Unknown;
   if (distance_t_b > distance_t_1_b and distance_t_c > distance_t_1_c and
@@ -412,21 +388,56 @@ Actions::deduce_oracle_action_from_distance(double distance_t_1_b,
 Actions::Action
 Actions::generate_leader_action(bool change_leader_action,
                                 bool stop_going_down,
-                                double distance_to_b,
-                                double distance_to_c,
                                 Actions::Action last_action)
 {
-  Actions::Action leader_action;
-  if (distance_to_b > 3.4 and distance_to_c > 3.4) {
-    leader_action = Action::NoMove;
-  } else if (change_leader_action == true) {
+  Actions::Action leader_action = Action::Unknown;
+
+  if (change_leader_action == true) {
     leader_action =
       random_action_generator_with_only_opposed_condition(last_action);
   } else if (stop_going_down == true) {
-    leader_action =
-      random_action_generator_with_only_opposed_condition(last_action);
+    while (leader_action == Actions::Action::down) {
+      leader_action =
+        random_action_generator_with_only_opposed_condition(last_action);
+    }
   } else {
-    leader_action = last_action;
+    if (last_action == Actions::Action::NoMove) {
+    leader_action = random_action_generator_with_only_opposed_condition(last_action);
+    
+    } else {
+      leader_action = last_action;
+    }
   }
   return leader_action;
+}
+
+Actions::Action
+Actions::validate_leader_action(double distance_to_b,
+                                double distance_to_b_1,
+                                double distance_to_c,
+                                double distance_to_c_1,
+                                Actions::Action current_action)
+{
+  Actions::Action leader_action = current_action;
+  if (std::fabs(distance_to_b - distance_to_b_1) > 0.80 or
+      std::fabs(distance_to_c - distance_to_c_1) > 0.80) {
+    leader_action = Action::NoMove;
+  }
+  return leader_action;
+}
+
+Actions::Action
+Actions::validate_followers_action(std::vector<double> current_distances,
+                                   std::vector<double> last_distances,
+                                   Actions::Action before_2_last_action,
+                                   Actions::Action current_action)
+{
+  Actions::Action follower_action = current_action;
+  if (before_2_last_action == Actions::Action::Unknown) {
+    follower_action = current_action;
+  } else if (std::fabs(current_distances.at(0) - last_distances.at(0)) > 0.80 or
+             std::fabs(current_distances.at(1) - last_distances.at(1)) > 0.80) {
+    follower_action = undo_action(before_2_last_action);
+  }
+  return follower_action;
 }
