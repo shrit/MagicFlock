@@ -191,25 +191,6 @@ Quadrotor<simulator_t>::most_used_action()
 }
 
 template<class simulator_t>
-double
-Quadrotor<simulator_t>::get_score_of_before_last_actions()
-{
-  double score = -1;
-  if (before_2_last_action_ == Actions::Action::Unknown) {
-    score = -1;
-
-  } else if ((current_state_.distances_3D().at(0) -
-                before_last_state_.distances_3D().at(0)) >
-              0.7 and
-             (current_state_.distances_3D().at(1) -
-                before_last_state_.distances_3D().at(1)) >
-              0.7) {
-    score = 0;
-  }
-  return score;
-}
-
-template<class simulator_t>
 Actions::Action
 Quadrotor<simulator_t>::most_frequent_action_in_container()
 {
@@ -288,6 +269,13 @@ Quadrotor<simulator_t>::examin_geometric_shape()
 }
 
 template<class simulator_t>
+double
+Quadrotor<simulator_t>::height()
+{
+  return sim_interface_->positions().at(id_).z;
+}
+
+template<class simulator_t>
 void
 Quadrotor<simulator_t>::set_speed(double speed)
 {
@@ -302,28 +290,28 @@ Quadrotor<simulator_t>::speed() const
 }
 
 template<class simulator_t>
-double
+void
 Quadrotor<simulator_t>::increase_speed()
 {
   speed_++;
 }
 
 template<class simulator_t>
-double
+void
 Quadrotor<simulator_t>::decrease_speed()
 {
   speed_--;
 }
 
 template<class simulator_t>
-double
+void
 Quadrotor<simulator_t>::increase_speed_by_value(double speed)
 {
   speed_ = speed_ + speed;
 }
 
 template<class simulator_t>
-double
+void
 Quadrotor<simulator_t>::decrease_speed_by_value(double speed)
 {
   speed_ = speed_ - speed;

@@ -52,7 +52,7 @@ public:
   Actions::Action most_used_action();
   Actions::Action most_frequent_action_in_container();
   void save_action_in_container(Actions::Action action);
-  double get_score_of_before_last_actions();
+  double height();
   
   /*  Data set related functions */
   void register_data_set();
@@ -61,10 +61,10 @@ public:
   /*  Speed related functions */
   void set_speed(double speed);
   double speed() const;
-  double increase_speed();
-  double decrease_speed();
-  double increase_speed_by_value(double speed);
-  double decrease_speed_by_value(double speed);
+  void increase_speed();
+  void decrease_speed();
+  void increase_speed_by_value(double speed);
+  void decrease_speed_by_value(double speed);
 
   bool examin_geometric_shape();
   std::vector<double> distances_to_neighbors();
