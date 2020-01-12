@@ -26,7 +26,8 @@ Generator<flight_controller_t, simulator_t>::Generator(
 template<class flight_controller_t, class simulator_t>
 void
 Generator<flight_controller_t, simulator_t>::generate_trajectory(
-  bool change_leader_action)
+  bool change_leader_action,
+  bool stop_going_down)
 {
   Actions action;
   std::vector<std::thread> threads;
@@ -36,20 +37,28 @@ Generator<flight_controller_t, simulator_t>::generate_trajectory(
   follower_1_->sample_state();
   follower_2_->sample_state();
 
+  leader_->current_action(Actions::Action::NoMove);
   /*  Generate action for the leader */
-  leader_->current_action(action.generate_leader_action(
-    change_leader_action,
-    false,
-    leader_->current_state().distance_to(follower_2_->id()),
-    leader_->current_state().distance_to(follower_1_->id()),
-    leader_->last_action()));
+  Actions::Action leader_action = action.generate_leader_action(
+    change_leader_action, stop_going_down, leader_->last_action());
 
+
+  if (time_steps_.steps() != 0) {
+    leader_action = action.validate_leader_action(
+      leader_->current_state().distance_to(follower_2_->id()),
+      leader_->last_state().distance_to(follower_2_->id()),
+      leader_->current_state().distance_to(follower_1_->id()),
+      leader_->last_state().distance_to(follower_1_->id()),
+      leader_action);
+  }
+
+  leader_->current_action(leader_action);
   logger::logger_->info(
-    "Leader distances to Bob: {}",
+    "Alice distances to Bob: {}",
     leader_->current_state().distance_to(follower_2_->id()));
 
   logger::logger_->info(
-    "Leader distances to Charlie: {}",
+    "Alice distances to Charlie: {}",
     leader_->current_state().distance_to(follower_1_->id()));
 
   /*  Do not allow follower to move, at this time step,
@@ -58,11 +67,11 @@ Generator<flight_controller_t, simulator_t>::generate_trajectory(
   follower_2_->current_action(Actions::Action::NoMove);
 
   logger::logger_->info(
-    "Follower 1 distances to others before leader actions, {}",
+    "Charlie distances to others before leader actions, {}",
     follower_1_->distances_to_neighbors());
 
   logger::logger_->info(
-    "Follower 2 distances to others before leader actions, {}",
+    "Bob distances to others before leader actions, {}",
     follower_2_->distances_to_neighbors());
 
   logger::logger_->info("Current action leader: {}",
@@ -77,11 +86,11 @@ Generator<flight_controller_t, simulator_t>::generate_trajectory(
   std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 
   logger::logger_->info(
-    "Follower 1 distances to others after leader actions, {}",
+    "Charlie distances to others after leader actions, {}",
     follower_1_->distances_to_neighbors());
 
   logger::logger_->info(
-    "Follower 2 distances to others after leader actions, {}",
+    "Bob distances to others after leader actions, {}",
     follower_2_->distances_to_neighbors());
 
   /* Get the next state at time t + 1  */
@@ -91,25 +100,25 @@ Generator<flight_controller_t, simulator_t>::generate_trajectory(
   follower_2_->sample_state();
 
   Actions::Action temp_f1, temp_f2;
-  std::tie(temp_f2, temp_f1) = action.deduce_action_from_distance(
+  std::tie(temp_f2, temp_f1) = action.generate_followers_action_using_distance(
     follower_2_->last_state().distance_to(leader_->id()),
     follower_2_->current_state().distance_to(leader_->id()),
-    follower_2_->last_action(),
-    follower_2_->before_2_last_action(),
     follower_1_->last_state().distance_to(leader_->id()),
     follower_1_->current_state().distance_to(leader_->id()),
-    follower_1_->last_action(),
+    follower_1_->current_state().height_difference());
+
+  temp_f2 = action.validate_followers_action(
+    follower_2_->current_state().distances_3D(),
+    follower_2_->last_state().distances_3D(),
+    follower_2_->before_2_last_action(),
+    temp_f2);
+
+  temp_f1 = action.validate_followers_action(
+    follower_1_->current_state().distances_3D(),
+    follower_1_->last_state().distances_3D(),
     follower_1_->before_2_last_action(),
-    follower_1_->current_state().height_difference(),
-    score_b_,
-    score_c_);
+    temp_f1);
 
-  logger::logger_->info("Score b: {}", score_b_);
-  logger::logger_->info("Score c: {}", score_c_);
-
-  score_c_ = follower_1_->get_score_of_before_last_actions();
-  score_b_ = follower_2_->get_score_of_before_last_actions();
-  
   follower_1_->current_action(temp_f1);
   follower_2_->current_action(temp_f2);
 
@@ -154,7 +163,7 @@ Generator<flight_controller_t, simulator_t>::run()
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
 
     logger::logger_->info("Episode : {}", episode_);
-    start_episode_ = swarm_.in_air(15);
+    start_episode_ = swarm_.in_air(25);
     /*  Collect dataset by creating a set of trajectories, each time
                                 the leader_and the follower execute their
        trajectory randomly, we check the geometrical figure (whether the
@@ -166,9 +175,11 @@ Generator<flight_controller_t, simulator_t>::run()
       time_steps_.reset();
       while (start_episode_) {
         if (time_steps_.steps() % 10 == 0) {
-          generate_trajectory(true);
-        } else {
-          generate_trajectory(false);
+          generate_trajectory(true, false);
+        } else if (leader_->height() < 15) {
+          generate_trajectory(false, true);    
+         } else {
+          generate_trajectory(false, false);
         }
 
         follower_1_->register_data_set();

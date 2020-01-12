@@ -29,7 +29,8 @@ public:
             std::shared_ptr<simulator_t> sim_interface,
             std::shared_ptr<spdlog::logger> logger);
 
-  void generate_trajectory(bool random_leader_action);
+  void generate_trajectory(bool random_leader_action,
+                           bool stop_going_down);
   void run();
 
   Generator(Generator const&) = delete;
@@ -44,10 +45,6 @@ private:
   std::vector<Quadrotor<simulator_t>> quadrotors_;
   TimeSteps time_steps_;
   std::shared_ptr<spdlog::logger> logger_;
-  double reference_score_b = 0;
-  double reference_score_c = 0;
-  double score_c_ = -1;
-  double score_b_ = -1;
   typename std::vector<Quadrotor<simulator_t>>::iterator leader_;
   typename std::vector<Quadrotor<simulator_t>>::iterator follower_1_;
   typename std::vector<Quadrotor<simulator_t>>::iterator follower_2_;
