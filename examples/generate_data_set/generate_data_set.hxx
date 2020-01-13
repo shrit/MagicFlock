@@ -42,7 +42,6 @@ Generator<flight_controller_t, simulator_t>::generate_trajectory(
   Actions::Action leader_action = action.generate_leader_action(
     change_leader_action, stop_going_down, leader_->last_action());
 
-
   if (time_steps_.steps() != 0) {
     leader_action = action.validate_leader_action(
       leader_->current_state().distance_to(follower_2_->id()),
@@ -66,13 +65,11 @@ Generator<flight_controller_t, simulator_t>::generate_trajectory(
   follower_1_->current_action(Actions::Action::NoMove);
   follower_2_->current_action(Actions::Action::NoMove);
 
-  logger::logger_->info(
-    "Charlie distances to others before leader actions, {}",
-    follower_1_->distances_to_neighbors());
+  logger::logger_->info("Charlie distances to others before leader actions, {}",
+                        follower_1_->distances_to_neighbors());
 
-  logger::logger_->info(
-    "Bob distances to others before leader actions, {}",
-    follower_2_->distances_to_neighbors());
+  logger::logger_->info("Bob distances to others before leader actions, {}",
+                        follower_2_->distances_to_neighbors());
 
   logger::logger_->info("Current action leader: {}",
                         action.action_to_str(leader_->current_action()));
@@ -85,13 +82,11 @@ Generator<flight_controller_t, simulator_t>::generate_trajectory(
   /* We need to wait until the Quadrotors finish their actions */
   std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 
-  logger::logger_->info(
-    "Charlie distances to others after leader actions, {}",
-    follower_1_->distances_to_neighbors());
+  logger::logger_->info("Charlie distances to others after leader actions, {}",
+                        follower_1_->distances_to_neighbors());
 
-  logger::logger_->info(
-    "Bob distances to others after leader actions, {}",
-    follower_2_->distances_to_neighbors());
+  logger::logger_->info("Bob distances to others after leader actions, {}",
+                        follower_2_->distances_to_neighbors());
 
   /* Get the next state at time t + 1  */
   logger::logger_->info("Sampling states at t +1");
@@ -177,8 +172,8 @@ Generator<flight_controller_t, simulator_t>::run()
         if (time_steps_.steps() % 10 == 0) {
           generate_trajectory(true, false);
         } else if (leader_->height() < 15) {
-          generate_trajectory(false, true);    
-         } else {
+          generate_trajectory(false, true);
+        } else {
           generate_trajectory(false, false);
         }
 

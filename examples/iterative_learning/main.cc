@@ -39,11 +39,9 @@ main(int argc, char* argv[])
   ILMR::logger::create_library_logger(logger);
 
   CLI::App app{
-    "This example shows how to use the library to do iterative learning.
-    This
-    " " example requires two model files to be used to generate trajectory.Users
-    " " need to generate dataset,
-    then train it using the training example to " " aquire these model files."
+    "This example shows how to use the library to do iterative learning." 
+    "This example requires two model files to be used to generate trajectory."
+    "Users need to generate dataset, then train it using the training example to aquire these model files."
   };
   app.require_subcommand(1);
   auto model_files =
