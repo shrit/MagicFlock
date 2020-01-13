@@ -30,25 +30,33 @@ Iterative_learning<flight_controller_t, simulator_t>::
   Actions action;
   std::vector<std::thread> threads;
 
-  /*  Pick leader action, change it or keep it */
-  while (leader_->current_action() == Actions::Action::down) {
-    leader_->current_action(action.generate_leader_action(change_leader_action,
-                                                   stop_down_action,
-                                                   leader_->current_state().distance_to(follower_1_->id()),
-                                                   leader_->current_state().distance_to(follower_2_->id()),
-                                                   leader_->last_action()));
-  }
-
- /*  Sample the state at time t = 0 only for the first follower */
+  /*  Sample the state at time t */
+  leader_->sample_state();
   follower_1_->sample_state();
   follower_2_->sample_state();
+
+  /*  Pick leader action, change it or keep it */
+  Actions::Action leader_action = action.generate_leader_action(change_leader_action,
+                                                                 stop_down_action,
+                                                             leader_->last_action());
+
+  if (time_steps_.steps() != 0) {
+    leader_action = action.validate_leader_action(
+      leader_->current_state().distance_to(follower_2_->id()),
+      leader_->last_state().distance_to(follower_2_->id()),
+      leader_->current_state().distance_to(follower_1_->id()),
+      leader_->last_state().distance_to(follower_1_->id()),
+      leader_action);
+  }
+  leader_->current_action(leader_action);
+
   /* Followers actions always equal to no move at this instant t */
   follower_1_->current_action(Actions::Action::NoMove);
   follower_2_->current_action(Actions::Action::NoMove);
 
-  logger_->info("Leader (Alice) action: {}", 
-  action.action_to_str(leader_->current_action()));
-  
+  logger_->info("Leader (Alice) action: {}",
+                action.action_to_str(leader_->current_action()));
+
   /*  Threading QuadCopter */
   threads.push_back(std::thread([&]() {
     swarm_.one_quad_execute_trajectory(
@@ -84,11 +92,11 @@ Iterative_learning<flight_controller_t, simulator_t>::
   follower_1_->save_action_in_container(follower_1_action);
   follower_2_->save_action_in_container(follower_2_action);
 
-  logger_->info("Follower 1 (Chalrie) action: {}", 
-  action.action_to_str(follower_1_->current_action()));
+  logger_->info("Follower 1 (Chalrie) action: {}",
+                action.action_to_str(follower_1_->current_action()));
 
-  logger_->info("Follower 2 (Bob) action: {}", 
-  action.action_to_str(follower_2_->current_action()));
+  logger_->info("Follower 2 (Bob) action: {}",
+                action.action_to_str(follower_2_->current_action()));
 
   threads.push_back(std::thread([&]() {
     swarm_.one_quad_execute_trajectory(follower_1_->id(),
@@ -102,7 +110,7 @@ Iterative_learning<flight_controller_t, simulator_t>::
                                        follower_2_->speed(),
                                        1000);
   }));
-    /* We need to wait until the quadcopters finish their actions */
+  /* We need to wait until the quadcopters finish their actions */
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   evaluate_model.input(leader_->current_action(),
                        follower_1_->current_action(),
@@ -138,8 +146,7 @@ Iterative_learning<flight_controller_t, simulator_t>::run()
           // Change each 10 times the direction of the leader
         } else if (time_steps_.steps() % 10 == 0) {
           generate_trajectory_using_model(true, false);
-        } else if (sim_interface_->positions().at(0).z < 15 or
-                   sim_interface_->positions().at(1).z < 15) {
+        } else if (leader_->height() < 15) {
           generate_trajectory_using_model(false, true);
         } else {
           generate_trajectory_using_model(false, false);
@@ -151,9 +158,6 @@ Iterative_learning<flight_controller_t, simulator_t>::run()
 
         follower_1_->register_data_set();
         follower_2_->register_data_set();
-
-        follower_1_->reset_all_states();
-        follower_2_->reset_all_states();
 
         /*  Check the geometrical shape */
         std::vector<bool> shapes;
