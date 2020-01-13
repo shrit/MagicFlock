@@ -242,7 +242,7 @@ DataSet<simulator_t>::init_dataset_directory()
                                                   date_stream.str());
 
   dataset_file_name_ =
-    "../dataset/" + date_stream.str() + "/" + time_stream.str();
+    "../dataset/" + date_stream.str() + "/" + time_stream.str() + ".csv";
 
   error_file_name_ =
     "../dataset/" + date_stream.str() + "/error" + time_stream.str();
