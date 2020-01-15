@@ -42,6 +42,24 @@ Quadrotor<simulator_t>::nearest_neighbors() const
 
 template<class simulator_t>
 void
+Quadrotor<simulator_t>::start_sampling_rt_state(int interval)
+{
+  rt_samples_->start(interval, [this]() {
+    State<simulator_t> state(sim_interface_, id_, nearest_neighbors_);
+    current_state_ = state;
+    all_states_.push_back(state);
+  });
+}
+
+template<class simulator_t>
+void
+Quadrotor<simulator_t>::stop_sampling_rt_state()
+{
+  rt_samples_->stop();
+}
+
+template<class simulator_t>
+void
 Quadrotor<simulator_t>::sample_state()
 {
   State<simulator_t> state(sim_interface_, id_, nearest_neighbors_);

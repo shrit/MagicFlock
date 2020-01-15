@@ -15,6 +15,7 @@
 #include "action.hh"
 #include "data_set.hh"
 #include "math_tools.hh"
+#include "real_time_samples.hh"
 #include "state.hh"
 
 template<class simulator_t>
@@ -41,6 +42,9 @@ public:
   std::vector<State<simulator_t>> all_states() const;
   void reset_all_states();
 
+  void start_sampling_rt_state(int interval);
+  void stop_sampling_rt_state();
+
   /*  Action related functions */
   Actions::Action current_action() const;
   void current_action(Actions::Action action);
@@ -53,7 +57,7 @@ public:
   Actions::Action most_frequent_action_in_container();
   void save_action_in_container(Actions::Action action);
   double height();
-  
+
   /*  Data set related functions */
   void register_data_set();
   void register_histogram(int count);
@@ -85,9 +89,10 @@ private:
   State<simulator_t> current_state_;
   State<simulator_t> last_state_;
   State<simulator_t> before_last_state_;
-  State<simulator_t> before_2_last_state_;  
+  State<simulator_t> before_2_last_state_;
   std::vector<State<simulator_t>> all_states_;
 
+  std::shared_ptr<RTSamples> rt_samples_;
   unsigned int id_;  /* Quadrotor id */
   std::string name_; /* Quadrotor name */
   double speed_ = 1; /*  Quadrotors speed. Default speed is equal to 1 m/s */
