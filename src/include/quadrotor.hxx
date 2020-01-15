@@ -10,6 +10,7 @@ Quadrotor<simulator_t>::Quadrotor(unsigned int id,
   , sim_interface_(sim_interface)
 {
   data_set_.init_dataset_directory();
+  rt_samples_ = std::make_shared<RTSamples>();
 }
 
 template<class simulator_t>
