@@ -35,6 +35,7 @@ add_library(ILMR SHARED
   src/log.cc
   src/logger.cc
   src/px4_device.cc
+  src/real_time_samples.cc
   src/timer.cc
   src/time_steps.cc
   src/evaluate_model.cc
