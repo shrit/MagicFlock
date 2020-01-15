@@ -36,9 +36,14 @@ Iterative_learning<flight_controller_t, simulator_t>::
   follower_2_->sample_state();
 
   /*  Pick leader action, change it or keep it */
-  Actions::Action leader_action = action.generate_leader_action(change_leader_action,
-                                                                 stop_down_action,
-                                                             leader_->last_action());
+
+  Actions::Action leader_action = action.generate_leader_action(
+      change_leader_action, stop_down_action, leader_->last_action());
+  
+  if (leader_action == Actions::Action::up or leader_action == Actions::Action::down) {
+    leader_action = action.generate_leader_action(
+      change_leader_action, stop_down_action, leader_->last_action());
+  }
 
   if (time_steps_.steps() != 0) {
     leader_action = action.validate_leader_action(
@@ -64,7 +69,7 @@ Iterative_learning<flight_controller_t, simulator_t>::
   }));
 
   /* We need to wait until the quadcopters finish their actions */
-  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 
   /*  Sample the state at time t + 1*/
   follower_1_->sample_state();
@@ -111,17 +116,19 @@ Iterative_learning<flight_controller_t, simulator_t>::
                                        1000);
   }));
   /* We need to wait until the quadcopters finish their actions */
-  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-  evaluate_model.input(leader_->current_action(),
-                       follower_1_->current_action(),
-                       follower_2_->current_action());
 
   for (auto& thread : threads) {
     thread.join();
   }
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));  
+
   /*  Sample the state at time t + 2 */
   follower_1_->sample_state();
   follower_2_->sample_state();
+
+  evaluate_model.input(leader_->current_action(),
+                       follower_1_->current_action(),
+                       follower_2_->current_action());
 
   /* Take a tuple here  */
   double loss_f1 = predict_f1.real_time_loss();
@@ -135,29 +142,28 @@ void
 Iterative_learning<flight_controller_t, simulator_t>::run()
 {
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
+
     logger::logger_->info("Episode : {}", episode_);
+
     start_episode_ = swarm_.in_air(25);
 
     if (start_episode_) {
       time_steps_.reset();
       while (start_episode_) {
-        if (time_steps_.steps() == 0) {
+        if (time_steps_.steps() % 10 == 0) {
           generate_trajectory_using_model(true, false);
           // Change each 10 times the direction of the leader
-        } else if (time_steps_.steps() % 10 == 0) {
-          generate_trajectory_using_model(true, false);
         } else if (leader_->height() < 15) {
           generate_trajectory_using_model(false, true);
         } else {
           generate_trajectory_using_model(false, false);
         }
 
-        std::vector<lt::position3D<double>> new_positions =
-          sim_interface_->positions();
-        logger::logger_->info("New positions : {}", new_positions);
-
         follower_1_->register_data_set();
         follower_2_->register_data_set();
+
+        follower_1_->reset_all_states();
+        follower_2_->reset_all_states();
 
         /*  Check the geometrical shape */
         std::vector<bool> shapes;
@@ -179,7 +185,6 @@ Iterative_learning<flight_controller_t, simulator_t>::run()
     }
     follower_1_->register_histogram(time_steps_.steps());
     follower_2_->register_histogram(time_steps_.steps());
-    step_errors_.clear();
     swarm_.land();
 
     logger::logger_->info("Model evaluation: Both Same Action as leader : {}",
