@@ -2,7 +2,7 @@
 
 /*  Standard C++ includes  */
 #include <vector>
-
+#include <string>
 /* Local includes  */
 #include <ILMR/action.hh>
 #include <ILMR/data_set.hh>
@@ -24,14 +24,12 @@ public:
                std::shared_ptr<simulator_t> sim_interface,
                std::shared_ptr<spdlog::logger> logger);
   void run();
-
   void start_trajectory(bool stop_down_action);
 
   RTTrajectory(RTTrajectory const&) = delete;
   RTTrajectory(RTTrajectory&&) = default;
 
 private:
-  int count_;
   DataSet<simulator_t> data_set_;
   int episode_;
   int max_episode_;

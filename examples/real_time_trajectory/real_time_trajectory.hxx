@@ -8,8 +8,7 @@ RTTrajectory<flight_controller_t, simulator_t>::RTTrajectory(
   const std::vector<Quadrotor<simulator_t>>& quadrotors,
   std::shared_ptr<simulator_t> sim_interface,
   std::shared_ptr<spdlog::logger> logger)
-  : count_(0)
-  , episode_(0)
+  : episode_(0)
   , max_episode_(1)
   , sim_interface_(std::move(sim_interface))
   , swarm_(std::move(quads))
@@ -42,23 +41,21 @@ RTTrajectory<flight_controller_t, simulator_t>::start_trajectory(
 
   threads.push_back(std::thread([&]() {
     swarm_.one_quad_execute_trajectory(
-      leader_->id(), leader_->current_action(), leader_->speed(), 5000);
+      leader_->id(), leader_->current_action(), leader_->speed(), 1000);
   }));
 
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
   threads.push_back(std::thread([&]() {
     logger::logger_->info("Current action follower 1: {}",
-                          action.action_to_str(follower_1_->current_action()));
+                          action.action_to_str(leader_->current_action()));
     swarm_.one_quad_execute_trajectory(
-      follower_1_->id(), leader_->current_action(), follower_1_->speed(), 5000);
+      follower_1_->id(), leader_->current_action(), follower_1_->speed(), 1000);
   }));
 
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
   threads.push_back(std::thread([&]() {
-    logger::logger_->info("Current action follower 2: {}",
-                          action.action_to_str(follower_2_->current_action()));
     swarm_.one_quad_execute_trajectory(
       follower_2_->id(), leader_->current_action(), follower_2_->speed(), 1000);
   }));
@@ -84,31 +81,51 @@ RTTrajectory<flight_controller_t, simulator_t>::run()
       leader_->start_sampling_rt_state(50);
       follower_1_->start_sampling_rt_state(50);
       follower_2_->start_sampling_rt_state(50);
-      while (time_steps_.steps() < 5) {
+      while (time_steps_.steps() < 20) {
         /*  Verify that the quadrotors is not close to the ground */
         if (leader_->height() < 15) {
           start_trajectory(true);
         } else {
           start_trajectory(false);
         }
+
+        time_steps_.tic();
+
+        std::vector<State<simulator_t>> states = leader_->all_states();
+        std::vector<double> f1_dist;
+        for (auto i : states) {
+          f1_dist.push_back(i.distance_to(follower_1_->id()));
+          logger_->info("Distance in real time: {}",
+                        i.distance_to(follower_1_->id()));
+        }
+        Actions action;
+        for (auto it : f1_dist) {
+          data_set_.save_csv_data_set_2_file(
+            action.action_to_str(leader_->current_action()) +
+              std::to_string(time_steps_.steps()),
+            it);
+        }
+
+        leader_->reset_all_states();
+        follower_1_->reset_all_states();
+        follower_2_->reset_all_states();
       }
-      time_steps_.tic();
+      leader_->stop_sampling_rt_state();
+      follower_1_->stop_sampling_rt_state();
+      follower_2_->stop_sampling_rt_state();
+
+      leader_->reset_all_states();
+      follower_1_->reset_all_states();
+      follower_2_->reset_all_states();
+
+      /*  Landing */
+      swarm_.land();
+
+      /*  Resetting */
+      sim_interface_->reset_models();
+      logger_->info("All quadrotors have been reset...");
+
+      std::this_thread::sleep_for(std::chrono::seconds(15));
     }
-    leader_->stop_sampling_rt_state();
-    follower_1_->stop_sampling_rt_state();
-    follower_2_->stop_sampling_rt_state();
-
-    leader_->reset_all_states();
-    follower_1_->reset_all_states();
-    follower_2_->reset_all_states();
-
-    /*  Landing */
-    swarm_.land();
-
-    /*  Resetting */
-    sim_interface_->reset_models();
-    logger_->info("All quadrotors have been reset...");
-
-    std::this_thread::sleep_for(std::chrono::seconds(15));
   }
 }
