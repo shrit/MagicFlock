@@ -114,10 +114,6 @@ RTTrajectory<flight_controller_t, simulator_t>::run()
       follower_1_->stop_sampling_rt_state();
       follower_2_->stop_sampling_rt_state();
 
-      leader_->reset_all_states();
-      follower_1_->reset_all_states();
-      follower_2_->reset_all_states();
-
       /*  Landing */
       swarm_.land();
 
