@@ -1,124 +1,56 @@
-#include "training.hh"
-
-
-Train::Train(){};
-
-double Train::accuracy(const arma::Row<size_t>& predLabels,
-	        const arma::Row<size_t>& LabelY)
+template<class simulator_t>
+Train<simulator_t>::Train(std::string dataset_filename,
+                          std::shared_ptr<spdlog::logger> logger)
+  : logger_(logger)
 {
-  // Calculating how many predicted classes are coincide with real labels.
-  size_t success = 0;
-  for (size_t j = 0; j < LabelY.n_cols; j++) {
-    if (predLabels(j) == LabelY(j)) {
-      ++success;
-    }
-  }
-
-  // Calculating percentage of correctly classified data points.
-  return (double)success / (double)LabelY.n_cols * 100.0;
+  dataset_.load_dataset_file(std::move(dataset_filename));
 }
 
-/*  HACK, Waiting until callback pull request to be merged into ensmallen
-    library, meanwhile this calculation is used to print the value of the
-    loss during the training. Print Loss callback in going to be merged
-    in the next months*/
-double Train::accuracy_mse(const arma::mat& predLabels, const arma::mat& LabelY)
+template<class simulator_t>
+void
+Train<simulator_t>::classification()
 {
-  // Calculating how many predicted classes are coincide with real labels.
-  return arma::accu(arma::square(predLabels - LabelY)) / LabelY.n_cols;
-}
-
-/*  Used only for classification problem to compare values of several classes */
-arma::Row<size_t> Train::getLabels(const arma::mat& predOut)
-{
-  arma::Row<size_t> pred(predOut.n_cols);
-
-  // Class of a j-th data point is chosen to be the one with maximum value
-  // in j-th column plus 1 (since column's elements are numbered from 0).
-  for (size_t j = 0; j < predOut.n_cols; ++j) {
-    pred(j) = arma::as_scalar(arma::find(
-					 arma::max(predOut.col(j)) == predOut.col(j), 1)) + 1;
-  }
-  return pred;
-}
-
-void Train::load_data_set(std::string&& dataset_file)
-{
-  // Load the training set.
-  mlpack::data::Load(dataset_file, dataset_, true);
-  mlpack::data::Split(dataset_, trainset_, testset_, ratio_);
-}
-
-/* This function define the number of columns used for features and
-   labels. Note that, mlpack is column major. Thus, rows are columns
-   @param x is the number of columns used for label*/
-void Train::define_label_column_size(int x) {
-  // Split the labels from the training set.
-  train_features_ = trainset_.submat(0, 0,
-				     trainset_.n_rows - (x + 1),
-				     trainset_.n_cols - 1);
-
-  // Split the data from the training set.
-  train_labels_ = trainset_.submat(trainset_.n_rows - x, 0,
-				  trainset_.n_rows - 1, trainset_.n_cols - 1);
-
-  test_features_ = testset_.submat(0, 0,
-				   testset_.n_rows - (x + 1),
-				   testset_.n_cols - 1);
-
-  test_labels_ = testset_.submat(testset_.n_rows - x, 0,
-				 testset_.n_rows - 1, testset_.n_cols - 1);
-}
-
-void Train::classification()
-{
-  define_label_column_size(4);
+  dataset_.set_label_column_number(4);
   mlpack::ann::FFN<mlpack::ann::SigmoidCrossEntropyError<>,
-		   mlpack::ann::RandomInitialization> model;
-  model.Add<mlpack::ann::Linear<> >(train_features_.n_rows, 200);
-  model.Add<mlpack::ann::LeakyReLU<> >();
-  model.Add<mlpack::ann::Linear<> >(200, 200);
-  model.Add<mlpack::ann::LeakyReLU<> >();
-  model.Add<mlpack::ann::Dropout<> >(0.5);
-  model.Add<mlpack::ann::Linear<> >(200, 200);
-  model.Add<mlpack::ann::LeakyReLU<> >();
-  model.Add<mlpack::ann::Dropout<> >(0.5);
-  model.Add<mlpack::ann::Linear<> >(200, 4);
-  model.Add<mlpack::ann::LeakyReLU<> >();
+                   mlpack::ann::RandomInitialization>
+    model;
+  model.Add<mlpack::ann::Linear<>>(dataset_.train_features().n_rows, 200);
+  model.Add<mlpack::ann::LeakyReLU<>>();
+  model.Add<mlpack::ann::Linear<>>(200, 200);
+  model.Add<mlpack::ann::LeakyReLU<>>();
+  model.Add<mlpack::ann::Dropout<>>(0.5);
+  model.Add<mlpack::ann::Linear<>>(200, 200);
+  model.Add<mlpack::ann::LeakyReLU<>>();
+  model.Add<mlpack::ann::Dropout<>>(0.5);
+  model.Add<mlpack::ann::Linear<>>(200, 4);
+  model.Add<mlpack::ann::LeakyReLU<>>();
 
   ens::AdamType<ens::AdamUpdate> optimizer;
 
-  // Train the model.
-  for (int i = 0; i < 1000; ++i) {
-    LogInfo() << "Training..." << "\t Epoch " << i;
-    model.Train(train_features_,
-		train_labels_,
-		optimizer,
-		ens::PrintLoss(),
-		ens::ProgressBar(),
-		ens::StoreBestCoordinates<arma::mat>());
+  optimizer.Tolerance() = -1;
+  optimizer.MaxIterations() = 0;
+  model.Train(dataset_.train_features(),
+              dataset_.train_labels(),
+              optimizer,
+              ens::PrintLoss(),
+              ens::ProgressBar(),
+              ens::StoreBestCoordinates<arma::mat>());
 
-    optimizer.ResetPolicy() = false;
+  optimizer.ResetPolicy() = false;
 
-    arma::mat pred;
-    model.Predict(train_features_, pred);
-    // Calculate accuracy on training data points.
-  }
-  LogInfo() << "Training Finished...";
-  LogInfo() << "Test with Independent part...";
+  arma::mat pred;
+  model.Predict(dataset_.train_features(), pred);
+  // Calculate accuracy on training data points.
+
+  logger_->info("Training Finished...");
+  logger_->info("Test with Independent part...");
 
   arma::mat predtest;
 
-  model.Predict(test_features_, predtest);
-  model.Evaluate(test_features_, predtest);
+  model.Predict(dataset_.test_features(), predtest);
+  double test_accuracy = model.Evaluate(dataset_.test_features(), predtest);
 
-  arma::Row<size_t> predtestlabel = getLabels(predtest);
-
-  arma::Row<size_t> YTestlabels = getLabels(test_labels_);
-
-  double testAccuracy = accuracy(predtestlabel, YTestlabels);
-
-  LogInfo() << "Testing Accuracy = "<< testAccuracy<< "%,";
+  logger_->info("Testing Accuracy = ", test_accuracy, "%,");
 
   predtest = predtest.t();
   predtest.save("result.csv", arma::raw_ascii);
@@ -126,67 +58,61 @@ void Train::classification()
   mlpack::data::Save("model.xml", "model", model, false);
 }
 
-void Train::regression()
+template<class simulator_t>
+void
+Train<simulator_t>::regression()
 {
-  define_label_column_size(3);
+  dataset_.set_label_column_number(3);
   mlpack::ann::FFN<mlpack::ann::MeanSquaredError<>,
-		   mlpack::ann::RandomInitialization> model;
-  model.Add<mlpack::ann::Linear<> >(train_features_.n_rows, 200);
-  model.Add<mlpack::ann::LeakyReLU<> >();
-  model.Add<mlpack::ann::Linear<> >(200, 200);
-  model.Add<mlpack::ann::LeakyReLU<> >();
-  model.Add<mlpack::ann::Dropout<> >(0.5);
-  model.Add<mlpack::ann::Linear<> >(200, 200);
-  model.Add<mlpack::ann::LeakyReLU<> >();
-  model.Add<mlpack::ann::Dropout<> >(0.5);
-  model.Add<mlpack::ann::Linear<> >(200, 3);
+                   mlpack::ann::RandomInitialization>
+    model;
+  model.Add<mlpack::ann::Linear<>>(dataset_.train_features().n_rows, 200);
+  model.Add<mlpack::ann::LeakyReLU<>>();
+  model.Add<mlpack::ann::Linear<>>(200, 200);
+  model.Add<mlpack::ann::LeakyReLU<>>();
+  model.Add<mlpack::ann::Dropout<>>(0.5);
+  model.Add<mlpack::ann::Linear<>>(200, 200);
+  model.Add<mlpack::ann::LeakyReLU<>>();
+  model.Add<mlpack::ann::Dropout<>>(0.5);
+  model.Add<mlpack::ann::Linear<>>(200, 3);
 
   ens::AdamType<ens::AdamUpdate> optimizer;
 
   optimizer.Tolerance() = -1;
   optimizer.MaxIterations() = 0;
+  logger_->info("Starting.....");
+  Timer timer;
+  timer.start();
+  model.Train(dataset_.train_features(),
+              dataset_.train_labels(),
+              optimizer,
+              ens::PrintLoss(),
+              ens::ProgressBar(),
+              ens::EarlyStopAtMinLoss(75),
+              ens::StoreBestCoordinates<arma::mat>());
+  double elapsed_time = timer.stop();
 
-  for (int i = 0; i < 1; ++i) {
-    LogInfo() << "Starting.....";
-    auto t1 = std::chrono::high_resolution_clock::now();
-    model.Train(train_features_,
-		train_labels_,
-		optimizer,
-		ens::PrintLoss(),
-		ens::ProgressBar(),
-		ens::EarlyStopAtMinLoss(300),
-		ens::StoreBestCoordinates<arma::mat>());
+  logger_->info("Training time: {}", elapsed_time, "seconds");
+  optimizer.ResetPolicy() = false;
 
-    auto t2 = std::chrono::high_resolution_clock::now();
-    std::cout << std::endl;
-    std::cout << "Training time: "
-              << std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
-              << " seconds" << std::endl;
-
-    optimizer.ResetPolicy() = false;
-
-    arma::mat pred;
-    model.Predict(train_features_, pred);
-    model.Evaluate(train_features_, pred);
-  }
-  LogInfo() << "Training Finished...";
-  LogInfo() << "Test with Independent part...";
+  logger_->info("Training Finished...");
+  logger_->info("Test with Independent part...");
 
   arma::mat predtest;
 
-  model.Predict(test_features_, predtest);
-  model.Evaluate(test_features_, predtest);
+  model.Predict(dataset_.test_features(), predtest);
+  double testAccuracy = model.Evaluate(dataset_.test_features(), predtest);
 
-  double testAccuracy = accuracy_mse(predtest, test_labels_);
-  std::cout << "LOSS  = "<< testAccuracy<< "%,"
-	    << std::endl;
+  logger_->info("Loss on test set = ", testAccuracy, "%,");
 
   predtest = predtest.t();
   predtest.save("result.csv", arma::raw_ascii);
   mlpack::data::Save("model.txt", "model", model, false);
 }
 
-void Train::run(std::string&& name)
+template<class simulator_t>
+void
+Train<simulator_t>::run(std::string&& name)
 {
   if (name == "classification") {
     classification();
