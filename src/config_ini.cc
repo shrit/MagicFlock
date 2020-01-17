@@ -4,7 +4,6 @@ Configs::Configs() {}
 
 Configs::Configs(std::string file_name)
 {
-
   mINI::INIFile file(file_name);
   file.read(ini_);
   parse_ini();
@@ -13,9 +12,7 @@ Configs::Configs(std::string file_name)
 void
 Configs::parse_ini()
 {
-
   /*Parse Simulation section*/
-
   number_of_quads_ = std::stoi(ini_.get("simulation").get("quad_number"));
 
   std::string joystick = ini_.get("simulation").get("use_joystick");
@@ -30,11 +27,11 @@ Configs::parse_ini()
   std::istringstream(keyboard) >> std::boolalpha >> just_fly_;
 
   /*Parse quadcopter section*/
-
   quad_names_.push_back(ini_.get("quadcopter_01").get("model_name"));
   quad_names_.push_back(ini_.get("quadcopter_02").get("model_name"));
   quad_names_.push_back(ini_.get("quadcopter_03").get("model_name"));
-
+  quad_names_.push_back(ini_.get("quadcopter_04").get("model_name"));
+  
   ports_.push_back(static_cast<lt::port_type>(
     std::stoi(ini_.get("quadcopter_01").get("port"))));
 
@@ -44,8 +41,10 @@ Configs::parse_ini()
   ports_.push_back(static_cast<lt::port_type>(
     std::stoi(ini_.get("quadcopter_03").get("port"))));
 
-  /* Parse subscribe topic section */
+  ports_.push_back(static_cast<lt::port_type>(
+    std::stoi(ini_.get("quadcopter_04").get("port"))));  
 
+  /* Parse subscribe topic section */
   positions_ = ini_.get("subscribe_topics").get("positions");
 
   rssi_1_2_ = ini_.get("subscribe_topics").get("rssi_1_2");
@@ -53,10 +52,10 @@ Configs::parse_ini()
   rssi_2_3_ = ini_.get("subscribe_topics").get("rssi_2_3");
 
   /* Parse publish topic section */
-
   reset_1_ = ini_.get("publish_topics").get("reset_1");
   reset_2_ = ini_.get("publish_topics").get("reset_2");
   reset_3_ = ini_.get("publish_topics").get("reset_3");
+  reset_4_ = ini_.get("publish_topics").get("reset_4");
 }
 
 bool
@@ -123,6 +122,12 @@ std::string
 Configs::reset_3() const
 {
   return reset_3_;
+}
+
+std::string
+Configs::reset_4() const
+{
+  return reset_4_;
 }
 
 float

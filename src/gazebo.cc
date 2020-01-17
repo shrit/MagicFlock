@@ -2,8 +2,8 @@
 
 Gazebo::Gazebo(int argc, char* argv[], Configs config)
   : node_(new gazebo::transport::Node())
-  , _positions(3, lt::position3D<double>())
-  , _orientations(3, lt::orientation<double>())
+  , _positions(4, lt::position3D<double>())
+  , _orientations(4, lt::orientation<double>())
   , config_(config)
 {
   gazebo::client::setup(argc, argv);
@@ -32,6 +32,8 @@ Gazebo::publisher(lt::topic_name name)
   } else if (name == "/gazebo/default/iris_2/model_reset") {
     pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));
   } else if (name == "/gazebo/default/iris_3/model_reset") {
+    pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));
+  } else if (name == "/gazebo/default/iris_4/model_reset") {
     pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));
   }
 }
@@ -120,6 +122,21 @@ Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
       _orientations.at(2).y = orientation.y();
       _orientations.at(2).z = orientation.z();
       _orientations.at(2).w = orientation.w();
+
+    } else if (name == std::string(config_.quad_names().at(3))) {
+
+      const ::gazebo::msgs::Vector3d& position = pose.position();
+
+      _positions.at(3).x = position.x();
+      _positions.at(3).y = position.y();
+      _positions.at(3).z = position.z();
+
+      const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
+
+      _orientations.at(3).x = orientation.x();
+      _orientations.at(3).y = orientation.y();
+      _orientations.at(3).z = orientation.z();
+      _orientations.at(3).w = orientation.w();
     }
   }
 }

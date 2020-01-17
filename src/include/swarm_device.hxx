@@ -49,6 +49,8 @@ SwarmDevice<flight_controller_t>::arm()
 
   threads.push_back(std::thread([&]() { arm = iris_x_.at(2)->arm(); }));
 
+  threads.push_back(std::thread([&]() { arm = iris_x_.at(3)->arm(); }));  
+
   for (auto& thread : threads) {
     thread.join();
   }
@@ -127,6 +129,9 @@ SwarmDevice<flight_controller_t>::takeoff(float meters)
   threads.push_back(
     std::thread([&]() { takeoff = iris_x_.at(2)->takeoff(meters); }));
 
+  threads.push_back(
+    std::thread([&]() { takeoff = iris_x_.at(3)->takeoff(meters); }));  
+
   for (auto& thread : threads) {
     thread.join();
   }
@@ -161,7 +166,9 @@ SwarmDevice<flight_controller_t>::land()
 
   threads.push_back(std::thread([&]() { land = iris_x_.at(2)->land(); }));
 
-  for (auto& thread : threads) {
+  threads.push_back(std::thread([&]() { land = iris_x_.at(3)->land(); }));  
+
+ for (auto& thread : threads) {
     thread.join();
   }
   if (!land)
@@ -186,9 +193,9 @@ std::vector<lt::position_GPS<double>>
 SwarmDevice<flight_controller_t>::positions_GPS()
 {
   std::vector<lt::position_GPS<double>> positions;
-  positions.push_back(iris_x_.at(0)->get_position_GPS());
-  positions.push_back(iris_x_.at(1)->get_position_GPS());
-  positions.push_back(iris_x_.at(2)->get_position_GPS());
+  for (auto i : iris_x_) {
+    positions.push_back(i->get_position_GPS());    
+  }
   return positions;
 }
 
