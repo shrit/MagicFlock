@@ -1,7 +1,5 @@
 #pragma once
 
-#include "generate_data_set.hh"
-
 template<class flight_controller_t, class simulator_t>
 Generator<flight_controller_t, simulator_t>::Generator(
   std::vector<std::shared_ptr<flight_controller_t>> quads,
@@ -20,6 +18,7 @@ Generator<flight_controller_t, simulator_t>::Generator(
   leader_ = quadrotors_.begin();
   follower_1_ = std::next(quadrotors_.begin(), 1);
   follower_2_ = std::next(quadrotors_.begin(), 2);
+  leader_2_ = std::next(quadrotors_.begin(), 3);
 }
 
 /*  Phase one: Data Set generation */
@@ -33,35 +32,20 @@ Generator<flight_controller_t, simulator_t>::generate_trajectory(
   std::vector<std::thread> threads;
 
   /*  Sample the state at time t */
-  leader_->sample_state();
   follower_1_->sample_state();
   follower_2_->sample_state();
 
-  leader_->current_action(Actions::Action::NoMove);
   /*  Generate action for the leader */
-  Actions::Action leader_action = action.generate_leader_action(
-    change_leader_action, stop_going_down, leader_->last_action());
+  leader_->current_action(
+    action.generate_leader_action(change_leader_action,
+                                  stop_going_down,
+                                  leader_->last_action(),
+                                  leader_->current_action()));
 
-  if (time_steps_.steps() != 0) {
-    leader_action = action.validate_leader_action(
-      leader_->current_state().distance_to(follower_2_->id()),
-      leader_->last_state().distance_to(follower_2_->id()),
-      leader_->current_state().distance_to(follower_1_->id()),
-      leader_->last_state().distance_to(follower_1_->id()),
-      leader_action);
-  }
-
-  leader_->current_action(leader_action);
-  logger::logger_->info(
-    "Alice distances to Bob: {}",
-    leader_->current_state().distance_to(follower_2_->id()));
-
-  logger::logger_->info(
-    "Alice distances to Charlie: {}",
-    leader_->current_state().distance_to(follower_1_->id()));
+  leader_2_->current_action(leader_->current_action());
 
   /*  Do not allow follower to move, at this time step,
-      block the follower and log not move*/
+        block the follower and log not move*/
   follower_1_->current_action(Actions::Action::NoMove);
   follower_2_->current_action(Actions::Action::NoMove);
 
@@ -79,6 +63,12 @@ Generator<flight_controller_t, simulator_t>::generate_trajectory(
       leader_->id(), leader_->current_action(), leader_->speed(), 1000);
   }));
 
+  /*  Threading Quadrotors */
+  threads.push_back(std::thread([&]() {
+    swarm_.one_quad_execute_trajectory(
+      leader_2_->id(), leader_2_->current_action(), leader_2_->speed(), 1000);
+  }));
+
   /* We need to wait until the Quadrotors finish their actions */
   std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 
@@ -94,28 +84,8 @@ Generator<flight_controller_t, simulator_t>::generate_trajectory(
   follower_1_->sample_state();
   follower_2_->sample_state();
 
-  Actions::Action temp_f1, temp_f2;
-  std::tie(temp_f2, temp_f1) = action.generate_followers_action_using_distance(
-    follower_2_->last_state().distance_to(leader_->id()),
-    follower_2_->current_state().distance_to(leader_->id()),
-    follower_1_->last_state().distance_to(leader_->id()),
-    follower_1_->current_state().distance_to(leader_->id()),
-    follower_1_->current_state().height_difference());
-
-  temp_f2 = action.validate_followers_action(
-    follower_2_->current_state().distances_3D(),
-    follower_2_->last_state().distances_3D(),
-    follower_2_->before_2_last_action(),
-    temp_f2);
-
-  temp_f1 = action.validate_followers_action(
-    follower_1_->current_state().distances_3D(),
-    follower_1_->last_state().distances_3D(),
-    follower_1_->before_2_last_action(),
-    temp_f1);
-
-  follower_1_->current_action(temp_f1);
-  follower_2_->current_action(temp_f2);
+  follower_1_->current_action(action.random_action_generator());
+  follower_2_->current_action(action.random_action_generator());
 
   threads.push_back(std::thread([&]() {
     logger::logger_->info("Current action follower 1: {}",
@@ -171,12 +141,12 @@ Generator<flight_controller_t, simulator_t>::run()
       while (start_episode_) {
         if (time_steps_.steps() % 10 == 0) {
           generate_trajectory(true, false);
-        } else if (leader_->height() < 15) {
+        } else if (leader_->height() < 15 or leader_2_->height() < 15) {
           generate_trajectory(false, true);
         } else {
           generate_trajectory(false, false);
         }
-
+        leader_->reset_all_actions();
         follower_1_->register_data_set();
         follower_2_->register_data_set();
 

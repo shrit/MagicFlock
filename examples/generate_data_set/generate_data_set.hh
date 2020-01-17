@@ -29,8 +29,7 @@ public:
             std::shared_ptr<simulator_t> sim_interface,
             std::shared_ptr<spdlog::logger> logger);
 
-  void generate_trajectory(bool random_leader_action,
-                           bool stop_going_down);
+  void generate_trajectory(bool random_leader_action, bool stop_going_down);
   void run();
 
   Generator(Generator const&) = delete;
@@ -48,6 +47,7 @@ private:
   typename std::vector<Quadrotor<simulator_t>>::iterator leader_;
   typename std::vector<Quadrotor<simulator_t>>::iterator follower_1_;
   typename std::vector<Quadrotor<simulator_t>>::iterator follower_2_;
+  typename std::vector<Quadrotor<simulator_t>>::iterator leader_2_;
 };
 
 #include "generate_data_set.hxx"
