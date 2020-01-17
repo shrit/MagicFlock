@@ -61,8 +61,9 @@ main(int argc, char* argv[])
   gz->publisher(configs.reset_1());
   gz->publisher(configs.reset_2());
   gz->publisher(configs.reset_3());
+  gz->publisher(configs.reset_4());
 
-  /* Wait for 10 seconds, Just to finish subscribe to
+/* Wait for 10 seconds, Just to finish subscribe to
    * gazebo topics */
   std::this_thread::sleep_for(std::chrono::seconds(10));
 
@@ -73,15 +74,25 @@ main(int argc, char* argv[])
   quadrotors.emplace_back(0, "leader", gz);
   quadrotors.emplace_back(1, "follower_1", gz);
   quadrotors.emplace_back(2, "follower_2", gz);
+  quadrotors.emplace_back(3, "leader_2", gz); 
   /*  Add neighbors list  */
   quadrotors.at(0).add_nearest_neighbor_id(1);
   quadrotors.at(0).add_nearest_neighbor_id(2);
+  quadrotors.at(0).add_nearest_neighbor_id(3);
+
   quadrotors.at(1).add_nearest_neighbor_id(0);
   quadrotors.at(1).add_nearest_neighbor_id(2);
+  quadrotors.at(1).add_nearest_neighbor_id(3);  
+
   quadrotors.at(2).add_nearest_neighbor_id(0);
   quadrotors.at(2).add_nearest_neighbor_id(1);
+  quadrotors.at(2).add_nearest_neighbor_id(3);
 
-  /*  Generate a dataset  */
+  quadrotors.at(3).add_nearest_neighbor_id(0);  
+  quadrotors.at(3).add_nearest_neighbor_id(1);
+  quadrotors.at(3).add_nearest_neighbor_id(2);
+  
+/*  Generate a dataset  */
   Generator<Px4Device, Gazebo> generator(iris_x, quadrotors, gz, logger);
   generator.run();
 }
