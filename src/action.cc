@@ -388,9 +388,10 @@ Actions::generate_follower_action_using_oracle(double distance_t_1_b,
 Actions::Action
 Actions::generate_leader_action(bool change_leader_action,
                                 bool stop_going_down,
-                                Actions::Action last_action)
+                                Actions::Action last_action,
+                                Actions::Action current_action)
 {
-  Actions::Action leader_action = Action::Unknown;
+  Actions::Action leader_action = Actions::Action::Unknown;
 
   if (change_leader_action == true) {
     leader_action =
@@ -400,13 +401,11 @@ Actions::generate_leader_action(bool change_leader_action,
       leader_action =
         random_action_generator_with_only_opposed_condition(last_action);
     }
-  } else {
-    if (last_action == Actions::Action::NoMove) {
-    leader_action = random_action_generator_with_only_opposed_condition(last_action);
+  } else if (last_action == Actions::Action::Unknown) {
+    leader_action = current_action;
     
-    } else {
-      leader_action = last_action;
-    }
+  } else {
+    leader_action = last_action;
   }
   return leader_action;
 }

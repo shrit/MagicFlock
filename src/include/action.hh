@@ -67,7 +67,8 @@ public:
 
   Action generate_leader_action(bool change_leader_action,
                                 bool stop_going_down,
-                                Action last_action);
+                                Action last_action,
+                                Action current_action);
 
   Action validate_leader_action(double distance_to_b,
                                 double distance_to_b_1,
