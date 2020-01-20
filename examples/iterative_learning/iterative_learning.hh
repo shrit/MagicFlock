@@ -9,7 +9,7 @@
 #include <vector>
 
 /* local includes  */
-#include <ILMR/predictor.hh>
+#include <ILMR/ann_predictor.hh>
 #include <ILMR/action.hh>
 #include <ILMR/evaluate_model.hh>
 #include <ILMR/global.hh>
@@ -53,6 +53,7 @@ private:
   typename std::vector<Quadrotor<simulator_t>>::iterator leader_;
   typename std::vector<Quadrotor<simulator_t>>::iterator follower_1_;
   typename std::vector<Quadrotor<simulator_t>>::iterator follower_2_;
+  typename std::vector<Quadrotor<simulator_t>>::iterator leader_2_;
 };
 
 #include "iterative_learning.hxx"

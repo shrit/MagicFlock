@@ -19,6 +19,7 @@ Iterative_learning<flight_controller_t, simulator_t>::Iterative_learning(
   leader_ = quadrotors_.begin();
   follower_1_ = std::next(quadrotors_.begin(), 1);
   follower_2_ = std::next(quadrotors_.begin(), 2);
+  leader_2_ = std::next(quadrotors_.begin(), 3);
 }
 
 template<class flight_controller_t, class simulator_t>
@@ -37,25 +38,11 @@ Iterative_learning<flight_controller_t, simulator_t>::
 
   /*  Pick leader action, change it or keep it */
 
-  Actions::Action leader_action = action.generate_leader_action(
-      change_leader_action, stop_down_action, leader_->last_action());
-  
-  if (leader_action == Actions::Action::up or leader_action == Actions::Action::down) {
-    leader_action = action.generate_leader_action(
-      change_leader_action, stop_down_action, leader_->last_action());
-  }
+  leader_->current_action(action.generate_leader_action(
+      change_leader_action, stop_down_action, leader_->last_action(), leader_->current_action()));
 
-  if (time_steps_.steps() != 0) {
-    leader_action = action.validate_leader_action(
-      leader_->current_state().distance_to(follower_2_->id()),
-      leader_->last_state().distance_to(follower_2_->id()),
-      leader_->current_state().distance_to(follower_1_->id()),
-      leader_->last_state().distance_to(follower_1_->id()),
-      leader_action);
-  }
-  leader_->current_action(leader_action);
-
-  /* Followers actions always equal to no move at this instant t */
+  leader_2_->current_action(leader_->current_action());
+    /* Followers actions always equal to no move at this instant t */
   follower_1_->current_action(Actions::Action::NoMove);
   follower_2_->current_action(Actions::Action::NoMove);
 
@@ -67,6 +54,10 @@ Iterative_learning<flight_controller_t, simulator_t>::
     swarm_.one_quad_execute_trajectory(
       leader_->id(), leader_->current_action(), leader_->speed(), 1000);
   }));
+  threads.push_back(std::thread([&]() {
+    swarm_.one_quad_execute_trajectory(
+      leader_2_->id(), leader_2_->current_action(), leader_2_->speed(), 1000);
+  }));  
 
   /* We need to wait until the quadcopters finish their actions */
   std::this_thread::sleep_for(std::chrono::milliseconds(1500));
@@ -75,7 +66,7 @@ Iterative_learning<flight_controller_t, simulator_t>::
   follower_1_->sample_state();
   follower_2_->sample_state();
 
-  Predictor<simulator_t> predict_f1(
+  AnnPredictor<simulator_t> predict_f1(
     "regression",
     "/meta/lemon/examples/iterative_learning/build/f1/model.txt",
     "model",
@@ -83,7 +74,7 @@ Iterative_learning<flight_controller_t, simulator_t>::
 
   Actions::Action follower_1_action = predict_f1.get_predicted_action();
 
-  Predictor<simulator_t> predict_f2(
+  AnnPredictor<simulator_t> predict_f2(
     "regression",
     "/meta/lemon/examples/iterative_learning/build/f2/model.txt",
     "model",
@@ -91,9 +82,9 @@ Iterative_learning<flight_controller_t, simulator_t>::
 
   Actions::Action follower_2_action = predict_f2.get_predicted_action();
 
-  // if (follower_1_action == follower_2_action) {
   follower_1_->current_action(follower_1_action);
   follower_2_->current_action(follower_2_action);
+
   follower_1_->save_action_in_container(follower_1_action);
   follower_2_->save_action_in_container(follower_2_action);
 
@@ -115,8 +106,8 @@ Iterative_learning<flight_controller_t, simulator_t>::
                                        follower_2_->speed(),
                                        1000);
   }));
-  /* We need to wait until the quadcopters finish their actions */
 
+  /* We need to wait until the quadcopters finish their actions */
   for (auto& thread : threads) {
     thread.join();
   }
@@ -161,10 +152,7 @@ Iterative_learning<flight_controller_t, simulator_t>::run()
 
         follower_1_->register_data_set();
         follower_2_->register_data_set();
-
-        follower_1_->reset_all_states();
-        follower_2_->reset_all_states();
-
+        leader_->reset_all_actions();
         /*  Check the geometrical shape */
         std::vector<bool> shapes;
         for (auto it : quadrotors_) {
@@ -183,6 +171,9 @@ Iterative_learning<flight_controller_t, simulator_t>::run()
         logger::logger_->flush();
       }
     }
+    follower_1_->reset_all_states();
+    follower_2_->reset_all_states();
+
     follower_1_->register_histogram(time_steps_.steps());
     follower_2_->register_histogram(time_steps_.steps());
     swarm_.land();
