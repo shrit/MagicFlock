@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
   CLI::App app{"This app use statistic method in order to maintain the swarm of quadrotor."};
 
   std::string dataset_filename = "default";
-  app.add_option("-f,--file", dataset_filename, "Full Path to the model files for quadrotor")
+  app.add_option("-f,--file", dataset_filename, "Full Path to the dataset files for quadrotor")
     ->required()
     ->check(CLI::ExistingFile);
 
@@ -64,15 +64,10 @@ int main(int argc, char* argv[])
 
   gz->subscriber(configs.positions());
 
-  /* Verify the numbers to subscribe to the good signal strength */
-  gz->subscriber(configs.rssi_1_2());
-  gz->subscriber(configs.rssi_1_3());
-  gz->subscriber(configs.rssi_2_3());
-
   gz->publisher(configs.reset_1());
   gz->publisher(configs.reset_2());
   gz->publisher(configs.reset_3());
-
+  gz->publisher(configs.reset_4());
   /* Wait for 10 seconds, Just to finish subscribe to
    * gazebo topics */
   std::this_thread::sleep_for(std::chrono::seconds(10));
@@ -84,16 +79,26 @@ int main(int argc, char* argv[])
   quadrotors.emplace_back(0, "leader", gz);
   quadrotors.emplace_back(1, "follower_1", gz);
   quadrotors.emplace_back(2, "follower_2", gz);
+  quadrotors.emplace_back(3, "leader_2", gz);
 
     /*  Add neighbors list  */
   quadrotors.at(0).add_nearest_neighbor_id(1);
   quadrotors.at(0).add_nearest_neighbor_id(2);
+  quadrotors.at(0).add_nearest_neighbor_id(3);
+   
   quadrotors.at(1).add_nearest_neighbor_id(0);
   quadrotors.at(1).add_nearest_neighbor_id(2);
+  quadrotors.at(1).add_nearest_neighbor_id(3);
+    
   quadrotors.at(2).add_nearest_neighbor_id(0);
   quadrotors.at(2).add_nearest_neighbor_id(1);
+  quadrotors.at(2).add_nearest_neighbor_id(3); 
 
-  /*  Test the trained model and improve it  */
+/*  Test the trained model and improve it  */
+  quadrotors.at(3).add_nearest_neighbor_id(0);
+  quadrotors.at(3).add_nearest_neighbor_id(1);
+  quadrotors.at(3).add_nearest_neighbor_id(2);  
+
   Statistic<Px4Device, Gazebo> stat(iris_x, quadrotors, gz, logger);
   stat.run();
 }

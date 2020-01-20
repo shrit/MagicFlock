@@ -1,7 +1,5 @@
 #pragma once
 
-#include "statistic.hh"
-
 template<class flight_controller_t, class simulator_t>
 Statistic<flight_controller_t, simulator_t>::Statistic(
   std::vector<std::shared_ptr<flight_controller_t>> iris_x,
@@ -11,6 +9,7 @@ Statistic<flight_controller_t, simulator_t>::Statistic(
   : episode_(0)
   , max_episode_(10000)
   , sim_interface_(std::move(gzs))
+  , start_episode_(false)
   , swarm_(std::move(iris_x))
   , quadrotors_(std::move(quadrotors))
   , logger_(logger)
@@ -19,61 +18,77 @@ Statistic<flight_controller_t, simulator_t>::Statistic(
   leader_ = quadrotors_.begin();
   follower_1_ = std::next(quadrotors_.begin(), 1);
   follower_2_ = std::next(quadrotors_.begin(), 2);
+  leader_2_ = std::next(quadrotors_.begin(), 3);
 }
 
 template<class flight_controller_t, class simulator_t>
 void
 Statistic<flight_controller_t, simulator_t>::generate_trajectory_using_model(
   bool change_leader_action,
-  bool stop_down_action)
+  bool stop_going_down)
 {
   Actions action;
   std::vector<std::thread> threads;
 
   /*  Pick leader action, change it or keep it */
-  if (change_leader_action == true) {
-    leader_->current_action(
-      action.random_action_generator_with_only_opposed_condition(
-        leader_->last_action()));
-  } else if (stop_down_action == true) {
-    while (leader_->current_action() == Actions::Action::down) {
-      leader_->current_action(
-        action.random_action_generator_with_only_opposed_condition(
-          leader_->last_action()));
-    }
-  }
+  leader_->current_action(
+    action.generate_leader_action(change_leader_action,
+                                  stop_going_down,
+                                  leader_->last_action(),
+                                  leader_->current_action()));
+
+  leader_2_->current_action(leader_->current_action());
   /*  Sample the state at time t*/
+  follower_1_->sample_state();
   follower_2_->sample_state();
 
   /* Followers actions always equal to no move at this instant t */
+  follower_1_->current_action(Actions::Action::NoMove);
   follower_2_->current_action(Actions::Action::NoMove);
 
-  /*  Threading QuadCopter */
+  /*  Make leader move at the same time step */
   threads.push_back(std::thread([&]() {
     swarm_.one_quad_execute_trajectory(
       leader_->id(), leader_->current_action(), leader_->speed(), 1000);
   }));
   threads.push_back(std::thread([&]() {
     swarm_.one_quad_execute_trajectory(
-      follower_1_->id(), leader_->current_action(), follower_1_->speed(), 1000);
+      leader_2_->id(), leader_2_->current_action(), leader_2_->speed(), 1000);
   }));
 
   /* We need to wait until the quadcopters finish their actions */
-  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  std::this_thread::sleep_for(std::chrono::milliseconds(1500));
   logger_->info("Leaders actions: {}",
                 action.action_to_str(leader_->current_action()));
+
   /*  Sample the state at time t + 1*/
+  follower_1_->sample_state();
   follower_2_->sample_state();
 
+  KnnPredictor<simulator_t> predict_f1(
+    "/meta/lemon/examples/generate_data_set/dataset/2020-Jan-18/17:05:08.csv_follower_1.csv",
+    follower_1_);
+  predict_f1.predict(4);
+  Actions::Action follower_1_action = predict_f1.get_predicted_action();
+  follower_1_->current_action(follower_1_action);
+  logger_->info("Follower 1 (Charlie) predicited action {}",
+                action.action_to_str(follower_1_action));
+
   KnnPredictor<simulator_t> predict_f2(
-    "/meta/lemon/dataset/Dataset_one_drone_2019-Oct-19/22:39:42.csv",
+    "/meta/lemon/examples/generate_data_set/dataset/2020-Jan-18/17:05:08.csv_follower_2.csv",
     follower_2_);
   predict_f2.predict(4);
   Actions::Action follower_2_action = predict_f2.get_predicted_action();
   follower_2_->current_action(follower_2_action);
-  logger_->info("Follower 2 predicited action {}",
+  logger_->info("Follower 2 (Bob) predicited action {}",
                 action.action_to_str(follower_2_action));
 
+  threads.push_back(std::thread([&]() {
+    swarm_.one_quad_execute_trajectory(follower_1_->id(),
+                                       follower_1_->current_action(),
+                                       follower_1_->speed(),
+                                       1000);
+  }));
   threads.push_back(std::thread([&]() {
     swarm_.one_quad_execute_trajectory(follower_2_->id(),
                                        follower_2_->current_action(),
@@ -84,7 +99,10 @@ Statistic<flight_controller_t, simulator_t>::generate_trajectory_using_model(
   for (auto& thread : threads) {
     thread.join();
   }
+  std::this_thread::sleep_for(std::chrono::milliseconds(1500));  
+
   /*  Sample the state at time t + 2 final state */
+  follower_1_->sample_state();
   follower_2_->sample_state();
 }
 
@@ -94,62 +112,34 @@ Statistic<flight_controller_t, simulator_t>::run()
 {
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
 
-    /* Intilization phase, in each episode we should reset the
-     * position of each quadcopter to the initial position.
-     * From here we can start automatically the quads:
-     * Arm + takeoff + offboard mode + moving + land
-     * Then: repeat each episode.
-     */
     logger_->info("Episode :{}", episode_);
 
     /* Stop the episode if one of the quad has fallen to arm */
-    stop_episode_ = false;
-    bool arm = swarm_.arm();
-    if (!arm)
-      stop_episode_ = true;
-
-    /* Stop the episode if one of the quad has fallen to takoff */
-    bool takeoff = swarm_.takeoff(25);
-    if (!takeoff)
-      stop_episode_ = true;
-
-    /*  Setting up speed_ is important to switch the mode */
-    swarm_.init_speed();
-
-    /*  Switch to offboard mode, Allow the control */
-    bool offboard_mode = swarm_.start_offboard_mode();
-    if (!offboard_mode)
-      stop_episode_ = true;
+    start_episode_ = swarm_.in_air(25);
 
     /*  Wait to complete the take off process */
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    if (!stop_episode_) {
+    if (start_episode_) {
       time_steps_.reset();
-      while (!stop_episode_) {
+      while (start_episode_) {
 
-        if (time_steps_.steps() == 0) {
-          generate_trajectory_using_model(true, false);
-          // Change each 10 times the direction of the leader
-        } else if (time_steps_.steps() % 10 == 0) {
+        if (time_steps_.steps() % 10 == 0) {
           generate_trajectory_using_model(true, false);
 
-          // } else if (leader_->current_state().rt_height() < 15 or
-          //            follower_1_->current_state().rt_height() < 15) {
-
-          //   generate_trajectory_using_model(false, true);
+        } else if (leader_->height() < 15 or leader_2_->height() < 15) {
+          generate_trajectory_using_model(false, true);
 
         } else {
           generate_trajectory_using_model(false, false);
         }
 
-        std::vector<lt::position3D<double>> new_positions =
-          sim_interface_->positions();
-        logger_->info("New positions :{}", new_positions);
+        leader_->reset_all_actions();
 
+        follower_1_->register_data_set();
         follower_2_->register_data_set();
+
         follower_2_->reset_all_states();
-        follower_2_->reset_all_actions();
 
         /*  Check the geometrical shape */
         std::vector<bool> shapes;
@@ -170,7 +160,9 @@ Statistic<flight_controller_t, simulator_t>::run()
       }
     }
 
+    follower_1_->register_histogram(time_steps_.steps());
     follower_2_->register_histogram(time_steps_.steps());
+
     swarm_.land();
 
     /* Resetting the entire swarm after the end of each episode*/

@@ -8,7 +8,6 @@
 # include <vector>
 
 /* local includes  */
-
 # include <ILMR/knn_predictor.hh>
 # include <ILMR/quadrotor.hh>
 # include <ILMR/swarm_device.hh>
@@ -33,7 +32,7 @@ public:
             std::shared_ptr<spdlog::logger> logger);
 
   void generate_trajectory_using_model(bool random_leader_action,
-                                       bool stop_down_action);
+                                       bool stop_going_down);
 
   void run();
 
@@ -46,14 +45,15 @@ private:
   int episode_;
   int max_episode_ ;
   std::shared_ptr<simulator_t> sim_interface_;
+  bool start_episode_;
   SwarmDevice<flight_controller_t> swarm_;
-  bool stop_episode_;
   std::vector<Quadrotor<simulator_t>> quadrotors_;
   std::shared_ptr<spdlog::logger> logger_;
 
   typename std::vector<Quadrotor<simulator_t>>::iterator leader_;
   typename std::vector<Quadrotor<simulator_t>>::iterator follower_1_;
   typename std::vector<Quadrotor<simulator_t>>::iterator follower_2_;
+  typename std::vector<Quadrotor<simulator_t>>::iterator leader_2_;
 };
 
 # include "statistic.hxx"
