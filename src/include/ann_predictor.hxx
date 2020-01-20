@@ -116,9 +116,12 @@ AnnPredictor<simulator_t>::estimate_action_from_distance(arma::mat& matrix)
   double d1, d2, d3;
   double height_diff;
   for (arma::uword i = 0; i < matrix.n_rows; ++i) {
-    d1 = std::fabs(quad_->all_states().at(0).distances_3D().at(0) - matrix(i, 0));
-    d2 = std::fabs(quad_->all_states().at(0).distances_3D().at(1) - matrix(i, 1));
-    d3 = std::fabs(quad_->all_states().at(0).distances_3D().at(2) - matrix(i, 2));
+    d1 =
+      std::fabs(quad_->all_states().at(0).distances_3D().at(0) - matrix(i, 0));
+    d2 =
+      std::fabs(quad_->all_states().at(0).distances_3D().at(1) - matrix(i, 1));
+    d3 =
+      std::fabs(quad_->all_states().at(0).distances_3D().at(2) - matrix(i, 2));
     height_diff =
       std::fabs(quad_->all_states().at(0).height_difference() - matrix(i, 3));
     sum_of_distances.push_back(d1 + d3 + height_diff);
@@ -156,13 +159,17 @@ AnnPredictor<simulator_t>::real_time_loss(
   std::tuple<arma::mat, arma::uword, Actions::Action> matrix_best_action)
 {
   arma::mat matrix;
-  arma::uword index_of_best_estimation;
-  std::tie(matrix, index_of_best_estimation, std::ignore) = matrix_best_action;
-  double loss = std::pow((matrix(index_of_best_estimation, 1) -
+  arma::uword index_of_best_estimation, value;
+  std::tie(matrix, value, std::ignore) = matrix_best_action;
+  index_of_best_estimation = (matrix_best_action.n_rows - 1) - value;
+  double loss = std::pow((matrix(index_of_best_estimation, 0) -
                           quad_->current_state().distances_3D().at(0)),
                          2) +
                 std::pow((matrix(index_of_best_estimation, 2) -
-                          quad_->current_state().distances_3D().at(1)),
+                          quad_->current_state().distances_3D().at(2)),
+                         2) +
+                std::pow((matrix(index_of_best_estimation, 3) -
+                          quad_->current_state().height_diff()),
                          2);
   return loss;
 }
