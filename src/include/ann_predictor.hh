@@ -28,10 +28,10 @@ namespace lt = local_types;
 using namespace ILMR;
 
 template<class simulator_t>
-class Predictor
+class AnnPredictor
 {
 public:
-  Predictor(std::string name,
+  AnnPredictor(std::string name,
             std::string full_path_to_model,
             std::string model_name,
             typename std::vector<Quadrotor<simulator_t>>::iterator quad);
@@ -54,8 +54,8 @@ public:
 
   Actions::Action get_predicted_action();
 
-  Predictor(Predictor const&) = delete;
-  Predictor(Predictor&&) = default;
+  AnnPredictor(AnnPredictor const&) = delete;
+  AnnPredictor(AnnPredictor&&) = default;
 
 private:
   std::string model_path_;
@@ -64,10 +64,9 @@ private:
   bool classification_;
   Math_tools mtools_;
   bool regression_;
-  std::vector<double> original_dist_;
   double real_time_loss_;
   typename std::vector<Quadrotor<simulator_t>>::iterator quad_;
   std::vector<Quadrotor<simulator_t>> quadrotors_;
 };
 
-#include "predictor.hxx"
+#include "ann_predictor.hxx"
