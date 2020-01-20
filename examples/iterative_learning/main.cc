@@ -78,14 +78,10 @@ main(int argc, char* argv[])
   std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(argc, argv, configs);
   gz->subscriber(configs.positions());
 
-  /* Verify the numbers to subscribe to the good signal strength */
-  gz->subscriber(configs.rssi_1_2());
-  gz->subscriber(configs.rssi_1_3());
-  gz->subscriber(configs.rssi_2_3());
-
   gz->publisher(configs.reset_1());
   gz->publisher(configs.reset_2());
   gz->publisher(configs.reset_3());
+  gz->publisher(configs.reset_4());  
 
   /* Wait for 10 seconds, Just to finish subscribe to
    * gazebo topics */
@@ -95,19 +91,29 @@ main(int argc, char* argv[])
   /*  Try to see if it is possible or efficient to merge quadrotors +
       device controller */
   std::vector<Quadrotor<Gazebo>> quadrotors;
-  quadrotors.emplace_back(0, "leader", gz);
-  quadrotors.emplace_back(1, "follower_1", gz);
-  quadrotors.emplace_back(2, "follower_2", gz);
+  quadrotors.emplace_back(0, "leader", gz); // Alice
+  quadrotors.emplace_back(1, "follower_1", gz); // Charlie
+  quadrotors.emplace_back(2, "follower_2", gz); // Bob
+  quadrotors.emplace_back(3, "leader_2_", gz);  // Delta
 
   /*  Add neighbors list  */
   quadrotors.at(0).add_nearest_neighbor_id(1);
   quadrotors.at(0).add_nearest_neighbor_id(2);
+  quadrotors.at(0).add_nearest_neighbor_id(3);
+ 
   quadrotors.at(1).add_nearest_neighbor_id(0);
   quadrotors.at(1).add_nearest_neighbor_id(2);
+  quadrotors.at(1).add_nearest_neighbor_id(3);
+    
   quadrotors.at(2).add_nearest_neighbor_id(0);
   quadrotors.at(2).add_nearest_neighbor_id(1);
-
-  //   /*  Test the trained model and improve it  */
+  quadrotors.at(2).add_nearest_neighbor_id(3);
+  
+  quadrotors.at(3).add_nearest_neighbor_id(0);
+  quadrotors.at(3).add_nearest_neighbor_id(1);
+  quadrotors.at(3).add_nearest_neighbor_id(2);
+  
+  /*  Test the trained model and improve it  */
   Iterative_learning<Px4Device, Gazebo> ilearning(
     iris_x, quadrotors, gz, logger);
   ilearning.run();
