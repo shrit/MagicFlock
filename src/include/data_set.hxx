@@ -28,15 +28,15 @@ DataSet<simulator_t>::parse_dataset_file(std::string file_name)
   // }
 
   arma::mat st_mat =
-    dataset_(arma::span(0, dataset_.n_rows - 1), arma::span(0, 2));
+    dataset_(arma::span(0, dataset_.n_rows - 1), arma::span(0, 3));
   arma::mat at_mat =
-    dataset_(arma::span(0, dataset_.n_rows - 1), arma::span(3, 9));
+    dataset_(arma::span(0, dataset_.n_rows - 1), arma::span(4, 10));
   arma::mat st_1_mat =
-    dataset_(arma::span(0, dataset_.n_rows - 1), arma::span(10, 12));
+    dataset_(arma::span(0, dataset_.n_rows - 1), arma::span(11, 14));
   arma::mat at_1_mat =
-    dataset_(arma::span(0, dataset_.n_rows - 1), arma::span(13, 19));
+    dataset_(arma::span(0, dataset_.n_rows - 1), arma::span(15, 21));
   arma::mat st_2_mat =
-    dataset_(arma::span(0, dataset_.n_rows - 1), arma::span(20, 22));
+    dataset_(arma::span(0, dataset_.n_rows - 1), arma::span(22, 25));
 
   logger::logger_->debug("Matrix: S_t => t=0: {}", st_mat);
 
@@ -63,7 +63,7 @@ DataSet<simulator_t>::load_knn_dataset(std::string dataset_file)
 {
   // Load the training set.
   mlpack::data::Load(dataset_file, dataset_knn_, true);
-  s_a_s_t_1_mat_ = dataset_knn_.submat(0, 0, 12, dataset_knn_.n_cols - 1);
+  s_a_s_t_1_mat_ = dataset_knn_.submat(0, 0, 14, dataset_knn_.n_cols - 1);
   logger::logger_->info(
     "First line of knn_dataset:  {}",
     s_a_s_t_1_mat_(arma::span(0, s_a_s_t_1_mat_.n_rows - 1), arma::span(0, 0)));
@@ -409,9 +409,10 @@ DataSet<simulator_t>::conv_state_action_state_to_arma(
   logger::logger_->info("Last State: {}", state);
   logger::logger_->info("State: {}", state_2);
   row << state.distances_3D().at(0) << state.distances_3D().at(1)
-      << state.height_difference() << act.at(0) << act.at(1) << act.at(2)
-      << act.at(3) << act.at(4) << act.at(5) << act.at(6)
-      << state_2.distances_3D().at(0) << state_2.distances_3D().at(1)
+      << state.distances_3D().at(2) << state.height_difference() << act.at(0)
+      << act.at(1) << act.at(2) << act.at(3) << act.at(4) << act.at(5)
+      << act.at(6) << state_2.distances_3D().at(0)
+      << state_2.distances_3D().at(1) << state_2.distances_3D().at(2)
       << state_2.height_difference();
   mat.insert_rows(0, row);
   mat = mat.t();

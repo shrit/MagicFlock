@@ -69,16 +69,18 @@ std::vector<double>
 KnnPredictor<simulator_t>::estimate_action_from_distance(arma::mat& matrix)
 {
   std::vector<double> sum_of_distances;
-  double d1, d2;
-  double original_d1 = 3;
-  double original_d2 = 3;
+  double d1, d2, d3;
   double height_diff;
   for (arma::uword i = 0; i < matrix.n_rows; ++i) {
-    d1 = std::fabs(original_d1 - matrix(i, 0));
-    d2 = std::fabs(original_d2 - matrix(i, 1));
+    d1 =
+      std::fabs(quad_->all_states().at(0).distances_3D().at(0) - matrix(i, 0));
+    d2 =
+      std::fabs(quad_->all_states().at(0).distances_3D().at(1) - matrix(i, 1));
+    d3 =
+      std::fabs(quad_->all_states().at(0).distances_3D().at(2) - matrix(i, 2));
     height_diff =
-      std::fabs(quad_->current_state().height_difference() - matrix(i, 2));
-    sum_of_distances.push_back(d1 + d2 + height_diff);
+      std::fabs(quad_->current_state().height_difference() - matrix(i, 3));
+    sum_of_distances.push_back(d1 + d3 + height_diff);
   }
   return sum_of_distances;
 }
