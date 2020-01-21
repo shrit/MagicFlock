@@ -238,11 +238,11 @@ DataSet<simulator_t>::init_dataset_directory()
   time_stream << now.time_of_day();
 
   std::experimental::filesystem::create_directory("../dataset");
-  std::experimental::filesystem::create_directory("../dataset/" +
-                                                  date_stream.str());
+  std::experimental::filesystem::create_directory(
+    "../dataset/" + date_stream.str() + time_stream.str());
 
   dataset_file_name_ =
-    "../dataset/" + date_stream.str() + "/" + time_stream.str() + ".csv";
+    "../dataset/" + date_stream.str() + "/" + time_stream.str();
 
   error_file_name_ =
     "../dataset/" + date_stream.str() + "/error" + time_stream.str();
@@ -301,7 +301,7 @@ DataSet<simulator_t>::save_csv_data_set_2_file(std::string file_name,
                                                Args&&... args)
 {
   std::ofstream file;
-  file.open(dataset_file_name_ + "_" + file_name,
+  file.open(dataset_file_name_ + "_" + file_name + ".csv",
             std::ios::out | std::ios::app);
 
   file << std::forward<Arg>(arg);

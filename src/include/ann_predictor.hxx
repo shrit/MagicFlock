@@ -161,7 +161,7 @@ AnnPredictor<simulator_t>::real_time_loss(
   arma::mat matrix;
   arma::uword index_of_best_estimation, value;
   std::tie(matrix, value, std::ignore) = matrix_best_action;
-  index_of_best_estimation = (matrix_best_action.n_rows - 1) - value;
+  index_of_best_estimation = (matrix.n_rows - 1) - value;
   double loss = std::pow((matrix(index_of_best_estimation, 0) -
                           quad_->current_state().distances_3D().at(0)),
                          2) +
@@ -169,7 +169,7 @@ AnnPredictor<simulator_t>::real_time_loss(
                           quad_->current_state().distances_3D().at(2)),
                          2) +
                 std::pow((matrix(index_of_best_estimation, 3) -
-                          quad_->current_state().height_diff()),
+                          quad_->current_state().height_difference()),
                          2);
   return loss;
 }
