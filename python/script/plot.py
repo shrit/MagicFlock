@@ -221,12 +221,12 @@ def plot_three_cumulative_histogram(histogram_file_name,
 
     plt.title("Cumulative distribution function of random, knn and trained controller")
     plt.xlabel('Number of time steps executed by the follower per episode')
-    plt.ylabel('cdf')
+    plt.ylabel('Percentage of episodes')
     plt.legend()
     plt.grid()
     figure = plt.gcf() # get current figure
-    figure.set_size_inches(25, 6)
-    plt.savefig(histogram_file_name + "three_cumulative_.png", dpi=100)
+    figure.set_size_inches(12, 8)
+    plt.savefig(histogram_file_name + "three_cumulative_.svg", dpi=100)
 
 if __name__ == '__main__':
 
@@ -252,6 +252,8 @@ if __name__ == '__main__':
     parser.add_argument('--cumulative_histogram_files_name', metavar=" histogram file name", type=str, nargs="+" ,help="Enter one or more histogram file name, each file is a two column file name, number of steps and frequency, the script will generate automatically the cumulative histogram")
     parser.add_argument('--drop_columns', metavar=" drop column", type=int ,help="Enter column number to delete from dataset")
     args = parser.parse_args()
+
+    plt.rcParams.update({'font.size': 20})
 
     if len(sys.argv)==1:
         parser.print_help(sys.stderr)
@@ -286,5 +288,6 @@ if __name__ == '__main__':
         if isinstance(args.cumulative_histogram_files_name, str):
             plot_one_cumulative_histogram(args.cumulative_histogram_files_name)
         elif isinstance(args.cumulative_histogram_files_name, list):
-            plot_two_cumulative_histogram(args.cumulative_histogram_files_name[0],
-                                          args.cumulative_histogram_files_name[1])
+            plot_three_cumulative_histogram(args.cumulative_histogram_files_name[0],
+                                            args.cumulative_histogram_files_name[1],
+                                            args.cumulative_histogram_files_name[2])
