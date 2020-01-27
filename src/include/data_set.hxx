@@ -238,23 +238,26 @@ DataSet<simulator_t>::init_dataset_directory()
   time_stream << now.time_of_day();
 
   std::experimental::filesystem::create_directory("../dataset");
+  std::experimental::filesystem::create_directory("../dataset/" +
+                                                  date_stream.str());
+
   std::experimental::filesystem::create_directory(
-    "../dataset/" + date_stream.str() + time_stream.str());
+    "../dataset/" + date_stream.str() + "/" + time_stream.str());
 
   dataset_file_name_ =
-    "../dataset/" + date_stream.str() + "/" + time_stream.str();
+    "../dataset/" + date_stream.str() + "/" + time_stream.str() + "/" + time_stream.str();
 
   error_file_name_ =
-    "../dataset/" + date_stream.str() + "/error" + time_stream.str();
+    "../dataset/" + date_stream.str() + "/" + time_stream.str() + "/error" + time_stream.str();
 
   histogram_file_name_ =
-    "../dataset/" + date_stream.str() + "/histogram" + time_stream.str();
+    "../dataset/" + date_stream.str() + "/" + time_stream.str() + "/histogram" + time_stream.str();
 
   count_file_name_ =
-    "../dataset/" + date_stream.str() + "/count" + time_stream.str();
+    "../dataset/" + date_stream.str() + "/" + time_stream.str() + "/count" + time_stream.str();
 
   result_file_name_ =
-    "../dataset/" + date_stream.str() + "/figure" + time_stream.str();
+    "../dataset/" + date_stream.str() + "/" + time_stream.str() + "/figure" + time_stream.str();
 }
 
 template<class simulator_t>
