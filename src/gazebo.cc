@@ -81,62 +81,21 @@ Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
   for (int i = 0; i < posesStamped->pose_size(); ++i) {
     const ::gazebo::msgs::Pose& pose = posesStamped->pose(i);
     std::string name = pose.name();
-    if (name == std::string(config_.quad_names().at(0))) {
-      const ::gazebo::msgs::Vector3d& position = pose.position();
+    for (std::size_t j = 0; j < config_.quad_names().size(); ++j) {
+      if (name == std::string(config_.quad_names().at(j))) {
+        const ::gazebo::msgs::Vector3d& position = pose.position();
 
-      _positions.at(0).x = position.x();
-      _positions.at(0).y = position.y();
-      _positions.at(0).z = position.z();
+        _positions.at(j).x = position.x();
+        _positions.at(j).y = position.y();
+        _positions.at(j).z = position.z();
 
-      const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
+        const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
 
-      _orientations.at(0).x = orientation.x();
-      _orientations.at(0).y = orientation.y();
-      _orientations.at(0).z = orientation.z();
-      _orientations.at(0).w = orientation.w();
-
-    } else if (name == std::string(config_.quad_names().at(1))) {
-      const ::gazebo::msgs::Vector3d& position = pose.position();
-
-      _positions.at(1).x = position.x();
-      _positions.at(1).y = position.y();
-      _positions.at(1).z = position.z();
-
-      const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
-
-      _orientations.at(1).x = orientation.x();
-      _orientations.at(1).y = orientation.y();
-      _orientations.at(1).z = orientation.z();
-      _orientations.at(1).w = orientation.w();
-
-    } else if (name == std::string(config_.quad_names().at(2))) {
-      const ::gazebo::msgs::Vector3d& position = pose.position();
-
-      _positions.at(2).x = position.x();
-      _positions.at(2).y = position.y();
-      _positions.at(2).z = position.z();
-
-      const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
-
-      _orientations.at(2).x = orientation.x();
-      _orientations.at(2).y = orientation.y();
-      _orientations.at(2).z = orientation.z();
-      _orientations.at(2).w = orientation.w();
-
-    } else if (name == std::string(config_.quad_names().at(3))) {
-
-      const ::gazebo::msgs::Vector3d& position = pose.position();
-
-      _positions.at(3).x = position.x();
-      _positions.at(3).y = position.y();
-      _positions.at(3).z = position.z();
-
-      const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
-
-      _orientations.at(3).x = orientation.x();
-      _orientations.at(3).y = orientation.y();
-      _orientations.at(3).z = orientation.z();
-      _orientations.at(3).w = orientation.w();
+        _orientations.at(j).x = orientation.x();
+        _orientations.at(j).y = orientation.y();
+        _orientations.at(j).z = orientation.z();
+        _orientations.at(j).w = orientation.w();
+      }
     }
   }
 }
