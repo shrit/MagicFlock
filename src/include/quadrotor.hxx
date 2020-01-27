@@ -76,6 +76,21 @@ Quadrotor<simulator_t>::current_state() const
 }
 
 template<class simulator_t>
+void
+Quadrotor<simulator_t>::current_predicted_state(
+  std::vector<double> current_predicted_state)
+{
+  current_predicted_state_ = current_predicted_state;
+}
+
+template<class simulator_t>
+std::vector<double>
+Quadrotor<simulator_t>::current_predicted_state() const
+{
+  return current_predicted_state_;
+}
+
+template<class simulator_t>
 std::vector<State<simulator_t>>
 Quadrotor<simulator_t>::all_states() const
 {
@@ -262,6 +277,20 @@ Quadrotor<simulator_t>::register_data_set()
     mtools_.to_one_hot_encoding(last_action(), 7),
     last_state(),
     mtools_.to_one_hot_encoding(current_action(), 7),
+    current_state());
+}
+
+template<class simulator_t>
+void
+Quadrotor<simulator_t>::register_data_set_with_current_predictions()
+{
+  data_set_.save_csv_data_set_2_file(
+    name_,
+    before_last_state(),
+    mtools_.to_one_hot_encoding(last_action(), 7),
+    last_state(),
+    mtools_.to_one_hot_encoding(current_action(), 7),
+    current_predicted_state(),
     current_state());
 }
 

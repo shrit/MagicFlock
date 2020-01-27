@@ -36,6 +36,8 @@ public:
   /*  State related functions */
   void sample_state();
   State<simulator_t> current_state() const;
+  void current_predicted_state(std::vector<double> current_predicted_state);
+  std::vector<double> current_predicted_state() const;
   State<simulator_t> last_state();
   State<simulator_t> before_last_state();
   State<simulator_t> before_2_last_state();
@@ -60,6 +62,7 @@ public:
 
   /*  Data set related functions */
   void register_data_set();
+  void register_data_set_with_current_predictions();
   void register_histogram(int count);
 
   /*  Speed related functions */
@@ -86,6 +89,7 @@ private:
   Math_tools mtools_;
   DataSet<simulator_t> data_set_;
 
+  std::vector<double> current_predicted_state_;
   State<simulator_t> current_state_;
   State<simulator_t> last_state_;
   State<simulator_t> before_last_state_;
