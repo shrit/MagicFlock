@@ -166,6 +166,7 @@ AnnPredictor<simulator_t>::real_time_loss(
   current_predicted_state.push_back(matrix(index_of_best_estimation, 0));
   current_predicted_state.push_back(matrix(index_of_best_estimation, 1));
   current_predicted_state.push_back(matrix(index_of_best_estimation, 2));
+  current_predicted_state.push_back(matrix(index_of_best_estimation, 3));  
   quad_->current_predicted_state(current_predicted_state);
   double loss = std::pow((matrix(index_of_best_estimation, 0) -
                           quad_->current_state().distances_3D().at(0)),

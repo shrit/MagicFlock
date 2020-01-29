@@ -149,10 +149,9 @@ Iterative_learning<flight_controller_t, simulator_t>::run()
         } else {
           generate_trajectory_using_model(false, false);
         }
-
-        follower_1_->register_data_set();
-        follower_2_->register_data_set();
-        leader_->reset_all_actions();
+        leader_->reset_all_actions(); 
+        follower_1_->register_data_set_with_current_predictions();
+        follower_2_->register_data_set_with_current_predictions();
         /*  Check the geometrical shape */
         std::vector<bool> shapes;
         for (auto it : quadrotors_) {
