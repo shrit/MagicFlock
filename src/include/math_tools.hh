@@ -9,7 +9,7 @@
 #include <utility>
 #include <vector>
 
-#include <armadillo>
+#include <mlpack/core.hpp>
 
 /* local includes */
 #include "global.hh"
