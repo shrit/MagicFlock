@@ -19,12 +19,26 @@ ActionGenerator::generate_random_action()
 
 template<class simulator_t>
 Action
-ActionGenerator::generate_persistant_action(int for_n_timestep);
+ActionGenerator::generate_persistant_action(int for_n_timestep, int timesteps)
+{
+  Actions::Action action = Actions::Action::Unknown;
 
-/*  The function  generates an action that not opposed to the proposed one. 
- * This is more comfortable since the opposed action apply 
- * high noise on traveled distance. Also this is more logic, since 
- * allow more variability in the data set 
+  if (timesteps % for_n_timestep == 0) {
+    action =
+      random_action_generator_with_only_opposed_condition(quad_->last_action());
+  } else if (quad_->height() < 15) {
+    action =
+      random_action_generator_with_only_opposed_condition(quad_->last_action());
+  } else {
+    action = quad_->last_action();
+  }
+  return action;
+}
+
+/*  The function  generates an action that not opposed to the proposed one.
+ * This is more comfortable since the opposed action apply
+ * high noise on traveled distance. Also this is more logic, since
+ * allow more variability in the data set
  * */
 template<class simulator_t>
 Action
@@ -66,7 +80,9 @@ ActionGenerator::generate_random_action_no_opposed(Action action);
     action_ = generate_random_action();
   }
   return action_;
-} /*  The condition is to generate an action that is not the same to the
+}
+
+/*  The condition is to generate an action that is not the same to the
      parameter action and not opposed to this action. This is more
      comfortable since the opposed action apply high noise on traveled
      distance. Also this is more logic, since allow more variability in
@@ -115,4 +131,72 @@ ActionGenerator::generate_random_action_no_opposed_no_same(Action action)
 
 template<class simulator_t>
 Action
-ActionGenerator::generate_action_from_oracle();
+ActionGenerator::generate_action_from_oracle()
+{
+  Actions::Action action = Action::Unknown;
+
+  if (quad_->id() == 1) {
+    if (quad_->current_state().distance_to(0) >
+          quad_->last_state().distance_to(0) and
+        quad_->current_state().distance_to(3) >
+          quad_->last_state().distance_to(3) and
+        quad_->height_difference() < 0.4) {
+      action = Action::left;
+
+    } else if (quad_->current_state().distance_to(0) >
+                 quad_->last_state().distance_to(0) and
+               quad_->current_state().distance_to(3) <
+                 quad_->last_state().distance_to(3) and
+               quad_->height_difference() < 0.4) {
+      action = Action::forward;
+    } else if (quad_->current_state().distance_to(0) <
+                 quad_->last_state().distance_to(0) and
+               quad_->current_state().distance_to(3) >
+                 quad_->last_state().distance_to(3) and
+               quad_->height_difference() < 0.4) {
+      action = Action::backward;
+    } else if (quad_->current_state().distance_to(0) <
+                 quad_->last_state().distance_to(0) and
+               quad_->current_state().distance_to(3) <
+                 quad_->last_state().distance_to(3) and
+               quad_->height_difference() < 0.4) {
+      action = Action::right;
+    } else if (quad_->height_difference() > 0.7) {
+      action = Action::up;
+    } else {
+      action = Action::down;
+    }
+  } else if (quad_->id() == 2) {
+    if (quad_->current_state().distance_to(0) >
+          quad_->last_state().distance_to(0) and
+        quad_->current_state().distance_to(3) >
+          quad_->last_state().distance_to(3) and
+        quad_->height_difference() < 0.4) {
+      action = Action::right;
+
+    } else if (quad_->current_state().distance_to(0) >
+                 quad_->last_state().distance_to(0) and
+               quad_->current_state().distance_to(3) <
+                 quad_->last_state().distance_to(3) and
+               quad_->height_difference() < 0.4) {
+      action = Action::forward;
+    } else if (quad_->current_state().distance_to(0) <
+                 quad_->last_state().distance_to(0) and
+               quad_->current_state().distance_to(3) >
+                 quad_->last_state().distance_to(3) and
+               quad_->height_difference() < 0.4) {
+      action = Action::backward;
+    } else if (quad_->current_state().distance_to(0) <
+                 quad_->last_state().distance_to(0) and
+               quad_->current_state().distance_to(3) >
+                 quad_->last_state().distance_to(3) and
+               quad_->height_difference() < 0.4) {
+      action = Action::left;
+    } else if (quad_->height_difference() > 0.7) {
+      action = Action::up;
+    } else {
+      action = Action::down;
+    }
+  }
+  return action;
+}
