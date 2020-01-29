@@ -32,9 +32,9 @@ class AnnPredictor
 {
 public:
   AnnPredictor(std::string name,
-            std::string full_path_to_model,
-            std::string model_name,
-            typename std::vector<Quadrotor<simulator_t>>::iterator quad);
+               std::string full_path_to_model,
+               std::string model_name,
+               typename std::vector<Quadrotor<simulator_t>>::iterator quad);
 
   arma::mat create_absolute_features_matrix();
 
@@ -66,7 +66,6 @@ private:
   bool regression_;
   double real_time_loss_;
   typename std::vector<Quadrotor<simulator_t>>::iterator quad_;
-  std::vector<Quadrotor<simulator_t>> quadrotors_;
 };
 
 #include "ann_predictor.hxx"
