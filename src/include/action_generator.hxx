@@ -1,7 +1,7 @@
 #pragma once
 
 template<class simulator_t>
-ActionGenerator::ActionGenerator(
+ActionGenerator<simulator_t>::ActionGenerator(
   typename std::vector<Quadrotor<simulator_t>>::iterator quad)
   : quad_(quad)
 {
@@ -9,8 +9,8 @@ ActionGenerator::ActionGenerator(
 }
 
 template<class simulator_t>
-Action
-ActionGenerator::generate_random_action()
+Actions::Action
+ActionGenerator<simulator_t>::generate_random_action()
 {
   int random_action = distribution_int_(generator_);
   Action action = static_cast<Action>(random_action);
@@ -18,8 +18,9 @@ ActionGenerator::generate_random_action()
 }
 
 template<class simulator_t>
-Action
-ActionGenerator::generate_persistant_action(int for_n_timestep, int timesteps)
+Actions::Action
+ActionGenerator<simulator_t>::generate_persistant_action(int for_n_timestep,
+                                                         int timesteps)
 {
   Actions::Action action = Actions::Action::Unknown;
 
@@ -41,42 +42,44 @@ ActionGenerator::generate_persistant_action(int for_n_timestep, int timesteps)
  * allow more variability in the data set
  * */
 template<class simulator_t>
-Action
-ActionGenerator::generate_random_action_no_opposed(Action action);
+Actions::Action
+ActionGenerator<simulator_t>::generate_random_action_no_opposed(
+  Actions::Action action)
 {
-  Action action_ = Action::Unknown;
+  Actions::Action action_ = Actions::Action::Unknown;
 
-  if (action == Action::backward) {
+  if (action == Actions::Action::backward) {
     action_ = generate_random_action();
-    while (action_ == Action::forward) {
+    while (action_ == Actions::Action::forward) {
       action_ = generate_random_action();
     }
-  } else if (action == Action::down) {
+  } else if (action == Actions::Action::down) {
     action_ = generate_random_action();
-    while (action_ == Action::up) {
+    while (action_ == Actions::Action::up) {
       action_ = generate_random_action();
     }
-  } else if (action == Action::up) {
+  } else if (action == Actions::Action::up) {
     action_ = generate_random_action();
-    while (action_ == Action::down) {
+    while (action_ == Actions::Action::down) {
       action_ = generate_random_action();
     }
-  } else if (action == Action::forward) {
+  } else if (action == Actions::Action::forward) {
     action_ = generate_random_action();
-    while (action_ == Action::backward) {
+    while (action_ == Actions::Action::backward) {
       action_ = generate_random_action();
     }
-  } else if (action == Action::right) {
+  } else if (action == Actions::Action::right) {
     action_ = generate_random_action();
-    while (action_ == Action::left) {
+    while (action_ == Actions::Action::left) {
       action_ = generate_random_action();
     }
-  } else if (action == Action::left) {
+  } else if (action == Actions::Action::left) {
     action_ = generate_random_action();
-    while (action_ == Action::right) {
+    while (action_ == Actions::Action::right) {
       action_ = generate_random_action();
     }
-  } else if (action == Action::Unknown or action == Action::NoMove) {
+  } else if (action == Actions::Action::Unknown or
+             action == Actions::Action::NoMove) {
     action_ = generate_random_action();
   }
   return action_;
@@ -88,52 +91,58 @@ ActionGenerator::generate_random_action_no_opposed(Action action);
      distance. Also this is more logic, since allow more variability in
      the data set */
 template<class simulator_t>
-Action
-ActionGenerator::generate_random_action_no_opposed_no_same(Action action)
+Actions::Action
+ActionGenerator<simulator_t>::generate_random_action_no_opposed_no_same(
+  Actions::Action action)
 {
-  Action action_ = Action::Unknown;
+  Actions::Action action_ = Actions::Action::Unknown;
 
-  if (action == Action::backward) {
+  if (action == Actions::Action::backward) {
     action_ = generate_random_action();
-    while (action_ == Action::forward or action_ == Action::backward) {
+    while (action_ == Actions::Action::forward or
+           action_ == Actions::Action::backward) {
       action_ = generate_random_action();
     }
-  } else if (action == Action::down) {
+  } else if (action == Actions::Action::down) {
     action_ = generate_random_action();
-    while (action_ == Action::up or action_ == Action::down) {
+    while (action_ == Actions::Action::up or action_ == Actions::Action::down) {
       action_ = generate_random_action();
     }
-  } else if (action == Action::up) {
+  } else if (action == Actions::Action::up) {
     action_ = generate_random_action();
-    while (action_ == Action::down or action_ == Action::up) {
+    while (action_ == Actions::Action::down or action_ == Actions::Action::up) {
       action_ = generate_random_action();
     }
-  } else if (action == Action::forward) {
+  } else if (action == Actions::Action::forward) {
     action_ = generate_random_action();
-    while (action_ == Action::backward or action_ == Action::forward) {
+    while (action_ == Actions::Action::backward or
+           action_ == Actions::Action::forward) {
       action_ = generate_random_action();
     }
-  } else if (action == Action::right) {
+  } else if (action == Actions::Action::right) {
     action_ = generate_random_action();
-    while (action_ == Action::left or action_ == Action::right) {
+    while (action_ == Actions::Action::left or
+           action_ == Actions::Action::right) {
       action_ = generate_random_action();
     }
-  } else if (action == Action::left) {
+  } else if (action == Actions::Action::left) {
     action_ = generate_random_action();
-    while (action_ == Action::right or action_ == Action::left) {
+    while (action_ == Actions::Action::right or
+           action_ == Actions::Action::left) {
       action_ = generate_random_action();
     }
-  } else if (action == Action::Unknown or action == Action::NoMove) {
+  } else if (action == Actions::Action::Unknown or
+             action == Actions::Action::NoMove) {
     action_ = generate_random_action();
   }
   return action_;
 }
 
 template<class simulator_t>
-Action
-ActionGenerator::generate_action_from_oracle()
+Actions::Action
+ActionGenerator<simulator_t>::generate_action_from_oracle()
 {
-  Actions::Action action = Action::Unknown;
+  Actions::Action action = Actions::Action::Unknown;
 
   if (quad_->id() == 1) {
     if (quad_->current_state().distance_to(0) >
@@ -141,30 +150,30 @@ ActionGenerator::generate_action_from_oracle()
         quad_->current_state().distance_to(3) >
           quad_->last_state().distance_to(3) and
         quad_->height_difference() < 0.4) {
-      action = Action::left;
+      action = Actions::Action::left;
 
     } else if (quad_->current_state().distance_to(0) >
                  quad_->last_state().distance_to(0) and
                quad_->current_state().distance_to(3) <
                  quad_->last_state().distance_to(3) and
                quad_->height_difference() < 0.4) {
-      action = Action::forward;
+      action = Actions::Action::forward;
     } else if (quad_->current_state().distance_to(0) <
                  quad_->last_state().distance_to(0) and
                quad_->current_state().distance_to(3) >
                  quad_->last_state().distance_to(3) and
                quad_->height_difference() < 0.4) {
-      action = Action::backward;
+      action = Actions::Action::backward;
     } else if (quad_->current_state().distance_to(0) <
                  quad_->last_state().distance_to(0) and
                quad_->current_state().distance_to(3) <
                  quad_->last_state().distance_to(3) and
                quad_->height_difference() < 0.4) {
-      action = Action::right;
+      action = Actions::Action::right;
     } else if (quad_->height_difference() > 0.7) {
-      action = Action::up;
+      action = Actions::Action::up;
     } else {
-      action = Action::down;
+      action = Actions::Action::down;
     }
   } else if (quad_->id() == 2) {
     if (quad_->current_state().distance_to(0) >
@@ -172,30 +181,30 @@ ActionGenerator::generate_action_from_oracle()
         quad_->current_state().distance_to(3) >
           quad_->last_state().distance_to(3) and
         quad_->height_difference() < 0.4) {
-      action = Action::right;
+      action = Actions::Action::right;
 
     } else if (quad_->current_state().distance_to(0) >
                  quad_->last_state().distance_to(0) and
                quad_->current_state().distance_to(3) <
                  quad_->last_state().distance_to(3) and
                quad_->height_difference() < 0.4) {
-      action = Action::forward;
+      action = Actions::Action::forward;
     } else if (quad_->current_state().distance_to(0) <
                  quad_->last_state().distance_to(0) and
                quad_->current_state().distance_to(3) >
                  quad_->last_state().distance_to(3) and
                quad_->height_difference() < 0.4) {
-      action = Action::backward;
+      action = Actions::Action::backward;
     } else if (quad_->current_state().distance_to(0) <
                  quad_->last_state().distance_to(0) and
                quad_->current_state().distance_to(3) >
                  quad_->last_state().distance_to(3) and
                quad_->height_difference() < 0.4) {
-      action = Action::left;
+      action = Actions::Action::left;
     } else if (quad_->height_difference() > 0.7) {
-      action = Action::up;
+      action = Actions::Action::up;
     } else {
-      action = Action::down;
+      action = Actions::Action::down;
     }
   }
   return action;

@@ -22,7 +22,7 @@ public:
 
   Action generate_random_action();
 
-  Action generate_persistant_action(int n_time_step);
+  Action generate_persistant_action(int for_n_time_step, int timesteps);
 
   Action generate_random_action_no_opposed(Action action);
 
