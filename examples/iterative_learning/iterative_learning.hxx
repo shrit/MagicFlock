@@ -25,10 +25,12 @@ Iterative_learning<flight_controller_t, simulator_t>::Iterative_learning(
 template<class flight_controller_t, class simulator_t>
 void
 Iterative_learning<flight_controller_t, simulator_t>::
-  generate_trajectory_using_model(bool change_leader_action,
-                                  bool stop_down_action)
+  generate_trajectory_using_model()
 {
-  Actions action;
+  ActionGenerator<simulator_t> leader_generator(leader_);
+  ActionGenerator<simulator_t> follower_1_generator(follower_1_);
+  ActionGenerator<simulator_t> follower_2_generator(follower_2_);  
+
   std::vector<std::thread> threads;
 
   /*  Sample the state at time t */
@@ -36,18 +38,16 @@ Iterative_learning<flight_controller_t, simulator_t>::
   follower_1_->sample_state();
   follower_2_->sample_state();
 
-  /*  Pick leader action, change it or keep it */
-
-  leader_->current_action(action.generate_leader_action(
-      change_leader_action, stop_down_action, leader_->last_action(), leader_->current_action()));
-
+  leader_->current_action(
+    leader_generator.generate_persistant_action(10, time_steps_.steps()));
   leader_2_->current_action(leader_->current_action());
-    /* Followers actions always equal to no move at this instant t */
+
+  /* Followers actions always equal to no move at this instant t */
   follower_1_->current_action(Actions::Action::NoMove);
   follower_2_->current_action(Actions::Action::NoMove);
 
   logger_->info("Leader (Alice) action: {}",
-                action.action_to_str(leader_->current_action()));
+                leader_generator.action_to_str(leader_->current_action()));
 
   /*  Threading QuadCopter */
   threads.push_back(std::thread([&]() {
@@ -57,7 +57,7 @@ Iterative_learning<flight_controller_t, simulator_t>::
   threads.push_back(std::thread([&]() {
     swarm_.one_quad_execute_trajectory(
       leader_2_->id(), leader_2_->current_action(), leader_2_->speed(), 1000);
-  }));  
+  }));
 
   /* We need to wait until the quadcopters finish their actions */
   std::this_thread::sleep_for(std::chrono::milliseconds(1500));
@@ -85,14 +85,11 @@ Iterative_learning<flight_controller_t, simulator_t>::
   follower_1_->current_action(follower_1_action);
   follower_2_->current_action(follower_2_action);
 
-  follower_1_->save_action_in_container(follower_1_action);
-  follower_2_->save_action_in_container(follower_2_action);
-
   logger_->info("Follower 1 (Chalrie) action: {}",
-                action.action_to_str(follower_1_->current_action()));
+                follower_1_generator.action_to_str(follower_1_->current_action()));
 
   logger_->info("Follower 2 (Bob) action: {}",
-                action.action_to_str(follower_2_->current_action()));
+                follower_2_generator.action_to_str(follower_2_->current_action()));
 
   threads.push_back(std::thread([&]() {
     swarm_.one_quad_execute_trajectory(follower_1_->id(),
@@ -111,7 +108,7 @@ Iterative_learning<flight_controller_t, simulator_t>::
   for (auto& thread : threads) {
     thread.join();
   }
-  std::this_thread::sleep_for(std::chrono::milliseconds(1000));  
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
   /*  Sample the state at time t + 2 */
   follower_1_->sample_state();
@@ -121,7 +118,6 @@ Iterative_learning<flight_controller_t, simulator_t>::
                        follower_1_->current_action(),
                        follower_2_->current_action());
 
-  /* Take a tuple here  */
   double loss_f1 = predict_f1.real_time_loss();
   double loss_f2 = predict_f2.real_time_loss();
   logger::logger_->info("Real time loss f1: {} ", loss_f1);
@@ -141,17 +137,12 @@ Iterative_learning<flight_controller_t, simulator_t>::run()
     if (start_episode_) {
       time_steps_.reset();
       while (start_episode_) {
-        if (time_steps_.steps() % 10 == 0) {
-          generate_trajectory_using_model(true, false);
-          // Change each 10 times the direction of the leader
-        } else if (leader_->height() < 15) {
-          generate_trajectory_using_model(false, true);
-        } else {
-          generate_trajectory_using_model(false, false);
-        }
-        leader_->reset_all_actions(); 
+        generate_trajectory_using_model();
+
+        leader_->reset_all_actions();
         follower_1_->register_data_set_with_current_predictions();
         follower_2_->register_data_set_with_current_predictions();
+
         /*  Check the geometrical shape */
         std::vector<bool> shapes;
         for (auto it : quadrotors_) {

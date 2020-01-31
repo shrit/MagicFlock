@@ -9,8 +9,8 @@
 #include <vector>
 
 /* local includes  */
+#include <ILMR/action_generator.hh>
 #include <ILMR/ann_predictor.hh>
-#include <ILMR/action.hh>
 #include <ILMR/evaluate_model.hh>
 #include <ILMR/global.hh>
 #include <ILMR/logger.hh>
@@ -29,9 +29,7 @@ public:
                      std::shared_ptr<simulator_t> gzs,
                      std::shared_ptr<spdlog::logger> logger);
 
-  void generate_trajectory_using_model(bool random_leader_action,
-                                       bool stop_down_action);
-
+  void generate_trajectory_using_model();
   void run();
 
   Iterative_learning(Iterative_learning const&) = delete;

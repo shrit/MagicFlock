@@ -10,10 +10,10 @@
 #include <vector>
 
 /* ILMR includes  */
-#include <ILMR/quadrotor.hh>
-#include <ILMR/action.hh>
+#include <ILMR/action_generator.hh>
 #include <ILMR/global.hh>
 #include <ILMR/logger.hh>
+#include <ILMR/quadrotor.hh>
 #include <ILMR/swarm_device.hh>
 #include <ILMR/time_steps.hh>
 
@@ -29,7 +29,7 @@ public:
             std::shared_ptr<simulator_t> sim_interface,
             std::shared_ptr<spdlog::logger> logger);
 
-  void generate_trajectory(bool random_leader_action, bool stop_going_down);
+  void generate_trajectory();
   void run();
 
   Generator(Generator const&) = delete;

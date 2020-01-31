@@ -24,11 +24,12 @@ Generator<flight_controller_t, simulator_t>::Generator(
 /*  Phase one: Data Set generation */
 template<class flight_controller_t, class simulator_t>
 void
-Generator<flight_controller_t, simulator_t>::generate_trajectory(
-  bool change_leader_action,
-  bool stop_going_down)
+Generator<flight_controller_t, simulator_t>::generate_trajectory()
 {
-  Actions action;
+  ActionGenerator<simulator_t> leader_generator(leader_);
+  ActionGenerator<simulator_t> follower_1_generator(follower_1_);
+  ActionGenerator<simulator_t> follower_2_generator(follower_2_);
+
   std::vector<std::thread> threads;
 
   /*  Sample the state at time t */
@@ -37,11 +38,7 @@ Generator<flight_controller_t, simulator_t>::generate_trajectory(
 
   /*  Generate action for the leader */
   leader_->current_action(
-    action.generate_leader_action(change_leader_action,
-                                  stop_going_down,
-                                  leader_->last_action(),
-                                  leader_->current_action()));
-
+    leader_generator.generate_persistant_action(10, time_steps_.steps()));
   leader_2_->current_action(leader_->current_action());
 
   /*  Do not allow follower to move, at this time step,
@@ -55,8 +52,9 @@ Generator<flight_controller_t, simulator_t>::generate_trajectory(
   logger::logger_->info("Bob distances to others before leader actions, {}",
                         follower_2_->distances_to_neighbors());
 
-  logger::logger_->info("Current action leader: {}",
-                        action.action_to_str(leader_->current_action()));
+  logger::logger_->info(
+    "Current action leader: {}",
+    leader_generator.action_to_str(leader_->current_action()));
   /*  Threading Quadrotors */
   threads.push_back(std::thread([&]() {
     swarm_.one_quad_execute_trajectory(
@@ -84,12 +82,13 @@ Generator<flight_controller_t, simulator_t>::generate_trajectory(
   follower_1_->sample_state();
   follower_2_->sample_state();
 
-  follower_1_->current_action(action.random_action_generator());
-  follower_2_->current_action(action.random_action_generator());
+  follower_1_->current_action(follower_1_generator.generate_random_action());
+  follower_2_->current_action(follower_2_generator.generate_random_action());
 
   threads.push_back(std::thread([&]() {
-    logger::logger_->info("Current action follower 1: {}",
-                          action.action_to_str(follower_1_->current_action()));
+    logger::logger_->info(
+      "Current action follower 1: {}",
+      follower_1_generator.action_to_str(follower_1_->current_action()));
     swarm_.one_quad_execute_trajectory(follower_1_->id(),
                                        follower_1_->current_action(),
                                        follower_1_->speed(),
@@ -97,8 +96,9 @@ Generator<flight_controller_t, simulator_t>::generate_trajectory(
   }));
 
   threads.push_back(std::thread([&]() {
-    logger::logger_->info("Current action follower 2: {}",
-                          action.action_to_str(follower_2_->current_action()));
+    logger::logger_->info(
+      "Current action follower 2: {}",
+      follower_2_generator.action_to_str(follower_2_->current_action()));
     swarm_.one_quad_execute_trajectory(follower_2_->id(),
                                        follower_2_->current_action(),
                                        follower_2_->speed(),
@@ -139,13 +139,8 @@ Generator<flight_controller_t, simulator_t>::run()
       /*  Verify that vectors are clear when starting new episode */
       time_steps_.reset();
       while (start_episode_) {
-        if (time_steps_.steps() % 10 == 0) {
-          generate_trajectory(true, false);
-        } else if (leader_->height() < 15 or leader_2_->height() < 15) {
-          generate_trajectory(false, true);
-        } else {
-          generate_trajectory(false, false);
-        }
+        generate_trajectory();
+
         leader_->reset_all_actions();
         follower_1_->register_data_set();
         follower_2_->register_data_set();
