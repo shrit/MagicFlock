@@ -82,15 +82,17 @@ public:
                                    Action current_action);
   double generate_real_random();
 
-private:
+  protected:
+  std::uniform_int_distribution<> distribution_int_;
+  std::uniform_real_distribution<> distribution_real_;
+  std::random_device random_dev;
+  std::mt19937 generator_;
+
+  private:
   std::vector<Action> possible_actions_ = { Action::forward, Action::backward,
                                             Action::left,    Action::right,
                                             Action::up,      Action::down,
                                             Action::NoMove };
 
-  std::uniform_int_distribution<> distribution_int_;
-  std::uniform_real_distribution<> distribution_real_;
-  std::random_device random_dev;
-  std::mt19937 generator_;
   Math_tools mtools_;
 };
