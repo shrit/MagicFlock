@@ -93,6 +93,8 @@ Px4Device::takeoff(float meters)
   }
   /*  Wait until the Flight Mode changes to takeoff */
   while (true) {
+    logger::logger_->debug("Flight Mode :{}",
+                           telemetry_->flight_mode_str(flight_mode()));
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
     if (flight_mode() == Telemetry::FlightMode::TAKEOFF) {
       logger::logger_->debug("Flight Mode :{}",
