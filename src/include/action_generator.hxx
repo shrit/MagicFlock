@@ -31,7 +31,7 @@ ActionGenerator<simulator_t>::generate_persistant_action(int for_n_timestep,
     action =
       random_action_generator_with_only_opposed_condition(quad_->last_action());
   } else {
-    action = quad_->last_action();
+    action = quad_->current_action();
   }
   return action;
 }
