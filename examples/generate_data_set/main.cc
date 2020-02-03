@@ -34,7 +34,7 @@ main(int argc, char* argv[])
   /*Start using the new loggin system*/
   auto logger = ILMR::logger::init();
   ILMR::logger::create_library_logger(logger);
-
+  spdlog::set_level(spdlog::level::debug);
   std::vector<lt::port_type> ports = configs.quads_ports();
 
   /* Create a vector of controllers. Each controller connect to one

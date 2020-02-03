@@ -46,13 +46,13 @@ Generator<flight_controller_t, simulator_t>::generate_trajectory()
   follower_1_->current_action(Actions::Action::NoMove);
   follower_2_->current_action(Actions::Action::NoMove);
 
-  logger::logger_->info("Charlie distances to others before leader actions, {}",
+  logger_->info("Charlie distances to others before leader actions, {}",
                         follower_1_->distances_to_neighbors());
 
-  logger::logger_->info("Bob distances to others before leader actions, {}",
+  logger_->info("Bob distances to others before leader actions, {}",
                         follower_2_->distances_to_neighbors());
 
-  logger::logger_->info(
+  logger_->info(
     "Current action leader: {}",
     leader_generator.action_to_str(leader_->current_action()));
   /*  Threading Quadrotors */
@@ -70,14 +70,14 @@ Generator<flight_controller_t, simulator_t>::generate_trajectory()
   /* We need to wait until the Quadrotors finish their actions */
   std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 
-  logger::logger_->info("Charlie distances to others after leader actions, {}",
+  logger_->info("Charlie distances to others after leader actions, {}",
                         follower_1_->distances_to_neighbors());
 
-  logger::logger_->info("Bob distances to others after leader actions, {}",
+  logger_->info("Bob distances to others after leader actions, {}",
                         follower_2_->distances_to_neighbors());
 
   /* Get the next state at time t + 1  */
-  logger::logger_->info("Sampling states at t +1");
+  logger_->info("Sampling states at t +1");
 
   follower_1_->sample_state();
   follower_2_->sample_state();
@@ -86,7 +86,7 @@ Generator<flight_controller_t, simulator_t>::generate_trajectory()
   follower_2_->current_action(follower_2_generator.generate_random_action());
 
   threads.push_back(std::thread([&]() {
-    logger::logger_->info(
+    logger_->info(
       "Current action follower 1: {}",
       follower_1_generator.action_to_str(follower_1_->current_action()));
     swarm_.one_quad_execute_trajectory(follower_1_->id(),
@@ -96,7 +96,7 @@ Generator<flight_controller_t, simulator_t>::generate_trajectory()
   }));
 
   threads.push_back(std::thread([&]() {
-    logger::logger_->info(
+    logger_->info(
       "Current action follower 2: {}",
       follower_2_generator.action_to_str(follower_2_->current_action()));
     swarm_.one_quad_execute_trajectory(follower_2_->id(),
@@ -113,7 +113,7 @@ Generator<flight_controller_t, simulator_t>::generate_trajectory()
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
   /* Get the next state at time t + 2  */
-  logger::logger_->info("Sampling states at t+2");
+  logger_->info("Sampling states at t+2");
   follower_1_->sample_state();
   follower_2_->sample_state();
 
@@ -127,7 +127,7 @@ Generator<flight_controller_t, simulator_t>::run()
 {
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
 
-    logger::logger_->info("Episode : {}", episode_);
+    logger_->info("Episode : {}", episode_);
     start_episode_ = swarm_.in_air(25);
     /*  Collect dataset by creating a set of trajectories, each time
                                 the leader_and the follower execute their
@@ -137,6 +137,7 @@ Generator<flight_controller_t, simulator_t>::run()
 
     if (start_episode_) {
       /*  Verify that vectors are clear when starting new episode */
+      logger_->info("Taking off has finished. Start generating trajectories");
       time_steps_.reset();
       while (start_episode_) {
         generate_trajectory();
@@ -156,12 +157,11 @@ Generator<flight_controller_t, simulator_t>::run()
               else
                 return false;
             })) {
-          logger::logger_->info(
-            "The geometrical figure is no longer conserved");
+          logger_->info("The geometrical figure is no longer conserved");
           break;
         }
         time_steps_.tic();
-        logger::logger_->flush();
+        logger_->flush();
       }
     }
     /*  Save a version of the time steps to create a histogram */
@@ -174,7 +174,7 @@ Generator<flight_controller_t, simulator_t>::run()
     /* Resetting the entire swarm after the end of each episode*/
     sim_interface_->reset_models();
 
-    logger::logger_->info("All quadrotors have been reset...");
+    logger_->info("All quadrotors have been reset...");
 
     std::this_thread::sleep_for(std::chrono::seconds(25));
 
