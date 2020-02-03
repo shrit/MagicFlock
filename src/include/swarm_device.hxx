@@ -1,12 +1,12 @@
 #pragma once
 
-#include "swarm_device.hh"
-
 template<class flight_controller_t>
 SwarmDevice<flight_controller_t>::SwarmDevice(
   std::vector<std::shared_ptr<flight_controller_t>> quads)
   : iris_x_(std::move(quads))
-{}
+{
+  // Nothing to do here
+}
 
 template<class flight_controller_t>
 void
@@ -40,22 +40,29 @@ template<class flight_controller_t>
 bool
 SwarmDevice<flight_controller_t>::arm()
 {
-  bool arm = true;
+  std::vector<bool> results(iris_x_.size(), false);
   std::vector<std::thread> threads;
 
-  threads.push_back(std::thread([&]() { arm = iris_x_.at(0)->arm(); }));
+  threads.push_back(
+    std::thread([&]() { results.at(0) = iris_x_.at(0)->arm(); }));
 
-  threads.push_back(std::thread([&]() { arm = iris_x_.at(1)->arm(); }));
+  threads.push_back(
+    std::thread([&]() { results.at(1) = iris_x_.at(1)->arm(); }));
 
-  threads.push_back(std::thread([&]() { arm = iris_x_.at(2)->arm(); }));
+  threads.push_back(
+    std::thread([&]() { results.at(2) = iris_x_.at(2)->arm(); }));
 
-  threads.push_back(std::thread([&]() { arm = iris_x_.at(3)->arm(); }));  
+  threads.push_back(
+    std::thread([&]() { results.at(3) = iris_x_.at(3)->arm(); }));
 
   for (auto& thread : threads) {
     thread.join();
   }
 
-  if (!arm)
+  if (std::any_of(results.begin(), results.end(), [](bool value) {
+        if (!value)
+          return value;
+      }))
     return false;
 
   return true;
@@ -117,25 +124,27 @@ template<class flight_controller_t>
 bool
 SwarmDevice<flight_controller_t>::takeoff(float meters)
 {
-  bool takeoff = true;
   std::vector<std::thread> threads;
+  std::vector<bool> results(iris_x_.size(), false);
+  threads.push_back(
+    std::thread([&]() { results.at(0) = iris_x_.at(0)->takeoff(meters); }));
 
   threads.push_back(
-    std::thread([&]() { takeoff = iris_x_.at(0)->takeoff(meters); }));
+    std::thread([&]() { results.at(1) = iris_x_.at(1)->takeoff(meters); }));
 
   threads.push_back(
-    std::thread([&]() { takeoff = iris_x_.at(1)->takeoff(meters); }));
+    std::thread([&]() { results.at(2) = iris_x_.at(2)->takeoff(meters); }));
 
   threads.push_back(
-    std::thread([&]() { takeoff = iris_x_.at(2)->takeoff(meters); }));
-
-  threads.push_back(
-    std::thread([&]() { takeoff = iris_x_.at(3)->takeoff(meters); }));  
+    std::thread([&]() { results.at(3) = iris_x_.at(3)->takeoff(meters); }));
 
   for (auto& thread : threads) {
     thread.join();
   }
-  if (!takeoff)
+  if (std::any_of(results.begin(), results.end(), [](bool value) {
+        if (!value)
+          return value;
+      }))
     return false;
 
   return true;
@@ -166,9 +175,9 @@ SwarmDevice<flight_controller_t>::land()
 
   threads.push_back(std::thread([&]() { land = iris_x_.at(2)->land(); }));
 
-  threads.push_back(std::thread([&]() { land = iris_x_.at(3)->land(); }));  
+  threads.push_back(std::thread([&]() { land = iris_x_.at(3)->land(); }));
 
- for (auto& thread : threads) {
+  for (auto& thread : threads) {
     thread.join();
   }
   if (!land)
@@ -194,7 +203,7 @@ SwarmDevice<flight_controller_t>::positions_GPS()
 {
   std::vector<lt::position_GPS<double>> positions;
   for (auto i : iris_x_) {
-    positions.push_back(i->get_position_GPS());    
+    positions.push_back(i->get_position_GPS());
   }
   return positions;
 }
@@ -208,13 +217,13 @@ SwarmDevice<flight_controller_t>::in_air(float meters)
   bool arm = this->arm();
   if (!arm) {
     start_episode = false;
-  } else if (arm) {
+  } else {
     std::this_thread::sleep_for(std::chrono::seconds(2));
     /* Stop the episode if one of the quad has fallen to takoff */
     bool takeoff = this->takeoff(meters);
     if (!takeoff) {
       start_episode = false;
-    } else if (takeoff) {
+    } else {
       /*  Setting up speed in order to switch the mode */
       this->init_speed();
       /*  Switch to offboard mode, Allow the control */
