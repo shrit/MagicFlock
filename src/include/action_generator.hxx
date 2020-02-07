@@ -25,13 +25,16 @@ ActionGenerator<simulator_t>::generate_persistant_action(int for_n_timestep,
   Actions::Action action = Actions::Action::Unknown;
 
   if (timesteps % for_n_timestep == 0) {
-    action =
-      random_action_generator_with_only_opposed_condition(quad_->last_action());
-  } else if (quad_->height() < 15) {
-    action =
-      random_action_generator_with_only_opposed_condition(quad_->last_action());
+    action = random_action_generator_with_only_opposed_condition(
+      quad_->current_action());
   } else {
     action = quad_->current_action();
+  }
+
+  if (quad_->height() < 15) {
+    if (quad_->current_action() == Actions::Action::down)
+      action = random_action_generator_with_only_opposed_condition(
+        quad_->current_action());
   }
   return action;
 }
