@@ -60,8 +60,7 @@ SwarmDevice<flight_controller_t>::arm()
   }
 
   if (std::any_of(results.begin(), results.end(), [](bool value) {
-        if (!value)
-          return value;
+        return  value == false;
       }))
     return false;
 
@@ -142,8 +141,7 @@ SwarmDevice<flight_controller_t>::takeoff(float meters)
     thread.join();
   }
   if (std::any_of(results.begin(), results.end(), [](bool value) {
-        if (!value)
-          return value;
+          return value == false;
       }))
     return false;
 
