@@ -17,6 +17,7 @@
 #include <ILMR/quadrotor.hh>
 #include <ILMR/swarm_device.hh>
 #include <ILMR/time_steps.hh>
+#include <ILMR/timer.hh>
 
 namespace lt = local_types;
 
@@ -43,6 +44,7 @@ private:
   std::shared_ptr<simulator_t> sim_interface_;
   std::vector<double> step_errors_;
   TimeSteps time_steps_;
+  Timer timer_;
   SwarmDevice<flight_controller_t> swarm_;
   bool start_episode_;
   std::vector<Quadrotor<simulator_t>> quadrotors_;

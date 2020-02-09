@@ -1,7 +1,5 @@
 #pragma once
 
-#include "iterative_learning.hh"
-
 template<class flight_controller_t, class simulator_t>
 Iterative_learning<flight_controller_t, simulator_t>::Iterative_learning(
   std::vector<std::shared_ptr<flight_controller_t>> iris_x,
@@ -120,8 +118,8 @@ Iterative_learning<flight_controller_t, simulator_t>::
 
   double loss_f1 = predict_f1.real_time_loss();
   double loss_f2 = predict_f2.real_time_loss();
-  logger::logger_->info("Real time loss f1: {} ", loss_f1);
-  logger::logger_->info("Real time loss f2: {}", loss_f2);
+  logger_->info("Real time loss f1: {} ", loss_f1);
+  logger_->info("Real time loss f2: {}", loss_f2);
 }
 
 template<class flight_controller_t, class simulator_t>
@@ -130,8 +128,8 @@ Iterative_learning<flight_controller_t, simulator_t>::run()
 {
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
 
-    logger::logger_->info("Episode : {}", episode_);
-
+    logger_->info("Episode : {}", episode_);
+    timer_.start();
     start_episode_ = swarm_.in_air(25);
 
     if (start_episode_) {
@@ -149,16 +147,13 @@ Iterative_learning<flight_controller_t, simulator_t>::run()
           shapes.push_back(it.examin_geometric_shape());
         }
         if (std::any_of(shapes.begin(), shapes.end(), [](const bool& shape) {
-              if (!shape)
-                return true;
-              else
-                return false;
+              return shape == false;
             })) {
-          logger::logger_->info("The geometrical shape is no longer conserved");
+          logger_->info("The geometrical shape is no longer conserved");
           break;
         }
         time_steps_.tic();
-        logger::logger_->flush();
+        logger_->flush();
       }
     }
     follower_1_->reset_all_states();
@@ -167,30 +162,32 @@ Iterative_learning<flight_controller_t, simulator_t>::run()
     follower_1_->register_histogram(time_steps_.steps());
     follower_2_->register_histogram(time_steps_.steps());
     swarm_.land();
+    double flight_time = timer_.stop();
+    logger_->info("Flight time for this episode:", flight_time);
 
-    logger::logger_->info("Model evaluation: Both Same Action as leader : {}",
+    logger_->info("Model evaluation: Both Same Action as leader : {}",
                           evaluate_model.output().at(0));
-    logger::logger_->info("Follower 1 and leader same action {}",
+    logger_->info("Follower 1 and leader same action {}",
                           evaluate_model.output().at(1));
-    logger::logger_->info("Follower 2 and leader same action {}",
+    logger_->info("Follower 2 and leader same action {}",
                           evaluate_model.output().at(2));
-    logger::logger_->info("Bad action follower 1 {}",
+    logger_->info("Bad action follower 1 {}",
                           evaluate_model.output().at(3));
-    logger::logger_->info("Bad action follower 2 {}",
+    logger_->info("Bad action follower 2 {}",
                           evaluate_model.output().at(4));
-    logger::logger_->info("good action follower 1 {}",
+    logger_->info("good action follower 1 {}",
                           evaluate_model.output().at(5));
-    logger::logger_->info("good action follower 2 {}",
+    logger_->info("good action follower 2 {}",
                           evaluate_model.output().at(6));
-    logger::logger_->info("Total count: {}", evaluate_model.output().at(7));
+    logger_->info("Total count: {}", evaluate_model.output().at(7));
 
     /* Resetting the entire swarm after the end of each episode*/
     sim_interface_->reset_models();
 
-    logger::logger_->info("The quadcopters have been reset...");
-    logger::logger_->info("Waiting untill the kalaman filter to reset...");
+    logger_->info("The quadcopters have been reset...");
+    logger_->info("Waiting untill the kalaman filter to reset...");
     std::this_thread::sleep_for(std::chrono::seconds(25));
-    logger::logger_->info("Kalaman filter reset...");
-    logger::logger_->flush();
+    logger_->info("Kalaman filter reset...");
+    logger_->flush();
   }
 }
