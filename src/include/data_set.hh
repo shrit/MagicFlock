@@ -122,6 +122,7 @@ private:
   std::string result_file_name_;
   std::string count_file_name_;
   std::string histogram_file_name_;
+  std::string readme_file_name_;
 
   std::vector<State<simulator_t>> st_vec_;
   std::vector<Actions::Action> at_vec_;

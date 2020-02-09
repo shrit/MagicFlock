@@ -1,7 +1,5 @@
 #pragma once
 
-#include "data_set.hh"
-
 template<class simulator_t>
 DataSet<simulator_t>::DataSet()
 {}
@@ -258,6 +256,9 @@ DataSet<simulator_t>::init_dataset_directory()
 
   result_file_name_ =
     "../dataset/" + date_stream.str() + "/" + time_stream.str() + "/figure" + time_stream.str();
+
+   readme_file_name_ =
+    "../dataset/" + date_stream.str() + "/" + time_stream.str() + "/readme" + time_stream.str();
 }
 
 template<class simulator_t>
