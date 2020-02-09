@@ -16,7 +16,7 @@
 #include <vector>
 
 #include <ILMR/config_ini.hh>
-
+#include <ILMR/gazebo.hh>
 #include <ILMR/global.hh>
 #include <ILMR/joystick.hh>
 #include <ILMR/keyboard.hh>
@@ -298,7 +298,7 @@ usage(std::ostream& out)
 int
 main(int argc, char* argv[])
 {
-   /*  Init configs */
+  /*  Init configs */
   Configs configs("/meta/lemon/quad.ini");
 
   auto logger = ILMR::logger::init();
@@ -310,7 +310,8 @@ main(int argc, char* argv[])
   // Ensure that it was found and that we can use it
   if (!joystick.isFound()) {
     logger->error("No device found, please connect a joystick");
-    logger->error("Joystick mode disabled. Control only possible using a keyboard");
+    logger->error(
+      "Joystick mode disabled. Control only possible using a keyboard");
     joystick_mode = false;
   }
 
@@ -337,22 +338,21 @@ main(int argc, char* argv[])
   /* Wait for 10 seconds, Just to finish subscribe to
    * gazebo topics */
   std::this_thread::sleep_for(std::chrono::seconds(10));
-  if (settings.flying() == true) {
 
-    auto joystick_handler = [&]() {
-      if (joystick_mode) {
-        joystick_event_handler(
-          joystick, iris_x, configs.speed(), configs.just_fly());
-      }
-    };
+  auto joystick_handler = [&]() {
+    if (joystick_mode) {
+      joystick_event_handler(
+        joystick, iris_x, configs.speed(), configs.just_fly());
+    }
+  };
 
-    auto keyboard_handler = [&]() {
-      keyboard_event_handler(iris_x, configs.speed(), configs.just_fly());
-    };
+  auto keyboard_handler = [&]() {
+    keyboard_event_handler(iris_x, configs.speed(), configs.just_fly());
+  };
 
-    auto joystick_events = std::async(std::launch::async, joystick_handler);
-    auto keyboard_events = std::async(std::launch::async, keyboard_handler);
-    joystick_events.get();
-    keyboard_events.get();
-  }
+  auto joystick_events = std::async(std::launch::async, joystick_handler);
+  auto keyboard_events = std::async(std::launch::async, keyboard_handler);
+
+  joystick_events.get();
+  keyboard_events.get();
 }
