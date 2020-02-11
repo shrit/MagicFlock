@@ -128,6 +128,7 @@ Generator<flight_controller_t, simulator_t>::run()
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
 
     logger_->info("Episode : {}", episode_);
+    timer_.start();
     start_episode_ = swarm_.in_air(25);
     /*  Collect dataset by creating a set of trajectories, each time
                                 the leader_and the follower execute their
@@ -170,6 +171,8 @@ Generator<flight_controller_t, simulator_t>::run()
 
     /* Landing is blocking untill touching the ground*/
     swarm_.land();
+    double flight_time = timer_.stop();
+    logger_->info("Flight time: {}", flight_time);
 
     /* Resetting the entire swarm after the end of each episode*/
     sim_interface_->reset_models();
