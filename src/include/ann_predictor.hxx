@@ -194,31 +194,18 @@ template<class simulator_t>
 std::tuple<arma::mat, arma::uword, Actions::Action>
 AnnPredictor<simulator_t>::predict(arma::mat& features)
 {
-  mlpack::ann::FFN<mlpack::ann::SigmoidCrossEntropyError<>,
-                   mlpack::ann::RandomInitialization>
-    classification_model;
-
   mlpack::ann::FFN<mlpack::ann::MeanSquaredError<>,
                    mlpack::ann::RandomInitialization>
     regression_model;
 
-  if (classification_) {
-    mlpack::data::Load(model_path_, model_name_, classification_model, true);
-  } else if (regression_) {
-    mlpack::data::Load(model_path_, model_name_, regression_model, true);
-  }
+   mlpack::data::Load(model_path_, model_name_, regression_model, true);
 
   /*  We need to predict the action for the follower using h(S)*/
   /*  Extract state and push it into the model with several actions */
   /*  Take the action index for the highest class
       given back by the model */
   arma::mat label;
-
-  if (classification_) {
-    classification_model.Predict(features, label);
-  } else if (regression_) {
-    regression_model.Predict(features, label);
-  }
+  regression_model.Predict(features, label);
 
   /* Transpose to the original format */
   features = features.t();

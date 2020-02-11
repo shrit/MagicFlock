@@ -12,11 +12,11 @@
 
 /*  MLPack includes */
 #include <mlpack/core.hpp>
+#include <ensmallen_bits/adam/adam_update.hpp>
 #include <mlpack/methods/ann/ffn.hpp>
 #include <mlpack/methods/ann/layer/layer.hpp>
 #include <mlpack/methods/ann/loss_functions/mean_squared_error.hpp>
 #include <mlpack/methods/ann/loss_functions/sigmoid_cross_entropy_error.hpp>
-#include <ensmallen_bits/adam/adam_update.hpp>
 
 /* local includes  */
 #include "global.hh"
@@ -37,7 +37,8 @@ public:
                typename std::vector<Quadrotor<simulator_t>>::iterator quad);
 
   arma::mat create_features_matrix();
-
+  arma::mat create_error_feature_vector();
+  
   std::vector<double> estimate_action_from_distance(arma::mat& matrix);
 
   int index_of_best_action(arma::mat& matrix);
