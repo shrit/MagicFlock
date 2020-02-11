@@ -3,10 +3,25 @@ import math
 import textwrap
 import argparse
 import matplotlib.pyplot as plt
+from sklearn.manifold import TSNE
+from io import StringIO
 import numpy as np
 import pandas as pd
 import sys
 
+def print_dataset_tsne(dataset_file_name):
+    train_matrix = genfromtxt(StringIO(dataset_file_name), delimiter=',')
+    tsne = TSNE(n_components=2, random_state=0)
+
+    mat = tsne.fit_transform(train_matrix)
+
+    print(mat.shape)
+    plt.scatter(mat[:,0], mat[:,1], color='blue')
+    figure = plt.gcf() # get current figure
+    figure.set_size_inches(25, 12)
+
+    plt.savefig(dataset_file_name + ".png", dpi=100, format="png")
+    
 def drop_columns(dataset_file_name, column_nubmer):
     df = pd.read_csv(dataset_file_name)
 
@@ -197,8 +212,8 @@ def plot_two_cumulative_histogram(histogram_file_name,
     x, y = cumulative_histogram(histogram_file_name)
     i, j = cumulative_histogram(histogram_file_name_2)
 
-    plt.plot(x, y, color='blue', label="Random model")
-    plt.plot(i, j, color='green', label="Ann model")
+    plt.plot(x, y, color='blue', label="Phase 1")
+    plt.plot(i, j, color='green', label="Phase 2")
 
     plt.title("Cumulative distribution function of random and trained controller")
     plt.xlabel('Number of time steps executed by the follower per episode')
@@ -206,8 +221,8 @@ def plot_two_cumulative_histogram(histogram_file_name,
     plt.legend()
     plt.grid()
     figure = plt.gcf() # get current figure
-    figure.set_size_inches(25, 6)
-    plt.savefig(histogram_file_name + "two_cumulative_.png", dpi=100)
+    figure.set_size_inches(12, 8)
+    plt.savefig(histogram_file_name + "two_cumulative_.svg", dpi=100)
 
 def plot_three_cumulative_histogram(histogram_file_name,
                                     histogram_file_name_2,
@@ -215,9 +230,9 @@ def plot_three_cumulative_histogram(histogram_file_name,
     x, y = cumulative_histogram(histogram_file_name)
     a, b = cumulative_histogram(histogram_file_name_2)
     i, j = cumulative_histogram(histogram_file_name_3)
-    plt.plot(x, y, color='blue', label="Random model")
-    plt.plot(a, b, color='orange', label="Knn model")
-    plt.plot(i, j, color='green', label="Ann model")
+    plt.plot(x, y, color='blue', label="Phase 1")
+    plt.plot(a, b, color='orange', label="Phase 2")
+    plt.plot(i, j, color='green', label="Oracle")
 
     plt.title("Cumulative distribution function of random, knn and trained controller")
     plt.xlabel('Number of time steps executed by the follower per episode')
@@ -244,6 +259,7 @@ if __name__ == '__main__':
         '''))
 
     parser.add_argument('--dataset_file_name', metavar="dataset file name", type=str, help="Enter dataset file name to plot")
+    parser.add_argument('--tsne_dataset_file_name', metavar="dataset file name", type=str, help="Enter dataset file name to plot using tsne")
     parser.add_argument('--generic_file_name', metavar="generic file name", type=str, help="Enter a generic file to plot with one column")
     parser.add_argument('--six_generic_file_name', metavar="generic file name", type=str, nargs="+", help="Enter a generic file to plot with one column")
     parser.add_argument('--error_file_name', metavar="error file name", type=str, help="Enter error file name that has the mean value of each flight")
@@ -281,6 +297,9 @@ if __name__ == '__main__':
     elif args.dataset_file_name:
         modify_labels(args.dataset_file_name)
 
+    elif args.tsne_dataset_file_name:
+        print_dataset_tsne(args.dataset_file_name)
+
     elif args.histogram_file_name:
         plot_histogram_2d(args.histogram_file_name)
 
@@ -288,6 +307,6 @@ if __name__ == '__main__':
         if isinstance(args.cumulative_histogram_files_name, str):
             plot_one_cumulative_histogram(args.cumulative_histogram_files_name)
         elif isinstance(args.cumulative_histogram_files_name, list):
-            plot_three_cumulative_histogram(args.cumulative_histogram_files_name[0],
-                                            args.cumulative_histogram_files_name[1],
-                                            args.cumulative_histogram_files_name[2])
+            plot_two_cumulative_histogram(args.cumulative_histogram_files_name[0],
+                                            args.cumulative_histogram_files_name[1])
+                                           # args.cumulative_histogram_files_name[2])
