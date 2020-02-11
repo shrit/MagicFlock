@@ -47,6 +47,10 @@ public:
   void start_sampling_rt_state(int interval);
   void stop_sampling_rt_state();
 
+  /* Loss related functions */
+  void current_loss(std::vector<double> current_loss)
+  std::vector<double> current_loss() const;
+  
   /*  Action related functions */
   Actions::Action current_action() const;
   void current_action(Actions::Action action);
@@ -63,6 +67,7 @@ public:
   /*  Data set related functions */
   void register_data_set();
   void register_data_set_with_current_predictions();
+  void register_data_set_with_loss(); 
   void register_histogram(int count);
 
   /*  Speed related functions */
