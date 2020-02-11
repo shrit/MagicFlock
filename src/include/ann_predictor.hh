@@ -36,14 +36,11 @@ public:
                std::string model_name,
                typename std::vector<Quadrotor<simulator_t>>::iterator quad);
 
-  arma::mat create_absolute_features_matrix();
-
-  arma::mat create_estimated_features_matrix();
+  arma::mat create_features_matrix();
 
   std::vector<double> estimate_action_from_distance(arma::mat& matrix);
 
-  int index_of_best_action_classification(arma::mat& matrix);
-  int index_of_best_action_regression(arma::mat& matrix);
+  int index_of_best_action(arma::mat& matrix);
 
   std::tuple<arma::mat, arma::uword, Actions::Action> predict(
     arma::mat& features);
