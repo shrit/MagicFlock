@@ -46,7 +46,6 @@ KnnPredictor<simulator_t>::predict(int knn_neighbors)
           arma::span(0, a_t_1.n_cols - 1));
   logger::logger_->info("action before converting: {}", action);
   std::vector action_vec = mtools_.to_std_vector(action);
-  std::reverse(action_vec.begin(), action_vec.end());
   Actions actions;
   predicted_follower_action_ =
     actions.int_to_action(mtools_.from_one_hot_encoding(action_vec));
