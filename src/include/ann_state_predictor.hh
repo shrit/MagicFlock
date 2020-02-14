@@ -11,11 +11,11 @@
 #include <vector>
 
 /*  MLPack includes */
+#include <ensmallen_bits/adam/adam_update.hpp>
 #include <mlpack/core.hpp>
 #include <mlpack/methods/ann/ffn.hpp>
 #include <mlpack/methods/ann/layer/layer.hpp>
 #include <mlpack/methods/ann/loss_functions/mean_squared_error.hpp>
-#include <ensmallen_bits/adam/adam_update.hpp>
 
 /* local includes  */
 #include "global.hh"
@@ -30,9 +30,10 @@ template<class simulator_t>
 class AnnStatePredictor
 {
 public:
-  AnnStatePredictor(std::string full_path_to_model,
-               std::string model_name,
-               typename std::vector<Quadrotor<simulator_t>>::iterator quad);
+  AnnStatePredictor(
+    std::string full_path_to_model,
+    std::string model_name,
+    typename std::vector<Quadrotor<simulator_t>>::iterator quad);
 
   arma::mat create_features_matrix();
   arma::mat create_error_feature_vector();
