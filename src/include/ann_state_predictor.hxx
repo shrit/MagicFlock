@@ -1,7 +1,7 @@
 #pragma once
 
 template<class simulator_t>
-AnnPredictor<simulator_t>::AnnPredictor(
+AnnStatePredictor<simulator_t>::AnnStatePredictor(
   std::string full_path_to_model,
   std::string model_name,
   typename std::vector<Quadrotor<simulator_t>>::iterator quad)
@@ -15,7 +15,7 @@ AnnPredictor<simulator_t>::AnnPredictor(
 
 template<class simulator_t>
 arma::mat
-AnnPredictor<simulator_t>::create_features_matrix()
+AnnStatePredictor<simulator_t>::create_features_matrix()
 {
   arma::mat features;
   arma::rowvec row;
@@ -59,7 +59,7 @@ AnnPredictor<simulator_t>::create_features_matrix()
 
 template<class simulator_t>
 arma::mat
-AnnPredictor<simulator_t>::create_error_feature_vector()
+AnnStatePredictor<simulator_t>::create_error_feature_vector()
 {
   arma::mat features;
   arma::rowvec row;
@@ -100,7 +100,7 @@ AnnPredictor<simulator_t>::create_error_feature_vector()
 
 template<class simulator_t>
 std::vector<double>
-AnnPredictor<simulator_t>::estimate_action_from_distance(arma::mat& matrix)
+AnnStatePredictor<simulator_t>::estimate_action_from_distance(arma::mat& matrix)
 {
   std::vector<double> sum_of_distances;
   double d1, d2, d3;
@@ -121,7 +121,7 @@ AnnPredictor<simulator_t>::estimate_action_from_distance(arma::mat& matrix)
 
 template<class simulator_t>
 double
-AnnPredictor<simulator_t>::real_time_loss(
+AnnStatePredictor<simulator_t>::real_time_loss(
   std::tuple<arma::mat, arma::uword, Actions::Action>
     predicted_matrix_best_action)
 {
@@ -160,21 +160,21 @@ AnnPredictor<simulator_t>::real_time_loss(
 
 template<class simulator_t>
 double
-AnnPredictor<simulator_t>::real_time_loss() const
+AnnStatePredictor<simulator_t>::real_time_loss() const
 {
   return real_time_loss_;
 }
 
 template<class simulator_t>
 std::vector<double>
-AnnPredictor<simulator_t>::loss_vector() const
+AnnStatePredictor<simulator_t>::loss_vector() const
 {
   return loss_vector_;
 }
 
 template<class simulator_t>
 arma::mat
-AnnPredictor<simulator_t>::predict_error(arma::mat& features)
+AnnStatePredictor<simulator_t>::predict_error(arma::mat& features)
 {
   mlpack::ann::FFN<mlpack::ann::MeanSquaredError<>,
                    mlpack::ann::RandomInitialization>
@@ -203,7 +203,7 @@ AnnPredictor<simulator_t>::predict_error(arma::mat& features)
 
 template<class simulator_t>
 std::tuple<arma::mat, arma::uword, Actions::Action>
-AnnPredictor<simulator_t>::predict_action(arma::mat& features)
+AnnStatePredictor<simulator_t>::predict_action(arma::mat& features)
 {
   mlpack::ann::FFN<mlpack::ann::MeanSquaredError<>,
                    mlpack::ann::RandomInitialization>
@@ -236,7 +236,7 @@ AnnPredictor<simulator_t>::predict_action(arma::mat& features)
 
 template<class simulator_t>
 int
-AnnPredictor<simulator_t>::index_of_best_action(arma::mat& matrix)
+AnnStatePredictor<simulator_t>::index_of_best_action(arma::mat& matrix)
 {
   std::vector<double> distances = estimate_action_from_distance(matrix);
   std::reverse(distances.begin(), distances.end());
@@ -248,7 +248,7 @@ AnnPredictor<simulator_t>::index_of_best_action(arma::mat& matrix)
 
 template<class simulator_t>
 std::vector<double>
-AnnPredictor<simulator_t>::best_predicted_state(
+AnnStatePredictor<simulator_t>::best_predicted_state(
   std::tuple<arma::mat, arma::uword, Actions::Action>
     predicted_matrix_best_action)
 {
@@ -268,7 +268,7 @@ AnnPredictor<simulator_t>::best_predicted_state(
 
 template<class simulator_t>
 Actions::Action
-AnnPredictor<simulator_t>::best_predicted_action()
+AnnStatePredictor<simulator_t>::best_predicted_action()
 {
   Actions::Action predicted_follower_action;
   /*  Test the trained model using the absolute gazebo distance feature */

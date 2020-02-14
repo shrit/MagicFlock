@@ -11,11 +11,11 @@
 #include <vector>
 
 /*  MLPack includes */
-#include <ensmallen_bits/adam/adam_update.hpp>
 #include <mlpack/core.hpp>
 #include <mlpack/methods/ann/ffn.hpp>
 #include <mlpack/methods/ann/layer/layer.hpp>
 #include <mlpack/methods/ann/loss_functions/mean_squared_error.hpp>
+#include <ensmallen_bits/adam/adam_update.hpp>
 
 /* local includes  */
 #include "global.hh"
@@ -27,10 +27,10 @@ namespace lt = local_types;
 using namespace ILMR;
 
 template<class simulator_t>
-class AnnPredictor
+class AnnStatePredictor
 {
 public:
-  AnnPredictor(std::string full_path_to_model,
+  AnnStatePredictor(std::string full_path_to_model,
                std::string model_name,
                typename std::vector<Quadrotor<simulator_t>>::iterator quad);
 
@@ -55,8 +55,8 @@ public:
   std::vector<double> loss_vector() const;
   Actions::Action get_predicted_action();
 
-  AnnPredictor(AnnPredictor const&) = delete;
-  AnnPredictor(AnnPredictor&&) = default;
+  AnnStatePredictor(AnnStatePredictor const&) = delete;
+  AnnStatePredictor(AnnStatePredictor&&) = default;
 
 private:
   std::string model_path_;
@@ -68,4 +68,4 @@ private:
   typename std::vector<Quadrotor<simulator_t>>::iterator quad_;
 };
 
-#include "ann_predictor.hxx"
+#include "ann_state_predictor.hh"
