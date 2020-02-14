@@ -27,24 +27,15 @@ namespace lt = local_types;
 using namespace ILMR;
 
 template<class simulator_t>
-class AnnStatePredictor
+class AnnErrorPredictor
 {
 public:
-  AnnStatePredictor(
+  AnnErrorPredictor(
     std::string full_path_to_model,
     std::string model_name,
     typename std::vector<Quadrotor<simulator_t>>::iterator quad);
 
-  arma::mat create_features_matrix();
   arma::mat create_error_feature_vector();
-
-  std::vector<double> best_predicted_state(
-    std::tuple<arma::mat, arma::uword, Actions::Action>
-      predicted_matrix_best_action);
-
-  std::vector<double> estimate_action_from_distance(arma::mat& matrix);
-
-  int index_of_best_action(arma::mat& matrix);
 
   std::tuple<arma::mat, arma::uword, Actions::Action> predict(
     arma::mat& features);
@@ -56,8 +47,8 @@ public:
   std::vector<double> loss_vector() const;
   Actions::Action get_predicted_action();
 
-  AnnStatePredictor(AnnStatePredictor const&) = delete;
-  AnnStatePredictor(AnnStatePredictor&&) = default;
+  AnnErrorPredictor(AnnErrorPredictor const&) = delete;
+  AnnErrorPredictor(AnnErrorPredictor&&) = default;
 
 private:
   std::string model_path_;
@@ -69,4 +60,4 @@ private:
   typename std::vector<Quadrotor<simulator_t>>::iterator quad_;
 };
 
-#include "ann_state_predictor.hh"
+#include "ann_error_predictor.hh"
