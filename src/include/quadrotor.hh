@@ -48,7 +48,7 @@ public:
   void stop_sampling_rt_state();
 
   /* Loss related functions */
-  void current_loss(std::vector<double> current_loss)
+  void current_loss(std::vector<double> current_loss);
   std::vector<double> current_loss() const;
   
   /*  Action related functions */
@@ -93,7 +93,7 @@ private:
 
   Math_tools mtools_;
   DataSet<simulator_t> data_set_;
-
+  std::vector<double> loss_vector_;
   std::vector<double> current_predicted_state_;
   State<simulator_t> current_state_;
   State<simulator_t> last_state_;

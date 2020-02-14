@@ -141,14 +141,14 @@ Quadrotor<simulator_t>::reset_all_states()
 
 template<class simulator_t>
 void
-Quadrotor<simulator_t>::loss_vector(std::vector<double> loss_vector)
+Quadrotor<simulator_t>::current_loss(std::vector<double> loss_vector)
 {
   loss_vector_ = loss_vector;
 }
 
 template<class simulator_t>
-void
-Quadrotor<simulator_t>::loss_vector() const
+std::vector<double>
+Quadrotor<simulator_t>::current_loss() const
 {
    return loss_vector_;
 }
@@ -317,7 +317,7 @@ Quadrotor<simulator_t>::register_data_set_with_loss()
     mtools_.to_one_hot_encoding(last_action(), 7),
     last_state(),
     mtools_.to_one_hot_encoding(current_action(), 7),
-    loss_vector(),
+    current_loss(),
     current_state());
 }
 
