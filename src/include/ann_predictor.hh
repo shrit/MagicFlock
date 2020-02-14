@@ -11,12 +11,11 @@
 #include <vector>
 
 /*  MLPack includes */
-#include <mlpack/core.hpp>
 #include <ensmallen_bits/adam/adam_update.hpp>
+#include <mlpack/core.hpp>
 #include <mlpack/methods/ann/ffn.hpp>
 #include <mlpack/methods/ann/layer/layer.hpp>
 #include <mlpack/methods/ann/loss_functions/mean_squared_error.hpp>
-#include <mlpack/methods/ann/loss_functions/sigmoid_cross_entropy_error.hpp>
 
 /* local includes  */
 #include "global.hh"
@@ -31,14 +30,17 @@ template<class simulator_t>
 class AnnPredictor
 {
 public:
-  AnnPredictor(std::string name,
-               std::string full_path_to_model,
+  AnnPredictor(std::string full_path_to_model,
                std::string model_name,
                typename std::vector<Quadrotor<simulator_t>>::iterator quad);
 
   arma::mat create_features_matrix();
   arma::mat create_error_feature_vector();
-  
+
+  std::vector<double> best_predicted_state(
+    std::tuple<arma::mat, arma::uword, Actions::Action>
+      predicted_matrix_best_action);
+
   std::vector<double> estimate_action_from_distance(arma::mat& matrix);
 
   int index_of_best_action(arma::mat& matrix);
@@ -50,6 +52,7 @@ public:
     std::tuple<arma::mat, arma::uword, Actions::Action> matrix_best_action);
   double real_time_loss() const;
 
+  std::vector<double> loss_vector() const;
   Actions::Action get_predicted_action();
 
   AnnPredictor(AnnPredictor const&) = delete;
@@ -59,10 +62,9 @@ private:
   std::string model_path_;
   std::string model_name_;
   Actions action_;
-  bool classification_;
   Math_tools mtools_;
-  bool regression_;
   double real_time_loss_;
+  std::vector<double> loss_vector_;
   typename std::vector<Quadrotor<simulator_t>>::iterator quad_;
 };
 
