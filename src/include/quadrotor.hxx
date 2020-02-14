@@ -1,6 +1,5 @@
 #pragma once
 
-#include "quadrotor.hh"
 template<class simulator_t>
 Quadrotor<simulator_t>::Quadrotor(unsigned int id,
                                   std::string name,
