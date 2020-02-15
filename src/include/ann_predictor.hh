@@ -11,8 +11,8 @@
 #include <vector>
 
 /*  MLPack includes */
-#include <ensmallen_bits/adam/adam_update.hpp>
 #include <mlpack/core.hpp>
+#include <ensmallen_bits/adam/adam_update.hpp>
 #include <mlpack/methods/ann/ffn.hpp>
 #include <mlpack/methods/ann/layer/layer.hpp>
 #include <mlpack/methods/ann/loss_functions/mean_squared_error.hpp>
@@ -36,6 +36,9 @@ public:
 
 protected:
   typename std::vector<Quadrotor<simulator_t>>::iterator quad_;
+
+private:
+  Math_tools mtools_;
 };
 
 #include "ann_predictor.hxx"

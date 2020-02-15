@@ -28,7 +28,7 @@ namespace lt = local_types;
 using namespace ILMR;
 
 template<class simulator_t>
-class AnnErrorPredictor public: AnnPredictor<simulator>
+class AnnErrorPredictor public: AnnPredictor<simulator_t>
 {
 public:
   AnnErrorPredictor(
@@ -56,7 +56,6 @@ private:
   Math_tools mtools_;
   double real_time_loss_;
   std::vector<double> loss_vector_;
-  typename std::vector<Quadrotor<simulator_t>>::iterator quad_;
 };
 
 #include "ann_error_predictor.hh"

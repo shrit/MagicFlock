@@ -5,10 +5,10 @@ AnnErrorPredictor<simulator_t>::AnnErrorPredictor(
   std::string full_path_to_model,
   std::string model_name,
   typename std::vector<Quadrotor<simulator_t>>::iterator quad)
-  : real_time_loss_(0)
+  : AnnPredictor(quad)
+  , real_time_loss_(0)
   , model_path_(full_path_to_model)
   , model_name_(model_name)
-  , quad_(quad)
 {
   // Nothing to do here.
 }

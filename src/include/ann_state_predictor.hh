@@ -17,7 +17,8 @@
 #include <mlpack/methods/ann/loss_functions/mean_squared_error.hpp>
 #include <ensmallen_bits/adam/adam_update.hpp>
 
-/* local includes  */
+/* local includes */
+#include "ann_predictor.hh"
 #include "global.hh"
 #include "logger.hh"
 #include "math_tools.hh"
@@ -27,7 +28,7 @@ namespace lt = local_types;
 using namespace ILMR;
 
 template<class simulator_t>
-class AnnStatePredictor
+class AnnStatePredictor : public AnnPredictor<simulator_t>
 {
 public:
   AnnStatePredictor(
@@ -57,11 +58,9 @@ private:
   std::string model_path_;
   std::string model_name_;
   Actions action_;
-  Math_tools mtools_;
   double real_time_loss_;
   arma::vec loss_vector_;
   arma::uword label_index_of_best_estimation_;
-  typename std::vector<Quadrotor<simulator_t>>::iterator quad_;
 };
 
 #include "ann_state_predictor.hxx"
