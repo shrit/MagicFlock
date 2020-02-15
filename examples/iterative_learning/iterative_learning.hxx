@@ -64,21 +64,19 @@ Iterative_learning<flight_controller_t, simulator_t>::
   follower_1_->sample_state();
   follower_2_->sample_state();
 
-  AnnPredictor<simulator_t> predict_f1(
-    "regression",
+  AnnStatePredictor<simulator_t> predict_f1(
     "/meta/lemon/examples/iterative_learning/build/f1/model.txt",
     "model",
     follower_1_);
 
-  Actions::Action follower_1_action = predict_f1.get_predicted_action();
+  Actions::Action follower_1_action = predict_f1.best_predicted_action();
 
-  AnnPredictor<simulator_t> predict_f2(
-    "regression",
+  AnnStatePredictor<simulator_t> predict_f2(
     "/meta/lemon/examples/iterative_learning/build/f2/model.txt",
     "model",
     follower_2_);
 
-  Actions::Action follower_2_action = predict_f2.get_predicted_action();
+  Actions::Action follower_2_action = predict_f2.best_predicted_action();
 
   follower_1_->current_action(follower_1_action);
   follower_2_->current_action(follower_2_action);
@@ -138,8 +136,8 @@ Iterative_learning<flight_controller_t, simulator_t>::run()
         generate_trajectory_using_model();
 
         leader_->reset_all_actions();
-        follower_1_->register_data_set_with_current_predictions();
-        follower_2_->register_data_set_with_current_predictions();
+        follower_1_->register_data_set_with_loss();
+        follower_2_->register_data_set_with_loss();
 
         /*  Check the geometrical shape */
         std::vector<bool> shapes;
