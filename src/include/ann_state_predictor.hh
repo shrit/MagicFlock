@@ -37,7 +37,7 @@ public:
 
   arma::mat create_features_matrix();
 
-  std::vector<double> best_predicted_state();
+  arma::vec best_predicted_state();
 
   std::vector<double> estimate_action_from_distance(arma::mat& matrix);
 
@@ -48,7 +48,7 @@ public:
   void compute_loss();  
   double real_time_loss() const;
 
-  std::vector<double> loss_vector() const;
+  arma::vec loss_vector() const;
   Actions::Action best_predicted_action();
 
   AnnStatePredictor(AnnStatePredictor const&) = delete;
@@ -61,7 +61,7 @@ private:
   Actions action_;
   Math_tools mtools_;
   double real_time_loss_;
-  std::vector<double> loss_vector_;
+  arma::vec loss_vector_;
   arma::uword label_index_of_best_estimation_;
   typename std::vector<Quadrotor<simulator_t>>::iterator quad_;
 };

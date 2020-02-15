@@ -36,8 +36,8 @@ public:
   /*  State related functions */
   void sample_state();
   State<simulator_t> current_state() const;
-  void current_predicted_state(std::vector<double> current_predicted_state);
-  std::vector<double> current_predicted_state() const;
+  void current_predicted_state(arma::vec current_predicted_state);
+  arma::vec current_predicted_state() const;
   State<simulator_t> last_state();
   State<simulator_t> before_last_state();
   State<simulator_t> before_2_last_state();
@@ -48,8 +48,8 @@ public:
   void stop_sampling_rt_state();
 
   /* Loss related functions */
-  void current_loss(std::vector<double> current_loss);
-  std::vector<double> current_loss() const;
+  void current_loss(arma::vec current_loss);
+  arma::vec current_loss() const;
   
   /*  Action related functions */
   Actions::Action current_action() const;
@@ -93,8 +93,8 @@ private:
 
   Math_tools mtools_;
   DataSet<simulator_t> data_set_;
-  std::vector<double> loss_vector_;
-  std::vector<double> current_predicted_state_;
+  arma::vec loss_vector_;
+  arma::vec current_predicted_state_;
   State<simulator_t> current_state_;
   State<simulator_t> last_state_;
   State<simulator_t> before_last_state_;

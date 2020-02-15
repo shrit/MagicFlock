@@ -77,13 +77,13 @@ Quadrotor<simulator_t>::current_state() const
 template<class simulator_t>
 void
 Quadrotor<simulator_t>::current_predicted_state(
-  std::vector<double> current_predicted_state)
+  arma::vec current_predicted_state)
 {
   current_predicted_state_ = current_predicted_state;
 }
 
 template<class simulator_t>
-std::vector<double>
+arma::vec
 Quadrotor<simulator_t>::current_predicted_state() const
 {
   return current_predicted_state_;
@@ -141,13 +141,13 @@ Quadrotor<simulator_t>::reset_all_states()
 
 template<class simulator_t>
 void
-Quadrotor<simulator_t>::current_loss(std::vector<double> loss_vector)
+Quadrotor<simulator_t>::current_loss(arma::vec loss_vector)
 {
   loss_vector_ = loss_vector;
 }
 
 template<class simulator_t>
-std::vector<double>
+arma::vec
 Quadrotor<simulator_t>::current_loss() const
 {
    return loss_vector_;
@@ -303,7 +303,7 @@ Quadrotor<simulator_t>::register_data_set_with_current_predictions()
     mtools_.to_one_hot_encoding(last_action(), 7),
     last_state(),
     mtools_.to_one_hot_encoding(current_action(), 7),
-    current_predicted_state(),
+    mtools_.to_std_vector(current_predicted_state()),
     current_state());
 }
 
@@ -317,7 +317,7 @@ Quadrotor<simulator_t>::register_data_set_with_loss()
     mtools_.to_one_hot_encoding(last_action(), 7),
     last_state(),
     mtools_.to_one_hot_encoding(current_action(), 7),
-    current_loss(),
+    mtools_.to_std_vector(current_loss()),
     current_state());
 }
 
