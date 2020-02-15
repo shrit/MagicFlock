@@ -15,47 +15,6 @@ AnnErrorPredictor<simulator_t>::AnnErrorPredictor(
 
 template<class simulator_t>
 arma::mat
-AnnErrorPredictor<simulator_t>::create_error_feature_vector()
-{
-  arma::mat features;
-  arma::rowvec row;
-  std::vector<Actions::Action> actions = action_.all_possible_actions();
-
-  row << quad_->last_state().distances_3D().at(0)
-      << quad_->last_state().distances_3D().at(1)
-      << quad_->last_state().distances_3D().at(2)
-      << quad_->last_state().height_difference()
-      << mtools_.to_one_hot_encoding(quad_->last_action(), 7).at(0)
-      << mtools_.to_one_hot_encoding(quad_->last_action(), 7).at(1)
-      << mtools_.to_one_hot_encoding(quad_->last_action(), 7).at(2)
-      << mtools_.to_one_hot_encoding(quad_->last_action(), 7).at(3)
-      << mtools_.to_one_hot_encoding(quad_->last_action(), 7).at(4)
-      << mtools_.to_one_hot_encoding(quad_->last_action(), 7).at(5)
-      << mtools_.to_one_hot_encoding(quad_->last_action(), 7).at(6)
-      << quad_->current_state().distances_3D().at(0)
-      << quad_->current_state().distances_3D().at(1)
-      << quad_->current_state().distances_3D().at(2)
-      << quad_->current_state().height_difference()
-      << mtools_.to_one_hot_encoding(quad_->current_action(), 7).at(0)
-      << mtools_.to_one_hot_encoding(quad_->current_action(), 7).at(1)
-      << mtools_.to_one_hot_encoding(quad_->current_action(), 7).at(2)
-      << mtools_.to_one_hot_encoding(quad_->current_action(), 7).at(3)
-      << mtools_.to_one_hot_encoding(quad_->current_action(), 7).at(4)
-      << mtools_.to_one_hot_encoding(quad_->current_action(), 7).at(5)
-      << mtools_.to_one_hot_encoding(quad_->current_action(), 7).at(6);
-
-  /*  Create a matrix of several rows, each one is added to on the top */
-  features.insert_rows(0, row);
-
-  /*  We need to transpose the matrix, since mlpack is column major */
-  features = features.t();
-  /*  The return features need to be used in the model in order to
-      give back the best action with highest score */
-  return features;
-}
-
-template<class simulator_t>
-arma::mat
 AnnErrorPredictor<simulator_t>::predict_error(arma::mat& features)
 {
   mlpack::ann::FFN<mlpack::ann::MeanSquaredError<>,

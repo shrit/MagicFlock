@@ -18,6 +18,7 @@
 #include <ensmallen_bits/adam/adam_update.hpp>
 
 /* local includes  */
+#include "ann_predictor.hh"
 #include "global.hh"
 #include "logger.hh"
 #include "math_tools.hh"
@@ -27,15 +28,13 @@ namespace lt = local_types;
 using namespace ILMR;
 
 template<class simulator_t>
-class AnnErrorPredictor
+class AnnErrorPredictor public: AnnPredictor<simulator>
 {
 public:
   AnnErrorPredictor(
     std::string full_path_to_model,
     std::string model_name,
     typename std::vector<Quadrotor<simulator_t>>::iterator quad);
-
-  arma::mat create_error_feature_vector();
 
   std::tuple<arma::mat, arma::uword, Actions::Action> predict(
     arma::mat& features);

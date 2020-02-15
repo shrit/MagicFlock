@@ -35,8 +35,6 @@ public:
     std::string model_name,
     typename std::vector<Quadrotor<simulator_t>>::iterator quad);
 
-  arma::mat create_features_matrix();
-
   arma::vec best_predicted_state();
 
   std::vector<double> estimate_action_from_distance(arma::mat& matrix);
