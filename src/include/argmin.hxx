@@ -8,6 +8,7 @@ Argmin(InputType mat, InputType mat2)
   mat3 = arma::abs(mat3);
   arma::colvec vec = arma::sum(mat3, 1);
   vec = arma::reverse(vec);
+  logger::logger_->info("Sum of distances: {}", vec);  
   argmin_result_ = vec.index_min();
 }
 
