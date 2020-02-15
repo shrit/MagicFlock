@@ -317,8 +317,7 @@ Quadrotor<simulator_t>::register_data_set_with_loss()
     mtools_.to_one_hot_encoding(last_action(), 7),
     last_state(),
     mtools_.to_one_hot_encoding(current_action(), 7),
-    mtools_.to_std_vector(current_loss()),
-    current_state());
+    mtools_.to_std_vector(current_loss()));
 }
 
 template<class simulator_t>
