@@ -36,37 +36,34 @@ public:
     typename std::vector<Quadrotor<simulator_t>>::iterator quad);
 
   arma::mat create_features_matrix();
-  arma::mat create_error_feature_vector();
 
-  std::vector<double> best_predicted_state(
-    std::tuple<arma::mat, arma::uword, Actions::Action>
-      predicted_matrix_best_action);
+  std::vector<double> best_predicted_state();
 
   std::vector<double> estimate_action_from_distance(arma::mat& matrix);
 
   int index_of_best_action(arma::mat& matrix);
 
-  std::tuple<arma::mat, arma::uword, Actions::Action> predict(
-    arma::mat& features);
+  Actions::Action predict(arma::mat& features);
 
-  double real_time_loss(
-    std::tuple<arma::mat, arma::uword, Actions::Action> matrix_best_action);
+  void compute_loss();  
   double real_time_loss() const;
 
   std::vector<double> loss_vector() const;
-  Actions::Action get_predicted_action();
+  Actions::Action best_predicted_action();
 
   AnnStatePredictor(AnnStatePredictor const&) = delete;
   AnnStatePredictor(AnnStatePredictor&&) = default;
 
 private:
+  arma::mat labels_;  
   std::string model_path_;
   std::string model_name_;
   Actions action_;
   Math_tools mtools_;
   double real_time_loss_;
   std::vector<double> loss_vector_;
+  arma::uword label_index_of_best_estimation_;
   typename std::vector<Quadrotor<simulator_t>>::iterator quad_;
 };
 
-#include "ann_state_predictor.hh"
+#include "ann_state_predictor.hxx"
