@@ -3,7 +3,7 @@
 template<class simulator_t>
 AnnPredictor<simulator_t>::AnnPredictor(
   typename std::vector<Quadrotor<simulator_t>>::iterator quad)
-  , quad_(quad)
+  : quad_(quad)
 {
   // Nothing to do here.
 }

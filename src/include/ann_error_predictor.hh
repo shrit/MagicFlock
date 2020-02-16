@@ -52,8 +52,6 @@ public:
 private:
   std::string model_path_;
   std::string model_name_;
-  Actions action_;
-  Math_tools mtools_;
   double real_time_loss_;
   std::vector<double> loss_vector_;
 };

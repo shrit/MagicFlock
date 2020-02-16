@@ -5,7 +5,7 @@ AnnStatePredictor<simulator_t>::AnnStatePredictor(
   std::string full_path_to_model,
   std::string model_name,
   typename std::vector<Quadrotor<simulator_t>>::iterator quad)
-  : AnnPredictor(quad)
+  : AnnPredictor<simulator_t>(quad)
   , real_time_loss_(0)
   , model_path_(full_path_to_model)
   , model_name_(model_name)
@@ -22,13 +22,13 @@ AnnStatePredictor<simulator_t>::estimate_action_from_distance(arma::mat& matrix)
   double height_diff;
   for (arma::uword i = 0; i < matrix.n_rows; ++i) {
     d1 =
-      std::fabs(quad_->all_states().at(0).distances_3D().at(0) - matrix(i, 0));
+      std::fabs(this->quad_->all_states().at(0).distances_3D().at(0) - matrix(i, 0));
     d2 =
-      std::fabs(quad_->all_states().at(0).distances_3D().at(1) - matrix(i, 1));
+      std::fabs(this->quad_->all_states().at(0).distances_3D().at(1) - matrix(i, 1));
     d3 =
-      std::fabs(quad_->all_states().at(0).distances_3D().at(2) - matrix(i, 2));
+      std::fabs(this->quad_->all_states().at(0).distances_3D().at(2) - matrix(i, 2));
     height_diff =
-      std::fabs(quad_->all_states().at(0).height_difference() - matrix(i, 3));
+      std::fabs(this->quad_->all_states().at(0).height_difference() - matrix(i, 3));
     sum_of_distances.push_back(d1 + d3 + height_diff);
   }
   return sum_of_distances;
@@ -38,23 +38,23 @@ template<class simulator_t>
 void
 AnnStatePredictor<simulator_t>::compute_loss()
 {
-  quad_->current_predicted_state(best_predicted_state());
+  this->quad_->current_predicted_state(best_predicted_state());
 
   loss_vector_.clear();
   loss_vector_ << std::pow((labels_(label_index_of_best_estimation_, 0) -
-                             quad_->current_state().distances_3D().at(0)),
+                             this->quad_->current_state().distances_3D().at(0)),
                             2)
                << std::pow((labels_(label_index_of_best_estimation_, 1) -
-                             quad_->current_state().distances_3D().at(1)),
+                             this->quad_->current_state().distances_3D().at(1)),
                             2)
                << std::pow((labels_(label_index_of_best_estimation_, 2) -
-                             quad_->current_state().distances_3D().at(2)),
+                             this->quad_->current_state().distances_3D().at(2)),
                             2)
                << std::pow((labels_(label_index_of_best_estimation_, 3) -
-                             quad_->current_state().height_difference()),
+                             this->quad_->current_state().height_difference()),
                             2);
 
-  quad_->current_loss(loss_vector_);
+  this->quad_->current_loss(loss_vector_);
   real_time_loss_ = arma::sum(loss_vector_);
 }
 
@@ -103,7 +103,7 @@ AnnStatePredictor<simulator_t>::predict(arma::mat& features)
   label_index_of_best_estimation_ = (labels_.n_rows - 1) - value;
 
   /*  Get the follower action now !! and store it directly */
-  Actions::Action action_follower = action_.int_to_action(value);
+  Actions::Action action_follower = this->action_.int_to_action(value);
   return action_follower;
 }
 
@@ -137,7 +137,7 @@ Actions::Action
 AnnStatePredictor<simulator_t>::best_predicted_action()
 {
   /*  Test the trained model using the absolute gazebo distance feature */
-  arma::mat features = create_features_matrix();
+  arma::mat features = this->create_features_matrix();
   /*  Predict the next state using the above data */
   Actions::Action predicted_follower_action = predict(features);
   compute_loss();

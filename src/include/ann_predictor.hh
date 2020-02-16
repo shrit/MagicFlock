@@ -35,6 +35,7 @@ public:
   arma::mat create_features_matrix();
 
 protected:
+  Actions action_;
   typename std::vector<Quadrotor<simulator_t>>::iterator quad_;
 
 private:

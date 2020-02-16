@@ -57,7 +57,6 @@ private:
   arma::mat labels_;  
   std::string model_path_;
   std::string model_name_;
-  Actions action_;
   double real_time_loss_;
   arma::vec loss_vector_;
   arma::uword label_index_of_best_estimation_;
