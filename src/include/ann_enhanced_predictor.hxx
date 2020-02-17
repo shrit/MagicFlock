@@ -19,14 +19,26 @@ AnnEnhancedPredictor<simulator_t>::AnnEnhancedPredictor(
 }
 
 template<class simulator_t>
+void
 AnnEnhancedPredictor<simulator_t>::predict()
 {
-  AnnStatePredictor<simulator_t>::predict();
-  arma::mat state_matrix = AnnStatePredictor<simulator_t>::prediction_matrix();
+  Argmin argmin;
+  arma::mat predicted_state = AnnStatePredictor<simulator_t>::predict();
+  arma::mat predicted_error = AnnErrorPredictor<simulator_t>::predict();
 
-  AnnErrorPredictor<simulator_t>::predict();
-  arma::mat error_matrix = AnnErrorPredictor<simulator_t>::prediction_matrix();
-
-  arma::mat enhanced_prediction_matrix = state_matrix + error_matrix;
-
+  arma::mat enhanced_prediction_matrix = predicted_state + predicted_error;
+  arma::mat original_state_matrix = this->create_state_matrix(predicted_error.n_rows);
+  best_action_index = armgin(original_state_matrix, enhanced_prediction_matrix);
+  best_action_follower_ = action.int_to_action(best_action_index);
+  return enhanced_prediction_matrix;
 }
+
+template<class simulator_t>
+Actions::Action
+AnnEnhancedPredictor<simulator_t>::best_predicted_action()
+{
+  predict();
+  compute_loss();
+  return best_action_follower_;
+}
+

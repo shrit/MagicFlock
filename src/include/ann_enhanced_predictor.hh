@@ -10,6 +10,7 @@
 #include <vector>
 
 /* local includes  */
+#include "argmin.hh"
 #include "ann_predictor.hh"
 #include "ann_state_predictor.hh"
 #include "ann_error_predictor.hh"
