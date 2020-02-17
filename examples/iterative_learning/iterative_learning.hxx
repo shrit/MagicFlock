@@ -184,7 +184,7 @@ Iterative_learning<flight_controller_t, simulator_t>::run()
 
     logger_->info("The quadcopters have been reset...");
     logger_->info("Waiting untill the kalaman filter to reset...");
-    std::this_thread::sleep_for(std::chrono::seconds(25));
+    std::this_thread::sleep_for(std::chrono::seconds(35));
     logger_->info("Kalaman filter reset...");
     logger_->flush();
   }
