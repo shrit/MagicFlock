@@ -143,3 +143,10 @@ AnnStatePredictor<simulator_t>::best_predicted_action()
   compute_loss();
   return predicted_follower_action;
 }
+
+template<class simulator_t>
+arma::mat
+AnnStatePredictor<simulator_t>::prediction_matrix() const
+{
+  return labels_;
+}

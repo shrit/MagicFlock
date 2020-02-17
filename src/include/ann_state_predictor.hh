@@ -44,7 +44,9 @@ public:
 
   Actions::Action predict(arma::mat& features);
 
-  void compute_loss();  
+  arma::mat prediction_matrix() const;
+  
+  void compute_loss();
   double real_time_loss() const;
 
   arma::vec loss_vector() const;
