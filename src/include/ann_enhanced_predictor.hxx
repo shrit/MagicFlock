@@ -29,7 +29,7 @@ AnnEnhancedPredictor<simulator_t>::predict()
   arma::mat enhanced_prediction_matrix = predicted_state + predicted_error;
   arma::mat original_state_matrix = this->create_state_matrix(predicted_error.n_rows);
   best_action_index = armgin(original_state_matrix, enhanced_prediction_matrix);
-  best_action_follower_ = action.int_to_action(best_action_index);
+  best_action_follower_ = this->action_.int_to_action(best_action_index);
   return enhanced_prediction_matrix;
 }
 

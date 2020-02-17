@@ -35,41 +35,15 @@ AnnStatePredictor<simulator_t>::estimate_action_from_distance(arma::mat& matrix)
 }
 
 template<class simulator_t>
-void
-AnnStatePredictor<simulator_t>::compute_loss()
+int
+AnnStatePredictor<simulator_t>::index_of_best_action(arma::mat& matrix)
 {
-  this->quad_->current_predicted_state(best_predicted_state());
-
-  loss_vector_.clear();
-  loss_vector_ << std::pow((labels_(label_index_of_best_estimation_, 0) -
-                            this->quad_->current_state().distances_3D().at(0)),
-                           2)
-               << std::pow((labels_(label_index_of_best_estimation_, 1) -
-                            this->quad_->current_state().distances_3D().at(1)),
-                           2)
-               << std::pow((labels_(label_index_of_best_estimation_, 2) -
-                            this->quad_->current_state().distances_3D().at(2)),
-                           2)
-               << std::pow((labels_(label_index_of_best_estimation_, 3) -
-                            this->quad_->current_state().height_difference()),
-                           2);
-
-  this->quad_->current_loss(loss_vector_);
-  real_time_loss_ = arma::sum(loss_vector_);
-}
-
-template<class simulator_t>
-double
-AnnStatePredictor<simulator_t>::real_time_loss() const
-{
-  return real_time_loss_;
-}
-
-template<class simulator_t>
-arma::vec
-AnnStatePredictor<simulator_t>::loss_vector() const
-{
-  return loss_vector_;
+  std::vector<double> distances = estimate_action_from_distance(matrix);
+  std::reverse(distances.begin(), distances.end());
+  logger::logger_->info("Sum of distances: {}", distances);
+  int value =
+    std::min_element(distances.begin(), distances.end()) - distances.begin();
+  return value;
 }
 
 template<class simulator_t>
@@ -95,8 +69,8 @@ AnnStatePredictor<simulator_t>::predict()
   labels_ = labels_.t();
 
   logger::logger_->info("Size of features matrix: {}", arma::size(features));
-  logger::logger_->info("Feature matrix: {}", features);
-  logger::logger_->info("Label matrix: {}", labels_);
+  logger::logger_->info("Data matrix: {}", features);
+  logger::logger_->info("Prediction matrix: {}", labels_);
 
   arma::uword value = index_of_best_action(labels_);
   logger::logger_->info("Index of best action: {}", value);
@@ -106,18 +80,6 @@ AnnStatePredictor<simulator_t>::predict()
   /*  Get the follower action now !! and store it directly */
   best_action_follower_ = this->action_.int_to_action(value);
   return labels_;
-}
-
-template<class simulator_t>
-int
-AnnStatePredictor<simulator_t>::index_of_best_action(arma::mat& matrix)
-{
-  std::vector<double> distances = estimate_action_from_distance(matrix);
-  std::reverse(distances.begin(), distances.end());
-  logger::logger_->info("Sum of distances: {}", distances);
-  int value =
-    std::min_element(distances.begin(), distances.end()) - distances.begin();
-  return value;
 }
 
 template<class simulator_t>
@@ -139,7 +101,43 @@ AnnStatePredictor<simulator_t>::best_predicted_action()
 {
   /* Predict the next state using the above data */
   predict();
-  compute_loss();
+  this->quad_->current_predicted_state(best_predicted_state());  
   return best_action_follower_;
 }
 
+template<class simulator_t>
+double
+AnnStatePredictor<simulator_t>::compute_loss()
+{
+  loss_vector_.clear();
+  loss_vector_ << std::pow((labels_(label_index_of_best_estimation_, 0) -
+                            this->quad_->current_state().distances_3D().at(0)),
+                           2)
+               << std::pow((labels_(label_index_of_best_estimation_, 1) -
+                            this->quad_->current_state().distances_3D().at(1)),
+                           2)
+               << std::pow((labels_(label_index_of_best_estimation_, 2) -
+                            this->quad_->current_state().distances_3D().at(2)),
+                           2)
+               << std::pow((labels_(label_index_of_best_estimation_, 3) -
+                            this->quad_->current_state().height_difference()),
+                           2);
+
+  this->quad_->current_loss(loss_vector_);
+  real_time_loss = arma::sum(loss_vector_);
+}
+
+template<class simulator_t>
+double
+AnnStatePredictor<simulator_t>::real_time_loss()
+{
+  real_time_loss_ = compute_loss();
+  return real_time_loss_;
+}
+
+template<class simulator_t>
+arma::vec
+AnnStatePredictor<simulator_t>::loss_vector() const
+{
+  return loss_vector_;
+}
