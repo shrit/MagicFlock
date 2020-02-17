@@ -33,6 +33,7 @@ public:
   AnnPredictor(typename std::vector<Quadrotor<simulator_t>>::iterator quad);
 
   arma::mat create_features_matrix();
+  arma::mat create_state_matrix();
 
 protected:
   Actions action_;
