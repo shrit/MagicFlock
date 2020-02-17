@@ -42,10 +42,8 @@ public:
 
   int index_of_best_action(arma::mat& matrix);
 
-  Actions::Action predict(arma::mat& features);
+  arma::mat predict(arma::mat& features);
 
-  arma::mat prediction_matrix() const;
-  
   void compute_loss();
   double real_time_loss() const;
 
@@ -62,6 +60,7 @@ private:
   double real_time_loss_;
   arma::vec loss_vector_;
   arma::uword label_index_of_best_estimation_;
+  Actions::Action best_action_follower_;
 };
 
 #include "ann_state_predictor.hxx"
