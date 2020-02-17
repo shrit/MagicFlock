@@ -124,7 +124,7 @@ AnnStatePredictor<simulator_t>::compute_loss()
                            2);
 
   this->quad_->current_loss(loss_vector_);
-  real_time_loss = arma::sum(loss_vector_);
+  return arma::sum(loss_vector_);
 }
 
 template<class simulator_t>

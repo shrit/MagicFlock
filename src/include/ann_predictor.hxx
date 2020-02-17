@@ -54,9 +54,10 @@ AnnPredictor<simulator_t>::create_features_matrix()
 
 template<class simulator_t>
 arma::mat
-AnnPredictor<simulator_t>::create_state_matrix(arma:uword matrix_size)
+AnnPredictor<simulator_t>::create_state_matrix(arma::uword matrix_size)
 {
   arma::mat state_matrix;
+  arma::rowvec row;  
   for (int i = 0; i < matrix_size; ++i) {  
     row << quad_->all_state().at(0).distances_3D().at(0)
         << quad_->all_state().at(0).distances_3D().at(1)

@@ -42,10 +42,10 @@ public:
 
   int index_of_best_action(arma::mat& matrix);
 
-  arma::mat predict(arma::mat& features);
+  arma::mat predict();
 
-  void compute_loss();
-  double real_time_loss() const;
+  double compute_loss();
+  double real_time_loss();
 
   arma::vec loss_vector() const;
   Actions::Action best_predicted_action();
