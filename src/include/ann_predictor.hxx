@@ -59,10 +59,10 @@ AnnPredictor<simulator_t>::create_state_matrix(arma::uword matrix_size)
   arma::mat state_matrix;
   arma::rowvec row;  
   for (int i = 0; i < matrix_size; ++i) {  
-    row << quad_->all_state().at(0).distances_3D().at(0)
-        << quad_->all_state().at(0).distances_3D().at(1)
-        << quad_->all_state().at(0).distances_3D().at(2)
-        << quad_->all_state().at(0).height_difference();
+    row << quad_->all_states().at(0).distances_3D().at(0)
+        << quad_->all_states().at(0).distances_3D().at(1)
+        << quad_->all_states().at(0).distances_3D().at(2)
+        << quad_->all_states().at(0).height_difference();
     state_matrix.insert_rows(0, row);
   }
   return state_matrix;

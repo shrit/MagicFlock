@@ -13,22 +13,22 @@ AnnEnhancedPredictor<simulator_t>::AnnEnhancedPredictor(
   , AnnErrorPredictor<simulator_t>(full_path_to_error_model,
                                    error_model_name,
                                    quad)
-  , real_time_loss_(0)
+  , AnnPredictor<simulator_t>(quad)
 {
   // Nothing to do here.
 }
 
 template<class simulator_t>
-void
+arma::mat
 AnnEnhancedPredictor<simulator_t>::predict()
 {
-  Argmin argmin;
   arma::mat predicted_state = AnnStatePredictor<simulator_t>::predict();
   arma::mat predicted_error = AnnErrorPredictor<simulator_t>::predict();
 
   arma::mat enhanced_prediction_matrix = predicted_state + predicted_error;
   arma::mat original_state_matrix = this->create_state_matrix(predicted_error.n_rows);
-  best_action_index = armgin(original_state_matrix, enhanced_prediction_matrix);
+  Argmin<arma::mat, arma::uword> argmin(original_state_matrix, enhanced_prediction_matrix);
+  arma::uword best_action_index = argmin.result();
   best_action_follower_ = this->action_.int_to_action(best_action_index);
   return enhanced_prediction_matrix;
 }
@@ -38,7 +38,13 @@ Actions::Action
 AnnEnhancedPredictor<simulator_t>::best_predicted_action()
 {
   predict();
-  compute_loss();
-  return best_action_follower_;
+ return best_action_follower_;
 }
 
+template<class simulator_t>
+double
+AnnEnhancedPredictor<simulator_t>::real_time_loss()
+{
+  real_time_loss_= AnnStatePredictor<simulator_t>::real_time_loss();
+  return real_time_loss_;
+}

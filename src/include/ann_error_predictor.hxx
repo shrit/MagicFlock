@@ -15,7 +15,7 @@ AnnErrorPredictor<simulator_t>::AnnErrorPredictor(
 
 template<class simulator_t>
 arma::mat
-AnnErrorPredictor<simulator_t>::predict(arma::mat& features)
+AnnErrorPredictor<simulator_t>::predict()
 {
   mlpack::ann::FFN<mlpack::ann::MeanSquaredError<>,
                    mlpack::ann::RandomInitialization>
@@ -37,8 +37,8 @@ AnnErrorPredictor<simulator_t>::predict(arma::mat& features)
 
   logger::logger_->info("Size of features matrix: {}", arma::size(features));
   logger::logger_->info("Feature matrix: {}", features);
-  logger::logger_->info("Label matrix: {}", label);
+  logger::logger_->info("Label matrix: {}", labels);
 
   /* return the predicted error based on the feature vector*/
-  return label;
+  return labels;
 }

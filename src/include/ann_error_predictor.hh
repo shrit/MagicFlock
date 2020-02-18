@@ -28,7 +28,7 @@ namespace lt = local_types;
 using namespace ILMR;
 
 template<class simulator_t>
-class AnnErrorPredictor public: AnnPredictor<simulator_t>
+class AnnErrorPredictor : public virtual AnnPredictor<simulator_t>
 {
 public:
   AnnErrorPredictor(
@@ -36,16 +36,8 @@ public:
     std::string model_name,
     typename std::vector<Quadrotor<simulator_t>>::iterator quad);
 
-  std::tuple<arma::mat, arma::uword, Actions::Action> predict(
-    arma::mat& features);
-
-  double real_time_loss(
-    std::tuple<arma::mat, arma::uword, Actions::Action> matrix_best_action);
-  double real_time_loss() const;
-
-  std::vector<double> loss_vector() const;
-  Actions::Action get_predicted_action();
-
+  arma::mat predict();
+ 
   AnnErrorPredictor(AnnErrorPredictor const&) = delete;
   AnnErrorPredictor(AnnErrorPredictor&&) = default;
 
@@ -56,4 +48,4 @@ private:
   std::vector<double> loss_vector_;
 };
 
-#include "ann_error_predictor.hh"
+#include "ann_error_predictor.hxx"

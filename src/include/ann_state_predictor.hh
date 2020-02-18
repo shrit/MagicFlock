@@ -28,7 +28,7 @@ namespace lt = local_types;
 using namespace ILMR;
 
 template<class simulator_t>
-class AnnStatePredictor : public AnnPredictor<simulator_t>
+class AnnStatePredictor : public virtual AnnPredictor<simulator_t>
 {
 public:
   AnnStatePredictor(
