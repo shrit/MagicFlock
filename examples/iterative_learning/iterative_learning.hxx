@@ -64,15 +64,19 @@ Iterative_learning<flight_controller_t, simulator_t>::
   follower_1_->sample_state();
   follower_2_->sample_state();
 
-  AnnStatePredictor<simulator_t> predict_f1(
+  AnnEnhancedPredictor<simulator_t> predict_f1(
     "/meta/lemon/examples/iterative_learning/build/f1/model.txt",
+    "model",
+    "/meta/lemon/examples/iterative_learning/build/error_f1/model.txt",
     "model",
     follower_1_);
 
   Actions::Action follower_1_action = predict_f1.best_predicted_action();
 
-  AnnStatePredictor<simulator_t> predict_f2(
+  AnnEnhancedPredictor<simulator_t> predict_f2(
     "/meta/lemon/examples/iterative_learning/build/f2/model.txt",
+    "model",
+    "/meta/lemon/examples/iterative_learning/build/error_f2/model.txt",
     "model",
     follower_2_);
 
@@ -160,7 +164,8 @@ Iterative_learning<flight_controller_t, simulator_t>::run()
     follower_1_->register_histogram(time_steps_.steps());
     follower_2_->register_histogram(time_steps_.steps());
     swarm_.land();
-    double flight_time = timer_.stop();
+
+    std::string flight_time = timer_.stop_and_get_time();
     logger_->info("Flight time for this episode:", flight_time);
 
     logger_->info("Model evaluation: Both Same Action as leader : {}",

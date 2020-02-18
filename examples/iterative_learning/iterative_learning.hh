@@ -10,7 +10,7 @@
 
 /* local includes  */
 #include <ILMR/action_generator.hh>
-#include <ILMR/ann_state_predictor.hh>
+#include <ILMR/ann_enhanced_predictor.hh>
 #include <ILMR/evaluate_model.hh>
 #include <ILMR/global.hh>
 #include <ILMR/logger.hh>
