@@ -27,7 +27,7 @@ AnnEnhancedPredictor<simulator_t>::predict()
 
   arma::mat enhanced_prediction_matrix = predicted_state + predicted_error;
   arma::mat original_state_matrix = this->create_state_matrix(predicted_error.n_rows);
-  Argmin<arma::mat, arma::uword> argmin(original_state_matrix, enhanced_prediction_matrix);
+  Argmin<arma::mat, arma::uword> argmin(original_state_matrix, enhanced_prediction_matrix, 1);
   arma::uword best_action_index = argmin.result();
   best_action_follower_ = this->action_.int_to_action(best_action_index);
   return enhanced_prediction_matrix;

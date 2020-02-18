@@ -35,9 +35,9 @@ AnnErrorPredictor<simulator_t>::predict()
   features = features.t();
   labels = labels.t();
 
-  logger::logger_->info("Size of features matrix: {}", arma::size(features));
-  logger::logger_->info("Feature matrix: {}", features);
-  logger::logger_->info("Label matrix: {}", labels);
+  logger::logger_->info("Size of error features matrix: {}", arma::size(features));
+  logger::logger_->info("Error feature matrix: {}", features);
+  logger::logger_->info("Error prediction matrix: {}", labels);
 
   /* return the predicted error based on the feature vector*/
   return labels;

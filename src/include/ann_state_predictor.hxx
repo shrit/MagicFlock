@@ -68,9 +68,9 @@ AnnStatePredictor<simulator_t>::predict()
   features = features.t();
   labels_ = labels_.t();
 
-  logger::logger_->info("Size of features matrix: {}", arma::size(features));
-  logger::logger_->info("Data matrix: {}", features);
-  logger::logger_->info("Prediction matrix: {}", labels_);
+  logger::logger_->info("Size of State features matrix: {}", arma::size(features));
+  logger::logger_->info("State data matrix: {}", features);
+  logger::logger_->info("State prediction matrix: {}", labels_);
 
   arma::uword value = index_of_best_action(labels_);
   logger::logger_->info("Index of best action: {}", value);
