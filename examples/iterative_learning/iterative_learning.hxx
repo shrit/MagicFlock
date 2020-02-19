@@ -22,12 +22,12 @@ Iterative_learning<flight_controller_t, simulator_t>::Iterative_learning(
 
 template<class flight_controller_t, class simulator_t>
 void
-Iterative_learning<flight_controller_t, simulator_t>::
-  generate_trajectory_using_model()
+Iterative_learning<flight_controller_t,
+                   simulator_t>::generate_trajectory_using_model()
 {
   ActionGenerator<simulator_t> leader_generator(leader_);
   ActionGenerator<simulator_t> follower_1_generator(follower_1_);
-  ActionGenerator<simulator_t> follower_2_generator(follower_2_);  
+  ActionGenerator<simulator_t> follower_2_generator(follower_2_);
 
   std::vector<std::thread> threads;
 
@@ -64,19 +64,29 @@ Iterative_learning<flight_controller_t, simulator_t>::
   follower_1_->sample_state();
   follower_2_->sample_state();
 
-  AnnEnhancedPredictor<simulator_t> predict_f1(
+  // AnnEnhancedPredictor<simulator_t> predict_f1(
+  //   "/meta/lemon/examples/iterative_learning/build/f1/model.txt",
+  //   "model",
+  //   "/meta/lemon/examples/iterative_learning/build/error_f1/model.txt",
+  //   "model",
+  //   follower_1_);
+
+  AnnStatePredictor<simulator_t> predict_f1(
     "/meta/lemon/examples/iterative_learning/build/f1/model.txt",
-    "model",
-    "/meta/lemon/examples/iterative_learning/build/error_f1/model.txt",
     "model",
     follower_1_);
 
   Actions::Action follower_1_action = predict_f1.best_predicted_action();
 
-  AnnEnhancedPredictor<simulator_t> predict_f2(
+  // AnnEnhancedPredictor<simulator_t> predict_f2(
+  //   "/meta/lemon/examples/iterative_learning/build/f2/model.txt",
+  //   "model",
+  //   "/meta/lemon/examples/iterative_learning/build/error_f2/model.txt",
+  //   "model",
+  //   follower_2_);
+
+  AnnStatePredictor<simulator_t> predict_f2(
     "/meta/lemon/examples/iterative_learning/build/f2/model.txt",
-    "model",
-    "/meta/lemon/examples/iterative_learning/build/error_f2/model.txt",
     "model",
     follower_2_);
 
@@ -85,11 +95,13 @@ Iterative_learning<flight_controller_t, simulator_t>::
   follower_1_->current_action(follower_1_action);
   follower_2_->current_action(follower_2_action);
 
-  logger_->info("Follower 1 (Chalrie) action: {}",
-                follower_1_generator.action_to_str(follower_1_->current_action()));
+  logger_->info(
+    "Follower 1 (Chalrie) action: {}",
+    follower_1_generator.action_to_str(follower_1_->current_action()));
 
-  logger_->info("Follower 2 (Bob) action: {}",
-                follower_2_generator.action_to_str(follower_2_->current_action()));
+  logger_->info(
+    "Follower 2 (Bob) action: {}",
+    follower_2_generator.action_to_str(follower_2_->current_action()));
 
   threads.push_back(std::thread([&]() {
     swarm_.one_quad_execute_trajectory(follower_1_->id(),
@@ -140,6 +152,10 @@ Iterative_learning<flight_controller_t, simulator_t>::run()
         generate_trajectory_using_model();
 
         leader_->reset_all_actions();
+
+        follower_1_->register_data_set();
+        follower_2_->register_data_set();
+
         follower_1_->register_data_set_with_loss();
         follower_2_->register_data_set_with_loss();
 
@@ -169,19 +185,15 @@ Iterative_learning<flight_controller_t, simulator_t>::run()
     logger_->info("Flight time for this episode:", flight_time);
 
     logger_->info("Model evaluation: Both Same Action as leader : {}",
-                          evaluate_model.output().at(0));
+                  evaluate_model.output().at(0));
     logger_->info("Follower 1 and leader same action {}",
-                          evaluate_model.output().at(1));
+                  evaluate_model.output().at(1));
     logger_->info("Follower 2 and leader same action {}",
-                          evaluate_model.output().at(2));
-    logger_->info("Bad action follower 1 {}",
-                          evaluate_model.output().at(3));
-    logger_->info("Bad action follower 2 {}",
-                          evaluate_model.output().at(4));
-    logger_->info("good action follower 1 {}",
-                          evaluate_model.output().at(5));
-    logger_->info("good action follower 2 {}",
-                          evaluate_model.output().at(6));
+                  evaluate_model.output().at(2));
+    logger_->info("Bad action follower 1 {}", evaluate_model.output().at(3));
+    logger_->info("Bad action follower 2 {}", evaluate_model.output().at(4));
+    logger_->info("good action follower 1 {}", evaluate_model.output().at(5));
+    logger_->info("good action follower 2 {}", evaluate_model.output().at(6));
     logger_->info("Total count: {}", evaluate_model.output().at(7));
 
     /* Resetting the entire swarm after the end of each episode*/
@@ -190,7 +202,6 @@ Iterative_learning<flight_controller_t, simulator_t>::run()
     logger_->info("The quadcopters have been reset...");
     logger_->info("Waiting untill the kalaman filter to reset...");
     std::this_thread::sleep_for(std::chrono::seconds(35));
-    logger_->info("Kalaman filter reset...");
     logger_->flush();
   }
 }
