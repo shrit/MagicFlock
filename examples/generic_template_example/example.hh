@@ -1,11 +1,7 @@
 #pragma once
 
 /*  Standard C++ includes  */
-#include <algorithm>
 #include <chrono>
-#include <cmath>
-#include <numeric>
-#include <random>
 #include <thread>
 #include <vector>
 

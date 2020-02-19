@@ -1,9 +1,7 @@
 #pragma once
 
 /*  Standard C++ includes  */
-# include <algorithm>
 # include <chrono>
-# include <numeric>
 # include <thread>
 # include <vector>
 
