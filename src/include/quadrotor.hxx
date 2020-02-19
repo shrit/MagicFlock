@@ -298,7 +298,7 @@ void
 Quadrotor<simulator_t>::register_data_set_with_current_predictions()
 {
   data_set_.save_csv_data_set_2_file(
-    name_,
+    name_ + "_current_predictions",
     before_last_state(),
     mtools_.to_one_hot_encoding(last_action(), 7),
     last_state(),
@@ -312,7 +312,7 @@ void
 Quadrotor<simulator_t>::register_data_set_with_loss()
 {
   data_set_.save_csv_data_set_2_file(
-    name_,
+    name_ + "_loss",
     before_last_state(),
     mtools_.to_one_hot_encoding(last_action(), 7),
     last_state(),
