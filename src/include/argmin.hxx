@@ -7,9 +7,10 @@ Argmin<InputType, OutputType>::Argmin(InputType mat, InputType mat2)
   mat3 = arma::abs(mat3);
   //logger::logger->info("Final prediction matrix {}", mat3);
   arma::colvec vec = arma::sum(mat3, 1);
+  index_result_ = vec.index_min();
   vec = arma::reverse(vec);
   logger::logger_->info("Sum of distances: {}", vec);
-  argmin_result_ = vec.index_min();
+  action_result_ = vec.index_min();
 }
 
 template<class InputType, class OutputType>
@@ -22,14 +23,22 @@ Argmin<InputType, OutputType>::Argmin(InputType mat,
   //logger::logger->info("Final prediction matrix {}", mat3);
   mat3.shed_col(remove_col);
   arma::colvec vec = arma::sum(mat3, 1);
+  index_result_ = vec.index_min();
   vec = arma::reverse(vec);
   logger::logger_->info("Sum of distances: {}", vec);
-  argmin_result_ = vec.index_min();
+  action_result_ = vec.index_min();
 }
 
 template<class InputType, class OutputType>
 OutputType
-Argmin<InputType, OutputType>::result() const
+Argmin<InputType, OutputType>::best_action() const
 {
-  return argmin_result_;
+  return action_result_;
+}
+
+template<class InputType, class OutputType>
+OutputType
+Argmin<InputType, OutputType>::best_index() const
+{
+  return index_result_;
 }

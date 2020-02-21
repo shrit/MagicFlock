@@ -9,10 +9,12 @@ public:
   Argmin(InputType mat, InputType mat2);
   Argmin(InputType mat, InputType mat2, arma::uword remove_col);
 
-  OutputType result() const;
-
+  OutputType best_action() const;
+  OutputType best_index() const;
+  
 private:
-  OutputType argmin_result_ = 0;
+  OutputType action_result_ = 0;
+  OutputType index_result_ = 0;
 };
 
 #include "argmin.hxx"
