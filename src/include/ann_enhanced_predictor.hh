@@ -33,6 +33,7 @@ public:
 
   arma::mat predict();
 
+  double compute_loss();
   double real_time_loss();
 
   Actions::Action best_predicted_action();
@@ -44,7 +45,8 @@ private:
   Actions::Action best_action_follower_;
   double real_time_loss_;
   arma::vec loss_vector_;
-  arma::uword label_index_of_best_estimation_;
+  arma::uword index_of_best_estimation_;
+  arma::mat enhanced_prediction_matrix_;
 };
 
 #include "ann_enhanced_predictor.hxx"
