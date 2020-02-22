@@ -3,6 +3,16 @@
 #include "action.hh"
 #include <vector>
 
+struct evaluation {
+  double percent_same_action;
+  double percent_same_b_a;
+  double percent_same_c_a;
+  double percent_not_same_b_a;
+  double percent_not_same_c_a;
+  double percent_both_not_same;
+  double total_count;
+};
+
 class EvaluateModel
 {
 
@@ -17,7 +27,7 @@ public:
     Actions::Action leader_action,
     Actions::Action follower_1_action);
 
-  std::vector<double> output();
+  evaluation output();
 
 private:
   int count_both_actions_;
@@ -25,7 +35,7 @@ private:
   int count_follower_2_;
   int count_bad_action_f1_;
   int count_bad_action_f2_;
-  int count_not_bad_f1_;
-  int count_not_bad_f2_;
+  int count_both_bad_actions_;
   double global_count_;
+  evaluation evaluate_; 
 };
