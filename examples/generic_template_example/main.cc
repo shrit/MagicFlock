@@ -27,7 +27,7 @@ main(int argc, char* argv[])
 {
   /*  Initialize configurations, these configurations are used for examples and
    * for the library */
-  Configs configs("../../quad.ini");
+  Configs configs("../../../quad.ini");
 
   /*Start using the logging system*/
   auto logger = ILMR::logger::init();
