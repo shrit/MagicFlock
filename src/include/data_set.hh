@@ -44,7 +44,7 @@ public:
   void set_label_column_number(int x);
 
   template<typename Arg, typename... Args>
-  void write_data_set_file(std::ofstream& file, Arg&& arg, Args&&... args);
+  void save_evaluation(Arg&& arg, Args&&... args);
 
   template<typename Arg, typename... Args>
   void save_csv_data_set(Arg&& arg, Args&&... args);
@@ -85,8 +85,8 @@ public:
   arma::mat conv_state_to_arma(State<simulator_t> state);
 
   arma::mat conv_state_action_state_to_arma(State<simulator_t> state,
-                                         Actions::Action action,
-                                         State<simulator_t> state_2);
+                                            Actions::Action action,
+                                            State<simulator_t> state_2);
   arma::mat submat_using_indices(arma::mat, arma::Mat<size_t>);
   arma::mat st_mat() const;
   arma::mat at_mat() const;
@@ -94,7 +94,7 @@ public:
   arma::mat at_1_mat() const;
   arma::mat st_2_mat() const;
   arma::mat s_a_s_t_1_mat() const;
-  
+
   arma::mat dataset() const;
   arma::mat test_features() const;
   arma::mat test_labels() const;
@@ -105,7 +105,7 @@ public:
 
 private:
   arma::mat dataset_;
-  arma::mat dataset_knn_;  
+  arma::mat dataset_knn_;
   arma::mat trainset_;
   arma::mat testset_;
 
@@ -123,6 +123,7 @@ private:
   std::string count_file_name_;
   std::string histogram_file_name_;
   std::string readme_file_name_;
+  std::string evaluate_file_name_;
 
   std::vector<State<simulator_t>> st_vec_;
   std::vector<Actions::Action> at_vec_;

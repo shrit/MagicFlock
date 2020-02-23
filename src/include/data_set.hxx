@@ -242,43 +242,42 @@ DataSet<simulator_t>::init_dataset_directory()
   std::experimental::filesystem::create_directory(
     "../dataset/" + date_stream.str() + "/" + time_stream.str());
 
-  dataset_file_name_ =
-    "../dataset/" + date_stream.str() + "/" + time_stream.str() + "/" + time_stream.str();
+  dataset_file_name_ = "../dataset/" + date_stream.str() + "/" +
+                       time_stream.str() + "/" + time_stream.str();
 
-  error_file_name_ =
-    "../dataset/" + date_stream.str() + "/" + time_stream.str() + "/error" + time_stream.str();
+  error_file_name_ = "../dataset/" + date_stream.str() + "/" +
+                     time_stream.str() + "/error" + time_stream.str();
 
-  histogram_file_name_ =
-    "../dataset/" + date_stream.str() + "/" + time_stream.str() + "/histogram" + time_stream.str();
+  histogram_file_name_ = "../dataset/" + date_stream.str() + "/" +
+                         time_stream.str() + "/histogram" + time_stream.str();
 
-  count_file_name_ =
-    "../dataset/" + date_stream.str() + "/" + time_stream.str() + "/count" + time_stream.str();
+  count_file_name_ = "../dataset/" + date_stream.str() + "/" +
+                     time_stream.str() + "/count" + time_stream.str();
 
-  result_file_name_ =
-    "../dataset/" + date_stream.str() + "/" + time_stream.str() + "/figure" + time_stream.str();
+  result_file_name_ = "../dataset/" + date_stream.str() + "/" +
+                      time_stream.str() + "/figure" + time_stream.str();
 
-   readme_file_name_ =
-    "../dataset/" + date_stream.str() + "/" + time_stream.str() + "/readme" + time_stream.str();
+  readme_file_name_ = "../dataset/" + date_stream.str() + "/" +
+                      time_stream.str() + "/readme" + time_stream.str();
+
+  evaluation_file_name_ = "../dataset/" + date_stream.str() + "/" +
+                          time_stream.str() + "/evaluate" + time_stream.str();
 }
 
 template<class simulator_t>
 template<typename Arg, typename... Args>
 void
-DataSet<simulator_t>::write_data_set_file(std::ofstream& file,
-                                          Arg&& arg,
-                                          Args&&... args)
+DataSet<simulator_t>::save_evaluation(Arg&& arg,
+                                      Args&&... args)
 {
-  std::stringstream time;
-  auto now = std::chrono::system_clock::now();
-  auto in_time_t = std::chrono::system_clock::to_time_t(now);
+  std::ofstream file;
+  file.open(evaluation_file_name_, std::ios::out | std::ios::app);
 
-  time << std::put_time(std::localtime(&in_time_t), "%H:%M:%S");
-
-  file << "[" << time.str() << "]" << std::forward<Arg>(arg) << "[";
+  file << std::forward<Arg>(arg);
   ((file << std::forward<Args>(args)), ...);
-  file << "]"
-       << "\n";
+  file << "\n";
   file.flush();
+  file.close();
 }
 
 template<class simulator_t>
