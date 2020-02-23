@@ -26,11 +26,7 @@ public:
              Actions::Action follower_1_action,
              Actions::Action follower_2_action);
 
-  std::tuple<int, int> evaluate_not_similar_actions(
-    Actions::Action leader_action,
-    Actions::Action follower_1_action);
-
-  Evaluation output();
+  Evaluation evaluate();
   void register_evaluation();
 
 private:
