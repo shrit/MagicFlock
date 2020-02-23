@@ -1,7 +1,7 @@
 #pragma once
 
 template<class simulator_t>
-EvaluateModel<simulator_t>::EvaluateModel<simulator_t>()
+EvaluateModel<simulator_t>::EvaluateModel()
   : count_both_actions_(0)
   , count_follower_1_(0)
   , count_follower_2_(0)

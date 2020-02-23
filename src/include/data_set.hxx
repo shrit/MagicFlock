@@ -260,7 +260,7 @@ DataSet<simulator_t>::init_dataset_directory()
   readme_file_name_ = "../dataset/" + date_stream.str() + "/" +
                       time_stream.str() + "/readme" + time_stream.str();
 
-  evaluation_file_name_ = "../dataset/" + date_stream.str() + "/" +
+  evaluate_file_name_ = "../dataset/" + date_stream.str() + "/" +
                           time_stream.str() + "/evaluate" + time_stream.str();
 }
 
@@ -271,7 +271,7 @@ DataSet<simulator_t>::save_evaluation(Arg&& arg,
                                       Args&&... args)
 {
   std::ofstream file;
-  file.open(evaluation_file_name_, std::ios::out | std::ios::app);
+  file.open(evaluate_file_name_, std::ios::out);
 
   file << std::forward<Arg>(arg);
   ((file << std::forward<Args>(args)), ...);
