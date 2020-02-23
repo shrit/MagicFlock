@@ -38,7 +38,6 @@ add_library(ILMR SHARED
   src/real_time_samples.cc
   src/timer.cc
   src/time_steps.cc
-  src/evaluate_model.cc
   ${HEADER_LIST}
   ${HEADER_LIST_XX}
   )
