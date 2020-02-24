@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import sys
 
-def print_dataset_tsne(dataset_file_name):
+def plot_dataset_tsne(dataset_file_name):
     train_matrix = genfromtxt(StringIO(dataset_file_name), delimiter=',')
     tsne = TSNE(n_components=2, random_state=0)
 
@@ -76,6 +76,43 @@ def plot_generic(generic_file_name):
     x = np.arange(y.size)
     return x,y
 
+def plot_loss(loss_file_name):
+    mat = genfromtxt(loss_file_name, delimiter=',')
+    real_loss = mat[:,9]
+    predicted_loss = mat[:, 4]
+    d1_p_e = mat[:, 0]
+    d2_p_e = mat[:, 1]
+    d3_p_e = mat[:, 2]
+    h_p_e  = mat[:, 3]
+
+    d1_r_e = mat[:, 5]
+    d2_r_e = mat[:, 6]
+    d3_r_e = mat[:, 7]
+    h_r_e  = mat[:, 8]
+
+    x = np.arange(len(real_loss));
+
+    #plt.plot(x, real_loss, color='blue', label="real loss")
+    #plt.plot(x, predicted_loss, color='red', label="predicted loss")
+    plt.plot(x, d1_p_e, color='navy', label="prediction error on d1")
+    plt.plot(x, d2_p_e, color='green', label="prediction error on d2")
+    plt.plot(x, d3_p_e, color='purple', label="prediction error on d3")
+    plt.plot(x, h_p_e, color='yellow', label="prediction error on delta h")
+
+    plt.plot(x, d1_r_e, color='darkred', label="real error on d1")
+    plt.plot(x, d2_r_e, color='brown', label="real error on d2")
+    plt.plot(x, d3_r_e, color='orange',   label="real error on d3")
+    plt.plot(x, h_r_e, color='black',  label="real error on delta h")
+
+    plt.title("Real error vs prediction error")
+    plt.xlabel('Time steps')
+    plt.ylabel('Error in meter')
+    plt.legend()
+    plt.grid()
+    figure = plt.gcf() # get current figure
+    figure.set_size_inches(21, 18)
+    plt.savefig(loss_file_name + ".svg", dpi=100)    
+    
 def plot_six_generic(file_name,
                      file_name_2,
                      file_name_3,
@@ -101,7 +138,7 @@ def plot_six_generic(file_name,
     plt.legend()
     plt.grid()
     figure = plt.gcf() # get current figure
-    figure.set_size_inches(25, 8)
+    figure.set_size_inches(12, 8)
     plt.savefig(file_name + ".png", dpi=100)
 
 """
@@ -260,6 +297,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--dataset_file_name', metavar="dataset file name", type=str, help="Enter dataset file name to plot")
     parser.add_argument('--tsne_dataset_file_name', metavar="dataset file name", type=str, help="Enter dataset file name to plot using tsne")
+    parser.add_argument('--loss_file_name', metavar="loss file name", type=str, help="Enter loss file name to plot")
     parser.add_argument('--generic_file_name', metavar="generic file name", type=str, help="Enter a generic file to plot with one column")
     parser.add_argument('--six_generic_file_name', metavar="generic file name", type=str, nargs="+", help="Enter a generic file to plot with one column")
     parser.add_argument('--error_file_name', metavar="error file name", type=str, help="Enter error file name that has the mean value of each flight")
@@ -269,7 +307,7 @@ if __name__ == '__main__':
     parser.add_argument('--drop_columns', metavar=" drop column", type=int ,help="Enter column number to delete from dataset")
     args = parser.parse_args()
 
-    plt.rcParams.update({'font.size': 20})
+    plt.rcParams.update({'font.size': 9})
 
     if len(sys.argv)==1:
         parser.print_help(sys.stderr)
@@ -298,7 +336,10 @@ if __name__ == '__main__':
         modify_labels(args.dataset_file_name)
 
     elif args.tsne_dataset_file_name:
-        print_dataset_tsne(args.dataset_file_name)
+        plot_dataset_tsne(args.dataset_file_name)
+        
+    elif args.loss_file_name:
+        plot_loss(args.loss_file_name)
 
     elif args.histogram_file_name:
         plot_histogram_2d(args.histogram_file_name)
@@ -308,5 +349,5 @@ if __name__ == '__main__':
             plot_one_cumulative_histogram(args.cumulative_histogram_files_name)
         elif isinstance(args.cumulative_histogram_files_name, list):
             plot_two_cumulative_histogram(args.cumulative_histogram_files_name[0],
-                                            args.cumulative_histogram_files_name[1])
-                                           # args.cumulative_histogram_files_name[2])
+                                          args.cumulative_histogram_files_name[1])
+                                         # args.cumulative_histogram_files_name[2])
