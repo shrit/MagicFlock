@@ -31,6 +31,14 @@ public:
     Unknown,
   };
 
+  template<typename Enumeration>
+  auto as_integer(Enumeration const value) ->
+    typename std::underlying_type<Enumeration>::type
+  {
+    return static_cast<typename std::underlying_type<Enumeration>::type>(value);
+  }
+
+
   Action extract_action_from_index(arma::mat features, arma::uword index);
 
   std::string action_to_str(Action action);
@@ -48,12 +56,11 @@ public:
   Action random_action_generator_with_all_conditions(Action action);
 
   std::tuple<Actions::Action, Actions::Action>
-  generate_followers_action_using_distance(
-    double distance_t_1_b,
-    double distance_t_b,
-    double distance_t_1_c,
-    double distance_t_c,
-    double alti_diff_t);
+  generate_followers_action_using_distance(double distance_t_1_b,
+                                           double distance_t_b,
+                                           double distance_t_1_c,
+                                           double distance_t_c,
+                                           double alti_diff_t);
 
   Actions::Action undo_action(Actions::Action action);
   Actions::Action pair_action_bob(Actions::Action action);
@@ -75,20 +82,20 @@ public:
                                 double distance_to_c,
                                 double distance_to_c_1,
                                 Action current_action);
-  
+
   Action validate_followers_action(std::vector<double> current_distances,
                                    std::vector<double> last_distances,
                                    Action before_2_last_action,
                                    Action current_action);
   double generate_real_random();
 
-  protected:
+protected:
   std::uniform_int_distribution<> distribution_int_;
   std::uniform_real_distribution<> distribution_real_;
   std::random_device random_dev;
   std::mt19937 generator_;
 
-  private:
+private:
   std::vector<Action> possible_actions_ = { Action::forward, Action::backward,
                                             Action::left,    Action::right,
                                             Action::up,      Action::down,

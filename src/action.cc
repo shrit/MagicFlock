@@ -403,7 +403,7 @@ Actions::generate_leader_action(bool change_leader_action,
     }
   } else if (last_action == Actions::Action::Unknown) {
     leader_action = current_action;
-    
+
   } else {
     leader_action = last_action;
   }
