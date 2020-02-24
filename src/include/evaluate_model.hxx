@@ -85,7 +85,7 @@ operator<<(std::ostream& out, EvaluateModel<simulator_t>& m_evaluate)
       << "====================================================================="
          "================================"
       << std::endl
-      << "Percentage of timesteps that all of quadrotors in the swarm execute "
+      << "Percentage of timesteps that all of quadrotors execute "
          "the same action:"
       << m_evaluate.evaluate().percent_same_action << std::endl
       << "---------------------------------------------------------------------"
@@ -111,18 +111,18 @@ operator<<(std::ostream& out, EvaluateModel<simulator_t>& m_evaluate)
       << std::endl
       << "Percentage of timesteps that Chalrie and Alice execute different "
          "action:           "
-      << m_evaluate.evaluate().percent_not_same_b_a << std::endl
+      << m_evaluate.evaluate().percent_not_same_c_a << std::endl
       << "---------------------------------------------------------------------"
          "--------------------------------"
       << std::endl
       << "Percentage of timesteps that all of them execute different actions   "
-         "            "
+         "                "
       << m_evaluate.evaluate().percent_both_not_same << std::endl
       << "---------------------------------------------------------------------"
          "--------------------------------"
       << std::endl
-      << "Number of totat timesteps executed from the start of the "
-         "simualtion:              "
+      << "Number of total timesteps executed from the start of the "
+         "simulation:              "
       << m_evaluate.evaluate().total_count << std::endl
       << "====================================================================="
          "================================"
