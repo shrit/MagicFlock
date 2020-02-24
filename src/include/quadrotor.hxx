@@ -150,7 +150,7 @@ template<class simulator_t>
 arma::vec
 Quadrotor<simulator_t>::current_loss() const
 {
-   return loss_vector_;
+  return loss_vector_;
 }
 
 template<class simulator_t>
@@ -318,6 +318,14 @@ Quadrotor<simulator_t>::register_data_set_with_loss()
     last_state(),
     mtools_.to_one_hot_encoding(current_action(), 7),
     mtools_.to_std_vector(current_loss()));
+}
+
+template<class simulator_t>
+template<typename Arg, typename... Args>
+void
+Quadrotor<simulator_t>::register_loss(Arg arg, Args... args)
+{
+  data_set_.save_error_file(name_, arg, args...);
 }
 
 template<class simulator_t>

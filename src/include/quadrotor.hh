@@ -69,6 +69,8 @@ public:
   void register_data_set_with_current_predictions();
   void register_data_set_with_loss(); 
   void register_histogram(int count);
+  template<typename Arg, typename... Args>
+  void register_loss(Arg arg, Args... args);
 
   /*  Speed related functions */
   void set_speed(double speed);
