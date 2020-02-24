@@ -51,12 +51,12 @@ AnnErrorPredictor<simulator_t>::predict_specific_action_error(
 {
   arma::mat labels = predict();
   arma::uword label_index_of_best_estimation =
-    (labels.n_rows - 1) - this->action_.action_to_int(action);
+    (labels.n_rows - 1) - this->action_.as_integer(action);
   arma::rowvec loss_vector;
-  loss_vector << labels(label_index_of_best_estimation, 0)
-              << labels(label_index_of_best_estimation, 1)
-              << labels(label_index_of_best_estimation, 2)
-              << labels(label_index_of_best_estimation, 3);
+  loss_vector << std::fabs(labels(label_index_of_best_estimation, 0))
+              << std::fabs(labels(label_index_of_best_estimation, 1))
+              << std::fabs(labels(label_index_of_best_estimation, 2))
+              << std::fabs(labels(label_index_of_best_estimation, 3));
 
   real_time_loss_ = arma::sum(loss_vector);
   return loss_vector;
@@ -64,7 +64,7 @@ AnnErrorPredictor<simulator_t>::predict_specific_action_error(
 
 template<class simulator_t>
 double
-AnnErrorPredictor<simulator_t>::real_time_loss() const 
+AnnErrorPredictor<simulator_t>::real_time_loss() const
 {
   return real_time_loss_;
 }

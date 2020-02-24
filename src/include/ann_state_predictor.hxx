@@ -110,14 +110,14 @@ double
 AnnStatePredictor<simulator_t>::compute_loss()
 {
   loss_vector_.clear();
-  loss_vector_ << labels_(label_index_of_best_estimation_, 0) -
-                            this->quad_->current_state().distances_3D().at(0)
-               << labels_(label_index_of_best_estimation_, 1) -
-                            this->quad_->current_state().distances_3D().at(1)
-               << labels_(label_index_of_best_estimation_, 2) -
-                            this->quad_->current_state().distances_3D().at(2)
-               << labels_(label_index_of_best_estimation_, 3) -
-                            this->quad_->current_state().height_difference();
+  loss_vector_ << std::fabs(labels_(label_index_of_best_estimation_, 0) -
+                            this->quad_->current_state().distances_3D().at(0))
+               << std::fabs(labels_(label_index_of_best_estimation_, 1) -
+                            this->quad_->current_state().distances_3D().at(1))
+               << std::fabs(labels_(label_index_of_best_estimation_, 2) -
+                            this->quad_->current_state().distances_3D().at(2))
+               << std::fabs(labels_(label_index_of_best_estimation_, 3) -
+                            this->quad_->current_state().height_difference());
 
 
   this->quad_->current_loss(loss_vector_);
