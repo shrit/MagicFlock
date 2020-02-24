@@ -261,14 +261,13 @@ DataSet<simulator_t>::init_dataset_directory()
                       time_stream.str() + "/readme" + time_stream.str();
 
   evaluate_file_name_ = "../dataset/" + date_stream.str() + "/" +
-                          time_stream.str() + "/evaluate" + time_stream.str();
+                        time_stream.str() + "/evaluate" + time_stream.str();
 }
 
 template<class simulator_t>
 template<typename Arg, typename... Args>
 void
-DataSet<simulator_t>::save_evaluation(Arg&& arg,
-                                      Args&&... args)
+DataSet<simulator_t>::save_evaluation(Arg&& arg, Args&&... args)
 {
   std::ofstream file;
   file.open(evaluate_file_name_, std::ios::out);
@@ -316,15 +315,20 @@ DataSet<simulator_t>::save_csv_data_set_2_file(std::string file_name,
 }
 
 template<class simulator_t>
-template<typename Arg>
+template<typename Arg, typename... Args>
 void
-DataSet<simulator_t>::save_error_file(Arg&& arg)
+DataSet<simulator_t>::save_error_file(std::string file_name,
+                                      Arg&& arg,
+                                      Args&&... args)
 {
   std::ofstream file;
-  file.open(error_file_name_, std::ios::out | std::ios::app);
+  file.open(error_file_name_ + "_" + file_name + ".csv",
+            std::ios::out | std::ios::app);
 
-  file << std::forward<Arg>(arg) << "\n";
+  file << std::forward<Arg>(arg);
+  ((file << "," << std::forward<Args>(args)), ...);
 
+  file << "\n";
   file.flush();
   file.close();
 }

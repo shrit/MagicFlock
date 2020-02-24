@@ -54,8 +54,9 @@ public:
                                 Arg&& arg,
                                 Args&&... args);
 
-  template<typename Arg>
-  void save_error_file(Arg&& arg);
+  template<typename Arg, typename... Args>
+  void save_error_file(std::string file_name,
+                       Arg&& arg, Args&&... args);
 
   template<typename Arg>
   void save_histogram(Arg&& arg);
