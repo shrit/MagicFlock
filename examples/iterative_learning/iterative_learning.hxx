@@ -78,6 +78,14 @@ Iterative_learning<flight_controller_t,
 
   Actions::Action follower_1_action = predict_f1.best_predicted_action();
 
+  AnnErrorPredictor<simulator_t> predict_error_f1(
+    "/meta/lemon/examples/iterative_learning/build/error_f1/model.txt",
+    "model",
+    follower_1_);
+
+  arma::rowvec predicted_f1_loss_vec =
+    predict_error_f1.predict_specific_action_error(follower_1_action);
+
   // AnnEnhancedPredictor<simulator_t> predict_f2(
   //   "/meta/lemon/examples/iterative_learning/build/f2/model.txt",
   //   "model",
@@ -91,6 +99,14 @@ Iterative_learning<flight_controller_t,
     follower_2_);
 
   Actions::Action follower_2_action = predict_f2.best_predicted_action();
+
+  AnnErrorPredictor<simulator_t> predict_error_f2(
+    "/meta/lemon/examples/iterative_learning/build/error_f2/model.txt",
+    "model",
+    follower_2_);
+
+  arma::rowvec predicted_f2_loss_vec =
+    predict_error_f2.predict_specific_action_error(follower_2_action);
 
   follower_1_->current_action(follower_1_action);
   follower_2_->current_action(follower_2_action);
@@ -126,14 +142,34 @@ Iterative_learning<flight_controller_t,
   follower_1_->sample_state();
   follower_2_->sample_state();
 
-  evaluate_model.input(leader_->current_action(),
-                       follower_1_->current_action(),
-                       follower_2_->current_action());
+  evaluate_model_.input(leader_->current_action(),
+                        follower_1_->current_action(),
+                        follower_2_->current_action());
 
-  double loss_f1 = predict_f1.real_time_loss();
-  double loss_f2 = predict_f2.real_time_loss();
-  logger_->info("Real time loss f1: {} ", loss_f1);
-  logger_->info("Real time loss f2: {}", loss_f2);
+  double predicted_loss_f1 = predict_error_f1.real_time_loss();
+  double predicted_loss_f2 = predict_error_f2.real_time_loss();
+
+  double real_loss_f1 = predict_f1.real_time_loss();
+  double real_loss_f2 = predict_f2.real_time_loss();
+  arma::vec real_loss_vec_f1 = predict_f1.loss_vector();
+  arma::vec real_loss_vec_f2 = predict_f2.loss_vector();
+
+  Math_tools mtools;
+
+  follower_1_->register_loss(mtools.to_std_vector(predicted_f1_loss_vec),
+                             predicted_loss_f1,
+                             mtools.to_std_vector(real_loss_vec_f1),
+                             real_loss_f1);
+
+  follower_2_->register_loss(mtools.to_std_vector(predicted_f2_loss_vec),
+                             predicted_loss_f2,
+                             mtools.to_std_vector(real_loss_vec_f2),
+                             real_loss_f2);
+
+  logger_->info("Real time loss f1: {}", real_loss_f1);
+  logger_->info("Real time loss f2: {}", real_loss_f2);
+  logger_->info("Predicted loss f1: {}", predicted_loss_f1);
+  logger_->info("Predicted loss f2: {}", predicted_loss_f2);
 }
 
 template<class flight_controller_t, class simulator_t>
@@ -184,18 +220,8 @@ Iterative_learning<flight_controller_t, simulator_t>::run()
     std::string flight_time = timer_.stop_and_get_time();
     logger_->info("Flight time for this episode:", flight_time);
 
-    logger_->info("Model evaluation: Both Same Action as leader : {}",
-                  evaluate_model.output().at(0));
-    logger_->info("Follower 1 and leader same action {}",
-                  evaluate_model.output().at(1));
-    logger_->info("Follower 2 and leader same action {}",
-                  evaluate_model.output().at(2));
-    logger_->info("Bad action follower 1 {}", evaluate_model.output().at(3));
-    logger_->info("Bad action follower 2 {}", evaluate_model.output().at(4));
-    logger_->info("good action follower 1 {}", evaluate_model.output().at(5));
-    logger_->info("good action follower 2 {}", evaluate_model.output().at(6));
-    logger_->info("Total count: {}", evaluate_model.output().at(7));
-
+    /* Register the test realized by the model */
+    evaluate_model_.register_evaluation();
     /* Resetting the entire swarm after the end of each episode*/
     sim_interface_->reset_models();
 

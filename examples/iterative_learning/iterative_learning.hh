@@ -35,7 +35,7 @@ public:
 
 private:
   int episode_;
-  EvaluateModel evaluate_model;
+  EvaluateModel<simulator_t> evaluate_model_;
   std::vector<double> flight_errors_;
   int max_episode_;
   std::shared_ptr<simulator_t> sim_interface_;
