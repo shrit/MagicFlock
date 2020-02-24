@@ -37,7 +37,10 @@ public:
     typename std::vector<Quadrotor<simulator_t>>::iterator quad);
 
   arma::mat predict();
- 
+  arma::rowvec predict_specific_action_error(Actions::Action action);
+
+  double real_time_loss() const;
+
   AnnErrorPredictor(AnnErrorPredictor const&) = delete;
   AnnErrorPredictor(AnnErrorPredictor&&) = default;
 
@@ -45,7 +48,6 @@ private:
   std::string model_path_;
   std::string model_name_;
   double real_time_loss_;
-  std::vector<double> loss_vector_;
 };
 
 #include "ann_error_predictor.hxx"
