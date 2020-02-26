@@ -415,6 +415,6 @@ template<class simulator_t>
 double
 Quadrotor<simulator_t>::distance_to(int id)
 {
-  double distance = dists_to_neighbor_.at(id);
+  double distance = distances_to_neighbors().at(id);
   return distance;
 }

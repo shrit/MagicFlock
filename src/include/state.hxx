@@ -30,8 +30,8 @@ State<simulator_t>::State(std::shared_ptr<simulator_t> sim_interface,
 
   data_ = mtools_.map_to_arma(neighbor_dists_3D_);
   double alti_diff = (leader_->z - follower_->z);
-  data_ = arma::resize(size(data_) + 1);
-  data_.back() = alti_diff;
+  data_.resize(data_.n_rows + 1);
+  data_.at(data_.n_rows) = alti_diff;
 }
 
 template<class simulator_t>
@@ -85,7 +85,7 @@ State<simulator_t>::neighbor_dists_3D() const
 
 template<class simulator_t>
 const arma::colvec&
-Encode() const
+State<simulator_t>::Encode() const
 {
   return data_;
 }
