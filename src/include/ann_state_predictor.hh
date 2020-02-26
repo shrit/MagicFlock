@@ -18,6 +18,7 @@
 #include <ensmallen_bits/adam/adam_update.hpp>
 
 /* local includes */
+#include "argmin.hh"
 #include "ann_predictor.hh"
 #include "global.hh"
 #include "logger.hh"
@@ -38,13 +39,11 @@ public:
 
   arma::vec best_predicted_state();
 
-  std::vector<double> estimate_action_from_distance(arma::mat& matrix);
-
-  int index_of_best_action(arma::mat& matrix);
-
   arma::mat predict();
 
-  double compute_loss();
+  double compute_real_loss();
+  double compute_absolute_loss();
+  double compute_square_loss();
   double real_time_loss();
 
   arma::vec loss_vector() const;
@@ -59,7 +58,7 @@ private:
   std::string model_name_;
   double real_time_loss_;
   arma::vec loss_vector_;
-  arma::uword label_index_of_best_estimation_;
+  arma::uword index_of_best_estimation_;
   Actions::Action best_action_follower_;
 };
 

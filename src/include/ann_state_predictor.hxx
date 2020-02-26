@@ -14,39 +14,6 @@ AnnStatePredictor<simulator_t>::AnnStatePredictor(
 }
 
 template<class simulator_t>
-std::vector<double>
-AnnStatePredictor<simulator_t>::estimate_action_from_distance(arma::mat& matrix)
-{
-  std::vector<double> sum_of_distances;
-  double d1, d2, d3;
-  double height_diff;
-  for (arma::uword i = 0; i < matrix.n_rows; ++i) {
-    d1 = std::fabs(this->quad_->all_states().at(0).distances_3D().at(0) -
-                   matrix(i, 0));
-    d2 = std::fabs(this->quad_->all_states().at(0).distances_3D().at(1) -
-                   matrix(i, 1));
-    d3 = std::fabs(this->quad_->all_states().at(0).distances_3D().at(2) -
-                   matrix(i, 2));
-    height_diff = std::fabs(
-      this->quad_->all_states().at(0).height_difference() - matrix(i, 3));
-    sum_of_distances.push_back(d1 + d3 + height_diff);
-  }
-  return sum_of_distances;
-}
-
-template<class simulator_t>
-int
-AnnStatePredictor<simulator_t>::index_of_best_action(arma::mat& matrix)
-{
-  std::vector<double> distances = estimate_action_from_distance(matrix);
-  std::reverse(distances.begin(), distances.end());
-  logger::logger_->info("Sum of distances: {}", distances);
-  int value =
-    std::min_element(distances.begin(), distances.end()) - distances.begin();
-  return value;
-}
-
-template<class simulator_t>
 arma::mat
 AnnStatePredictor<simulator_t>::predict()
 {
@@ -64,21 +31,22 @@ AnnStatePredictor<simulator_t>::predict()
   labels_.clear();
   regression_model.Predict(features, labels_);
 
-  /* Transpose to the original format */
-  features = features.t();
-  labels_ = labels_.t();
+  logger::logger_->info("Size of State features matrix: {}",
+                        arma::size(features));
+  logger::logger_->info("State data matrix: {}", features.t());
+  logger::logger_->info("State prediction matrix: {}", labels_.t());
 
-  logger::logger_->info("Size of State features matrix: {}", arma::size(features));
-  logger::logger_->info("State data matrix: {}", features);
-  logger::logger_->info("State prediction matrix: {}", labels_);
+  arma::mat original_state_matrix = this->create_state_matrix(
+    this->quad_->all_states().at(0), labels_.n_cols);
 
-  arma::uword value = index_of_best_action(labels_);
-  logger::logger_->info("Index of best action: {}", value);
+  Argmin<arma::mat, arma::uword> argmin(original_state_matrix, labels_);
 
-  label_index_of_best_estimation_ = (labels_.n_rows - 1) - value;
+  arma::uword best_action_index = argmin.best_action();
+  logger::logger_->info("Index of best action: {}", best_action_index);
+  index_of_best_estimation_ = argmin.best_index();
 
   /*  Get the follower action now !! and store it directly */
-  best_action_follower_ = this->action_.int_to_action(value);
+  best_action_follower_ = this->action_.int_to_action(best_action_index);
   return labels_;
 }
 
@@ -86,13 +54,7 @@ template<class simulator_t>
 arma::vec
 AnnStatePredictor<simulator_t>::best_predicted_state()
 {
-  arma::vec current_predicted_state;
-  current_predicted_state << labels_(label_index_of_best_estimation_, 0)
-                          << labels_(label_index_of_best_estimation_, 1)
-                          << labels_(label_index_of_best_estimation_, 2)
-                          << labels_(label_index_of_best_estimation_, 3);
-
-  return current_predicted_state;
+  return labels_.col(index_of_best_estimation_);
 }
 
 template<class simulator_t>
@@ -101,24 +63,17 @@ AnnStatePredictor<simulator_t>::best_predicted_action()
 {
   /* Predict the next state using the above data */
   predict();
-  this->quad_->current_predicted_state(best_predicted_state());  
+  this->quad_->current_predicted_state(best_predicted_state());
   return best_action_follower_;
 }
 
 template<class simulator_t>
 double
-AnnStatePredictor<simulator_t>::compute_loss()
+AnnStatePredictor<simulator_t>::compute_real_loss()
 {
   loss_vector_.clear();
-  loss_vector_ << std::fabs(labels_(label_index_of_best_estimation_, 0) -
-                            this->quad_->current_state().distances_3D().at(0))
-               << std::fabs(labels_(label_index_of_best_estimation_, 1) -
-                            this->quad_->current_state().distances_3D().at(1))
-               << std::fabs(labels_(label_index_of_best_estimation_, 2) -
-                            this->quad_->current_state().distances_3D().at(2))
-               << std::fabs(labels_(label_index_of_best_estimation_, 3) -
-                            this->quad_->current_state().height_difference());
-
+  loss_vector_ = this->quad_->current_state().Data() -
+                 labels_.col(index_of_best_estimation_);
 
   this->quad_->current_loss(loss_vector_);
   return arma::sum(loss_vector_);
@@ -126,9 +81,37 @@ AnnStatePredictor<simulator_t>::compute_loss()
 
 template<class simulator_t>
 double
+AnnStatePredictor<simulator_t>::compute_absolute_loss()
+{
+  loss_vector_.clear();
+  loss_vector_ = arma::abs(this->quad_->current_state().Data() -
+                           labels_.col(index_of_best_estimation_));
+
+  this->quad_->current_loss(loss_vector_);
+  return arma::sum(loss_vector_);
+}
+
+template<class simulator_t>
+double
+AnnStatePredictor<simulator_t>::compute_square_loss()
+{
+  loss_vector_.clear();
+  mlpack::ann::MeanSquaredError<arma::rowvec, arma::rowvec> mse;
+  double error = mse.Forward(this->quad_->current_state().Data(),
+                             labels_.col(index_of_best_estimation_));
+
+  loss_vector_ = arma::square(this->quad_->current_state().Data() -
+                              labels_.col(index_of_best_estimation_));
+
+  this->quad_->current_loss(loss_vector_);
+  return error;
+}
+
+template<class simulator_t>
+double
 AnnStatePredictor<simulator_t>::real_time_loss()
 {
-  real_time_loss_ = compute_loss();
+  real_time_loss_ = compute_real_loss();
   return real_time_loss_;
 }
 
