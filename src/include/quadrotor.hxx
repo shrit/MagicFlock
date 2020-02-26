@@ -286,11 +286,11 @@ Quadrotor<simulator_t>::register_data_set()
 {
   data_set_.save_csv_data_set_2_file(
     name_,
-    before_last_state(),
+    mtools_.to_std_vector(before_last_state()),
     mtools_.to_one_hot_encoding(last_action(), 7),
-    last_state(),
+    mtools_.to_std_vector(last_state()),
     mtools_.to_one_hot_encoding(current_action(), 7),
-    current_state());
+    mtools_.to_std_vector(current_state()));
 }
 
 template<class simulator_t>
@@ -299,12 +299,12 @@ Quadrotor<simulator_t>::register_data_set_with_current_predictions()
 {
   data_set_.save_csv_data_set_2_file(
     name_ + "_current_predictions",
-    before_last_state(),
+    mtools_.to_std_vector(before_last_state()),
     mtools_.to_one_hot_encoding(last_action(), 7),
-    last_state(),
+    mtools_.to_std_vector(last_state()),
     mtools_.to_one_hot_encoding(current_action(), 7),
     mtools_.to_std_vector(current_predicted_state()),
-    current_state());
+    mtools_.to_std_vector(current_state()));
 }
 
 template<class simulator_t>
@@ -313,9 +313,9 @@ Quadrotor<simulator_t>::register_data_set_with_loss()
 {
   data_set_.save_csv_data_set_2_file(
     name_ + "_loss",
-    before_last_state(),
+    mtools_.to_std_vector(before_last_state()),
     mtools_.to_one_hot_encoding(last_action(), 7),
-    last_state(),
+    mtools_.to_std_vector(last_state()),
     mtools_.to_one_hot_encoding(current_action(), 7),
     mtools_.to_std_vector(current_loss()));
 }

@@ -76,10 +76,10 @@ public:
   std::vector<double> to_std_vector(Arg arg);
 
   template<typename T1, typename T2>
-  std::vector<T2> map_to_vector(const std::map<T1, T2>&);
+  std::vector<T2> map_to_vector(std::map<T1, T2>);
 
   template<typename T1, typename T2>
-  arma::colvec map_to_arma(const std::map<T1, T2>&);
+  arma::colvec map_to_arma(std::map<T1, T2>);
 
   template<typename Arg>
   bool hamming_distance_one_hot(std::vector<Arg> v1, std::vector<Arg> v2);
