@@ -13,11 +13,10 @@ arma::mat
 AnnPredictor<simulator_t>::create_features_matrix()
 {
   arma::mat features;
-  arma::colvec col;
   std::vector<Actions::Action> actions = action_.all_possible_actions();
 
   for (int i = 0; i < 7; ++i) {
-
+    arma::colvec col;
     col.insert_rows(col.n_rows, quad_->last_state().Data());
     col.insert_rows(col.n_rows,
                     mtools_.to_one_hot_encoding(quad_->current_action(), 7));
