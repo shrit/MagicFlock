@@ -1,10 +1,18 @@
 #pragma once
 
-#include "state.hh"
-
 template<class simulator_t>
 State<simulator_t>::State()
-{}
+  : data_(dimension, arma::fill::zeros)
+{
+  /* Nothing to do here. */
+}
+
+template<class simulator_t>
+State<simulator_t>::State(const arma::colvec& data)
+  : data_(data)
+{
+  /* Nothing to do here. */
+}
 
 template<class simulator_t>
 State<simulator_t>::State(std::shared_ptr<simulator_t> sim_interface,
@@ -12,118 +20,82 @@ State<simulator_t>::State(std::shared_ptr<simulator_t> sim_interface,
                           std::vector<unsigned int> nearest_neighbors)
   : sim_interface_(std::move(sim_interface))
   , id_(id)
+  , data_(nearest_neighbors.size(), arma::fill::zeros)
 {
   leader_ = sim_interface_->positions().begin();
   follower_ = sim_interface_->positions().begin() + id;
+
   neighbor_dists_3D_ = mtools_.distances_to_neighbors(
     id, nearest_neighbors, sim_interface_->positions());
-  dists_3D_ = mtools_.map_to_vector(neighbor_dists_3D_);
-  alti_diff_ = (leader_->z - follower_->z);
+
+  data_ = mtools_.map_to_arma(neighbor_dists_3D_);
+  double alti_diff = (leader_->z - follower_->z);
+  data_ = arma::resize(size(data_) + 1);
+  data_.back() = alti_diff;
 }
 
 template<class simulator_t>
-State<simulator_t>::State(std::vector<double> distances, double altitude_diff)
+arma::colvec
+State<simulator_t>::Data() const
 {
-  dists_3D_ = distances;
-  alti_diff_ = altitude_diff;
+  return data_;
 }
 
 template<class simulator_t>
-std::vector<State<simulator_t>>
-State<simulator_t>::StateConstructor(arma::mat values)
+arma::colvec&
+State<simulator_t>::Data()
 {
-  std::vector<State<simulator_t>> states;
-  for (int i = 0; i < values.n_rows; ++i) {
-    arma::rowvec state_row = values.row(i);
-    logger::logger_->info("state vector row vec: {}", state_row);
-    std::vector<double> state = mtools_.to_std_vector(state_row);
-    double alti_diff = state.back();
-    state.pop_back();
-    std::vector<double> dists_3D = state;
-    states.emplace_back(dists_3D, alti_diff);
-  }
-  return states;
+  return data_;
 }
 
 template<class simulator_t>
 double
-State<simulator_t>::rt_height()
+State<simulator_t>::AltitudeDiff() const
 {
-  auto quad = sim_interface_->positions().begin() + id_;
-  altitude_ = quad->z;
-  return altitude_;
+  return data_.back();
 }
 
 template<class simulator_t>
-double
-State<simulator_t>::height_difference() const
+double&
+State<simulator_t>::AltitudeDiff()
 {
-  return alti_diff_;
+  return data_.back();
 }
 
 template<class simulator_t>
-double
-State<simulator_t>::rt_height_difference()
+arma::colvec
+State<simulator_t>::Distances() const
 {
-  alti_diff_ = (leader_->z - follower_->z);
-  return alti_diff_;
+  return data_;
 }
 
 template<class simulator_t>
-std::vector<double>
-State<simulator_t>::distances_3D() const
+arma::colvec&
+State<simulator_t>::Distances()
 {
-  return dists_3D_;
+  return data_;
 }
 
 template<class simulator_t>
-std::map<unsigned int,double>
+std::map<unsigned int, double>
 State<simulator_t>::neighbor_dists_3D() const
 {
   return neighbor_dists_3D_;
 }
 
 template<class simulator_t>
-double
-State<simulator_t>::distance_to(int id)
+const arma::colvec&
+Encode() const
 {
-  double distance = neighbor_dists_3D_.at(id);
-  return distance;
-}
-
-template<class simulator_t>
-std::vector<double>
-State<simulator_t>::estimated_distances() const
-{
-  return estimated_dists_3D_;
+  return data_;
 }
 
 template<class simulator_t>
 inline std::ostream&
 operator<<(std::ostream& out, const State<simulator_t>& s)
 {
-  out << s.distances_3D() << "," << s.height_difference();
+  out << s.Distances() << "," << s.AltitudeDiff();
   return out;
-}
-
-template<class simulator_t>
-inline State<simulator_t>
-operator-(const State<simulator_t>& s, const State<simulator_t>& s1)
-{
-  State<simulator_t> s_result;
-  s_result.alti_diff = s.height_diff() - s1.height_diff();
-  s_result.distance_3D() = s.distance_3D() - s1.distance_3D();
-  return s_result;
-}
-
-template<class simulator_t>
-inline State<simulator_t>
-operator+(const State<simulator_t>& s, const State<simulator_t>& s1)
-{
-  State<simulator_t> s_result;
-  s_result.alti_diff = s.height_diff() + s1.height_diff();
-  s_result.distance_3D() = s.distance_3D() + s1.distance_3D();
-  return s_result;
 }
 
 namespace ILMR {
@@ -142,16 +114,16 @@ template<class simulator_t>
 inline bool
 operator==(const State<simulator_t>& s, const State<simulator_t>& s1)
 {
-  bool result_distance = std::equal(s.distances_3D().begin(),
-                                    s.distances_3D().end(),
-                                    s1.distances_3D().begin(),
+  bool result_distance = std::equal(s.Distances().begin(),
+                                    s.Distances().end(),
+                                    s1.Distances().begin(),
                                     [](const double& d, const double& d1) {
                                       bool result = ILMR::comparator(d, d1);
                                       return result;
                                     });
 
   bool result_height =
-    comparator(s.height_difference(), s1.height_difference());
+    comparator(s.AltitudeDiff(), s1.AltitudeDiff());
 
   bool result = false;
   if (result_distance and result_height) {

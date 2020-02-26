@@ -19,31 +19,37 @@ class State
 
 public:
   State();
+
+  State(const arma::colvec& data);
+
   State(std::shared_ptr<simulator_t> sim_interface,
         unsigned int id,
         std::vector<unsigned int> nearest_neighbors);
 
-  State(std::vector<double> distances, double altitude_diff);
+  arma::colvec Data() const;
 
-  double height_difference() const;
-  double rt_height_difference();
-  double rt_height();
+  arma::colvec& Data();
 
-  std::vector<double> distances_3D() const;
+  double AltitudeDiff() const;
+
+  double& AltitudeDiff();
+
+  arma::colvec Distances() const;
+
+  arma::colvec& Distances();
+
   std::map<unsigned int, double> neighbor_dists_3D() const;
-  double distance_to(int id);
 
-  std::vector<double> estimated_distances() const;
-  std::vector<State> StateConstructor(arma::mat values);
+  const arma::colvec& Encode() const;
+
+  static constexpr size_t dimension = 3;
 
 private:
   int id_;
-  double altitude_;
-  double alti_diff_;
   Math_tools mtools_;
-  std::vector<double> dists_3D_;
   std::map<unsigned int, double> neighbor_dists_3D_;
-  std::vector<double> estimated_dists_3D_;
+
+  arma::colvec data_;
   /*  Create a shared pointer to a simulator interface The interface
       need to have all the required data about the quadcopter*/
   std::shared_ptr<simulator_t> sim_interface_;
