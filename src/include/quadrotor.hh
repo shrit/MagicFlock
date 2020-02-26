@@ -30,8 +30,11 @@ public:
   unsigned int id() const;
   std::string name() const;
 
+  /* Neighbors related fuctions*/
   std::vector<unsigned int> nearest_neighbors() const;
   void add_nearest_neighbor_id(unsigned int id);
+  double distance_to(int id);
+  std::vector<double> distances_to_neighbors();
 
   /*  State related functions */
   void sample_state();
@@ -73,7 +76,7 @@ public:
   void register_loss(Arg arg, Args... args);
 
   /*  Speed related functions */
-  void set_speed(double speed);
+  double& speed();
   double speed() const;
   void increase_speed();
   void decrease_speed();
@@ -81,7 +84,6 @@ public:
   void decrease_speed_by_value(double speed);
 
   bool examin_geometric_shape();
-  std::vector<double> distances_to_neighbors();
 
 private:
   Actions::Action current_action_{ Actions::Action::Unknown };

@@ -358,10 +358,10 @@ Quadrotor<simulator_t>::height()
 }
 
 template<class simulator_t>
-void
-Quadrotor<simulator_t>::set_speed(double speed)
+double&
+Quadrotor<simulator_t>::speed()
 {
-  speed_ = speed;
+  return speed_;
 }
 
 template<class simulator_t>
@@ -409,4 +409,12 @@ Quadrotor<simulator_t>::distances_to_neighbors()
     id_, nearest_neighbors_, sim_interface_->positions());
   distances = mtools_.map_to_vector(neigh_distances);
   return distances;
+}
+
+template<class simulator_t>
+double
+Quadrotor<simulator_t>::distance_to(int id)
+{
+  double distance = dists_to_neighbor_.at(id);
+  return distance;
 }
