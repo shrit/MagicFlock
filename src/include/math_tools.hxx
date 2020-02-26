@@ -177,13 +177,28 @@ Math_tools::to_std_vector(Arg arg)
 
 template<typename T1, typename T2>
 std::vector<T2>
-Math_tools::map_to_vector(std::map<T1, T2> m)
+Math_tools::map_to_vector(const std::map<T1, T2>& m)
 {
   std::vector<T2> vec;
-  for (typename std::map<T1, T2>::iterator it = m.begin(); it != m.end(); ++it) {
+  for (typename std::map<T1, T2>::iterator it = m.begin(); it != m.end();
+       ++it) {
     vec.push_back(it->second);
   }
   return vec;
+}
+
+template<typename T1, typename T2>
+std::vector<T2>
+Math_tools::map_to_arma(const std::map<T1, T2>& m)
+{
+  std::vector<T2> vec;
+  for (typename std::map<T1, T2>::iterator it = m.begin(); it != m.end();
+       ++it) {
+    vec.push_back(it->second);
+  }
+  arma::colvec arma_vec = arma::conv_to<arma::colvec>::from(vec);
+
+  return arma_vec;
 }
 
 template<typename T>
