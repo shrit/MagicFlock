@@ -33,17 +33,17 @@ AnnStatePredictor<simulator_t>::predict()
 
   logger::logger_->info("Size of State features matrix: {}",
                         arma::size(features));
-  logger::logger_->info("State data matrix: {}", features.t());
-  logger::logger_->info("State prediction matrix: {}", labels_.t());
+  logger::logger_->info("State data matrix:\n {}", features.t());
+  logger::logger_->info("State prediction matrix:\n {}", labels_.t());
 
   arma::mat original_state_matrix = this->create_state_matrix(
     this->quad_->all_states().at(0), labels_.n_cols);
 
   Argmin<arma::mat, arma::uword> argmin(original_state_matrix, labels_);
 
-  arma::uword best_action_index = argmin.best_action();
+  arma::uword best_action_index = argmin.min_index();
   logger::logger_->info("Index of best action: {}", best_action_index);
-  index_of_best_estimation_ = argmin.best_index();
+  index_of_best_estimation_ = best_action_index;
 
   /*  Get the follower action now !! and store it directly */
   best_action_follower_ = this->action_.int_to_action(best_action_index);
