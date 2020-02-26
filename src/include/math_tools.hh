@@ -67,7 +67,7 @@ public:
   Arg mean(std::vector<Arg> vec);
 
   template<typename Arg, typename Arg2>
-  std::vector<bool> to_one_hot_encoding(Arg arg, Arg2 number_of_class);
+  arma::colvec to_one_hot_encoding(Arg arg, Arg2 number_of_class);
 
   template<typename Arg>
   int from_one_hot_encoding(std::vector<Arg> values);

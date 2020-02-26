@@ -109,10 +109,10 @@ Math_tools::get_max_histogram(const std::map<KeyType, ValueType>& x)
 
 /*  Simple implementation, need more logical one */
 template<typename Arg, typename Arg2>
-std::vector<bool>
+arma::colvec
 Math_tools::to_one_hot_encoding(Arg arg, Arg2 number_of_class)
 {
-  std::vector<bool> one_hot(number_of_class, 0);
+  arma::colvec one_hot(number_of_class, arma::fill::zeros);
 
   if (number_of_class > static_cast<int>(arg)) {
     one_hot.at(static_cast<int>(arg)) = 1;
@@ -188,7 +188,7 @@ Math_tools::map_to_vector(const std::map<T1, T2>& m)
 }
 
 template<typename T1, typename T2>
-std::vector<T2>
+arma::colvec
 Math_tools::map_to_arma(const std::map<T1, T2>& m)
 {
   std::vector<T2> vec;
