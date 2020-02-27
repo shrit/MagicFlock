@@ -1,61 +1,6 @@
 #pragma once
 
 template<typename T>
-double
-Math_tools::deformation_error_one_follower(lt::triangle<T> old_dist,
-                                           lt::triangle<T> new_dist)
-{
-  double diff_f1 = std::fabs(old_dist.f1 - new_dist.f1);
-  double diff_f2 = std::fabs(old_dist.f2 - new_dist.f2);
-  double error = diff_f1 + diff_f2;
-  /*  Recalculate the Error between quadcopters  */
-  return error;
-}
-
-template<typename T>
-double
-Math_tools::gaussian_noise(std::vector<lt::triangle<T>> distances,
-                           std::vector<T> drift_f3)
-{
-  std::vector<double> ideal_f3;
-
-  std::transform(distances.begin(),
-                 distances.end(),
-                 std::back_inserter(ideal_f3),
-                 [](lt::triangle<double> const& t) { return t.f3; });
-
-  std::adjacent_difference(
-    ideal_f3.begin(), ideal_f3.end(), std::back_inserter(drift_f3));
-
-  /* The difference in distances needs to be in absolute value */
-  /*  This has a tremendous cost since we need to re */
-  double (*fabs)(double) = &std::fabs;
-  std::transform(drift_f3.begin(), drift_f3.end(), drift_f3.begin(), fabs);
-
-  // adding one here to remove the first element of adjacent difference
-  double noise_mean =
-    std::accumulate(drift_f3.begin() + 1, drift_f3.end(), 0.0) /
-    drift_f3.size();
-  return noise_mean;
-}
-
-template<typename T>
-long long unsigned int
-Math_tools::index_of_max_value(const std::vector<T>& vec)
-{
-  auto highest = std::max_element(vec.begin(), vec.end());
-  return std::distance(vec.begin(), highest);
-}
-
-template<typename T>
-long long unsigned int
-Math_tools::index_of_min_value(const std::vector<T>& vec)
-{
-  auto highest = std::min_element(vec.begin(), vec.end());
-  return std::distance(vec.begin(), highest);
-}
-
-template<typename T>
 bool
 Math_tools::is_good_shape(unsigned int id,
                           std::vector<unsigned int> nearest_neighbors,
@@ -270,34 +215,3 @@ Math_tools::pythagore_hypotenuse(T leg_1, T leg_2)
   return hypotenuse;
 }
 
-template<typename Arg>
-Arg
-Math_tools::mean(std::vector<Arg> vec)
-{
-  size_t sz = vec.size();
-  if (sz == 0)
-    return -1;
-
-  return std::accumulate(vec.begin(), vec.end(), 0.0) / vec.size();
-}
-
-template<typename Arg>
-Arg
-Math_tools::variance(std::vector<Arg> vec)
-{
-  /*  note that diff_f3_ was used here */
-  size_t sz = vec.size();
-  if (sz == 1)
-    return -1;
-
-  /*  Do not take the first value */
-  Arg mean = std::accumulate(vec.begin() + 1, vec.end(), 0.0) / vec.size();
-
-  return std::accumulate(vec.begin(),
-                         vec.end(),
-                         0.0,
-                         [&mean, &sz](double accumulator, const double& val) {
-                           return accumulator +
-                                  ((val - mean) * (val - mean) / (sz - 1));
-                         });
-}

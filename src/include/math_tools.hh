@@ -25,10 +25,6 @@ public:
   Math_tools() {}
 
   template<typename T>
-  double deformation_error_one_follower(lt::triangle<T> old_dist,
-                                        lt::triangle<T> new_dist);
-
-  template<typename T>
   std::map<unsigned int, double> distances_to_neighbors(
     unsigned int id,
     std::vector<unsigned int> nearest_neighbors,
@@ -38,15 +34,6 @@ public:
   double distance_a_2_b(std::vector<lt::position3D<T>> positions,
                         unsigned int id_a,
                         unsigned int id_b);
-
-  template<typename T>
-  double gaussian_noise(std::vector<lt::triangle<T>> ideal_dist,
-                        std::vector<T> drift_f3);
-  template<typename T>
-  long long unsigned int index_of_max_value(const std::vector<T>& vec);
-
-  template<typename T>
-  long long unsigned int index_of_min_value(const std::vector<T>& vec);
 
   template<typename T>
   bool is_good_shape(unsigned int id,
@@ -62,9 +49,6 @@ public:
   template<typename KeyType, typename ValueType>
   std::pair<KeyType, ValueType> get_max_histogram(
     const std::map<KeyType, ValueType>& x);
-
-  template<typename Arg>
-  Arg mean(std::vector<Arg> vec);
 
   template<typename Arg, typename Arg2>
   arma::colvec to_one_hot_encoding(Arg arg, Arg2 number_of_class);
@@ -95,9 +79,6 @@ public:
 
   template<typename T>
   T pythagore_hypotenuse(T leg_1, T leg_2);
-
-  template<typename Arg>
-  Arg variance(std::vector<Arg> vec);
 
 private:
   std::map<int, int> histo_;
