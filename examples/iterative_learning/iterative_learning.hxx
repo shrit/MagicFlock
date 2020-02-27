@@ -83,7 +83,7 @@ Iterative_learning<flight_controller_t,
     "model",
     follower_1_);
 
-  arma::rowvec predicted_f1_loss_vec =
+  arma::colvec predicted_f1_loss_vec =
     predict_error_f1.predict_specific_action_error(follower_1_action);
 
   // AnnEnhancedPredictor<simulator_t> predict_f2(
@@ -105,7 +105,7 @@ Iterative_learning<flight_controller_t,
     "model",
     follower_2_);
 
-  arma::rowvec predicted_f2_loss_vec =
+  arma::colvec predicted_f2_loss_vec =
     predict_error_f2.predict_specific_action_error(follower_2_action);
 
   follower_1_->current_action(follower_1_action);

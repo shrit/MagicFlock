@@ -31,7 +31,7 @@ State<simulator_t>::State(std::shared_ptr<simulator_t> sim_interface,
   data_ = mtools_.map_to_arma(neighbor_dists_3D_);
   double alti_diff = (leader_->z - follower_->z);
   data_.resize(data_.n_rows + 1);
-  data_.at(data_.n_rows) = alti_diff;
+  data_.at(data_.n_rows - 1) = alti_diff;
 }
 
 template<class simulator_t>

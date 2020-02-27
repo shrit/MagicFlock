@@ -39,7 +39,7 @@ AnnStatePredictor<simulator_t>::predict()
   arma::mat original_state_matrix = this->create_state_matrix(
     this->quad_->all_states().at(0), labels_.n_cols);
 
-  Argmin<arma::mat, arma::uword> argmin(original_state_matrix, labels_);
+  Argmin<arma::mat, arma::uword> argmin(original_state_matrix, labels_, 1);
 
   arma::uword best_action_index = argmin.min_index();
   logger::logger_->info("Index of best action: {}", best_action_index);

@@ -37,26 +37,21 @@ AnnErrorPredictor<simulator_t>::predict()
 
   logger::logger_->info("Size of error features matrix: {}",
                         arma::size(features));
-  logger::logger_->info("Error feature matrix: {}", features);
-  logger::logger_->info("Error prediction matrix: {}", labels);
+  logger::logger_->info("Error feature matrix:\n {}", features);
+  logger::logger_->info("Error prediction matrix:\n {}", labels);
 
   /* return the predicted error based on the feature vector*/
   return labels;
 }
 
 template<class simulator_t>
-arma::rowvec
+arma::colvec
 AnnErrorPredictor<simulator_t>::predict_specific_action_error(
   Actions::Action action)
 {
   arma::mat labels = predict();
-  arma::uword label_index_of_best_estimation =
-    (labels.n_rows - 1) - this->action_.as_integer(action);
-  arma::rowvec loss_vector;
-  loss_vector << std::fabs(labels(label_index_of_best_estimation, 0))
-              << std::fabs(labels(label_index_of_best_estimation, 1))
-              << std::fabs(labels(label_index_of_best_estimation, 2))
-              << std::fabs(labels(label_index_of_best_estimation, 3));
+  arma::uword label_index_of_best_estimation = this->action_.as_integer(action);
+  arma::colvec loss_vector = labels.col(label_index_of_best_estimation);
 
   real_time_loss_ = arma::sum(loss_vector);
   return loss_vector;
