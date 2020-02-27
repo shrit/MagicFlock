@@ -78,20 +78,6 @@ public:
 
   void init_dataset_directory();
 
-  std::vector<State<simulator_t>> st_vec() const;
-
-  std::vector<Actions::Action> at_vec() const;
-
-  std::vector<State<simulator_t>> st_1_vec() const;
-  std::vector<Actions::Action> at_1_vec() const;
-
-  std::vector<State<simulator_t>> st_2_vec() const;
-
-  arma::mat conv_state_to_arma(State<simulator_t> state);
-
-  arma::mat conv_state_action_state_to_arma(State<simulator_t> state,
-                                            Actions::Action action,
-                                            State<simulator_t> state_2);
   arma::mat submat_using_indices(arma::mat, arma::Mat<size_t>);
   arma::mat st_mat() const;
   arma::mat at_mat() const;
@@ -130,12 +116,6 @@ private:
   std::string readme_file_name_;
   std::string evaluate_file_name_;
   std::string episodes_file_name_;
-
-  std::vector<State<simulator_t>> st_vec_;
-  std::vector<Actions::Action> at_vec_;
-  std::vector<State<simulator_t>> st_1_vec_;
-  std::vector<Actions::Action> at_1_vec_;
-  std::vector<State<simulator_t>> st_2_vec_;
 
   arma::mat st_mat_;
   arma::mat at_mat_;

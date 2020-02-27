@@ -38,16 +38,6 @@ DataSet<simulator_t>::parse_dataset_file(std::string file_name)
 
   logger::logger_->debug("Matrix: S_t => t=0: {}", st_mat);
 
-  // State<simulator_t> state;
-  // Actions action;
-  // st_vec_ = state.StateConstructor(st_mat);
-  // at_vec_ = action.ActionConstructor(at_mat);
-  // st_1_vec_ = state.StateConstructor(st_1_mat);
-  // at_1_vec_ = action.ActionConstructor(at_1_mat);
-  // st_2_vec_ = state.StateConstructor(st_2_mat);
-
-  logger::logger_->debug("Vector: S_t => t=0: {}", st_vec_);
-
   st_mat_ = st_mat.t();
   at_mat_ = at_mat.t();
   st_1_mat_ = st_1_mat.t();
@@ -145,41 +135,6 @@ arma::mat
 DataSet<simulator_t>::test_features() const
 {
   return test_features_;
-}
-
-template<class simulator_t>
-std::vector<State<simulator_t>>
-DataSet<simulator_t>::st_vec() const
-{
-  return st_vec_;
-}
-
-template<class simulator_t>
-std::vector<Actions::Action>
-DataSet<simulator_t>::at_vec() const
-{
-  return at_vec_;
-}
-
-template<class simulator_t>
-std::vector<State<simulator_t>>
-DataSet<simulator_t>::st_1_vec() const
-{
-  return st_1_vec_;
-}
-
-template<class simulator_t>
-std::vector<Actions::Action>
-DataSet<simulator_t>::at_1_vec() const
-{
-  return at_1_vec_;
-}
-
-template<class simulator_t>
-std::vector<State<simulator_t>>
-DataSet<simulator_t>::st_2_vec() const
-{
-  return st_2_vec_;
 }
 
 template<class simulator_t>
@@ -406,41 +361,6 @@ DataSet<simulator_t>::plot(std::string title,
   // 	     Points(x_zero.begin(), x_zero.end(), y_zero.begin(), "No reward"));
 
   plt.Flush();
-}
-
-template<class simulator_t>
-arma::mat
-DataSet<simulator_t>::conv_state_to_arma(State<simulator_t> state)
-{
-  arma::mat mat(3, 1);
-  mat(0, 0) = state.distances_3D().at(0);
-  mat(1, 0) = state.distances_3D().at(1);
-  mat(2, 0) = state.height_difference();
-  return mat;
-}
-
-template<class simulator_t>
-arma::mat
-DataSet<simulator_t>::conv_state_action_state_to_arma(
-  State<simulator_t> state,
-  Actions::Action action,
-  State<simulator_t> state_2)
-{
-  arma::mat mat;
-  arma::rowvec row;
-  std::vector<bool> act = mtools_.to_one_hot_encoding(action, 7);
-  logger::logger_->info("Last State: {}", state);
-  logger::logger_->info("State: {}", state_2);
-  row << state.distances_3D().at(0) << state.distances_3D().at(1)
-      << state.distances_3D().at(2) << state.height_difference() << act.at(0)
-      << act.at(1) << act.at(2) << act.at(3) << act.at(4) << act.at(5)
-      << act.at(6) << state_2.distances_3D().at(0)
-      << state_2.distances_3D().at(1) << state_2.distances_3D().at(2)
-      << state_2.height_difference();
-  mat.insert_rows(0, row);
-  mat = mat.t();
-  logger::logger_->info("Query Matrix: {}", mat);
-  return mat;
 }
 
 template<class simulator_t>
