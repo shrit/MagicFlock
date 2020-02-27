@@ -287,9 +287,9 @@ Quadrotor<simulator_t>::register_data_set()
   data_set_.save_csv_data_set_2_file(
     name_,
     mtools_.to_std_vector(before_last_state().Data()),
-    mtools_.to_one_hot_encoding(last_action(), 7),
+    mtools_.to_std_vector(mtools_.to_one_hot_encoding(last_action(), 7)),
     mtools_.to_std_vector(last_state().Data()),
-    mtools_.to_one_hot_encoding(current_action(), 7),
+    mtools_.to_std_vector(mtools_.to_one_hot_encoding(current_action(), 7)),
     mtools_.to_std_vector(current_state().Data()));
 }
 
@@ -300,9 +300,9 @@ Quadrotor<simulator_t>::register_data_set_with_current_predictions()
   data_set_.save_csv_data_set_2_file(
     name_ + "_current_predictions",
     mtools_.to_std_vector(before_last_state().Data()),
-    mtools_.to_one_hot_encoding(last_action(), 7),
+    mtools_.to_std_vector(mtools_.to_one_hot_encoding(last_action(), 7)),
     mtools_.to_std_vector(last_state().Data()),
-    mtools_.to_one_hot_encoding(current_action(), 7),
+    mtools_.to_std_vector(mtools_.to_one_hot_encoding(current_action(), 7)),
     mtools_.to_std_vector(current_predicted_state().Data()),
     mtools_.to_std_vector(current_state().Data()));
 }
@@ -314,9 +314,9 @@ Quadrotor<simulator_t>::register_data_set_with_loss()
   data_set_.save_csv_data_set_2_file(
     name_ + "_loss",
     mtools_.to_std_vector(before_last_state().Data()),
-    mtools_.to_one_hot_encoding(last_action(), 7),
+    mtools_.to_std_vector(mtools_.to_one_hot_encoding(last_action(), 7)),
     mtools_.to_std_vector(last_state().Data()),
-    mtools_.to_one_hot_encoding(current_action(), 7),
+    mtools_.to_std_vector(mtools_.to_one_hot_encoding(current_action(), 7)),
     mtools_.to_std_vector(current_loss()));
 }
 

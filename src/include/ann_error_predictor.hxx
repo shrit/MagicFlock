@@ -31,14 +31,10 @@ AnnErrorPredictor<simulator_t>::predict()
   features = this->create_features_matrix();
   regression_model.Predict(features, labels);
 
-  /* Transpose to the original format */
-  features = features.t();
-  labels = labels.t();
-
   logger::logger_->info("Size of error features matrix: {}",
                         arma::size(features));
-  logger::logger_->info("Error feature matrix:\n {}", features);
-  logger::logger_->info("Error prediction matrix:\n {}", labels);
+  logger::logger_->info("Error feature matrix:\n {}", features.t());
+  logger::logger_->info("Error prediction matrix:\n {}", labels.t());
 
   /* return the predicted error based on the feature vector*/
   return labels;
