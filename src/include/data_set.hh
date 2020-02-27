@@ -1,18 +1,12 @@
 #pragma once
 
-#include <algorithm>
-#include <chrono>
-#include <ctime>
 #include <experimental/filesystem>
 #include <fstream>
 #include <iomanip>
-#include <iostream>
-#include <iterator>
 #include <sstream>
 #include <string>
 #include <unordered_map>
 #include <utility>
-#include <vector>
 
 /*  Boost library include */
 #include <boost/algorithm/string.hpp>
@@ -25,9 +19,7 @@
 /*  local defined include */
 #include "action.hh"
 #include "global.hh"
-#include "math_tools.hh"
 #include "plot.hh"
-#include "state.hh"
 
 namespace lt = local_types;
 
@@ -123,8 +115,6 @@ private:
   arma::mat at_1_mat_;
   arma::mat st_2_mat_;
   arma::mat s_a_s_t_1_mat_;
-
-  Math_tools mtools_;
 };
 
 #include "data_set.hxx"
