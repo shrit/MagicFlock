@@ -195,6 +195,8 @@ Iterative_learning<flight_controller_t, simulator_t>::run()
         follower_1_->register_data_set_with_loss();
         follower_2_->register_data_set_with_loss();
 
+        follower_1_->register_episodes(episode_);
+
         /*  Check the geometrical shape */
         std::vector<bool> shapes;
         for (auto it : quadrotors_) {
@@ -212,7 +214,6 @@ Iterative_learning<flight_controller_t, simulator_t>::run()
     }
     follower_1_->reset_all_states();
     follower_2_->reset_all_states();
-
     follower_1_->register_histogram(time_steps_.steps());
     follower_2_->register_histogram(time_steps_.steps());
     swarm_.land();

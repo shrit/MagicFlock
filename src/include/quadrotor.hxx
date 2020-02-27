@@ -342,6 +342,13 @@ Quadrotor<simulator_t>::register_histogram(int count)
 }
 
 template<class simulator_t>
+void
+Quadrotor<simulator_t>::register_episodes(int n_episodes)
+{
+  data_set_.save_episodes(n_episodes);
+}
+
+template<class simulator_t>
 bool
 Quadrotor<simulator_t>::examin_geometric_shape()
 {

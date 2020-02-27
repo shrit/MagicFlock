@@ -43,6 +43,7 @@ public:
   void load_knn_dataset(std::string file_name);
   void set_label_column_number(int x);
 
+  /* All of the following functions need to be refactored*/
   template<typename Arg, typename... Args>
   void save_evaluation(Arg&& arg, Args&&... args);
 
@@ -63,7 +64,10 @@ public:
 
   template<typename Arg>
   void save_controller_count(Arg&& arg);
-
+  
+  template<typename Arg>
+  void save_episodes(Arg&& arg);
+  
   template<typename Arg, typename... Args>
   void plot(std::string title,
             std::string xlabel,
@@ -125,6 +129,7 @@ private:
   std::string histogram_file_name_;
   std::string readme_file_name_;
   std::string evaluate_file_name_;
+  std::string episodes_file_name_;
 
   std::vector<State<simulator_t>> st_vec_;
   std::vector<Actions::Action> at_vec_;

@@ -53,7 +53,7 @@ public:
   /* Loss related functions */
   void current_loss(arma::vec current_loss);
   arma::vec current_loss() const;
-  
+
   /*  Action related functions */
   Actions::Action current_action() const;
   void current_action(Actions::Action action);
@@ -70,7 +70,8 @@ public:
   /*  Data set related functions */
   void register_data_set();
   void register_data_set_with_current_predictions();
-  void register_data_set_with_loss(); 
+  void register_data_set_with_loss();
+  void register_episodes(int n_episode);
   void register_histogram(int count);
   template<typename Arg, typename... Args>
   void register_loss(Arg arg, Args... args);

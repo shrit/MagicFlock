@@ -262,7 +262,9 @@ DataSet<simulator_t>::init_dataset_directory()
 
   evaluate_file_name_ = "../dataset/" + date_stream.str() + "/" +
                         time_stream.str() + "/evaluate" + time_stream.str();
-}
+                        
+  episodes_file_name_ = "../dataset/" + date_stream.str() + "/" +
+                        time_stream.str() + "/episodes" + time_stream.str();}
 
 template<class simulator_t>
 template<typename Arg, typename... Args>
@@ -355,6 +357,20 @@ DataSet<simulator_t>::save_controller_count(Arg&& arg)
 {
   std::ofstream file;
   file.open(count_file_name_, std::ios::out | std::ios::app);
+
+  file << std::forward<Arg>(arg) << "\n";
+
+  file.flush();
+  file.close();
+}
+
+template<class simulator_t>
+template<typename Arg>
+void
+DataSet<simulator_t>::save_episodes(Arg&& arg)
+{
+  std::ofstream file;
+  file.open(episodes_file_name_, std::ios::out | std::ios::app);
 
   file << std::forward<Arg>(arg) << "\n";
 
