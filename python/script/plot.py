@@ -76,8 +76,12 @@ def plot_generic(generic_file_name):
     x = np.arange(y.size)
     return x,y
 
-def plot_loss(loss_file_name):
+def plot_loss(loss_file_name, espisdes_file_name):
     mat = genfromtxt(loss_file_name, delimiter=',')
+    z = np.loadtxt(espisdes_file_name);
+
+    v = np.arange(z.size)
+
     real_loss = mat[:,9]
     predicted_loss = mat[:, 4]
     d1_p_e = mat[:, 0]
@@ -91,18 +95,29 @@ def plot_loss(loss_file_name):
     h_r_e  = mat[:, 8]
 
     x = np.arange(len(real_loss));
+    
+    bo = np.empty([z.size], bool)
+    
+    for i in range(len(z)):
+      if z[i] % 2 == 0:
+       bo[i] = True
+      else:
+       bo[i] = False
 
-    #plt.plot(x, real_loss, color='blue', label="real loss")
-    #plt.plot(x, predicted_loss, color='red', label="predicted loss")
-    plt.plot(x, d1_p_e, color='navy', label="prediction error on d1")
-    plt.plot(x, d2_p_e, color='green', label="prediction error on d2")
-    plt.plot(x, d3_p_e, color='purple', label="prediction error on d3")
-    plt.plot(x, h_p_e, color='yellow', label="prediction error on delta h")
+    print(bo)
 
-    plt.plot(x, d1_r_e, color='darkred', label="real error on d1")
-    plt.plot(x, d2_r_e, color='brown', label="real error on d2")
-    plt.plot(x, d3_r_e, color='orange',   label="real error on d3")
-    plt.plot(x, h_r_e, color='black',  label="real error on delta h")
+    plt.fill_between(v, -1, 1, where=bo, facecolor='red', alpha=0.09)
+    plt.plot(x, real_loss, color='blue', label="real loss")
+    plt.plot(x, predicted_loss, color='red', label="predicted loss")
+    # plt.plot(x, d1_p_e, color='navy', label="prediction error on d1")
+    # plt.plot(x, d2_p_e, color='green', label="prediction error on d2")
+    # plt.plot(x, d3_p_e, color='purple', label="prediction error on d3")
+    # plt.plot(x, h_p_e, color='yellow', label="prediction error on delta h")
+
+    # plt.plot(x, d1_r_e, color='darkred', label="real error on d1")
+    # plt.plot(x, d2_r_e, color='brown', label="real error on d2")
+    # plt.plot(x, d3_r_e, color='orange',   label="real error on d3")
+    # plt.plot(x, h_r_e, color='black',  label="real error on delta h")
 
     plt.title("Real error vs prediction error")
     plt.xlabel('Time steps')
@@ -297,7 +312,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--dataset_file_name', metavar="dataset file name", type=str, help="Enter dataset file name to plot")
     parser.add_argument('--tsne_dataset_file_name', metavar="dataset file name", type=str, help="Enter dataset file name to plot using tsne")
-    parser.add_argument('--loss_file_name', metavar="loss file name", type=str, help="Enter loss file name to plot")
+    parser.add_argument('--loss_file_name', metavar="loss file name", type=str, nargs="+", help="Enter loss file name to plot")
     parser.add_argument('--generic_file_name', metavar="generic file name", type=str, help="Enter a generic file to plot with one column")
     parser.add_argument('--six_generic_file_name', metavar="generic file name", type=str, nargs="+", help="Enter a generic file to plot with one column")
     parser.add_argument('--error_file_name', metavar="error file name", type=str, help="Enter error file name that has the mean value of each flight")
@@ -339,7 +354,7 @@ if __name__ == '__main__':
         plot_dataset_tsne(args.dataset_file_name)
         
     elif args.loss_file_name:
-        plot_loss(args.loss_file_name)
+        plot_loss(args.loss_file_name[0], args.loss_file_name[1])
 
     elif args.histogram_file_name:
         plot_histogram_2d(args.histogram_file_name)
