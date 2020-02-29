@@ -6,6 +6,7 @@ Train<simulator_t>::Train(std::string dataset_filename,
   : logger_(logger)
 {
   dataset_.load_dataset_file(std::move(dataset_filename));
+  dataset_.init_model_directory();
 }
 
 template<class simulator_t>
@@ -49,8 +50,7 @@ Train<simulator_t>::regression()
 
   logger_->info("Training Finished...");
   logger_->info("Test with Independent part...");
-
-  mlpack::data::Save("model.txt", "model", model, false);
+  dataset_.save_model(model, "model");
 }
 
 template<class simulator_t>
