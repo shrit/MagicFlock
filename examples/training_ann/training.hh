@@ -7,7 +7,7 @@
 #include <mlpack/methods/ann/ffn.hpp>
 #include <mlpack/methods/ann/layer/layer.hpp>
 #include <mlpack/methods/ann/loss_functions/mean_squared_error.hpp>
-#include <mlpack/methods/ann/loss_functions/sigmoid_cross_entropy_error.hpp>
+#include <mlpack/methods/ann/init_rules/glorot_init.hpp>
 
 #include <ILMR/data_set.hh>
 #include <ILMR/logger.hh>
@@ -19,19 +19,12 @@ class Train
 
 public:
   Train(std::string dataset_filename,
-       std::shared_ptr<spdlog::logger> logger);
+        std::shared_ptr<spdlog::logger> logger);
 
-  double accuracy(const arma::Row<size_t>& predLabels,
-                  const arma::Row<size_t>& LabelY);
-
-  arma::Row<size_t> getLabels(const arma::mat& predOut);
-
-  void run(std::string&& name);
-  void classification();
+  void run();
   void regression();
 
   Train(Train const&) = delete;
-
   Train(Train&&) = default;
 
 private:

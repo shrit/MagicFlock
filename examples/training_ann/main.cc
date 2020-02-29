@@ -45,6 +45,6 @@ main(int argc, char* argv[])
 
   logger->info("Start training...");
   Train<Gazebo> trainer(std::move(dataset_filename), logger);
-  trainer.run("regression");
+  trainer.run();
   logger->info("Finished training...");
 }
