@@ -48,18 +48,22 @@ public:
                                 Args&&... args);
 
   template<typename Arg, typename... Args>
-  void save_error_file(std::string file_name,
-                       Arg&& arg, Args&&... args);
+  void save_error_file(std::string file_name, Arg&& arg, Args&&... args);
 
   template<typename Arg>
   void save_histogram(Arg&& arg);
 
   template<typename Arg>
   void save_controller_count(Arg&& arg);
-  
+
   template<typename Arg>
   void save_episodes(Arg&& arg);
-  
+
+  template<typename ModelType>
+  void save_model(ModelType&& model, std::string model_name);
+
+  void init_model_directory();
+
   template<typename Arg, typename... Args>
   void plot(std::string title,
             std::string xlabel,
@@ -98,7 +102,7 @@ private:
   arma::mat test_features_;
   arma::mat test_labels_;
 
-  double ratio_ = 0.1;
+  double ratio_ = 0.2;
 
   std::string dataset_file_name_;
   std::string error_file_name_;
@@ -108,6 +112,8 @@ private:
   std::string readme_file_name_;
   std::string evaluate_file_name_;
   std::string episodes_file_name_;
+
+  std::string model_file_name_;
 
   arma::mat st_mat_;
   arma::mat at_mat_;

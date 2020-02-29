@@ -193,7 +193,6 @@ DataSet<simulator_t>::init_dataset_directory()
   std::experimental::filesystem::create_directory("../dataset");
   std::experimental::filesystem::create_directory("../dataset/" +
                                                   date_stream.str());
-
   std::experimental::filesystem::create_directory(
     "../dataset/" + date_stream.str() + "/" + time_stream.str());
 
@@ -217,9 +216,40 @@ DataSet<simulator_t>::init_dataset_directory()
 
   evaluate_file_name_ = "../dataset/" + date_stream.str() + "/" +
                         time_stream.str() + "/evaluate" + time_stream.str();
-                        
+
   episodes_file_name_ = "../dataset/" + date_stream.str() + "/" +
-                        time_stream.str() + "/episodes" + time_stream.str();}
+                        time_stream.str() + "/episodes" + time_stream.str();
+}
+
+template<class simulator_t>
+void
+DataSet<simulator_t>::init_model_directory()
+{
+  boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
+
+  std::stringstream date_stream, time_stream;
+
+  date_stream << now.date();
+  time_stream << now.time_of_day();
+
+  std::experimental::filesystem::create_directory("../model");
+  std::experimental::filesystem::create_directory("../model/" +
+                                                  date_stream.str());
+  std::experimental::filesystem::create_directory(
+    "../model/" + date_stream.str() + "/" + time_stream.str());
+
+  model_file_name_ = "../model/" + date_stream.str() + "/" + time_stream.str() +
+                     "/model" + time_stream.str();
+}
+
+template<class simulator_t>
+template<typename ModelType>
+void
+DataSet<simulator_t>::save_model(ModelType&& model, std::string model_name)
+{
+  mlpack::data::Save(
+    model_file_name_, model_name, std::forward<ModelType>(model), false);
+}
 
 template<class simulator_t>
 template<typename Arg, typename... Args>
