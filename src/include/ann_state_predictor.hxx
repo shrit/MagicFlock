@@ -36,16 +36,21 @@ AnnStatePredictor<simulator_t>::predict()
   logger::logger_->info("State data matrix:\n {}", features.t());
   logger::logger_->info("State prediction matrix:\n {}", labels_.t());
 
-  arma::mat original_state_matrix = this->create_state_matrix(
-    this->quad_->all_states().at(0), labels_.n_cols);
+  arma::mat original_state_matrix =
+    this->create_state_matrix(this->quad_->all_states().at(0), labels_.n_cols);
 
   Argmin<arma::mat, arma::uword> argmin(original_state_matrix, labels_, 1);
 
   best_action_index_ = argmin.min_index();
   logger::logger_->info("Index of best action: {}", best_action_index_);
- 
+
   /*  Get the follower action now !! and store it directly */
   best_action_follower_ = this->action_.int_to_action(best_action_index_);
+
+  arma::col<Actions::Action> temp << best_action_follower_;
+  all_predicted_actions_.insert_col(all_predicted_actions_.n_cols,
+                                   temp);
+
   return labels_;
 }
 
@@ -67,50 +72,17 @@ AnnStatePredictor<simulator_t>::best_predicted_action()
 }
 
 template<class simulator_t>
-double
-AnnStatePredictor<simulator_t>::compute_real_loss()
+arma::Col<Actions::Action>
+AnnStatePredictor<simulator_t>::all_predicted_actions() const
 {
-  loss_vector_.clear();
-  loss_vector_ = this->quad_->current_state().Data() -
-                 labels_.col(best_action_index_);
-
-  this->quad_->current_loss(loss_vector_);
-  return arma::sum(loss_vector_);
-}
-
-template<class simulator_t>
-double
-AnnStatePredictor<simulator_t>::compute_absolute_loss()
-{
-  loss_vector_.clear();
-  loss_vector_ = arma::abs(this->quad_->current_state().Data() -
-                           labels_.col(best_action_index_));
-
-  this->quad_->current_loss(loss_vector_);
-  return arma::sum(loss_vector_);
-}
-
-template<class simulator_t>
-double
-AnnStatePredictor<simulator_t>::compute_square_loss()
-{
-  loss_vector_.clear();
-  mlpack::ann::MeanSquaredError<arma::rowvec, arma::rowvec> mse;
-  double error = mse.Forward(this->quad_->current_state().Data(),
-                             labels_.col(best_action_index_));
-
-  loss_vector_ = arma::square(this->quad_->current_state().Data() -
-                              labels_.col(best_action_index_));
-
-  this->quad_->current_loss(loss_vector_);
-  return error;
+  return all_predicted_actions_;
 }
 
 template<class simulator_t>
 double
 AnnStatePredictor<simulator_t>::real_time_loss()
 {
-  real_time_loss_ = compute_real_loss();
+  real_time_loss_ = this->compute_real_loss(labels_);
   return real_time_loss_;
 }
 

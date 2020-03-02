@@ -43,3 +43,43 @@ AnnPredictor<simulator_t>::create_state_matrix(State state,
   }
   return state_matrix;
 }
+
+template<class simulator_t>
+double
+AnnPredictor<simulator_t>::compute_real_loss(const arma::mat& labels)
+{
+  loss_vector_.clear();
+  loss_vector_ =
+    this->quad_->current_state().Data() - labels.col(best_action_index_);
+
+  this->quad_->current_loss(loss_vector_);
+  return arma::sum(loss_vector_);
+}
+
+template<class simulator_t>
+double
+AnnPredictor<simulator_t>::compute_absolute_loss(const arma::mat& labels)
+{
+  loss_vector_.clear();
+  loss_vector_ = arma::abs(this->quad_->current_state().Data() -
+                           labels.col(best_action_index_));
+
+  this->quad_->current_loss(loss_vector_);
+  return arma::sum(loss_vector_);
+}
+
+template<class simulator_t>
+double
+AnnPredictor<simulator_t>::compute_square_loss() const arma::mat& labels
+{
+  loss_vector_.clear();
+  mlpack::ann::MeanSquaredError<arma::rowvec, arma::rowvec> mse;
+  double error = mse.Forward(this->quad_->current_state().Data(),
+                             labels.col(best_action_index_));
+
+  loss_vector_ = arma::square(this->quad_->current_state().Data() -
+                              labels.col(best_action_index_));
+
+  this->quad_->current_loss(loss_vector_);
+  return error;
+}

@@ -11,15 +11,15 @@
 #include <vector>
 
 /*  MLPack includes */
+#include <ensmallen_bits/adam/adam_update.hpp>
 #include <mlpack/core.hpp>
 #include <mlpack/methods/ann/ffn.hpp>
 #include <mlpack/methods/ann/layer/layer.hpp>
 #include <mlpack/methods/ann/loss_functions/mean_squared_error.hpp>
-#include <ensmallen_bits/adam/adam_update.hpp>
 
 /* local includes */
-#include "argmin.hh"
 #include "ann_predictor.hh"
+#include "argmin.hh"
 #include "global.hh"
 #include "logger.hh"
 #include "math_tools.hh"
@@ -39,11 +39,10 @@ public:
 
   arma::vec best_predicted_state();
 
-  arma::mat predict();
+  arma::Col<Actions::Action> all_predicted_actions() const;
 
-  double compute_real_loss();
-  double compute_absolute_loss();
-  double compute_square_loss();
+  arma::mat predict();
+  
   double real_time_loss();
 
   arma::vec loss_vector() const;
@@ -53,13 +52,14 @@ public:
   AnnStatePredictor(AnnStatePredictor&&) = default;
 
 private:
-  arma::mat labels_;  
+  arma::mat labels_;
   std::string model_path_;
   std::string model_name_;
   double real_time_loss_;
   arma::vec loss_vector_;
   arma::uword best_action_index_;
   Actions::Action best_action_follower_;
+  arma::Col<Actions::Action> all_predicted_actions_;
 };
 
 #include "ann_state_predictor.hxx"

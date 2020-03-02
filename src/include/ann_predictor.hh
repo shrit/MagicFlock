@@ -37,6 +37,10 @@ public:
   template<typename State>
   arma::mat create_state_matrix(State state, arma::uword matrix_size);
 
+  double compute_real_loss(const arma::mat& labels);
+  double compute_absolute_loss(const arma::mat& labels);
+  double compute_square_loss(const arma::mat& labels);
+
 protected:
   Actions action_;
   typename std::vector<Quadrotor<simulator_t>>::iterator quad_;
