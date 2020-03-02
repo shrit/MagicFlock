@@ -6,19 +6,6 @@ Actions::Actions()
   , generator_(random_dev())
 {}
 
-std::vector<Actions::Action>
-Actions::ActionConstructor(arma::mat values)
-{
-  std::vector<Actions::Action> actions;
-  for (arma::uword i = 0; i < values.n_rows; ++i) {
-    arma::rowvec action_row = values.row(i);
-    std::vector<double> action = mtools_.to_std_vector(action_row);
-    int action_value = mtools_.from_one_hot_encoding(action);
-    actions.push_back(static_cast<Actions::Action>(action_value));
-  }
-  return actions;
-}
-
 std::string
 Actions::action_to_str(Action action)
 {
@@ -50,33 +37,6 @@ Actions::action_to_str(Action action)
       break;
   }
   return string_action;
-}
-
-/* Get the best action from the model according to the best values */
-Actions::Action
-Actions::extract_action_from_index(arma::mat features, arma::uword index)
-{
-  /*  just a HACK, need to find a dynamic solution later */
-  Action action = Action::Unknown;
-  /*  Access matrix values according to a given index  */
-  /*  Only one action exist that equal 1 in each row of
-   a matrix */
-  if (features(index, 14) == 1) {
-    action = Action::forward;
-  } else if (features(index, 15) == 1) {
-    action = Action::backward;
-  } else if (features(index, 16) == 1) {
-    action = Action::left;
-  } else if (features(index, 17) == 1) {
-    action = Action::right;
-  } else if (features(index, 18) == 1) {
-    action = Action::up;
-  } else if (features(index, 19) == 1) {
-    action = Action::down;
-  } else if (features(index, 20) == 1) {
-    action = Action::NoMove;
-  }
-  return action;
 }
 
 Actions::Action

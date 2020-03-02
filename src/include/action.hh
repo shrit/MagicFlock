@@ -38,15 +38,10 @@ public:
     return static_cast<typename std::underlying_type<Enumeration>::type>(value);
   }
 
-
-  Action extract_action_from_index(arma::mat features, arma::uword index);
-
   std::string action_to_str(Action action);
 
   Action int_to_action(int action_value);
   std::vector<Action> all_possible_actions() const;
-
-  std::vector<Actions::Action> ActionConstructor(arma::mat values);
 
   /*  Random action generator */
   Action random_action_generator();
