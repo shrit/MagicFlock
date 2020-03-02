@@ -39,8 +39,8 @@ public:
   /*  State related functions */
   void sample_state();
   State<simulator_t> current_state() const;
-  void current_predicted_state(arma::vec current_predicted_state);
-  arma::vec current_predicted_state() const;
+  State<simulator_t> current_predicted_state();
+  State<simulator_t> current_predicted_state() const;
   State<simulator_t> last_state();
   State<simulator_t> before_last_state();
   State<simulator_t> before_2_last_state();
@@ -62,9 +62,6 @@ public:
   Actions::Action before_2_last_action();
   std::vector<Actions::Action> all_actions() const;
   void reset_all_actions();
-  Actions::Action most_used_action();
-  Actions::Action most_frequent_action_in_container();
-  void save_action_in_container(Actions::Action action);
   double height();
 
   /*  Data set related functions */
