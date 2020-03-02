@@ -58,7 +58,7 @@ private:
   std::string model_name_;
   double real_time_loss_;
   arma::vec loss_vector_;
-  arma::uword index_of_best_estimation_;
+  arma::uword best_action_index_;
   Actions::Action best_action_follower_;
 };
 

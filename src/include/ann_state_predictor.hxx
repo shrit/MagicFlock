@@ -41,12 +41,11 @@ AnnStatePredictor<simulator_t>::predict()
 
   Argmin<arma::mat, arma::uword> argmin(original_state_matrix, labels_, 1);
 
-  arma::uword best_action_index = argmin.min_index();
-  logger::logger_->info("Index of best action: {}", best_action_index);
-  index_of_best_estimation_ = best_action_index;
-
+  best_action_index_ = argmin.min_index();
+  logger::logger_->info("Index of best action: {}", best_action_index_);
+ 
   /*  Get the follower action now !! and store it directly */
-  best_action_follower_ = this->action_.int_to_action(best_action_index);
+  best_action_follower_ = this->action_.int_to_action(best_action_index_);
   return labels_;
 }
 
@@ -54,7 +53,7 @@ template<class simulator_t>
 arma::vec
 AnnStatePredictor<simulator_t>::best_predicted_state()
 {
-  return labels_.col(index_of_best_estimation_);
+  return labels_.col(best_action_index_);
 }
 
 template<class simulator_t>
@@ -63,7 +62,7 @@ AnnStatePredictor<simulator_t>::best_predicted_action()
 {
   /* Predict the next state using the above data */
   predict();
-  this->quad_->current_predicted_state(best_predicted_state());
+  this->quad_->current_predicted_state.Data() = best_predicted_state();
   return best_action_follower_;
 }
 
@@ -73,7 +72,7 @@ AnnStatePredictor<simulator_t>::compute_real_loss()
 {
   loss_vector_.clear();
   loss_vector_ = this->quad_->current_state().Data() -
-                 labels_.col(index_of_best_estimation_);
+                 labels_.col(best_action_index_);
 
   this->quad_->current_loss(loss_vector_);
   return arma::sum(loss_vector_);
@@ -85,7 +84,7 @@ AnnStatePredictor<simulator_t>::compute_absolute_loss()
 {
   loss_vector_.clear();
   loss_vector_ = arma::abs(this->quad_->current_state().Data() -
-                           labels_.col(index_of_best_estimation_));
+                           labels_.col(best_action_index_));
 
   this->quad_->current_loss(loss_vector_);
   return arma::sum(loss_vector_);
@@ -98,10 +97,10 @@ AnnStatePredictor<simulator_t>::compute_square_loss()
   loss_vector_.clear();
   mlpack::ann::MeanSquaredError<arma::rowvec, arma::rowvec> mse;
   double error = mse.Forward(this->quad_->current_state().Data(),
-                             labels_.col(index_of_best_estimation_));
+                             labels_.col(best_action_index_));
 
   loss_vector_ = arma::square(this->quad_->current_state().Data() -
-                              labels_.col(index_of_best_estimation_));
+                              labels_.col(best_action_index_));
 
   this->quad_->current_loss(loss_vector_);
   return error;
