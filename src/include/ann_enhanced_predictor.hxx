@@ -37,6 +37,11 @@ AnnEnhancedPredictor<simulator_t>::predict()
   best_action_index_ = argmin.min_index();
 
   best_action_follower_ = this->action_.int_to_action(best_action_index_);
+
+  arma::Col<arma::uword> temp;
+  temp << best_action_index_;
+  all_predicted_actions_.insert_cols(all_predicted_actions_.n_cols, temp); 
+
   return enhanced_prediction_matrix_;
 }
 
@@ -47,24 +52,19 @@ AnnEnhancedPredictor<simulator_t>::best_predicted_action()
   predict();
   return best_action_follower_;
 }
-/* To be refactored */
+
 template<class simulator_t>
-double
-AnnEnhancedPredictor<simulator_t>::compute_loss()
+arma::Col<arma::uword>
+AnnEnhancedPredictor<simulator_t>::all_predicted_actions() const
 {
-  loss_vector_.clear();
-
-  loss_vector_ = this->quad_->current_state().Data() -
-                 enhanced_prediction_matrix_.col(best_action_index_);
-
-  this->quad_->current_loss(loss_vector_);
-  return arma::sum(loss_vector_);
+  return all_predicted_actions_;
 }
 
 template<class simulator_t>
 double
 AnnEnhancedPredictor<simulator_t>::real_time_loss()
 {
-  real_time_loss_ = compute_loss();
+  real_time_loss_ = this->compute_real_loss(enhanced_prediction_matrix_, 
+                                            best_action_index_);
   return real_time_loss_;
 }

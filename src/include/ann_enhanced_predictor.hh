@@ -33,19 +33,21 @@ public:
 
   arma::mat predict();
 
-  double compute_loss();
   double real_time_loss();
 
   Actions::Action best_predicted_action();
+
+  arma::Col<arma::uword> all_predicted_actions() const;
 
   AnnEnhancedPredictor(AnnEnhancedPredictor const&) = delete;
   AnnEnhancedPredictor(AnnEnhancedPredictor&&) = default;
 
 private:
   Actions::Action best_action_follower_;
-  arma::uword best_action_index_;  
+  arma::uword best_action_index_;
   double real_time_loss_;
   arma::vec loss_vector_;
+  arma::Col<arma::uword> all_predicted_actions_;
   arma::mat enhanced_prediction_matrix_;
 };
 

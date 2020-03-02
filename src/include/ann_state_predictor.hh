@@ -39,7 +39,7 @@ public:
 
   arma::vec best_predicted_state();
 
-  arma::Col<Actions::Action> all_predicted_actions() const;
+  arma::Col<arma::uword> all_predicted_actions() const;
 
   arma::mat predict();
   
@@ -59,7 +59,7 @@ private:
   arma::vec loss_vector_;
   arma::uword best_action_index_;
   Actions::Action best_action_follower_;
-  arma::Col<Actions::Action> all_predicted_actions_;
+  arma::Col<arma::uword> all_predicted_actions_;
 };
 
 #include "ann_state_predictor.hxx"

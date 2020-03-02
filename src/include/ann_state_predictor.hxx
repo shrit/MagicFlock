@@ -47,9 +47,9 @@ AnnStatePredictor<simulator_t>::predict()
   /*  Get the follower action now !! and store it directly */
   best_action_follower_ = this->action_.int_to_action(best_action_index_);
 
-  arma::col<Actions::Action> temp << best_action_follower_;
-  all_predicted_actions_.insert_col(all_predicted_actions_.n_cols,
-                                   temp);
+  arma::Col<arma::uword> temp;
+  temp << best_action_index_;
+  all_predicted_actions_.insert_cols(all_predicted_actions_.n_cols, temp);
 
   return labels_;
 }
@@ -72,7 +72,7 @@ AnnStatePredictor<simulator_t>::best_predicted_action()
 }
 
 template<class simulator_t>
-arma::Col<Actions::Action>
+arma::Col<arma::uword>
 AnnStatePredictor<simulator_t>::all_predicted_actions() const
 {
   return all_predicted_actions_;
@@ -82,7 +82,7 @@ template<class simulator_t>
 double
 AnnStatePredictor<simulator_t>::real_time_loss()
 {
-  real_time_loss_ = this->compute_real_loss(labels_);
+  real_time_loss_ = this->compute_real_loss(labels_, best_action_index_);
   return real_time_loss_;
 }
 
