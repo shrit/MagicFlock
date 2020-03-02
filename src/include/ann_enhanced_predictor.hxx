@@ -28,15 +28,15 @@ AnnEnhancedPredictor<simulator_t>::predict()
   enhanced_prediction_matrix_.clear();
   enhanced_prediction_matrix_ = predicted_state + predicted_error;
 
-  arma::mat original_state_matrix =
-    this->create_state_matrix(predicted_error.n_cols);
+  arma::mat original_state_matrix = this->create_state_matrix(
+    this->quad_->all_states().at(0), predicted_error.n_cols);
 
   Argmin<arma::mat, arma::uword> argmin(
     original_state_matrix, enhanced_prediction_matrix_, 1);
 
-  arma::uword best_action_index = argmin.min_index();
+  best_action_index_ = argmin.min_index();
 
-  best_action_follower_ = this->action_.int_to_action(best_action_index);
+  best_action_follower_ = this->action_.int_to_action(best_action_index_);
   return enhanced_prediction_matrix_;
 }
 
@@ -47,12 +47,15 @@ AnnEnhancedPredictor<simulator_t>::best_predicted_action()
   predict();
   return best_action_follower_;
 }
-
+/* To be refactored */
 template<class simulator_t>
 double
 AnnEnhancedPredictor<simulator_t>::compute_loss()
 {
   loss_vector_.clear();
+
+  loss_vector_ = this->quad_->current_state().Data() -
+                 enhanced_prediction_matrix_.col(best_action_index_);
 
   this->quad_->current_loss(loss_vector_);
   return arma::sum(loss_vector_);

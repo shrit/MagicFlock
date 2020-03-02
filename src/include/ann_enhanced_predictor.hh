@@ -43,9 +43,9 @@ public:
 
 private:
   Actions::Action best_action_follower_;
+  arma::uword best_action_index_;  
   double real_time_loss_;
   arma::vec loss_vector_;
-  arma::uword index_of_best_estimation_;
   arma::mat enhanced_prediction_matrix_;
 };
 
