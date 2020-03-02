@@ -18,7 +18,6 @@
 #include "data_set.hh"
 #include "distance_state.hh"
 #include "global.hh"
-#include "log.hh"
 #include "math_tools.hh"
 #include "quadrotor.hh"
 
