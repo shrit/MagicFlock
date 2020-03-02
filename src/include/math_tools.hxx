@@ -69,12 +69,10 @@ Math_tools::to_one_hot_encoding(Arg arg, Arg2 number_of_class)
 }
 
 template<typename Arg>
-int
-Math_tools::from_one_hot_encoding(std::vector<Arg> values)
+arma::uword
+Math_tools::from_one_hot_encoding(arma::Col<Arg> col_vec)
 {
-  auto it = std::find(values.begin(), values.end(), 1);
-  int index = std::distance(values.begin(), it);
-  return index;
+  return index = col_vec.index_max();
 }
 
 template<typename Arg>

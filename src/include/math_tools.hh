@@ -54,7 +54,7 @@ public:
   arma::colvec to_one_hot_encoding(Arg arg, Arg2 number_of_class);
 
   template<typename Arg>
-  int from_one_hot_encoding(std::vector<Arg> values);
+  arma::uword from_one_hot_encoding(arma::Col<Arg> col_vec);
 
   template<typename Arg>
   std::vector<double> to_std_vector(Arg arg);
