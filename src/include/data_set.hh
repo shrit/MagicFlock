@@ -58,7 +58,10 @@ public:
 
   template<typename Arg>
   void save_episodes(Arg&& arg);
-
+  
+  template<typename Arg>
+  void save_actions(std::string file_name, Arg&& arg);
+  
   template<typename ModelType>
   void save_model(ModelType&& model, std::string model_name);
 
@@ -112,7 +115,7 @@ private:
   std::string readme_file_name_;
   std::string evaluate_file_name_;
   std::string episodes_file_name_;
-
+  std::string action_file_name_;
   std::string model_file_name_;
 
   arma::mat st_mat_;

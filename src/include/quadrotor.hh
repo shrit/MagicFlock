@@ -39,7 +39,7 @@ public:
   /*  State related functions */
   void sample_state();
   State<simulator_t> current_state() const;
-  State<simulator_t> current_predicted_state();
+  State<simulator_t>& current_predicted_state();
   State<simulator_t> current_predicted_state() const;
   State<simulator_t> last_state();
   State<simulator_t> before_last_state();
@@ -73,6 +73,8 @@ public:
   template<typename Arg, typename... Args>
   void register_loss(Arg arg, Args... args);
 
+  void register_actions_evaluation(Actions::Action first_action,
+                                   Actions::Action second_action);
   /*  Speed related functions */
   double& speed();
   double speed() const;
@@ -96,7 +98,7 @@ private:
   Math_tools mtools_;
   DataSet<simulator_t> data_set_;
   arma::vec loss_vector_;
-  arma::vec current_predicted_state_;
+  State<simulator_t> current_predicted_state_;
   State<simulator_t> current_state_;
   State<simulator_t> last_state_;
   State<simulator_t> before_last_state_;

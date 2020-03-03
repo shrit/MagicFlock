@@ -75,8 +75,7 @@ Quadrotor<simulator_t>::current_state() const
 }
 
 template<class simulator_t>
-
-State<simulator_t>
+State<simulator_t>&
 Quadrotor<simulator_t>::current_predicted_state()
 {
   return current_predicted_state_;
@@ -277,6 +276,19 @@ Quadrotor<simulator_t>::register_histogram(int count)
   data_set_.save_controller_count(count);
   mtools_.histogram(count);
   data_set_.save_histogram(mtools_.get_histogram<int>());
+}
+
+template<class simulator_t>
+void
+Quadrotor<simulator_t>::register_actions_evaluation(
+  Actions::Action first_action,
+  Actions::Action second_action)
+{
+  if (first_action == second_action) {
+    data_set_.save_actions(name_, 1);
+  } else {
+    data_set_.save_actions(name_, -1);
+  }
 }
 
 template<class simulator_t>

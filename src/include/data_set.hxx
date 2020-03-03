@@ -219,6 +219,9 @@ DataSet<simulator_t>::init_dataset_directory()
 
   episodes_file_name_ = "../dataset/" + date_stream.str() + "/" +
                         time_stream.str() + "/episodes" + time_stream.str();
+
+  action_file_name_ = "../dataset/" + date_stream.str() + "/" +
+                      time_stream.str() + "/action" + time_stream.str();
 }
 
 template<class simulator_t>
@@ -356,6 +359,20 @@ DataSet<simulator_t>::save_episodes(Arg&& arg)
 {
   std::ofstream file;
   file.open(episodes_file_name_, std::ios::out | std::ios::app);
+
+  file << std::forward<Arg>(arg) << "\n";
+
+  file.flush();
+  file.close();
+}
+
+template<class simulator_t>
+template<typename Arg>
+void
+DataSet<simulator_t>::save_actions(std::string file_name, Arg&& arg)
+{
+  std::ofstream file;
+  file.open(action_file_name_ + "_" + file_name, std::ios::out | std::ios::app);
 
   file << std::forward<Arg>(arg) << "\n";
 
