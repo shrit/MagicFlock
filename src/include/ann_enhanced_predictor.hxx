@@ -40,7 +40,7 @@ AnnEnhancedPredictor<simulator_t>::predict()
 
   arma::Col<arma::uword> temp;
   temp << best_action_index_;
-  all_predicted_actions_.insert_cols(all_predicted_actions_.n_cols, temp); 
+  all_predicted_actions_.insert_rows(all_predicted_actions_.n_rows, temp);
 
   return enhanced_prediction_matrix_;
 }
@@ -64,7 +64,7 @@ template<class simulator_t>
 double
 AnnEnhancedPredictor<simulator_t>::real_time_loss()
 {
-  real_time_loss_ = this->compute_real_loss(enhanced_prediction_matrix_, 
-                                            best_action_index_);
+  real_time_loss_ =
+    this->compute_real_loss(enhanced_prediction_matrix_, best_action_index_);
   return real_time_loss_;
 }

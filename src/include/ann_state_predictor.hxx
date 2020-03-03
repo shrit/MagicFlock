@@ -49,7 +49,7 @@ AnnStatePredictor<simulator_t>::predict()
 
   arma::Col<arma::uword> temp;
   temp << best_action_index_;
-  all_predicted_actions_.insert_cols(all_predicted_actions_.n_cols, temp);
+  all_predicted_actions_.insert_rows(all_predicted_actions_.n_rows, temp);
 
   return labels_;
 }
@@ -67,7 +67,7 @@ AnnStatePredictor<simulator_t>::best_predicted_action()
 {
   /* Predict the next state using the above data */
   predict();
-  this->quad_->current_predicted_state.Data() = best_predicted_state();
+  this->quad_->current_predicted_state().Data() = best_predicted_state();
   return best_action_follower_;
 }
 
