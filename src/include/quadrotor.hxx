@@ -89,6 +89,20 @@ Quadrotor<simulator_t>::current_predicted_state() const
 }
 
 template<class simulator_t>
+State<simulator_t>&
+Quadrotor<simulator_t>::current_predicted_enhanced_state()
+{
+  return current_predicted_enhanced_state_;
+}
+
+template<class simulator_t>
+State<simulator_t>
+Quadrotor<simulator_t>::current_predicted_enhanced_state() const
+{
+  return current_predicted_enhanced_state_;
+}
+
+template<class simulator_t>
 std::vector<State<simulator_t>>
 Quadrotor<simulator_t>::all_states() const
 {
@@ -241,6 +255,20 @@ Quadrotor<simulator_t>::register_data_set_with_current_predictions()
     mtools_.to_std_vector(last_state().Data()),
     mtools_.to_std_vector(mtools_.to_one_hot_encoding(current_action(), 7)),
     mtools_.to_std_vector(current_predicted_state().Data()),
+    mtools_.to_std_vector(current_state().Data()));
+}
+
+template<class simulator_t>
+void
+Quadrotor<simulator_t>::register_data_set_with_current_enhanced_predictions()
+{
+  data_set_.save_csv_data_set_2_file(
+    name_ + "_enhanced_predictions",
+    mtools_.to_std_vector(before_last_state().Data()),
+    mtools_.to_std_vector(mtools_.to_one_hot_encoding(last_action(), 7)),
+    mtools_.to_std_vector(last_state().Data()),
+    mtools_.to_std_vector(mtools_.to_one_hot_encoding(current_action(), 7)),
+    mtools_.to_std_vector(current_predicted_enhanced_state().Data()),
     mtools_.to_std_vector(current_state().Data()));
 }
 

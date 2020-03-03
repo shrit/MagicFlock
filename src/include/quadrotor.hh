@@ -41,6 +41,9 @@ public:
   State<simulator_t> current_state() const;
   State<simulator_t>& current_predicted_state();
   State<simulator_t> current_predicted_state() const;
+  State<simulator_t>& current_predicted_enhanced_state();
+  State<simulator_t> current_predicted_enhanced_state() const;
+
   State<simulator_t> last_state();
   State<simulator_t> before_last_state();
   State<simulator_t> before_2_last_state();
@@ -67,6 +70,7 @@ public:
   /*  Data set related functions */
   void register_data_set();
   void register_data_set_with_current_predictions();
+  void register_data_set_with_current_enhanced_predictions();
   void register_data_set_with_loss();
   void register_episodes(int n_episode);
   void register_histogram(int count);
@@ -99,6 +103,7 @@ private:
   DataSet<simulator_t> data_set_;
   arma::vec loss_vector_;
   State<simulator_t> current_predicted_state_;
+  State<simulator_t> current_predicted_enhanced_state_;
   State<simulator_t> current_state_;
   State<simulator_t> last_state_;
   State<simulator_t> before_last_state_;

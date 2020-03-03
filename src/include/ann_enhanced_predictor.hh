@@ -37,6 +37,7 @@ public:
 
   Actions::Action best_predicted_action();
 
+  arma::vec best_predicted_state();
   arma::Col<arma::uword> all_predicted_actions() const;
 
   AnnEnhancedPredictor(AnnEnhancedPredictor const&) = delete;

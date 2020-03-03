@@ -46,10 +46,19 @@ AnnEnhancedPredictor<simulator_t>::predict()
 }
 
 template<class simulator_t>
+arma::vec
+AnnEnhancedPredictor<simulator_t>::best_predicted_state()
+{
+  return enhanced_prediction_matrix_.col(best_action_index_);
+}
+
+template<class simulator_t>
 Actions::Action
 AnnEnhancedPredictor<simulator_t>::best_predicted_action()
 {
   predict();
+  this->quad_->current_predicted_enhanced_state().Data() =
+    best_predicted_state();
   return best_action_follower_;
 }
 
