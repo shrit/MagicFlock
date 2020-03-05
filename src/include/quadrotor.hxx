@@ -233,6 +233,14 @@ Quadrotor<simulator_t>::reset_all_actions()
 
 template<class simulator_t>
 void
+Quadrotor<simulator_t>::register_state()
+{
+  data_set_.save_state(name_,
+   mtools_.to_std_vector(current_state().Data()));  
+}
+
+template<class simulator_t>
+void
 Quadrotor<simulator_t>::register_data_set()
 {
   data_set_.save_csv_data_set_2_file(

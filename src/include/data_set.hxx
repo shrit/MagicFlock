@@ -255,6 +255,21 @@ DataSet<simulator_t>::save_model(ModelType&& model, std::string model_name)
 }
 
 template<class simulator_t>
+template<typename Arg>
+void
+DataSet<simulator_t>::save_state(std::string file_name, Arg&& arg)
+{
+  std::ofstream file;
+  file.open(state_file_name, std::ios::out | std::ios::app);
+
+  file << std::forward<Arg>(arg);
+
+  file << "\n";
+  file.flush();
+  file.close();
+}
+
+template<class simulator_t>
 template<typename Arg, typename... Args>
 void
 DataSet<simulator_t>::save_evaluation(Arg&& arg, Args&&... args)

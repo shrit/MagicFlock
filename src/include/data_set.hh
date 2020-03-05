@@ -65,6 +65,9 @@ public:
   template<typename ModelType>
   void save_model(ModelType&& model, std::string model_name);
 
+  template<typename Arg> 
+  void save_state(std::string file_name, Arg&& arg);
+
   void init_model_directory();
 
   template<typename Arg, typename... Args>

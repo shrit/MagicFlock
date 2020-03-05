@@ -76,7 +76,7 @@ public:
   void register_histogram(int count);
   template<typename Arg, typename... Args>
   void register_loss(Arg arg, Args... args);
-
+  void register_state();
   void register_actions_evaluation(Actions::Action first_action,
                                    Actions::Action second_action);
   /*  Speed related functions */
