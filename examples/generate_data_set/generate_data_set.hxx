@@ -147,6 +147,8 @@ Generator<flight_controller_t, simulator_t>::run()
         follower_1_->register_data_set();
         follower_2_->register_data_set();
 
+        follower_1_->register_episodes(episode_);
+
         /*  Check the geometrical shape */
         std::vector<bool> shapes;
         for (auto it : quadrotors_) {
@@ -171,7 +173,7 @@ Generator<flight_controller_t, simulator_t>::run()
 
     /* Landing is blocking untill touching the ground*/
     swarm_.land();
-    double flight_time = timer_.stop();
+    std::string flight_time = timer_.stop_and_get_time();
     logger_->info("Flight time: {}", flight_time);
 
     /* Resetting the entire swarm after the end of each episode*/
@@ -179,7 +181,7 @@ Generator<flight_controller_t, simulator_t>::run()
 
     logger_->info("All quadrotors have been reset...");
 
-    std::this_thread::sleep_for(std::chrono::seconds(25));
+    std::this_thread::sleep_for(std::chrono::seconds(35));
 
     /*BIAS accelerometer problem after resetting the models*/
 
