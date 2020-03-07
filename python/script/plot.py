@@ -9,18 +9,23 @@ import numpy as np
 import pandas as pd
 import sys
 
-def plot_dataset_tsne(dataset_file_name):
-    train_matrix = genfromtxt(StringIO(dataset_file_name), delimiter=',')
+def plot_dataset_tsne(dataset_file_name, espisdes_file_name):
+
+    train_matrix = genfromtxt(dataset_file_name, delimiter=',')
+    color_vec = np.loadtxt(espisdes_file_name)
     tsne = TSNE(n_components=2, random_state=0)
 
     mat = tsne.fit_transform(train_matrix)
 
     print(mat.shape)
-    plt.scatter(mat[:,0], mat[:,1], color='blue')
-    figure = plt.gcf() # get current figure
-    figure.set_size_inches(25, 12)
 
-    plt.savefig(dataset_file_name + ".png", dpi=100, format="png")
+    plt.scatter(mat[:,0], mat[:,1], c=color_vec, cmap='plasma')
+    plt.colorbar()
+    
+    figure = plt.gcf() # get current figure
+    figure.set_size_inches(23, 18)
+
+    plt.savefig(dataset_file_name + ".svg", dpi=600, format="svg")
     
 def drop_columns(dataset_file_name, column_nubmer):
     df = pd.read_csv(dataset_file_name)
@@ -76,27 +81,56 @@ def plot_generic(generic_file_name):
     x = np.arange(y.size)
     return x,y
 
-def plot_loss(loss_file_name, espisdes_file_name):
-    mat = genfromtxt(loss_file_name, delimiter=',')
+def plot_loss(espisdes_file_name, predic_dataset_file_name, enhanched_dataset_file_name, action):
+  
+   # mat = genfromtxt(loss_file_name, delimiter=',')
+    # state_mat = genfromtxt(dataset_file_name, delimiter=',')
+    predic_state_mat = genfromtxt(predic_dataset_file_name, delimiter=',')
+    en_predic_state_mat = genfromtxt(enhanched_dataset_file_name, delimiter=',')
+
+    act = np.loadtxt(action)
+
     z = np.loadtxt(espisdes_file_name);
 
     v = np.arange(z.size)
 
-    real_loss = mat[:,9]
-    predicted_loss = mat[:, 4]
-    d1_p_e = mat[:, 0]
-    d2_p_e = mat[:, 1]
-    d3_p_e = mat[:, 2]
-    h_p_e  = mat[:, 3]
+    # real_loss = mat[:,9]
+    # predicted_loss = mat[:, 4]
+    # d1_p_e = mat[:, 0]
+    # d2_p_e = mat[:, 1]
+    # d3_p_e = mat[:, 2]
+    # h_p_e  = mat[:, 3]
 
-    d1_r_e = mat[:, 5]
-    d2_r_e = mat[:, 6]
-    d3_r_e = mat[:, 7]
-    h_r_e  = mat[:, 8]
+    # d1_r_e = mat[:, 5]
+    # d2_r_e = mat[:, 6]
+    # d3_r_e = mat[:, 7]
+    # h_r_e  = mat[:, 8]
 
-    x = np.arange(len(real_loss));
+    x = np.arange(len(act));
     
     bo = np.empty([z.size], bool)
+
+    d1_st = predic_state_mat[:,26]
+    d1_st_e = predic_state_mat[:,22]
+    d1_st_e2 = en_predic_state_mat[:,22]
+ 
+
+    # d2_st = state_mat[:,23]
+    # d2_st_e = np.empty([d1_st.size])
+    # d2_st_e2 = np.empty([d1_st.size])
+
+    # d3_st = state_mat[:,24]
+    # d3_st_e = np.empty([d1_st.size])
+    # d3_st_e2 = np.empty([d1_st.size])
+    
+    # d4_st = state_mat[:,25]
+    # d4_st_e = np.empty([d1_st.size])
+    # d4_st_e2 = np.empty([d1_st.size])
+
+    # for i in range(len(d4_st)):
+    #   d4_st_e[i] = d4_st[i] - h_r_e[i]
+    #   d4_st_e2[i] = d4_st[i] - h_p_e[i]
+          
     
     for i in range(len(z)):
       if z[i] % 2 == 0:
@@ -106,9 +140,9 @@ def plot_loss(loss_file_name, espisdes_file_name):
 
     print(bo)
 
-    plt.fill_between(v, -1, 1, where=bo, facecolor='red', alpha=0.09)
-    plt.plot(x, real_loss, color='blue', label="real loss")
-    plt.plot(x, predicted_loss, color='red', label="predicted loss")
+    plt.fill_between(v, 0, +5, where=bo, facecolor='red', alpha=0.09)
+    # plt.plot(x, real_loss, color='blue', label="real loss")
+    # plt.plot(x, predicted_loss, color='red', label="predicted loss")
     # plt.plot(x, d1_p_e, color='navy', label="prediction error on d1")
     # plt.plot(x, d2_p_e, color='green', label="prediction error on d2")
     # plt.plot(x, d3_p_e, color='purple', label="prediction error on d3")
@@ -119,14 +153,18 @@ def plot_loss(loss_file_name, espisdes_file_name):
     # plt.plot(x, d3_r_e, color='orange',   label="real error on d3")
     # plt.plot(x, h_r_e, color='black',  label="real error on delta h")
 
+    plt.plot(x, d1_st, color='blue', label="h State")
+    plt.plot(x, d1_st_e, color='red', label="h predicted State")
+    plt.plot(x, d1_st_e2, color='black', label="h with enhanced predicted State")
+    plt.plot(x, act, color='green', label="Actions") 
     plt.title("Real error vs prediction error")
     plt.xlabel('Time steps')
-    plt.ylabel('Error in meter')
+    plt.ylabel('Distance in meter')
     plt.legend()
     plt.grid()
     figure = plt.gcf() # get current figure
     figure.set_size_inches(21, 18)
-    plt.savefig(loss_file_name + ".svg", dpi=100)    
+    plt.savefig(espisdes_file_name + ".svg", dpi=100)    
     
 def plot_six_generic(file_name,
                      file_name_2,
@@ -310,8 +348,8 @@ if __name__ == '__main__':
         You have to provide the file format as described in the above comments.
         '''))
 
-    parser.add_argument('--dataset_file_name', metavar="dataset file name", type=str, help="Enter dataset file name to plot")
-    parser.add_argument('--tsne_dataset_file_name', metavar="dataset file name", type=str, help="Enter dataset file name to plot using tsne")
+    parser.add_argument('--dataset_file_name', metavar="dataset file name", type=str, nargs="+", help="Enter dataset file name to plot")
+    parser.add_argument('--tsne_dataset_file_name', metavar="dataset file name", type=str, nargs="+", help="Enter dataset file name to plot using tsne")
     parser.add_argument('--loss_file_name', metavar="loss file name", type=str, nargs="+", help="Enter loss file name to plot")
     parser.add_argument('--generic_file_name', metavar="generic file name", type=str, help="Enter a generic file to plot with one column")
     parser.add_argument('--six_generic_file_name', metavar="generic file name", type=str, nargs="+", help="Enter a generic file to plot with one column")
@@ -351,10 +389,10 @@ if __name__ == '__main__':
         modify_labels(args.dataset_file_name)
 
     elif args.tsne_dataset_file_name:
-        plot_dataset_tsne(args.dataset_file_name)
+        plot_dataset_tsne(args.tsne_dataset_file_name[0], args.tsne_dataset_file_name[1])
         
     elif args.loss_file_name:
-        plot_loss(args.loss_file_name[0], args.loss_file_name[1])
+        plot_loss(args.loss_file_name[0], args.loss_file_name[1], args.loss_file_name[2], args.loss_file_name[3])
 
     elif args.histogram_file_name:
         plot_histogram_2d(args.histogram_file_name)
