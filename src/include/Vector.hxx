@@ -1,3 +1,4 @@
+#pragma once
 
 template<typename T>
 long long unsigned int
@@ -16,10 +17,11 @@ VectorHelper::index_of_min_value(const std::vector<T>& vec)
 }
 
 template<typename Arg>
-std::vector<int> fill_range(Arg value)
+std::vector<int>
+VectorHelper::fill_range(Arg value)
 {
-  std::vector<double> fill;
-  for (int i=0; i < value; ++i) {
+  std::vector<int> fill;
+  for (int i = 0; i < value; ++i) {
     fill.push_back(i);
   }
   return fill;

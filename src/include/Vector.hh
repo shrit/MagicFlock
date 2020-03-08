@@ -1,11 +1,12 @@
 #pragma once
 
-
+#include <algorithm>
 #include <vector>
 
 class VectorHelper
 {
-  VectorHelper(){}
+public:
+  VectorHelper() {}
 
   template<typename Arg>
   Arg variance(std::vector<Arg> vec);
@@ -20,6 +21,7 @@ class VectorHelper
   long long unsigned int index_of_max_value(const std::vector<T>& vec);
 
   template<typename T>
-  long long unsigned int index_of_min_value(const std::vector<T>& vec);  
+  long long unsigned int index_of_min_value(const std::vector<T>& vec);
 };
 
+#include "Vector.hxx"
