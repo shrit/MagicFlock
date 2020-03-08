@@ -260,7 +260,7 @@ void
 DataSet<simulator_t>::save_state(std::string file_name, Arg&& arg)
 {
   std::ofstream file;
-  file.open(state_file_name, std::ios::out | std::ios::app);
+  file.open(state_file_name_, std::ios::out | std::ios::app);
 
   file << std::forward<Arg>(arg);
 
@@ -407,24 +407,39 @@ DataSet<simulator_t>::plot_distance_to_neighbor(
   std::string type,
   StateType states)
 {
-  std::vector<int> x = vector.fill_range(x.size());
+  std::vector<int> x = vec_.fill_range(states.size());
   std::vector<double> distances;
-  for (int i < x.size(); ++i) {
-    distances.push_back(states.back().[0]);
+  for (int i = 0; i < states.size(); ++i) {
+    distances.push_back(states.at(i).Data()[neighbor_id]);
   }
   plot(title, xlabel, ylabel, file_name, type, x, distances);
 }
 
 template<class simulator_t>
-template<typename Arg>
+template<typename HistoType>
+void
+DataSet<simulator_t>::plot_histogram(
+  int neighbor_id,
+  std::string title,
+  std::string xlabel,
+  std::string ylabel,
+  std::string file_name,
+  std::string type,
+  HistoType histogram)
+{
+  //plot(title, xlabel, ylabel, file_name, type);
+}
+
+template<class simulator_t>
+template<typename xType, typename yType>
 void
 DataSet<simulator_t>::plot(std::string title,
                            std::string xlabel,
                            std::string ylabel,
                            std::string file_name,
                            std::string type,
-                           Arg x,
-                           Arg y)
+                           xType x,
+                           yType y)
 {
   /*  Gnuplot Config */
   plotcpp::Plot plt(false);
@@ -437,9 +452,9 @@ DataSet<simulator_t>::plot(std::string title,
 
   /*  Need to look into it... */
   if (type == "lines")
-    plt.Draw2D(Lines(arg.begin(), arg.end(), argv.begin(), "lines"));
+    plt.Draw2D(plotcpp::Lines(x.begin(), x.end(), y.begin(), "lines"));
   else if (type == "points")
-    plt.Draw2D(Points(arg.begin(), arg.end(), argv.begin(), "points"));
+    plt.Draw2D(plotcpp::Points(x.begin(), x.end(), y.begin(), "points"));
 
   plt.Flush();
 }

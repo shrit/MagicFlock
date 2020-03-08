@@ -20,6 +20,8 @@
 #include "action.hh"
 #include "global.hh"
 #include "plot.hh"
+//#include "utils.h"
+#include "Vector.hh"
 
 namespace lt = local_types;
 
@@ -70,14 +72,14 @@ public:
 
   void init_model_directory();
 
-  template<typename Arg>
+  template<typename xType, typename yType>
   void plot(std::string title,
             std::string xlabel,
             std::string ylabel,
             std::string file_name,
             std::string type,
-            Arg x,
-            Arg y);
+            xType x,
+            yType y);
 
   template<typename StateType>
   void plot_distance_to_neighbor(int neighbor_id,
@@ -87,6 +89,15 @@ public:
                                  std::string file_name,
                                  std::string type,
                                  StateType states);
+
+  template<typename HistoType>
+  void plot_histogram(int neighbor_id,
+                      std::string title,
+                      std::string xlabel,
+                      std::string ylabel,
+                      std::string file_name,
+                      std::string type,
+                      HistoType histogram);
 
   void init_dataset_directory();
 
@@ -130,6 +141,7 @@ private:
   std::string episodes_file_name_;
   std::string action_file_name_;
   std::string model_file_name_;
+  std::string state_file_name_;
 
   arma::mat st_mat_;
   arma::mat at_mat_;
@@ -137,6 +149,8 @@ private:
   arma::mat at_1_mat_;
   arma::mat st_2_mat_;
   arma::mat s_a_s_t_1_mat_;
+
+  VectorHelper vec_;
 };
 
 #include "data_set.hxx"
