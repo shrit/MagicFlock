@@ -65,6 +65,14 @@ Quadrotor<simulator_t>::sample_state()
   State<simulator_t> state(sim_interface_, id_, nearest_neighbors_);
   current_state_ = state;
   all_states_.push_back(state);
+
+  data_set_.plot_distance_to_neighbor(
+    0, "Distance to first leader", "Time Step", "Distance", name_ + "_distance_to_0",
+    "lines", all_states_);
+
+  data_set_.plot_distance_to_neighbor(
+    2, "Distance to second leader", "Time Step", "Distance", name_+ "_distance_to_2",
+    "lines", all_states_);
 }
 
 template<class simulator_t>
@@ -235,8 +243,7 @@ template<class simulator_t>
 void
 Quadrotor<simulator_t>::register_state()
 {
-  data_set_.save_state(name_,
-   mtools_.to_std_vector(current_state().Data()));  
+  data_set_.save_state(name_, mtools_.to_std_vector(current_state().Data()));
 }
 
 template<class simulator_t>
