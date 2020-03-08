@@ -396,31 +396,30 @@ DataSet<simulator_t>::save_actions(std::string file_name, Arg&& arg)
 }
 
 template<class simulator_t>
-template<typename Arg, typename... Args>
+template<typename Arg>
 void
 DataSet<simulator_t>::plot(std::string title,
                            std::string xlabel,
                            std::string ylabel,
-                           Arg arg,
-                           Arg argv,
-                           Args... args)
+                           std::string file_name,
+                           std::string type,
+                           Arg x,
+                           Arg y)
 {
-
-  /*  define here if the args are equal to the std vector
-   Use variadic template for  x, y */
-
   /*  Gnuplot Config */
-  plotcpp::Plot plt;
+  plotcpp::Plot plt(false);
   plt.SetTerminal("svg");
-  plt.SetOutput(result_file_name_);
+  plt.SetOutput(file_name);
   plt.SetTitle(title);
   plt.SetXLabel(xlabel);
   plt.SetYLabel(ylabel);
   plt.SetAutoscale();
 
   /*  Need to look into it... */
-  // plt.Draw2D(Points(arg.begin(), arg.end(), argv.begin(), "Reward"),
-  // 	     Points(x_zero.begin(), x_zero.end(), y_zero.begin(), "No reward"));
+  if (type == "lines")
+    plt.Draw2D(Lines(arg.begin(), arg.end(), argv.begin(), "lines"));
+  else if (type == "points")
+    plt.Draw2D(Points(arg.begin(), arg.end(), argv.begin(), "lines"));
 
   plt.Flush();
 }

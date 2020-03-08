@@ -58,25 +58,26 @@ public:
 
   template<typename Arg>
   void save_episodes(Arg&& arg);
-  
+
   template<typename Arg>
   void save_actions(std::string file_name, Arg&& arg);
-  
+
   template<typename ModelType>
   void save_model(ModelType&& model, std::string model_name);
 
-  template<typename Arg> 
+  template<typename Arg>
   void save_state(std::string file_name, Arg&& arg);
 
   void init_model_directory();
 
-  template<typename Arg, typename... Args>
+  template<typename Arg>
   void plot(std::string title,
             std::string xlabel,
             std::string ylabel,
-            Arg arg,
-            Arg argv,
-            Args... args);
+            std::string file_name,
+            std::string type,
+            Arg x,
+            Arg y);
 
   void init_dataset_directory();
 
