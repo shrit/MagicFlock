@@ -16,6 +16,16 @@ VectorHelper::index_of_min_value(const std::vector<T>& vec)
 }
 
 template<typename Arg>
+std::vector<int> fill_range(Arg value)
+{
+  std::vector<double> fill;
+  for (int i=0; i < value; ++i) {
+    fill.push_back(i);
+  }
+  return fill;
+}
+
+template<typename Arg>
 Arg
 VectorHelper::mean(std::vector<Arg> vec)
 {
