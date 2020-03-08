@@ -396,6 +396,26 @@ DataSet<simulator_t>::save_actions(std::string file_name, Arg&& arg)
 }
 
 template<class simulator_t>
+template<typename StateType>
+void
+DataSet<simulator_t>::plot_distance_to_neighbor(
+  int neighbor_id,
+  std::string title,
+  std::string xlabel,
+  std::string ylabel,
+  std::string file_name,
+  std::string type,
+  StateType states)
+{
+  std::vector<int> x = vector.fill_range(x.size());
+  std::vector<double> distances;
+  for (int i < x.size(); ++i) {
+    distances.push_back(states.back().[0]);
+  }
+  plot(title, xlabel, ylabel, file_name, type, x, distances);
+}
+
+template<class simulator_t>
 template<typename Arg>
 void
 DataSet<simulator_t>::plot(std::string title,
@@ -419,7 +439,7 @@ DataSet<simulator_t>::plot(std::string title,
   if (type == "lines")
     plt.Draw2D(Lines(arg.begin(), arg.end(), argv.begin(), "lines"));
   else if (type == "points")
-    plt.Draw2D(Points(arg.begin(), arg.end(), argv.begin(), "lines"));
+    plt.Draw2D(Points(arg.begin(), arg.end(), argv.begin(), "points"));
 
   plt.Flush();
 }
