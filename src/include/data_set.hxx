@@ -196,6 +196,10 @@ DataSet<simulator_t>::init_dataset_directory()
   std::experimental::filesystem::create_directory(
     "../dataset/" + date_stream.str() + "/" + time_stream.str());
 
+  std::experimental::filesystem::create_directory(
+    "../dataset/" + date_stream.str() + "/" + time_stream.str() + "/" +
+    "images");
+
   dataset_file_name_ = "../dataset/" + date_stream.str() + "/" +
                        time_stream.str() + "/" + time_stream.str();
 
@@ -222,6 +226,9 @@ DataSet<simulator_t>::init_dataset_directory()
 
   action_file_name_ = "../dataset/" + date_stream.str() + "/" +
                       time_stream.str() + "/action" + time_stream.str();
+
+  plot_file_name_ = "../dataset/" + date_stream.str() + "/" +
+                    time_stream.str() + "/images" + "/plot";
 }
 
 template<class simulator_t>
@@ -398,14 +405,13 @@ DataSet<simulator_t>::save_actions(std::string file_name, Arg&& arg)
 template<class simulator_t>
 template<typename StateType>
 void
-DataSet<simulator_t>::plot_distance_to_neighbor(
-  int neighbor_id,
-  std::string title,
-  std::string xlabel,
-  std::string ylabel,
-  std::string file_name,
-  std::string type,
-  StateType states)
+DataSet<simulator_t>::plot_distance_to_neighbor(int neighbor_id,
+                                                std::string title,
+                                                std::string xlabel,
+                                                std::string ylabel,
+                                                std::string file_name,
+                                                std::string type,
+                                                StateType states)
 {
   std::vector<int> x = vec_.fill_range(states.size());
   std::vector<double> distances;
@@ -418,16 +424,15 @@ DataSet<simulator_t>::plot_distance_to_neighbor(
 template<class simulator_t>
 template<typename HistoType>
 void
-DataSet<simulator_t>::plot_histogram(
-  int neighbor_id,
-  std::string title,
-  std::string xlabel,
-  std::string ylabel,
-  std::string file_name,
-  std::string type,
-  HistoType histogram)
+DataSet<simulator_t>::plot_histogram(int neighbor_id,
+                                     std::string title,
+                                     std::string xlabel,
+                                     std::string ylabel,
+                                     std::string file_name,
+                                     std::string type,
+                                     HistoType histogram)
 {
-  //plot(title, xlabel, ylabel, file_name, type);
+  // plot(title, xlabel, ylabel, file_name, type);
 }
 
 template<class simulator_t>
@@ -444,7 +449,7 @@ DataSet<simulator_t>::plot(std::string title,
   /*  Gnuplot Config */
   plotcpp::Plot plt(false);
   plt.SetTerminal("svg");
-  plt.SetOutput(file_name);
+  plt.SetOutput(plot_file_name_ + "_" + file_name);
   plt.SetTitle(title);
   plt.SetXLabel(xlabel);
   plt.SetYLabel(ylabel);

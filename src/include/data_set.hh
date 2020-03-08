@@ -142,7 +142,8 @@ private:
   std::string action_file_name_;
   std::string model_file_name_;
   std::string state_file_name_;
-
+  std::string plot_file_name_;
+  
   arma::mat st_mat_;
   arma::mat at_mat_;
   arma::mat st_1_mat_;
