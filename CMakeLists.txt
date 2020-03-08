@@ -19,7 +19,7 @@ include_directories(
 
 set(file_system "/usr/lib/libstdc++fs.a")
 set(pthread_lib "/usr/lib/libpthread.so")
-set(mlpack "/meta/mlpack/build/lib/libmlpack.so")
+set(mlpack "/usr/local/lib64/libmlpack.so")
 set(gomp "/usr/lib/libgomp.so")
 
 file(GLOB HEADER_LIST CONFIGURE_DEPENDS "src/include/*.hh")
