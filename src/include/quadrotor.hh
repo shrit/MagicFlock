@@ -12,13 +12,17 @@
 #include <utility>
 #include <vector>
 
+#include "Vector.hh"
 #include "action.hh"
+#include "check_swarm_shape.hh"
+#include "compute_distance.hh"
 #include "data_set.hh"
 #include "math_tools.hh"
+#include "one_hot_encoding.hh"
 #include "real_time_samples.hh"
 #include "state.hh"
 
-template<class simulator_t>
+template<class simulator_t, class NoiseType>
 class Quadrotor
 {
 
@@ -38,18 +42,16 @@ public:
 
   /*  State related functions */
   void sample_state();
-  State<simulator_t> current_state() const;
-  State<simulator_t>& current_predicted_state();
-  State<simulator_t> current_predicted_state() const;
-  State<simulator_t>& current_predicted_enhanced_state();
-  State<simulator_t> current_predicted_enhanced_state() const;
-
-  State<simulator_t> last_state();
-  State<simulator_t> before_last_state();
-  State<simulator_t> before_2_last_state();
-  std::vector<State<simulator_t>> all_states() const;
+  State<simulator_t, NoiseType> current_state() const;
+  State<simulator_t, NoiseType>& current_predicted_state();
+  State<simulator_t, NoiseType> current_predicted_state() const;
+  State<simulator_t, NoiseType>& current_predicted_enhanced_state();
+  State<simulator_t, NoiseType> current_predicted_enhanced_state() const;
+  State<simulator_t, NoiseType> last_state();
+  State<simulator_t, NoiseType> before_last_state();
+  State<simulator_t, NoiseType> before_2_last_state();
+  std::vector<State<simulator_t, NoiseType>> all_states() const;
   void reset_all_states();
-
   void start_sampling_rt_state(int interval);
   void stop_sampling_rt_state();
 
@@ -99,16 +101,19 @@ private:
   std::stack<Actions::Action> stack_of_future_actions_;
   std::queue<Actions::Action> queue_of_future_actions_;
 
-  Math_tools mtools_;
+  ComputeDistance dist_;
+  VectorHelper vec_;
+  OneHotEncoding encode_;
+  CheckShape shape_;
   DataSet<simulator_t> data_set_;
   arma::vec loss_vector_;
-  State<simulator_t> current_predicted_state_;
-  State<simulator_t> current_predicted_enhanced_state_;
-  State<simulator_t> current_state_;
-  State<simulator_t> last_state_;
-  State<simulator_t> before_last_state_;
-  State<simulator_t> before_2_last_state_;
-  std::vector<State<simulator_t>> all_states_;
+  State<simulator_t, NoiseType> current_predicted_state_;
+  State<simulator_t, NoiseType> current_predicted_enhanced_state_;
+  State<simulator_t, NoiseType> current_state_;
+  State<simulator_t, NoiseType> last_state_;
+  State<simulator_t, NoiseType> before_last_state_;
+  State<simulator_t, NoiseType> before_2_last_state_;
+  std::vector<State<simulator_t, NoiseType>> all_states_;
 
   std::shared_ptr<RTSamples> rt_samples_;
   unsigned int id_;  /* Quadrotor id */
