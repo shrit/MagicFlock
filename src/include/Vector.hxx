@@ -39,6 +39,37 @@ VectorHelper::mean(std::vector<Arg> vec)
 }
 
 template<typename Arg>
+std::vector<double>
+VectorHelper::to_std_vector(Arg arg)
+{
+  std::vector<double> vec;
+  if (arg.is_empty()) {
+    logger::logger_->error("Can not convert empty vector to std vector");
+  }
+  if (std::is_same<Arg, arma::rowvec>::value) {
+    vec.resize(arg.n_cols);
+    vec = arma::conv_to<std::vector<double>>::from(arg);
+  } else if (std::is_same<Arg, arma::colvec>::value) {
+    vec.resize(arg.n_rows);
+    vec = arma::conv_to<std::vector<double>>::from(arg);
+  }
+  logger::logger_->debug("Converted to std vector: {}", vec);
+  return vec;
+}
+
+template<typename T1, typename T2>
+std::vector<T2>
+VectorHelper::map_to_vector(std::map<T1, T2> m)
+{
+  std::vector<T2> vec;
+  for (typename std::map<T1, T2>::iterator it = m.begin(); it != m.end();
+       ++it) {
+    vec.push_back(it->second);
+  }
+  return vec;
+}
+
+template<typename Arg>
 Arg
 VectorHelper::variance(std::vector<Arg> vec)
 {
