@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "global.hh"
+#include "compute_distance.hh"
 #include "Vector.hh"
 
 namespace lt = local_types;

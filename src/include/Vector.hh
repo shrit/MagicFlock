@@ -3,7 +3,10 @@
 #include <algorithm>
 #include <map>
 #include <numeric>
+#include <type_traits>
 #include <vector>
+
+#include <mlpack/prereqs.hpp>
 
 #include "logger.hh"
 
