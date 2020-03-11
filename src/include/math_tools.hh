@@ -30,7 +30,6 @@ public:
 
   template<typename T>
   T pythagore_hypotenuse(T leg_1, T leg_2);
-
 };
 
 #include "math_tools.hxx"
