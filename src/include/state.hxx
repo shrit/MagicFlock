@@ -28,7 +28,7 @@ State<simulator_t, NoiseType>::State(
   leader_ = sim_interface_->positions().begin();
   follower_ = sim_interface_->positions().begin() + id;
 
-  neighbor_dists_3D_ = mtools_.distances_to_neighbors(
+  neighbor_dists_3D_ = dist_.distances_to_neighbors(
     id, nearest_neighbors, sim_interface_->positions());
 
   data_ = mtools_.map_to_arma(neighbor_dists_3D_);
@@ -51,7 +51,7 @@ State<simulator_t, NoiseType>::State(
   leader_ = sim_interface_->positions().begin();
   follower_ = sim_interface_->positions().begin() + id;
 
-  neighbor_dists_3D_ = mtools_.distances_to_neighbors(
+  neighbor_dists_3D_ = dist_.distances_to_neighbors(
     id, nearest_neighbors, sim_interface_->positions());
 
   data_ = mtools_.map_to_arma(neighbor_dists_3D_);

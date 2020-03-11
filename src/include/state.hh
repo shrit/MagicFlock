@@ -8,6 +8,7 @@
  */
 
 /*  Local includes */
+#include "compute_distance.hh"
 #include "global.hh"
 #include "math_tools.hh"
 
@@ -58,6 +59,7 @@ public:
 
 private:
   int id_;
+  ComputeDistance dist_;
   Math_tools mtools_;
   std::map<unsigned int, double> neighbor_dists_3D_;
 
