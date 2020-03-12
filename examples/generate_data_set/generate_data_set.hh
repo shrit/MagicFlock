@@ -16,14 +16,13 @@
 
 namespace lt = local_types;
 
-template<class flight_controller_t, class simulator_t>
+template<class flight_controller_t, class QuadrotorType>
 class Generator
 {
 
 public:
   Generator(std::vector<std::shared_ptr<flight_controller_t>> quads,
-            const std::vector<Quadrotor<simulator_t>>& quadrotors,
-            std::shared_ptr<simulator_t> sim_interface,
+            const std::vector<QuadrotorType>& quadrotors,
             std::shared_ptr<spdlog::logger> logger);
 
   void generate_trajectory();
@@ -36,16 +35,15 @@ private:
   int episode_;
   int max_episode_;
   bool start_episode_;
-  std::shared_ptr<simulator_t> sim_interface_;
   SwarmDevice<flight_controller_t> swarm_;
-  std::vector<Quadrotor<simulator_t>> quadrotors_;
+  std::vector<QuadrotorType> quadrotors_;
   TimeSteps time_steps_;
   Timer timer_;
   std::shared_ptr<spdlog::logger> logger_;
-  typename std::vector<Quadrotor<simulator_t>>::iterator leader_;
-  typename std::vector<Quadrotor<simulator_t>>::iterator follower_1_;
-  typename std::vector<Quadrotor<simulator_t>>::iterator follower_2_;
-  typename std::vector<Quadrotor<simulator_t>>::iterator leader_2_;
+  typename std::vector<QuadrotorType>::iterator leader_;
+  typename std::vector<QuadrotorType>::iterator follower_1_;
+  typename std::vector<QuadrotorType>::iterator follower_2_;
+  typename std::vector<QuadrotorType>::iterator leader_2_;
 };
 
 #include "generate_data_set.hxx"

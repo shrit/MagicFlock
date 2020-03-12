@@ -18,6 +18,7 @@
 /* ILMR library include  */
 #include <ILMR/config_ini.hh>
 #include <ILMR/gazebo.hh>
+#include <ILMR/gaussian_noise.hh>
 #include <ILMR/logger.hh>
 #include <ILMR/px4_device.hh>
 #include <ILMR/quadrotor.hh>
@@ -70,7 +71,9 @@ main(int argc, char* argv[])
   /*  Create a vector of quadrotors, each one has an id + a name  */
   /*  Try to see if it is possible or efficient to merge quadrotors +
       device controller */
-  std::vector<Quadrotor<Gazebo>> quadrotors;
+
+  using QuadrotorType = Quadrotor<Gazebo, GaussianNoise<arma::vec>>;
+  std::vector<QuadrotorType> quadrotors;
   quadrotors.emplace_back(0, "leader", gz);
   quadrotors.emplace_back(1, "follower_1", gz);
   quadrotors.emplace_back(2, "follower_2", gz);
@@ -93,6 +96,6 @@ main(int argc, char* argv[])
   quadrotors.at(3).add_nearest_neighbor_id(2);
   
 /*  Generate a dataset  */
-  Generator<Px4Device, Gazebo> generator(iris_x, quadrotors, gz, logger);
+  Generator<Px4Device, QuadrotorType> generator(iris_x, quadrotors, logger);
   generator.run();
 }

@@ -1,15 +1,13 @@
 #pragma once
 
-template<class flight_controller_t, class simulator_t>
-Generator<flight_controller_t, simulator_t>::Generator(
+template<class flight_controller_t, class QuadrotorType>
+Generator<flight_controller_t, QuadrotorType>::Generator(
   std::vector<std::shared_ptr<flight_controller_t>> quads,
-  const std::vector<Quadrotor<simulator_t>>& quadrotors,
-  std::shared_ptr<simulator_t> sim_interface,
+  const std::vector<QuadrotorType>& quadrotors,
   std::shared_ptr<spdlog::logger> logger)
   : episode_(0)
   , max_episode_(10000)
   , start_episode_(false)
-  , sim_interface_(std::move(sim_interface))
   , swarm_(std::move(quads))
   , quadrotors_(std::move(quadrotors))
   , logger_(logger)
@@ -22,13 +20,13 @@ Generator<flight_controller_t, simulator_t>::Generator(
 }
 
 /*  Phase one: Data Set generation */
-template<class flight_controller_t, class simulator_t>
+template<class flight_controller_t, class QuadrotorType>
 void
-Generator<flight_controller_t, simulator_t>::generate_trajectory()
+Generator<flight_controller_t, QuadrotorType>::generate_trajectory()
 {
-  ActionGenerator<simulator_t> leader_generator(leader_);
-  ActionGenerator<simulator_t> follower_1_generator(follower_1_);
-  ActionGenerator<simulator_t> follower_2_generator(follower_2_);
+  ActionGenerator<QuadrotorType> leader_generator(leader_);
+  ActionGenerator<QuadrotorType> follower_1_generator(follower_1_);
+  ActionGenerator<QuadrotorType> follower_2_generator(follower_2_);
 
   std::vector<std::thread> threads;
 
@@ -121,9 +119,9 @@ Generator<flight_controller_t, simulator_t>::generate_trajectory()
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 }
 
-template<class flight_controller_t, class simulator_t>
+template<class flight_controller_t, class QuadrotorType>
 void
-Generator<flight_controller_t, simulator_t>::run()
+Generator<flight_controller_t, QuadrotorType>::run()
 {
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
 
@@ -177,7 +175,7 @@ Generator<flight_controller_t, simulator_t>::run()
     logger_->info("Flight time: {}", flight_time);
 
     /* Resetting the entire swarm after the end of each episode*/
-    sim_interface_->reset_models();
+//    leader_->reset_models();
 
     logger_->info("All quadrotors have been reset...");
 
