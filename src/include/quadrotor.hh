@@ -92,6 +92,8 @@ public:
 
   bool examin_geometric_shape();
 
+  void reset_models();
+
 private:
   Actions::Action current_action_{ Actions::Action::Unknown };
   Actions::Action last_action_{ Actions::Action::Unknown };

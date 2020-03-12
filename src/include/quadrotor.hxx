@@ -400,6 +400,13 @@ Quadrotor<simulator_t, NoiseType>::decrease_speed_by_value(double speed)
 }
 
 template<class simulator_t, class NoiseType>
+void
+Quadrotor<simulator_t, NoiseType>::reset_models()
+{
+  sim_interface_->reset_models();
+}
+
+template<class simulator_t, class NoiseType>
 std::vector<double>
 Quadrotor<simulator_t, NoiseType>::distances_to_neighbors()
 {

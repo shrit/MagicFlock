@@ -175,7 +175,7 @@ Generator<flight_controller_t, QuadrotorType>::run()
     logger_->info("Flight time: {}", flight_time);
 
     /* Resetting the entire swarm after the end of each episode*/
-//    leader_->reset_models();
+    leader_->reset_models();
 
     logger_->info("All quadrotors have been reset...");
 
