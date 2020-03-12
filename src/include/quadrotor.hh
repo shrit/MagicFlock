@@ -17,6 +17,7 @@
 #include "check_swarm_shape.hh"
 #include "compute_distance.hh"
 #include "data_set.hh"
+#include "histogram.hh"
 #include "math_tools.hh"
 #include "one_hot_encoding.hh"
 #include "real_time_samples.hh"
@@ -105,6 +106,7 @@ private:
   VectorHelper vec_;
   OneHotEncoding encode_;
   CheckShape shape_;
+  Histogram histo_;
   DataSet<simulator_t> data_set_;
   arma::vec loss_vector_;
   State<simulator_t, NoiseType> current_predicted_state_;

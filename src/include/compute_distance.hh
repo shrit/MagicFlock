@@ -10,7 +10,7 @@ namespace lt = local_types;
 class ComputeDistance
 {
 public:
-  ComputeDistance();
+  ComputeDistance() {}
 
   template<typename T>
   std::map<unsigned int, double> distances_to_neighbors(

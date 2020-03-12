@@ -317,8 +317,8 @@ Quadrotor<simulator_t, NoiseType>::register_histogram(int count)
   /*  Need to find a solution for this with a timer */
   count++;
   data_set_.save_controller_count(count);
-  shape_.histogram(count);
-  data_set_.save_histogram(shape_.get_histogram<int>());
+  histo_.histogram(count);
+  data_set_.save_histogram(histo_.get_histogram<int>());
 }
 
 template<class simulator_t, class NoiseType>

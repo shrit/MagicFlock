@@ -12,7 +12,7 @@ namespace lt = local_types;
 class CheckShape
 {
 public:
-  CheckShape();
+  CheckShape() {}
 
   bool is_good_shape(unsigned int id,
                      std::vector<unsigned int> nearest_neighbors,
