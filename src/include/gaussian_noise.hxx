@@ -3,7 +3,9 @@
 template<class ContainerType>
 GaussianNoise<ContainerType>::GaussianNoise(double mean,
                                             double standard_deviation)
-  : normal_distribution_(mean, standard_deviation)
+  : mean_(mean)
+  , standard_deviation_(standard_deviation)
+  , normal_distribution_(mean_, standard_deviation_)
   , generator_(random_dev())
 {}
 

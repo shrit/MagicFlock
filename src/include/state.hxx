@@ -15,16 +15,19 @@ State<simulator_t, NoiseType>::State(const arma::colvec& data)
 }
 
 template<class simulator_t, class NoiseType>
-template<typename std::enable_if<std::is_same<NoiseType, GaussianNoise>::value,
-                                 bool>::type>
+// template<typename std::enable_if<
+//   std::is_same<NoiseType, GaussianNoise<arma::vec>>::value,
+//   bool>::type>
 State<simulator_t, NoiseType>::State(
   std::shared_ptr<simulator_t> sim_interface,
   unsigned int id,
-  std::vector<unsigned int> nearest_neighbors)
+  std::vector<unsigned int> nearest_neighbors,
+  NoiseType noise)
   : sim_interface_(std::move(sim_interface))
   , id_(id)
   , data_(nearest_neighbors.size(), arma::fill::zeros)
 {
+
   leader_ = sim_interface_->positions().begin();
   follower_ = sim_interface_->positions().begin() + id;
 
@@ -32,14 +35,16 @@ State<simulator_t, NoiseType>::State(
     id, nearest_neighbors, sim_interface_->positions());
 
   data_ = mtools_.map_to_arma(neighbor_dists_3D_);
+  data_ = noise.apply_noise(data_);
   double alti_diff = (leader_->z - follower_->z);
   data_.resize(data_.n_rows + 1);
   data_.at(data_.n_rows - 1) = alti_diff;
 }
 
 template<class simulator_t, class NoiseType>
-template<typename std::enable_if<!std::is_same<NoiseType, GaussianNoise>::value,
-                                 bool>::type>
+// template<typename std::enable_if<
+//   !std::is_same<NoiseType, GaussianNoise<arma::vec>>::value,
+//   bool>::type>
 State<simulator_t, NoiseType>::State(
   std::shared_ptr<simulator_t> sim_interface,
   unsigned int id,

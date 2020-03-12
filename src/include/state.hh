@@ -7,13 +7,15 @@
  *
  */
 
+#include <memory>
+
 /*  Local includes */
 #include "compute_distance.hh"
+#include "gaussian_noise.hh"
 #include "global.hh"
 #include "math_tools.hh"
 
 namespace lt = local_types;
-class GaussianNoise;
 
 template<class simulator_t, class NoiseType>
 class State
@@ -24,17 +26,11 @@ public:
 
   State(const arma::colvec& data);
 
-  template<
-    typename std::enable_if<std::is_same<NoiseType, GaussianNoise>::value,
-                            bool>::type>
   State(std::shared_ptr<simulator_t> sim_interface,
         unsigned int id,
         std::vector<unsigned int> nearest_neighbors,
-        NoiseType apply_noise);
+        NoiseType noise);
 
-  template<
-    typename std::enable_if<!std::is_same<NoiseType, GaussianNoise>::value,
-                            bool>::type>
   State(std::shared_ptr<simulator_t> sim_interface,
         unsigned int id,
         std::vector<unsigned int> nearest_neighbors);
