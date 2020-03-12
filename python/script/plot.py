@@ -9,24 +9,56 @@ import numpy as np
 import pandas as pd
 import sys
 
-def plot_dataset_tsne(dataset_file_name, espisdes_file_name):
+def plot_dataset_tsne(dataset_file_name, dataset_file_name2, dataset_file_name3, episdes_file_name, episdes_file_name2, episdes_file_name3):
 
     train_matrix = genfromtxt(dataset_file_name, delimiter=',')
-    color_vec = np.loadtxt(espisdes_file_name)
+    train_2_matrix = genfromtxt(dataset_file_name2, delimiter=',')
+    train_3_matrix = genfromtxt(dataset_file_name3, delimiter=',')
+
+    Big_matrix = np.concatenate((train_matrix, train_2_matrix, train_3_matrix))
+    print("Original shape: 1", train_matrix.shape)
+    print("Original shape: 2", train_2_matrix.shape)
+    print("Original shape: 3", train_3_matrix.shape)
+    print("Shape of big matrix", Big_matrix.shape)
+
+    data_1_color_vec = np.loadtxt(episdes_file_name)
+    data_2_color_vec = np.loadtxt(episdes_file_name2)
+    data_3_color_vec = np.loadtxt(episdes_file_name3)
+
     tsne = TSNE(n_components=2, random_state=0)
-
-    mat = tsne.fit_transform(train_matrix)
-
+    mat = tsne.fit_transform(Big_matrix)
     print(mat.shape)
 
-    plt.scatter(mat[:,0], mat[:,1], c=color_vec, cmap='plasma')
+    data_1  = mat[:np.size(train_matrix,0), :]
+    print("Original shape: ", train_matrix.shape, "New Shape: ", data_1.shape)
+    print ("Mat shape", mat.shape) 
+    data_2 = mat[np.size(train_matrix, 0):np.size(train_matrix, 0) + np.size(train_2_matrix, 0) , :]
+    print("Original shape: ", train_2_matrix.shape, "New Shape: ", data_2.shape)
+
+    data_3 = mat[np.size(train_2_matrix,0): np.size(train_2_matrix, 0) + np.size(train_3_matrix, 0), :]
+    print("Original shape: ", train_3_matrix.shape, "New Shape: ", data_3.shape)
+
+    plt.figure()
+    plt.scatter(data_1[:,0], data_1[:, 1], c=data_1_color_vec, cmap='plasma')
     plt.colorbar()
-    
     figure = plt.gcf() # get current figure
     figure.set_size_inches(23, 18)
-
     plt.savefig(dataset_file_name + ".svg", dpi=600, format="svg")
-    
+
+    plt.figure()
+    plt.scatter(data_2[:,0], data_2[:, 1], c=data_2_color_vec, cmap='plasma')
+    plt.colorbar()
+    figure = plt.gcf() # get current figure
+    figure.set_size_inches(23, 18)
+    plt.savefig(dataset_file_name2 + ".svg", dpi=600, format="svg")
+
+    plt.figure()
+    plt.scatter(data_3[:,0], data_3[:, 1], c=data_3_color_vec, cmap='plasma')
+    plt.colorbar()
+    figure = plt.gcf() # get current figure
+    figure.set_size_inches(23, 18)
+    plt.savefig(dataset_file_name3 + ".svg", dpi=600, format="svg")
+
 def drop_columns(dataset_file_name, column_nubmer):
     df = pd.read_csv(dataset_file_name)
 
@@ -389,7 +421,7 @@ if __name__ == '__main__':
         modify_labels(args.dataset_file_name)
 
     elif args.tsne_dataset_file_name:
-        plot_dataset_tsne(args.tsne_dataset_file_name[0], args.tsne_dataset_file_name[1])
+        plot_dataset_tsne(args.tsne_dataset_file_name[0], args.tsne_dataset_file_name[1], args.tsne_dataset_file_name[2], args.tsne_dataset_file_name[3], args.tsne_dataset_file_name[4], args.tsne_dataset_file_name[5])
         
     elif args.loss_file_name:
         plot_loss(args.loss_file_name[0], args.loss_file_name[1], args.loss_file_name[2], args.loss_file_name[3])
