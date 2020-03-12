@@ -13,12 +13,12 @@
 #include "action.hh"
 #include "quadrotor.hh"
 
-template<class simulator_t>
+template<class QuadrotorType>
 class ActionGenerator : public Actions
 {
 
 public:
-  ActionGenerator(typename std::vector<Quadrotor<simulator_t>>::iterator quad);
+  ActionGenerator(typename std::vector<QuadrotorType>::iterator quad);
 
   Action generate_random_action();
 
@@ -31,7 +31,7 @@ public:
   Action generate_action_from_oracle();
 
 private:
-  typename std::vector<Quadrotor<simulator_t>>::iterator quad_;
+  typename std::vector<QuadrotorType>::iterator quad_;
 };
 
 #include "action_generator.hxx"

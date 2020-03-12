@@ -1,25 +1,25 @@
 #pragma once
 
-template<class simulator_t>
-ActionGenerator<simulator_t>::ActionGenerator(
-  typename std::vector<Quadrotor<simulator_t>>::iterator quad)
+template<class QuadrotorType>
+ActionGenerator<QuadrotorType>::ActionGenerator(
+  typename std::vector<QuadrotorType>::iterator quad)
   : quad_(quad)
 {
   // Nothing to do here
 }
 
-template<class simulator_t>
+template<class QuadrotorType>
 Actions::Action
-ActionGenerator<simulator_t>::generate_random_action()
+ActionGenerator<QuadrotorType>::generate_random_action()
 {
   int random_action = distribution_int_(generator_);
   Action action = static_cast<Action>(random_action);
   return action;
 }
 
-template<class simulator_t>
+template<class QuadrotorType>
 Actions::Action
-ActionGenerator<simulator_t>::generate_persistant_action(int for_n_timestep,
+ActionGenerator<QuadrotorType>::generate_persistant_action(int for_n_timestep,
                                                          int timesteps)
 {
   Actions::Action action = Actions::Action::Unknown;
@@ -44,9 +44,9 @@ ActionGenerator<simulator_t>::generate_persistant_action(int for_n_timestep,
  * high noise on traveled distance. Also this is more logic, since
  * allow more variability in the data set
  * */
-template<class simulator_t>
+template<class QuadrotorType>
 Actions::Action
-ActionGenerator<simulator_t>::generate_random_action_no_opposed(
+ActionGenerator<QuadrotorType>::generate_random_action_no_opposed(
   Actions::Action action)
 {
   Actions::Action action_ = Actions::Action::Unknown;
@@ -93,9 +93,9 @@ ActionGenerator<simulator_t>::generate_random_action_no_opposed(
      comfortable since the opposed action apply high noise on traveled
      distance. Also this is more logic, since allow more variability in
      the data set */
-template<class simulator_t>
+template<class QuadrotorType>
 Actions::Action
-ActionGenerator<simulator_t>::generate_random_action_no_opposed_no_same(
+ActionGenerator<QuadrotorType>::generate_random_action_no_opposed_no_same(
   Actions::Action action)
 {
   Actions::Action action_ = Actions::Action::Unknown;
@@ -141,9 +141,9 @@ ActionGenerator<simulator_t>::generate_random_action_no_opposed_no_same(
   return action_;
 }
 
-template<class simulator_t>
+template<class QuadrotorType>
 Actions::Action
-ActionGenerator<simulator_t>::generate_action_from_oracle()
+ActionGenerator<QuadrotorType>::generate_action_from_oracle()
 {
   Actions::Action action = Actions::Action::Unknown;
 
