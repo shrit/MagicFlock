@@ -60,7 +60,7 @@ SwarmDevice<flight_controller_t>::arm()
   }
 
   if (std::any_of(results.begin(), results.end(), [](bool value) {
-        return  value == false;
+        return value == false;
       }))
     return false;
 
@@ -98,12 +98,29 @@ template<class flight_controller_t>
 bool
 SwarmDevice<flight_controller_t>::start_offboard_mode()
 {
-  bool offboard_mode;
-  for (auto it : iris_x_) {
-    offboard_mode = it->start_offboard_mode();
-    if (!offboard_mode)
-      return false;
+  std::vector<std::thread> threads;
+  std::vector<bool> results(iris_x_.size(), false);
+  threads.push_back(std::thread(
+    [&]() { results.at(0) = iris_x_.at(0)->start_offboard_mode(); }));
+
+  threads.push_back(std::thread(
+    [&]() { results.at(1) = iris_x_.at(1)->start_offboard_mode(); }));
+
+  threads.push_back(std::thread(
+    [&]() { results.at(2) = iris_x_.at(2)->start_offboard_mode(); }));
+
+  threads.push_back(std::thread(
+    [&]() { results.at(3) = iris_x_.at(3)->start_offboard_mode(); }));
+
+  for (auto& thread : threads) {
+    thread.join();
   }
+
+  if (std::any_of(results.begin(), results.end(), [](bool value) {
+        return value == false;
+      }))
+    return false;
+
   return true;
 }
 
@@ -141,7 +158,7 @@ SwarmDevice<flight_controller_t>::takeoff(float meters)
     thread.join();
   }
   if (std::any_of(results.begin(), results.end(), [](bool value) {
-          return value == false;
+        return value == false;
       }))
     return false;
 
