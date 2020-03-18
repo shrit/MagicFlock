@@ -136,10 +136,10 @@ Px4Device::land()
 bool
 Px4Device::return_to_launch()
 {
-  logger::logger_->debug("return to launch position...");
+  logger::logger_->debug("Return to launch position...");
   const Action::Result rtl_result = action_->return_to_launch();
   if (rtl_result != Action::Result::SUCCESS) {
-    logger::logger_->error("return to launch position failed: {}",
+    logger::logger_->error("Return to launch position failed: {}",
                            Action::result_str(rtl_result));
     return false;
   }
@@ -162,11 +162,11 @@ Px4Device::set_takeoff_altitude(float meters)
 bool
 Px4Device::set_altitude_rtl_max(float meters)
 {
-  logger::logger_->debug("set altitude rtl...");
+  logger::logger_->debug("Set altitude rtl...");
   const Action::Result rtl_altitude =
     action_->set_return_to_launch_return_altitude(meters);
   if (rtl_altitude != Action::Result::SUCCESS) {
-    logger::logger_->error("return to launch position failed: {}",
+    logger::logger_->error("Return to launch position failed: {}",
                            Action::result_str(rtl_altitude));
     return false;
   }
@@ -260,12 +260,12 @@ Px4Device::backward(float speed, unsigned int milliseconds_)
 }
 
 /*  The following function should only be used with a keyboard control
-    or a joystick control. DO NOT use these function to generate
-    trajectories or a dataset of any kind. There is no garantie that
+    or a joystick control. DO NOT use these functions to generate
+    trajectories or a dataset of any kind. There is no guarantee that
     these functions are going to be executed at the requested number of
     times. If you would like to generate trajectory or a dataset, use the
     function with a timers that indicate the number of seconds you would
-    like the quadcopter to move more precisely. Otherwise it would be
+    like the quadrotors to move more precisely. Otherwise it would be
     impossible to ensure the distances between the quadrotors*/
 void
 Px4Device::up(float speed)
