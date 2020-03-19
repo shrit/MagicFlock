@@ -19,9 +19,9 @@ AnnPredictor<QuadrotorType>::create_features_matrix()
     arma::colvec col;
     col.insert_rows(col.n_rows, quad_->last_state().Data());
     col.insert_rows(col.n_rows,
-                    mtools_.to_one_hot_encoding(quad_->current_action(), 7));
+                    one_hot_.to_one_hot_encoding(quad_->current_action(), 7));
     col.insert_rows(col.n_rows, quad_->current_state().Data());
-    col.insert_rows(col.n_rows, mtools_.to_one_hot_encoding(actions.at(i), 7));
+    col.insert_rows(col.n_rows, one_hot_.to_one_hot_encoding(actions.at(i), 7));
 
     /*  Create a matrix of several columns, each one is added to on the end */
     features.insert_cols(features.n_cols, col);

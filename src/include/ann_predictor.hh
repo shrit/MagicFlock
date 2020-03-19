@@ -20,7 +20,7 @@
 /* local includes  */
 #include "global.hh"
 #include "logger.hh"
-#include "math_tools.hh"
+#include "one_hot_encoding.hh"
 #include "quadrotor.hh"
 
 namespace lt = local_types;
@@ -47,7 +47,7 @@ protected:
   typename std::vector<QuadrotorType>::iterator quad_;
 
 private:
-  Math_tools mtools_;
+  OneHotEncoding one_hot_;
 };
 
 #include "ann_predictor.hxx"
