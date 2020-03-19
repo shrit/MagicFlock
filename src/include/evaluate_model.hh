@@ -2,6 +2,7 @@
 
 #include "action.hh"
 #include "data_set.hh"
+#include "gazebo.hh"
 #include <vector>
 
 struct Evaluation
@@ -15,7 +16,7 @@ struct Evaluation
   double total_count;
 };
 
-template<class simulator_t>
+template<class simulator_t = Gazebo>
 class EvaluateModel
 {
 
