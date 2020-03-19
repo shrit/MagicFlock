@@ -1,11 +1,11 @@
 #pragma once
 
-template<class simulator_t>
-AnnStatePredictor<simulator_t>::AnnStatePredictor(
+template<class QuadrotorType>
+AnnStatePredictor<QuadrotorType>::AnnStatePredictor(
   std::string full_path_to_model,
   std::string model_name,
-  typename std::vector<Quadrotor<simulator_t>>::iterator quad)
-  : AnnPredictor<simulator_t>(quad)
+  typename std::vector<QuadrotorType>::iterator quad)
+  : AnnPredictor<QuadrotorType>(quad)
   , real_time_loss_(0)
   , model_path_(full_path_to_model)
   , model_name_(model_name)
@@ -13,9 +13,9 @@ AnnStatePredictor<simulator_t>::AnnStatePredictor(
   // Nothing to do here.
 }
 
-template<class simulator_t>
+template<class QuadrotorType>
 arma::mat
-AnnStatePredictor<simulator_t>::predict()
+AnnStatePredictor<QuadrotorType>::predict()
 {
   mlpack::ann::FFN<mlpack::ann::MeanSquaredError<>,
                    mlpack::ann::RandomInitialization>
@@ -54,16 +54,16 @@ AnnStatePredictor<simulator_t>::predict()
   return labels_;
 }
 
-template<class simulator_t>
+template<class QuadrotorType>
 arma::vec
-AnnStatePredictor<simulator_t>::best_predicted_state()
+AnnStatePredictor<QuadrotorType>::best_predicted_state()
 {
   return labels_.col(best_action_index_);
 }
 
-template<class simulator_t>
+template<class QuadrotorType>
 Actions::Action
-AnnStatePredictor<simulator_t>::best_predicted_action()
+AnnStatePredictor<QuadrotorType>::best_predicted_action()
 {
   /* Predict the next state using the above data */
   predict();
@@ -71,24 +71,24 @@ AnnStatePredictor<simulator_t>::best_predicted_action()
   return best_action_follower_;
 }
 
-template<class simulator_t>
+template<class QuadrotorType>
 arma::Col<arma::uword>
-AnnStatePredictor<simulator_t>::all_predicted_actions() const
+AnnStatePredictor<QuadrotorType>::all_predicted_actions() const
 {
   return all_predicted_actions_;
 }
 
-template<class simulator_t>
+template<class QuadrotorType>
 double
-AnnStatePredictor<simulator_t>::real_time_loss()
+AnnStatePredictor<QuadrotorType>::real_time_loss()
 {
   real_time_loss_ = this->compute_real_loss(labels_, best_action_index_);
   return real_time_loss_;
 }
 
-template<class simulator_t>
+template<class QuadrotorType>
 arma::vec
-AnnStatePredictor<simulator_t>::loss_vector() const
+AnnStatePredictor<QuadrotorType>::loss_vector() const
 {
   return loss_vector_;
 }

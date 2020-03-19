@@ -27,14 +27,14 @@
 namespace lt = local_types;
 using namespace ILMR;
 
-template<class simulator_t>
-class AnnErrorPredictor : public virtual AnnPredictor<simulator_t>
+template<class QuadrotorType>
+class AnnErrorPredictor : public virtual AnnPredictor<QuadrotorType>
 {
 public:
   AnnErrorPredictor(
     std::string full_path_to_model,
     std::string model_name,
-    typename std::vector<Quadrotor<simulator_t>>::iterator quad);
+    typename std::vector<QuadrotorType>::iterator quad);
 
   arma::mat predict();
   arma::colvec predict_specific_action_error(Actions::Action action);

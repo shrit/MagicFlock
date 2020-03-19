@@ -18,10 +18,10 @@
 #include "math_tools.hh"
 #include "quadrotor.hh"
 
-template<class simulator_t>
+template<class QuadrotorType>
 class AnnEnhancedPredictor
-  : public AnnStatePredictor<simulator_t>
-  , public AnnErrorPredictor<simulator_t>
+  : public AnnStatePredictor<QuadrotorType>
+  , public AnnErrorPredictor<QuadrotorType>
 {
 public:
   AnnEnhancedPredictor(
@@ -29,7 +29,7 @@ public:
     std::string state_model_name,
     std::string full_path_to_error_model,
     std::string error_model_name,
-    typename std::vector<Quadrotor<simulator_t>>::iterator quad);
+    typename std::vector<QuadrotorType>::iterator quad);
 
   arma::mat predict();
 

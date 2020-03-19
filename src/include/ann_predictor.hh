@@ -26,11 +26,11 @@
 namespace lt = local_types;
 using namespace ILMR;
 
-template<class simulator_t>
+template<class QuadrotorType>
 class AnnPredictor
 {
 public:
-  AnnPredictor(typename std::vector<Quadrotor<simulator_t>>::iterator quad);
+  AnnPredictor(typename std::vector<QuadrotorType>::iterator quad);
 
   arma::mat create_features_matrix();
 
@@ -44,7 +44,7 @@ public:
 protected:
   Actions action_;
   arma::colvec loss_vector_;
-  typename std::vector<Quadrotor<simulator_t>>::iterator quad_;
+  typename std::vector<QuadrotorType>::iterator quad_;
 
 private:
   Math_tools mtools_;

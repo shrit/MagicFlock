@@ -28,14 +28,14 @@
 namespace lt = local_types;
 using namespace ILMR;
 
-template<class simulator_t>
-class AnnStatePredictor : public virtual AnnPredictor<simulator_t>
+template<class QuadrotorType>
+class AnnStatePredictor : public virtual AnnPredictor<QuadrotorType>
 {
 public:
   AnnStatePredictor(
     std::string full_path_to_model,
     std::string model_name,
-    typename std::vector<Quadrotor<simulator_t>>::iterator quad);
+    typename std::vector<QuadrotorType>::iterator quad);
 
   arma::vec best_predicted_state();
 

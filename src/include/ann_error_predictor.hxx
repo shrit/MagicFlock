@@ -1,11 +1,11 @@
 #pragma once
 
-template<class simulator_t>
-AnnErrorPredictor<simulator_t>::AnnErrorPredictor(
+template<class QuadrotorType>
+AnnErrorPredictor<QuadrotorType>::AnnErrorPredictor(
   std::string full_path_to_model,
   std::string model_name,
-  typename std::vector<Quadrotor<simulator_t>>::iterator quad)
-  : AnnPredictor<simulator_t>(quad)
+  typename std::vector<QuadrotorType>::iterator quad)
+  : AnnPredictor<QuadrotorType>(quad)
   , real_time_loss_(0)
   , model_path_(full_path_to_model)
   , model_name_(model_name)
@@ -13,9 +13,9 @@ AnnErrorPredictor<simulator_t>::AnnErrorPredictor(
   // Nothing to do here.
 }
 
-template<class simulator_t>
+template<class QuadrotorType>
 arma::mat
-AnnErrorPredictor<simulator_t>::predict()
+AnnErrorPredictor<QuadrotorType>::predict()
 {
   mlpack::ann::FFN<mlpack::ann::MeanSquaredError<>,
                    mlpack::ann::RandomInitialization>
@@ -40,9 +40,9 @@ AnnErrorPredictor<simulator_t>::predict()
   return labels;
 }
 
-template<class simulator_t>
+template<class QuadrotorType>
 arma::colvec
-AnnErrorPredictor<simulator_t>::predict_specific_action_error(
+AnnErrorPredictor<QuadrotorType>::predict_specific_action_error(
   Actions::Action action)
 {
   arma::mat labels = predict();
@@ -53,9 +53,9 @@ AnnErrorPredictor<simulator_t>::predict_specific_action_error(
   return loss_vector;
 }
 
-template<class simulator_t>
+template<class QuadrotorType>
 double
-AnnErrorPredictor<simulator_t>::real_time_loss() const
+AnnErrorPredictor<QuadrotorType>::real_time_loss() const
 {
   return real_time_loss_;
 }

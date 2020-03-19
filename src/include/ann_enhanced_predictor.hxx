@@ -1,29 +1,29 @@
 #pragma once
 
-template<class simulator_t>
-AnnEnhancedPredictor<simulator_t>::AnnEnhancedPredictor(
+template<class QuadrotorType>
+AnnEnhancedPredictor<QuadrotorType>::AnnEnhancedPredictor(
   std::string full_path_to_state_model,
   std::string state_model_name,
   std::string full_path_to_error_model,
   std::string error_model_name,
-  typename std::vector<Quadrotor<simulator_t>>::iterator quad)
-  : AnnStatePredictor<simulator_t>(full_path_to_state_model,
+  typename std::vector<QuadrotorType>::iterator quad)
+  : AnnStatePredictor<QuadrotorType>(full_path_to_state_model,
                                    state_model_name,
                                    quad)
-  , AnnErrorPredictor<simulator_t>(full_path_to_error_model,
+  , AnnErrorPredictor<QuadrotorType>(full_path_to_error_model,
                                    error_model_name,
                                    quad)
-  , AnnPredictor<simulator_t>(quad)
+  , AnnPredictor<QuadrotorType>(quad)
 {
   // Nothing to do here.
 }
 
-template<class simulator_t>
+template<class QuadrotorType>
 arma::mat
-AnnEnhancedPredictor<simulator_t>::predict()
+AnnEnhancedPredictor<QuadrotorType>::predict()
 {
-  arma::mat predicted_state = AnnStatePredictor<simulator_t>::predict();
-  arma::mat predicted_error = AnnErrorPredictor<simulator_t>::predict();
+  arma::mat predicted_state = AnnStatePredictor<QuadrotorType>::predict();
+  arma::mat predicted_error = AnnErrorPredictor<QuadrotorType>::predict();
 
   enhanced_prediction_matrix_.clear();
   enhanced_prediction_matrix_ = predicted_state + predicted_error;
@@ -45,16 +45,16 @@ AnnEnhancedPredictor<simulator_t>::predict()
   return enhanced_prediction_matrix_;
 }
 
-template<class simulator_t>
+template<class QuadrotorType>
 arma::vec
-AnnEnhancedPredictor<simulator_t>::best_predicted_state()
+AnnEnhancedPredictor<QuadrotorType>::best_predicted_state()
 {
   return enhanced_prediction_matrix_.col(best_action_index_);
 }
 
-template<class simulator_t>
+template<class QuadrotorType>
 Actions::Action
-AnnEnhancedPredictor<simulator_t>::best_predicted_action()
+AnnEnhancedPredictor<QuadrotorType>::best_predicted_action()
 {
   predict();
   this->quad_->current_predicted_enhanced_state().Data() =
@@ -62,16 +62,16 @@ AnnEnhancedPredictor<simulator_t>::best_predicted_action()
   return best_action_follower_;
 }
 
-template<class simulator_t>
+template<class QuadrotorType>
 arma::Col<arma::uword>
-AnnEnhancedPredictor<simulator_t>::all_predicted_actions() const
+AnnEnhancedPredictor<QuadrotorType>::all_predicted_actions() const
 {
   return all_predicted_actions_;
 }
 
-template<class simulator_t>
+template<class QuadrotorType>
 double
-AnnEnhancedPredictor<simulator_t>::real_time_loss()
+AnnEnhancedPredictor<QuadrotorType>::real_time_loss()
 {
   real_time_loss_ =
     this->compute_real_loss(enhanced_prediction_matrix_, best_action_index_);

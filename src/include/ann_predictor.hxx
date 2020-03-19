@@ -1,16 +1,16 @@
 #pragma once
 
-template<class simulator_t>
-AnnPredictor<simulator_t>::AnnPredictor(
-  typename std::vector<Quadrotor<simulator_t>>::iterator quad)
+template<class QuadrotorType>
+AnnPredictor<QuadrotorType>::AnnPredictor(
+  typename std::vector<QuadrotorType>::iterator quad)
   : quad_(quad)
 {
   // Nothing to do here.
 }
 
-template<class simulator_t>
+template<class QuadrotorType>
 arma::mat
-AnnPredictor<simulator_t>::create_features_matrix()
+AnnPredictor<QuadrotorType>::create_features_matrix()
 {
   arma::mat features;
   std::vector<Actions::Action> actions = action_.all_possible_actions();
@@ -31,11 +31,11 @@ AnnPredictor<simulator_t>::create_features_matrix()
   return features;
 }
 
-template<class simulator_t>
+template<class QuadrotorType>
 template<typename State>
 arma::mat
-AnnPredictor<simulator_t>::create_state_matrix(State state,
-                                               arma::uword matrix_size)
+AnnPredictor<QuadrotorType>::create_state_matrix(State state,
+                                                 arma::uword matrix_size)
 {
   arma::mat state_matrix;
   for (int i = 0; i < matrix_size; ++i) {
@@ -44,10 +44,10 @@ AnnPredictor<simulator_t>::create_state_matrix(State state,
   return state_matrix;
 }
 
-template<class simulator_t>
+template<class QuadrotorType>
 double
-AnnPredictor<simulator_t>::compute_real_loss(const arma::mat& labels,
-                                             arma::uword index)
+AnnPredictor<QuadrotorType>::compute_real_loss(const arma::mat& labels,
+                                               arma::uword index)
 {
   loss_vector_.clear();
   loss_vector_ = this->quad_->current_state().Data() - labels.col(index);
@@ -56,10 +56,10 @@ AnnPredictor<simulator_t>::compute_real_loss(const arma::mat& labels,
   return arma::sum(loss_vector_);
 }
 
-template<class simulator_t>
+template<class QuadrotorType>
 double
-AnnPredictor<simulator_t>::compute_absolute_loss(const arma::mat& labels,
-                                                 arma::uword index)
+AnnPredictor<QuadrotorType>::compute_absolute_loss(const arma::mat& labels,
+                                                   arma::uword index)
 {
   loss_vector_.clear();
   loss_vector_ =
@@ -69,10 +69,10 @@ AnnPredictor<simulator_t>::compute_absolute_loss(const arma::mat& labels,
   return arma::sum(loss_vector_);
 }
 
-template<class simulator_t>
+template<class QuadrotorType>
 double
-AnnPredictor<simulator_t>::compute_square_loss(const arma::mat& labels,
-                                               arma::uword index)
+AnnPredictor<QuadrotorType>::compute_square_loss(const arma::mat& labels,
+                                                 arma::uword index)
 {
   loss_vector_.clear();
   mlpack::ann::MeanSquaredError<arma::rowvec, arma::rowvec> mse;
