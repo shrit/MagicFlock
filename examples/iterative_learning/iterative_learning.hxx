@@ -1,14 +1,12 @@
 #pragma once
 
-template<class flight_controller_t, class simulator_t>
-Iterative_learning<flight_controller_t, simulator_t>::Iterative_learning(
+template<class flight_controller_t, class QuadrotorType>
+Iterative_learning<flight_controller_t, QuadrotorType>::Iterative_learning(
   std::vector<std::shared_ptr<flight_controller_t>> iris_x,
-  const std::vector<Quadrotor<simulator_t>>& quadrotors,
-  std::shared_ptr<simulator_t> gzs,
+  const std::vector<QuadrotorType>& quadrotors,
   std::shared_ptr<spdlog::logger> logger)
   : episode_(0)
   , max_episode_(10000)
-  , sim_interface_(std::move(gzs))
   , swarm_(std::move(iris_x))
   , quadrotors_(std::move(quadrotors))
   , logger_(logger)
@@ -20,14 +18,14 @@ Iterative_learning<flight_controller_t, simulator_t>::Iterative_learning(
   leader_2_ = std::next(quadrotors_.begin(), 3);
 }
 
-template<class flight_controller_t, class simulator_t>
+template<class flight_controller_t, class QuadrotorType>
 void
 Iterative_learning<flight_controller_t,
-                   simulator_t>::generate_trajectory_using_model()
+                   QuadrotorType>::generate_trajectory_using_model()
 {
-  ActionGenerator<simulator_t> leader_generator(leader_);
-  ActionGenerator<simulator_t> follower_1_generator(follower_1_);
-  ActionGenerator<simulator_t> follower_2_generator(follower_2_);
+  ActionGenerator<QuadrotorType> leader_generator(leader_);
+  ActionGenerator<QuadrotorType> follower_1_generator(follower_1_);
+  ActionGenerator<QuadrotorType> follower_2_generator(follower_2_);
 
   std::vector<std::thread> threads;
 
@@ -64,52 +62,54 @@ Iterative_learning<flight_controller_t,
   follower_1_->sample_state();
   follower_2_->sample_state();
 
-  // AnnEnhancedPredictor<simulator_t> predict_f1(
-  //   "/meta/lemon/examples/iterative_learning/build/f1/model.txt",
-  //   "model",
-  //   "/meta/lemon/examples/iterative_learning/build/error_f1/model.txt",
-  //   "model",
-  //   follower_1_);
-
-  AnnStatePredictor<simulator_t> predict_f1(
+  AnnEnhancedPredictor<QuadrotorType> predict_e_f1(
     "/meta/lemon/examples/iterative_learning/build/f1/model.txt",
     "model",
-    follower_1_);
-
-  Actions::Action follower_1_action = predict_f1.best_predicted_action();
-
-  AnnErrorPredictor<simulator_t> predict_error_f1(
     "/meta/lemon/examples/iterative_learning/build/error_f1/model.txt",
     "model",
     follower_1_);
 
-  arma::colvec predicted_f1_loss_vec =
-    predict_error_f1.predict_specific_action_error(follower_1_action);
+  AnnStatePredictor<QuadrotorType> predict_f1(
+    "/meta/lemon/examples/iterative_learning/build/f1/model.txt",
+    "model",
+    follower_1_);
 
-  // AnnEnhancedPredictor<simulator_t> predict_f2(
-  //   "/meta/lemon/examples/iterative_learning/build/f2/model.txt",
-  //   "model",
-  //   "/meta/lemon/examples/iterative_learning/build/error_f2/model.txt",
-  //   "model",
-  //   follower_2_);
+  Actions::Action follower_1_action_s = predict_f1.best_predicted_action();
+  Actions::Action follower_1_action_e = predict_e_f1.best_predicted_action();
 
-  AnnStatePredictor<simulator_t> predict_f2(
+  // AnnErrorPredictor<QuadrotorType> predict_error_f1(
+  //   "/meta/lemon/examples/iterative_learning/build/error_f1/model.txt",
+  //   "model",
+  //   follower_1_);
+
+  // arma::colvec predicted_f1_loss_vec =
+  //   predict_error_f1.predict_specific_action_error(follower_1_action);
+
+  AnnEnhancedPredictor<QuadrotorType> predict_e_f2(
     "/meta/lemon/examples/iterative_learning/build/f2/model.txt",
     "model",
-    follower_2_);
-
-  Actions::Action follower_2_action = predict_f2.best_predicted_action();
-
-  AnnErrorPredictor<simulator_t> predict_error_f2(
     "/meta/lemon/examples/iterative_learning/build/error_f2/model.txt",
     "model",
     follower_2_);
 
-  arma::colvec predicted_f2_loss_vec =
-    predict_error_f2.predict_specific_action_error(follower_2_action);
+  AnnStatePredictor<QuadrotorType> predict_f2(
+    "/meta/lemon/examples/iterative_learning/build/f2/model.txt",
+    "model",
+    follower_2_);
 
-  follower_1_->current_action(follower_1_action);
-  follower_2_->current_action(follower_2_action);
+  Actions::Action follower_2_action_e = predict_e_f2.best_predicted_action();
+  Actions::Action follower_2_action_s = predict_f2.best_predicted_action();
+
+  // AnnErrorPredictor<QuadrotorType> predict_error_f2(
+  //   "/meta/lemon/examples/iterative_learning/build/error_f2/model.txt",
+  //   "model",
+  //   follower_2_);
+
+  // arma::colvec predicted_f2_loss_vec =
+  //   predict_error_f2.predict_specific_action_error(follower_2_action);
+
+  follower_1_->current_action(follower_1_action_e);
+  follower_2_->current_action(follower_2_action_e);
 
   logger_->info(
     "Follower 1 (Chalrie) action: {}",
@@ -146,8 +146,8 @@ Iterative_learning<flight_controller_t,
                         follower_1_->current_action(),
                         follower_2_->current_action());
 
-  double predicted_loss_f1 = predict_error_f1.real_time_loss();
-  double predicted_loss_f2 = predict_error_f2.real_time_loss();
+  // double predicted_loss_f1 = predict_error_f1.real_time_loss();
+  // double predicted_loss_f2 = predict_error_f2.real_time_loss();
 
   double real_loss_f1 = predict_f1.real_time_loss();
   double real_loss_f2 = predict_f2.real_time_loss();
@@ -156,25 +156,32 @@ Iterative_learning<flight_controller_t,
 
   Math_tools mtools;
 
-  follower_1_->register_loss(mtools.to_std_vector(predicted_f1_loss_vec),
-                             predicted_loss_f1,
-                             mtools.to_std_vector(real_loss_vec_f1),
-                             real_loss_f1);
+  // follower_1_->register_loss(mtools.to_std_vector(predicted_f1_loss_vec),
+  //                            predicted_loss_f1,
+  //                            mtools.to_std_vector(real_loss_vec_f1),
+  //                            real_loss_f1);
 
-  follower_2_->register_loss(mtools.to_std_vector(predicted_f2_loss_vec),
-                             predicted_loss_f2,
-                             mtools.to_std_vector(real_loss_vec_f2),
-                             real_loss_f2);
+  // follower_2_->register_loss(mtools.to_std_vector(predicted_f2_loss_vec),
+  //                            predicted_loss_f2,
+  //                            mtools.to_std_vector(real_loss_vec_f2),
+  //                            real_loss_f2);
 
   logger_->info("Real time loss f1: {}", real_loss_f1);
   logger_->info("Real time loss f2: {}", real_loss_f2);
-  logger_->info("Predicted loss f1: {}", predicted_loss_f1);
-  logger_->info("Predicted loss f2: {}", predicted_loss_f2);
+  follower_1_->register_actions_evaluation(follower_1_action_e,
+                                           follower_1_action_s);
+  follower_2_->register_actions_evaluation(follower_2_action_e,
+                                           follower_2_action_s);
+
+
+
+  // logger_->info("Predicted loss f1: {}", predicted_loss_f1);
+  // logger_->info("Predicted loss f2: {}", predicted_loss_f2);
 }
 
-template<class flight_controller_t, class simulator_t>
+template<class flight_controller_t, class QuadrotorType>
 void
-Iterative_learning<flight_controller_t, simulator_t>::run()
+Iterative_learning<flight_controller_t, QuadrotorType>::run()
 {
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
 
@@ -194,6 +201,12 @@ Iterative_learning<flight_controller_t, simulator_t>::run()
 
         follower_1_->register_data_set_with_loss();
         follower_2_->register_data_set_with_loss();
+
+        follower_1_->register_data_set_with_current_predictions();
+        follower_2_->register_data_set_with_current_predictions();
+        
+        follower_1_->register_data_set_with_current_enhanced_predictions();
+        follower_2_->register_data_set_with_current_enhanced_predictions();
 
         follower_1_->register_episodes(episode_);
 
@@ -224,7 +237,7 @@ Iterative_learning<flight_controller_t, simulator_t>::run()
     /* Register the test realized by the model */
     evaluate_model_.register_evaluation();
     /* Resetting the entire swarm after the end of each episode*/
-    sim_interface_->reset_models();
+    leader_->reset_models();
 
     logger_->info("The quadcopters have been reset...");
     logger_->info("Waiting untill the kalaman filter to reset...");

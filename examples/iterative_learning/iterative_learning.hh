@@ -18,13 +18,12 @@
 
 namespace lt = local_types;
 
-template<class flight_controller_t, class simulator_t>
+template<class flight_controller_t, class QuadrotorType>
 class Iterative_learning
 {
 public:
   Iterative_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
-                     const std::vector<Quadrotor<simulator_t>>& quadrotors,
-                     std::shared_ptr<simulator_t> gzs,
+                     const std::vector<QuadrotorType>& quadrotors,
                      std::shared_ptr<spdlog::logger> logger);
 
   void generate_trajectory_using_model();
@@ -35,22 +34,21 @@ public:
 
 private:
   int episode_;
-  EvaluateModel<simulator_t> evaluate_model_;
+  EvaluateModel<> evaluate_model_;
   std::vector<double> flight_errors_;
   int max_episode_;
-  std::shared_ptr<simulator_t> sim_interface_;
   std::vector<double> step_errors_;
   TimeSteps time_steps_;
   Timer timer_;
   SwarmDevice<flight_controller_t> swarm_;
   bool start_episode_;
-  std::vector<Quadrotor<simulator_t>> quadrotors_;
+  std::vector<QuadrotorType> quadrotors_;
 
   std::shared_ptr<spdlog::logger> logger_;
-  typename std::vector<Quadrotor<simulator_t>>::iterator leader_;
-  typename std::vector<Quadrotor<simulator_t>>::iterator follower_1_;
-  typename std::vector<Quadrotor<simulator_t>>::iterator follower_2_;
-  typename std::vector<Quadrotor<simulator_t>>::iterator leader_2_;
+  typename std::vector<QuadrotorType>::iterator leader_;
+  typename std::vector<QuadrotorType>::iterator follower_1_;
+  typename std::vector<QuadrotorType>::iterator follower_2_;
+  typename std::vector<QuadrotorType>::iterator leader_2_;
 };
 
 #include "iterative_learning.hxx"

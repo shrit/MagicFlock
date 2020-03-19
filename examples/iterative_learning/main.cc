@@ -90,7 +90,7 @@ main(int argc, char* argv[])
   /*  Create a vector of quadrotors, each one has an id + a name  */
   /*  Try to see if it is possible or efficient to merge quadrotors +
       device controller */
-  std::vector<Quadrotor<Gazebo>> quadrotors;
+  using QuadrotorType = Quadrotor<Gazebo, GaussianNoise<arma::vec>>;  std::vector<QuadrotorType> quadrotors;
   quadrotors.emplace_back(0, "leader", gz); // Alice
   quadrotors.emplace_back(1, "follower_1", gz); // Charlie
   quadrotors.emplace_back(2, "follower_2", gz); // Bob
@@ -114,7 +114,7 @@ main(int argc, char* argv[])
   quadrotors.at(3).add_nearest_neighbor_id(2);
   
   /*  Test the trained model and improve it  */
-  Iterative_learning<Px4Device, Gazebo> ilearning(
-    iris_x, quadrotors, gz, logger);
+  Iterative_learning<Px4Device, QuadrotorType> ilearning(
+    iris_x, quadrotors, logger);
   ilearning.run();
 }
