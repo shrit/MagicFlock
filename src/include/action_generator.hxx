@@ -20,7 +20,7 @@ ActionGenerator<QuadrotorType>::generate_random_action()
 template<class QuadrotorType>
 Actions::Action
 ActionGenerator<QuadrotorType>::generate_persistant_action(int for_n_timestep,
-                                                         int timesteps)
+                                                           int timesteps)
 {
   Actions::Action action = Actions::Action::Unknown;
 
