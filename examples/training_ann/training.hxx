@@ -25,7 +25,7 @@ Train<simulator_t>::regression()
   model.Add<mlpack::ann::Linear<>>(200, 200);
   model.Add<mlpack::ann::LeakyReLU<>>();
   model.Add<mlpack::ann::Dropout<>>(0.5);
-  model.Add<mlpack::ann::Linear<>>(200, 3);
+  model.Add<mlpack::ann::Linear<>>(200, 4);
 
   ens::AdamType<ens::AdamUpdate> optimizer;
 
