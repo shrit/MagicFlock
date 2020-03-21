@@ -21,9 +21,6 @@
 #include <ILMR/gazebo.hh>
 #include <ILMR/logger.hh>
 
-/*
- *  Main file: Start generate dataset
- */
 int
 main(int argc, char* argv[])
 {
