@@ -41,7 +41,7 @@ main(int argc, char* argv[])
   CLI11_PARSE(app, argc, argv);
 
   logger->info("Start training...");
-  Train<Gazebo> trainer(std::move(dataset_filename), logger);
-  trainer.run();
+  VAE<Gazebo> vae_trainer(std::move(dataset_filename), logger);
+  vae_trainer.run();
   logger->info("Finished training...");
 }
