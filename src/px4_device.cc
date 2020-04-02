@@ -63,13 +63,13 @@ Px4Device::takeoff()
   /*  Wait until the Flight Mode changes to takeoff */
   while (true) {
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    if (flight_mode() == Telemetry::FlightMode::TAKEOFF) {
-      logger::logger_->debug("Flight Mode : {}",
-                             telemetry_->flight_mode_str(flight_mode()));
+    if (landed_state() == Telemetry::LandedState::TAKING_OFF) {
+      logger::logger_->debug("Landed State : {}",
+                             telemetry_->landed_state_str(landed_state()));
       break;
     }
   }
-  while (flight_mode() == Telemetry::FlightMode::TAKEOFF) {
+  while (landed_state() == Telemetry::LandedState::TAKING_OFF) {
     logger::logger_->debug("Taking off...");
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
   }
@@ -93,16 +93,16 @@ Px4Device::takeoff(float meters)
   }
   /*  Wait until the Flight Mode changes to takeoff */
   while (true) {
-    logger::logger_->debug("Flight Mode :{}",
-                           telemetry_->flight_mode_str(flight_mode()));
+    logger::logger_->debug("Landed State :{}",
+                           telemetry_->landed_state_str(landed_state()));
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    if (flight_mode() == Telemetry::FlightMode::TAKEOFF) {
-      logger::logger_->debug("Flight Mode :{}",
-                             telemetry_->flight_mode_str(flight_mode()));
+    if (landed_state() == Telemetry::LandedState::TAKING_OFF) {
+      logger::logger_->debug("Landed State :{}",
+                             telemetry_->landed_state_str(landed_state()));
       break;
     }
   }
-  while (flight_mode() == Telemetry::FlightMode::TAKEOFF) {
+  while (landed_state() == Telemetry::LandedState::TAKING_OFF) {
     logger::logger_->debug("Taking off...");
     std::this_thread::sleep_for(std::chrono::milliseconds(300));
   }
