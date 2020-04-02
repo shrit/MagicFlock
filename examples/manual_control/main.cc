@@ -302,6 +302,7 @@ main(int argc, char* argv[])
   std::string arg = argv[1];
   if (argc > 1 and arg == "-h") {
     usage(std::cout);
+    exit(0);
   }
 
   /*  Init configs */
