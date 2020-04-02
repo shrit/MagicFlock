@@ -22,6 +22,8 @@
 #include <ILMR/logger.hh>
 #include <ILMR/px4_device.hh>
 
+#include <CLI/CLI.hpp>
+
 namespace lt = local_types;
 
 /*
@@ -32,7 +34,8 @@ joystick_event_handler(Joystick& joystick,
                        std::vector<std::shared_ptr<Px4Device>> iris_x,
                        float speed,
                        bool just_fly,
-                       std::shared_ptr<spdlog::logger> logger)
+                       std::shared_ptr<spdlog::logger> logger,
+                       int id)
 {
   while (true) {
     // Attempt to read an event from the joystick
@@ -45,7 +48,7 @@ joystick_event_handler(Joystick& joystick,
             it->arm();
           }
         } else {
-          iris_x.at(0)->arm();
+          iris_x.at(id)->arm();
         }
         logger->info("arming...\n");
 
@@ -56,7 +59,7 @@ joystick_event_handler(Joystick& joystick,
             it->land();
           }
         } else {
-          iris_x.at(0)->land();
+          iris_x.at(id)->land();
         }
         logger->info("landing...\n");
 
@@ -66,7 +69,7 @@ joystick_event_handler(Joystick& joystick,
             it->takeoff();
           }
         } else {
-          iris_x.at(0)->takeoff();
+          iris_x.at(id)->takeoff();
         }
         logger->info("taking off...\n");
         std::this_thread::sleep_for(std::chrono::seconds(5));
@@ -80,8 +83,8 @@ joystick_event_handler(Joystick& joystick,
             it->start_offboard_mode();
           }
         } else {
-          iris_x.at(0)->init_speed();
-          iris_x.at(0)->start_offboard_mode();
+          iris_x.at(id)->init_speed();
+          iris_x.at(id)->start_offboard_mode();
         }
 
         logger->info("Start offoard mode...\n");
@@ -106,25 +109,25 @@ joystick_event_handler(Joystick& joystick,
 
         if (joystick.RightAxisXChanged(event) > 0) {
           /* Speed should be function of the value of joystick  */
-          iris_x.at(0)->right(speed);
+          iris_x.at(id)->right(speed);
           logger->info("Moving right...\n");
 
         } else {
           /* Speed should be function of the value of joystick  */
-          iris_x.at(0)->left(speed);
+          iris_x.at(id)->left(speed);
           logger->info("Moving left...\n");
         }
       } else if (joystick.RightAxisYChanged(event)) {
 
         if (joystick.RightAxisYChanged(event) > 0) {
           /* Speed should be function of the value of joystick  */
-          iris_x.at(0)->backward(speed);
+          iris_x.at(id)->backward(speed);
           logger->info("Moving backward...\n");
 
         } else {
           /* Speed should be function of the value of joystick  */
           /*  Speed should be fixed as the joystick does not move */
-          iris_x.at(0)->forward(speed);
+          iris_x.at(id)->forward(speed);
           logger->info("Moving forward...\n");
         }
 
@@ -132,11 +135,11 @@ joystick_event_handler(Joystick& joystick,
 
         if (joystick.LeftAxisXChanged(event) > 0) {
 
-          iris_x.at(0)->turnToLeft();
+          iris_x.at(id)->turnToLeft();
           logger->info("Turn to left...\n");
 
         } else {
-          iris_x.at(0)->turnToRight();
+          iris_x.at(id)->turnToRight();
           logger->info("Turn to right...\n");
         }
 
@@ -144,12 +147,12 @@ joystick_event_handler(Joystick& joystick,
 
         if (joystick.LeftAxisYChanged(event) > 0) {
           /* Speed should be function of the value of joystick  */
-          iris_x.at(0)->down(speed);
+          iris_x.at(id)->down(speed);
           logger->info("Moving down...\n");
 
         } else {
           /* Speed should be function of the value of joystick  */
-          iris_x.at(0)->up(speed);
+          iris_x.at(id)->up(speed);
           logger->info("Moving up...\n");
         }
       } else if (joystick.AxisL2Changed(event)) {
@@ -172,7 +175,8 @@ void
 keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
                        float speed,
                        bool just_fly,
-                       std::shared_ptr<spdlog::logger> logger)
+                       std::shared_ptr<spdlog::logger> logger,
+                       int id)
 {
   Keyboard keyboard(STDIN_FILENO);
   while (true) {
@@ -186,7 +190,7 @@ keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
             it->arm();
           }
         } else {
-          iris_x.at(0)->arm();
+          iris_x.at(id)->arm();
         }
         logger->info("Arming...\n");
         break;
@@ -196,7 +200,7 @@ keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
             it->land();
           }
         } else {
-          iris_x.at(0)->land();
+          iris_x.at(id)->land();
         }
         logger->info("Landing...\n");
         break;
@@ -206,7 +210,7 @@ keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
             it->takeoff();
           }
         } else {
-          iris_x.at(0)->takeoff();
+          iris_x.at(id)->takeoff();
         }
         logger->info("Taking off...\n");
         std::this_thread::sleep_for(std::chrono::seconds(5));
@@ -220,34 +224,34 @@ keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
             it->start_offboard_mode();
           }
         } else {
-          iris_x.at(0)->init_speed();
-          iris_x.at(0)->start_offboard_mode();
+          iris_x.at(id)->init_speed();
+          iris_x.at(id)->start_offboard_mode();
         }
         logger->info("Start offoard mode...\n");
         std::this_thread::sleep_for(std::chrono::seconds(1));
         break;
       case 'd':
-        iris_x.at(0)->right(speed);
+        iris_x.at(id)->right(speed);
         logger->info("Moving right...\n");
         break;
       case 'a':
-        iris_x.at(0)->left(speed);
+        iris_x.at(id)->left(speed);
         logger->info("Moving left...\n");
         break;
       case 's':
-        iris_x.at(0)->backward(speed);
+        iris_x.at(id)->backward(speed);
         logger->info("Moving backward...\n");
         break;
       case 'w':
-        iris_x.at(0)->forward(speed);
+        iris_x.at(id)->forward(speed);
         logger->info("Moving forward...\n");
         break;
       case 'z':
-        iris_x.at(0)->down(speed);
+        iris_x.at(id)->down(speed);
         logger->info("Moving down...\n");
         break;
       case 'q':
-        iris_x.at(0)->up(speed);
+        iris_x.at(id)->up(speed);
         logger->info("Moving up...\n");
         break;
       case static_cast<int>(Keyboard::Special_keys::CTRL_C):
@@ -298,16 +302,19 @@ usage(std::ostream& out)
 int
 main(int argc, char* argv[])
 {
-  std::string arg;
-  if (argc == 2)
-    arg = argv[1];
-  if (arg == "-h") {
-    usage(std::cout);
-    exit(0);
-  }
-
   /*  Init configs */
   Configs configs("/meta/lemon/quad.ini");
+
+  CLI::App app{
+    "This example allow to control a quadrotor using keyboard or joystick.\n"
+    "The example works on real quadrotors and in simlation.\n"
+    "Users can type ./manual_control -h to learn keyboard layout.\n"
+    "Enter i = 0 to control only one real quadrotor using keyboard or "
+    "joystick.\n"
+  };
+  int id = 0;
+  app.add_option("-i", id, "Enter the id of the quadrotor to control");
+  CLI11_PARSE(app, argc, argv);
 
   auto logger = ILMR::logger::init();
   ILMR::logger::create_library_logger(logger);
@@ -339,12 +346,13 @@ main(int argc, char* argv[])
   auto joystick_handler = [&]() {
     if (joystick_mode) {
       joystick_event_handler(
-        joystick, iris_x, configs.speed(), configs.just_fly(), logger);
+        joystick, iris_x, configs.speed(), configs.just_fly(), logger, id);
     }
   };
 
   auto keyboard_handler = [&]() {
-    keyboard_event_handler(iris_x, configs.speed(), configs.just_fly(), logger);
+    keyboard_event_handler(
+      iris_x, configs.speed(), configs.just_fly(), logger, id);
   };
 
   auto joystick_events = std::async(std::launch::async, joystick_handler);
