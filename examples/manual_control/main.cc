@@ -33,7 +33,6 @@ JoystickEvent
 joystick_event_handler(Joystick& joystick,
                        std::vector<std::shared_ptr<Px4Device>> iris_x,
                        float speed,
-                       bool just_fly,
                        std::shared_ptr<spdlog::logger> logger,
                        int id)
 {
@@ -43,50 +42,22 @@ joystick_event_handler(Joystick& joystick,
     if (joystick.read_event(&event)) {
 
       if (joystick.ButtonAChanged(event)) {
-        if (!just_fly) {
-          for (auto it : iris_x) {
-            it->arm();
-          }
-        } else {
-          iris_x.at(id)->arm();
-        }
+        iris_x.at(id)->arm();
         logger->info("arming...\n");
 
         std::this_thread::sleep_for(std::chrono::seconds(1));
       } else if (joystick.ButtonBChanged(event)) {
-        if (!just_fly) {
-          for (auto it : iris_x) {
-            it->land();
-          }
-        } else {
-          iris_x.at(id)->land();
-        }
+        iris_x.at(id)->land();
         logger->info("landing...\n");
 
       } else if (joystick.ButtonXChanged(event)) {
-        if (!just_fly) {
-          for (auto it : iris_x) {
-            it->takeoff();
-          }
-        } else {
-          iris_x.at(id)->takeoff();
-        }
+        iris_x.at(id)->takeoff();
         logger->info("taking off...\n");
         std::this_thread::sleep_for(std::chrono::seconds(5));
 
       } else if (joystick.ButtonYChanged(event)) {
-        if (!just_fly) {
-          for (auto it : iris_x) {
-            it->init_speed();
-          }
-          for (auto it : iris_x) {
-            it->start_offboard_mode();
-          }
-        } else {
-          iris_x.at(id)->init_speed();
-          iris_x.at(id)->start_offboard_mode();
-        }
-
+        iris_x.at(id)->init_speed();
+        iris_x.at(id)->start_offboard_mode();
         logger->info("Start offoard mode...\n");
         std::this_thread::sleep_for(std::chrono::seconds(1));
 
@@ -174,7 +145,6 @@ joystick_event_handler(Joystick& joystick,
 void
 keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
                        float speed,
-                       bool just_fly,
                        std::shared_ptr<spdlog::logger> logger,
                        int id)
 {
@@ -185,48 +155,21 @@ keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
 
     switch (ch) {
       case 'm':
-        if (!just_fly) {
-          for (auto it : iris_x) {
-            it->arm();
-          }
-        } else {
-          iris_x.at(id)->arm();
-        }
+        iris_x.at(id)->arm();
         logger->info("Arming...\n");
         break;
       case 'l':
-        if (!just_fly) {
-          for (auto it : iris_x) {
-            it->land();
-          }
-        } else {
-          iris_x.at(id)->land();
-        }
+        iris_x.at(id)->land();
         logger->info("Landing...\n");
         break;
       case 't':
-        if (!just_fly) {
-          for (auto it : iris_x) {
-            it->takeoff();
-          }
-        } else {
-          iris_x.at(id)->takeoff();
-        }
+        iris_x.at(id)->takeoff();
         logger->info("Taking off...\n");
         std::this_thread::sleep_for(std::chrono::seconds(5));
         break;
       case 'o':
-        if (!just_fly) {
-          for (auto it : iris_x) {
-            it->init_speed();
-          }
-          for (auto it : iris_x) {
-            it->start_offboard_mode();
-          }
-        } else {
-          iris_x.at(id)->init_speed();
-          iris_x.at(id)->start_offboard_mode();
-        }
+        iris_x.at(id)->init_speed();
+        iris_x.at(id)->start_offboard_mode();
         logger->info("Start offoard mode...\n");
         std::this_thread::sleep_for(std::chrono::seconds(1));
         break;
@@ -346,13 +289,13 @@ main(int argc, char* argv[])
   auto joystick_handler = [&]() {
     if (joystick_mode) {
       joystick_event_handler(
-        joystick, iris_x, configs.speed(), configs.just_fly(), logger, id);
+        joystick, iris_x, configs.speed(), logger, id);
     }
   };
 
   auto keyboard_handler = [&]() {
     keyboard_event_handler(
-      iris_x, configs.speed(), configs.just_fly(), logger, id);
+      iris_x, configs.speed(), logger, id);
   };
 
   auto joystick_events = std::async(std::launch::async, joystick_handler);
