@@ -16,7 +16,6 @@
 #include <vector>
 
 #include <ILMR/config_ini.hh>
-#include <ILMR/gazebo.hh>
 #include <ILMR/global.hh>
 #include <ILMR/joystick.hh>
 #include <ILMR/keyboard.hh>
@@ -32,7 +31,8 @@ JoystickEvent
 joystick_event_handler(Joystick& joystick,
                        std::vector<std::shared_ptr<Px4Device>> iris_x,
                        float speed,
-                       bool just_fly)
+                       bool just_fly, 
+                       std::shared_ptr<spdlog::logger> logger)
 {
   while (true) {
     // Attempt to read an event from the joystick
@@ -171,7 +171,8 @@ joystick_event_handler(Joystick& joystick,
 void
 keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
                        float speed,
-                       bool just_fly)
+                       bool just_fly, 
+                       std::shared_ptr<spdlog::logger> logger)
 {
   Keyboard keyboard(STDIN_FILENO);
   while (true) {
@@ -298,6 +299,11 @@ usage(std::ostream& out)
 int
 main(int argc, char* argv[])
 {
+  std::string arg = argv[1];
+  if (argc > 1 and arg == "-h") {
+    usage(std::cout);
+  }
+
   /*  Init configs */
   Configs configs("/meta/lemon/quad.ini");
 
@@ -326,28 +332,17 @@ main(int argc, char* argv[])
     logger->info("Add an iris quadrotor!");
   }
 
-  logger->info("Ports number: {}", ports);
-  std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(argc, argv);
-
-  gz->subscriber(configs.positions());
-
-  gz->publisher(configs.reset_1());
-  gz->publisher(configs.reset_2());
-  gz->publisher(configs.reset_3());
-
-  /* Wait for 10 seconds, Just to finish subscribe to
-   * gazebo topics */
-  std::this_thread::sleep_for(std::chrono::seconds(10));
-
+ logger->info("Ports number: {}", ports);
+ 
   auto joystick_handler = [&]() {
     if (joystick_mode) {
       joystick_event_handler(
-        joystick, iris_x, configs.speed(), configs.just_fly());
+        joystick, iris_x, configs.speed(), configs.just_fly(), logger);
     }
   };
 
   auto keyboard_handler = [&]() {
-    keyboard_event_handler(iris_x, configs.speed(), configs.just_fly());
+    keyboard_event_handler(iris_x, configs.speed(), configs.just_fly(), logger);
   };
 
   auto joystick_events = std::async(std::launch::async, joystick_handler);
