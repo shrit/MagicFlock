@@ -51,7 +51,7 @@ joystick_event_handler(Joystick& joystick,
         logger->info("landing...\n");
 
       } else if (joystick.ButtonXChanged(event)) {
-        iris_x.at(id)->takeoff();
+        iris_x.at(id)->takeoff(1);
         logger->info("taking off...\n");
         std::this_thread::sleep_for(std::chrono::seconds(5));
 
@@ -163,7 +163,7 @@ keyboard_event_handler(std::vector<std::shared_ptr<Px4Device>> iris_x,
         logger->info("Landing...\n");
         break;
       case 't':
-        iris_x.at(id)->takeoff();
+        iris_x.at(id)->takeoff(1);
         logger->info("Taking off...\n");
         std::this_thread::sleep_for(std::chrono::seconds(5));
         break;
