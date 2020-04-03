@@ -22,11 +22,11 @@ VAE<simulator_t>::regression()
                    mlpack::ann::HeInitialization>
     model;
 
-  model.Add<IdentityLayer<>>();
+  model.Add<mlpack::ann::IdentityLayer<>>();
 
   int latentSize = 2;
   // Encoder.
-  Sequential<>* encoder = new Sequential<>();
+  mlpack::ann::Sequential<>* encoder = new mlpack::ann::Sequential<>();
 
   encoder->Add<mlpack::ann::Linear<>>(dataset_.train_features().n_rows, 200);
   encoder->Add<mlpack::ann::ReLULayer<>>();
@@ -38,13 +38,13 @@ VAE<simulator_t>::regression()
   encoder->Add<mlpack::ann::ReLULayer<>>();
   encoder->Add<mlpack::ann::Linear<>>(200, latentSize);
 
-  vaeModel.Add(encoder);
+  model.Add(encoder);
 
   // Reparametrization layer.
-  vaeModel.Add<mlpack::ann::Reparametrization<>>(latentSize);
+  model.Add<mlpack::ann::Reparametrization<>>(latentSize);
 
   // Decoder.
-  Sequential<>* decoder = new Sequential<>();
+  mlpack::ann::Sequential<>* decoder = new mlpack::ann::Sequential<>();
 
   decoder->Add<mlpack::ann::Linear<>>(latentSize, 200);
   decoder->Add<mlpack::ann::ReLULayer<>>();
@@ -54,7 +54,7 @@ VAE<simulator_t>::regression()
   decoder->Add<mlpack::ann::ReLULayer<>>();
   decoder->Add<mlpack::ann::Linear<>>(200, 200);
 
-  vaeModel.Add(decoder);
+  model.Add(decoder);
 
   ens::AdamType<ens::AdamUpdate> optimizer;
 
@@ -65,7 +65,7 @@ VAE<simulator_t>::regression()
   logger_->info("Starting.....");
 
   timer.start();
-  model.VAE(dataset_.train_features(),
+  model.Train(dataset_.train_features(),
             dataset_.train_labels(),
             optimizer,
             ens::PrintLoss(),

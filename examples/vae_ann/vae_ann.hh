@@ -4,9 +4,10 @@
 #include <ensmallen_bits/adam/adam_update.hpp>
 #include <ensmallen_bits/callbacks/callbacks.hpp>
 #include <mlpack/methods/ann/ffn.hpp>
-#include <mlpack/methods/ann/init_rules/glorot_init.hpp>
+#include <mlpack/methods/ann/init_rules/he_init.hpp>
 #include <mlpack/methods/ann/layer/layer.hpp>
 #include <mlpack/methods/ann/loss_functions/mean_squared_error.hpp>
+#include <mlpack/methods/ann/loss_functions/reconstruction_loss.hpp>
 
 #include <ILMR/data_set.hh>
 #include <ILMR/logger.hh>
