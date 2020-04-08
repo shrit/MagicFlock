@@ -30,7 +30,7 @@ add_library(ILMR SHARED
   src/reward.cc
   src/check_swarm_shape.cc 
   src/config_ini.cc
-  src/gazebo.cc
+  src/gazebo/gazebo.cc
   src/keyboard.cc
   src/joystick.cc
   src/log.cc

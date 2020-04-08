@@ -33,6 +33,10 @@ public:
   void Parse_rssi_msg_1(ConstVector2dPtr& msg);
   void Parse_rssi_msg_2(ConstVector2dPtr& msg);
 
+  void spawn(const std::vector<Point>& homes,
+             std::string sdf_file,
+             std::string rcs_file);
+
   lt::rssi<double> rssi() const;
   std::vector<lt::position3D<double>> positions() const;
   std::vector<lt::orientation<double>> orientations() const;

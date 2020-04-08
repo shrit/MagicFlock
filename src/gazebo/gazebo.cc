@@ -105,14 +105,13 @@ void
 Gazebo::Parse_time_msg(ConstWorldStatisticsPtr& msg)
 {
   msg->sim_time().sec(), msg->sim_time().nsec());
- Time rt(msg->real_time().sec(), msg->real_time().nsec());
-
+  Time rt(msg->real_time().sec(), msg->real_time().nsec());
 }
 
 void
-GazeboConnector::spawn(const std::vector<Point>& homes,
-                       std::string sdf_file,
-                       std::string rcs_file)
+Gazebo::spawn(const std::vector<Point>& homes,
+              std::string sdf_file,
+              std::string rcs_file)
 {
   tansa::msgs::SpawnRequest req;
 
