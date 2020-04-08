@@ -21,7 +21,8 @@ Gazebo::subscriber(lt::topic_name name)
     subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_rssi_msg_2, this));
   } else if (name == "/gazebo/default/pose/info") {
     subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_position_msg, this));
-  }
+  } else if (name == "/gazebo/default/world_stats")
+    subs_.push_back(node->Subscribe(name, &Gazebo::Parse_time_msg, this));
 }
 
 void
@@ -98,6 +99,40 @@ Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
       }
     }
   }
+}
+
+void
+Gazebo::Parse_time_msg(ConstWorldStatisticsPtr& msg)
+{
+  msg->sim_time().sec(), msg->sim_time().nsec());
+ Time rt(msg->real_time().sec(), msg->real_time().nsec());
+
+}
+
+void
+GazeboConnector::spawn(const std::vector<Point>& homes,
+                       std::string sdf_file,
+                       std::string rcs_file)
+{
+  tansa::msgs::SpawnRequest req;
+
+  for (int i = 0; i < homes.size(); i++) {
+    tansa::msgs::SpawnRequest_Vehicle* v = req.add_vehicles();
+    v->set_id(i);
+    gazebo::msgs::Vector3d* pos = v->mutable_pos();
+    gazebo::msgs::Vector3d* orient = v->mutable_orient();
+    pos->set_x(homes[i].x());
+    pos->set_y(homes[i].y());
+    pos->set_z(homes[i].z());
+
+    orient->set_x(0);
+    orient->set_y(0);
+    orient->set_z(0);
+  }
+
+  req.set_sdf_file(sdf_file);
+  req.set_rcs_file(rcs_file);
+  spawn_pub->Publish(req);
 }
 
 lt::rssi<double>
