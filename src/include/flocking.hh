@@ -1,12 +1,10 @@
 #pragma once
 
-
 class Flocking
 {
 
 public:
-  
-  Flocking(double sepGain, double cohGain, double migGain);
+  Flocking(double sepGain, double cohGain, double migGain, double cutoffDist);
 
   arma::vec cohesionVelocity();
   arma::vec separationVelocity();
@@ -18,8 +16,8 @@ public:
   Flocking(Flocking&&) = default;
 
 private:
-  double separation_gain;
-  double cohesion_gain;
-  double migration_gain;
-  
+  double separation_gain_;
+  double cohesion_gain_;
+  double migration_gain_;
+  double cutoff_distance_;
 };
