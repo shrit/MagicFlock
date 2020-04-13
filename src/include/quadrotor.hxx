@@ -358,6 +358,20 @@ Quadrotor<simulator_t, NoiseType>::height()
 }
 
 template<class simulator_t, class NoiseType>
+lt::position3D<double>
+Quadrotor<simulator_t, NoiseType>::position()
+{
+  return sim_interface_->positions().at(id);
+}
+
+template<class simulator_t, class NoiseType>
+std::vector<lt::position3D<double>>
+Quadrotor<simulator_t, NoiseType>::position_of_neighbors()
+{
+  return sim_interface_->positions();
+}
+
+template<class simulator_t, class NoiseType>
 double&
 Quadrotor<simulator_t, NoiseType>::speed()
 {
