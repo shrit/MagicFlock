@@ -6,12 +6,9 @@
 /* Local includes  */
 #include <ILMR/action.hh>
 #include <ILMR/data_set.hh>
-#include <ILMR/global.hh>
 #include <ILMR/logger.hh>
 #include <ILMR/quadrotor.hh>
 #include <ILMR/swarm_device.hh>
-
-namespace lt = local_types;
 
 template<class flight_controller_t, class simulator_t>
 class TrajectoryNoise

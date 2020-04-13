@@ -16,15 +16,12 @@
 #include <vector>
 
 #include <ILMR/config_ini.hh>
-#include <ILMR/global.hh>
 #include <ILMR/joystick.hh>
 #include <ILMR/keyboard.hh>
 #include <ILMR/logger.hh>
 #include <ILMR/px4_device.hh>
 
 #include <CLI/CLI.hpp>
-
-namespace lt = local_types;
 
 /*
  * Wait for Joystick input, non-blocking implementation using STL

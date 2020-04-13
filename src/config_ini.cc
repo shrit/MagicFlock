@@ -32,16 +32,16 @@ Configs::parse_ini()
   quad_names_.push_back(ini_.get("quadcopter_03").get("model_name"));
   quad_names_.push_back(ini_.get("quadcopter_04").get("model_name"));
   
-  ports_.push_back(static_cast<lt::port_type>(
+  ports_.push_back(static_cast<port_type>(
     std::stoi(ini_.get("quadcopter_01").get("port"))));
 
-  ports_.push_back(static_cast<lt::port_type>(
+  ports_.push_back(static_cast<port_type>(
     std::stoi(ini_.get("quadcopter_02").get("port"))));
 
-  ports_.push_back(static_cast<lt::port_type>(
+  ports_.push_back(static_cast<port_type>(
     std::stoi(ini_.get("quadcopter_03").get("port"))));
 
-  ports_.push_back(static_cast<lt::port_type>(
+  ports_.push_back(static_cast<port_type>(
     std::stoi(ini_.get("quadcopter_04").get("port"))));  
 
   /* Parse subscribe topic section */
@@ -76,7 +76,7 @@ Configs::quad_names() const
   return quad_names_;
 }
 
-std::vector<lt::port_type>
+std::vector<port_type>
 Configs::quads_ports() const
 {
   return ports_;

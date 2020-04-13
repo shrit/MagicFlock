@@ -6,8 +6,6 @@
 
 #include "ini.hh"
 
-namespace lt = local_types;
-
 class Configs
 {
   using port_type = uint16_t;
@@ -31,7 +29,7 @@ public:
 
   int quad_number() const;
   std::vector<std::string> quad_names() const;
-  std::vector<lt::port_type> quads_ports() const;
+  std::vector<port_type> quads_ports() const;
 
   float speed() const;
 
@@ -42,8 +40,8 @@ public:
 private:
   mINI::INIStructure ini_;
   int number_of_quads_;
-  lt::port_type port_;
-  std::vector<lt::port_type> ports_;
+  port_type port_;
+  std::vector<port_type> ports_;
   std::vector<std::string> quad_names_;
 
   float speed_;

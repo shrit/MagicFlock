@@ -27,7 +27,6 @@ file(GLOB HEADER_LIST_XX CONFIGURE_DEPENDS "src/include/*.hxx")
 
 add_library(ILMR SHARED
   src/action.cc
-  src/reward.cc
   src/check_swarm_shape.cc 
   src/config_ini.cc
   src/flocking.cc

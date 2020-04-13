@@ -9,14 +9,11 @@
 #include <ILMR/action_generator.hh>
 #include <ILMR/ann_enhanced_predictor.hh>
 #include <ILMR/evaluate_model.hh>
-#include <ILMR/global.hh>
 #include <ILMR/logger.hh>
 #include <ILMR/quadrotor.hh>
 #include <ILMR/swarm_device.hh>
 #include <ILMR/time_steps.hh>
 #include <ILMR/timer.hh>
-
-namespace lt = local_types;
 
 template<class flight_controller_t, class QuadrotorType>
 class Iterative_learning

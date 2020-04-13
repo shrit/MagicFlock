@@ -20,7 +20,6 @@
 #include "math_tools.hh"
 #include "quadrotor.hh"
 
-namespace lt = local_types;
 using namespace ILMR;
 
 template<class simulator_t>

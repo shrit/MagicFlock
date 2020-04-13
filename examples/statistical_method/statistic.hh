@@ -10,12 +10,10 @@
 # include <ILMR/quadrotor.hh>
 # include <ILMR/swarm_device.hh>
 # include <ILMR/action.hh>
-# include <ILMR/global.hh>
 # include <ILMR/log.hh>
 # include <ILMR/logger.hh>
 # include <ILMR/time_steps.hh>
 
-namespace lt = local_types;
 using namespace ILMR;
 
 template<class flight_controller_t,

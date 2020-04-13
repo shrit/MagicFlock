@@ -14,7 +14,7 @@ struct position_GPS
 /*  Overloading the << operator to print local structs, vectors and classes */
 template<typename T>
 std::ostream&
-operator<<(std::ostream& out, const local_types::position_GPS<T>& p)
+operator<<(std::ostream& out, const position_GPS<T>& p)
 {
   out << "[" << p.latitude_deg << ", " << p.longitude_deg << ", "
       << p.absolute_altitude_m << ", " << p.relative_altitude_m << "]";

@@ -12,7 +12,6 @@
 /* local includes */
 #include "logger.hh"
 
-namespace lt = local_types;
 using namespace ILMR;
 
 class Math_tools

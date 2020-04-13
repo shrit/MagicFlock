@@ -19,10 +19,7 @@
 /*  local defined include */
 #include "action.hh"
 #include "plot.hh"
-//#include "utils.h"
 #include "Vector.hh"
-
-namespace lt = local_types;
 
 template<class simulator_t>
 class DataSet

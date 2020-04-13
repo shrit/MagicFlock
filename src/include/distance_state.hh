@@ -11,8 +11,6 @@
 #include "math_tools.hh"
 #include "state.hh"
 
-namespace lt = local_types;
-
 template<class simulator_t>
 class StateDistance
 {
