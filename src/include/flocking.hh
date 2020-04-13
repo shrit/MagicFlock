@@ -11,7 +11,9 @@ public:
            double cohGain,
            double migGain,
            double cutoffDist,
-           std::vector<ignition::math::Vector3d> position_of_neighbors);
+           ignition::math::Vector3d position,
+           std::vector<ignition::math::Vector3d> position_of_neighbors,
+           ignition::math::Vector3d destination_position);
 
   ignition::math::Vector3d cohesionVelocity();
   ignition::math::Vector3d separationVelocity();
@@ -28,5 +30,7 @@ private:
   double migration_gain_;
   double cutoff_distance_;
   int number_of_neighbors_;
+  ignition::math::Vector3d position_;
   std::vector<ignition::math::Vector3d> position_of_neighbors_;
+  ignition::math::Vector3d destination_position_;
 };
