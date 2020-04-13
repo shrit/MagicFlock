@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <vector>
 
+#include <ignition/math6/ignition/math/Vector3.hh>
+
 #include "global.hh"
 #include "compute_distance.hh"
 #include "Vector.hh"
@@ -16,7 +18,7 @@ public:
 
   bool is_good_shape(unsigned int id,
                      std::vector<unsigned int> nearest_neighbors,
-                     std::vector<lt::position3D<double>> positions);
+                     std::vector<ignition::math::Vector3d> positions);
 private:
 
   double lower_threshold_ =

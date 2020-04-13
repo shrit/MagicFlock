@@ -3,7 +3,7 @@
 bool
 CheckShape::is_good_shape(unsigned int id,
                           std::vector<unsigned int> nearest_neighbors,
-                          std::vector<lt::position3D<double>> positions)
+                          std::vector<ignition::math::Vector3d> positions)
 {
   bool good_shape = true;
   std::vector<double> distances =

@@ -1,11 +1,10 @@
 #pragma once
 
-
 template<typename T>
 std::map<unsigned int, double>
 ComputeDistance::distances_to_neighbors(unsigned int id,
                                    std::vector<unsigned int> nearest_neighbors,
-                                   std::vector<lt::position3D<T>> positions)
+                                   std::vector<ignition::math::Vector3d> positions)
 {
   std::map<unsigned int, double> distances;
   for (auto&& i : nearest_neighbors) {
@@ -16,18 +15,18 @@ ComputeDistance::distances_to_neighbors(unsigned int id,
 
 template<typename T>
 double
-ComputeDistance::distance_a_2_b(std::vector<lt::position3D<T>> positions,
+ComputeDistance::distance_a_2_b(std::vector<ignition::math::Vector3d > positions,
                            unsigned int id_a,
                            unsigned int id_b)
 {
-  lt::position3D<double> dist;
+  ignition::math::Vector3d dist;
   /*  Distance between a and b */
-  dist.x = positions.at(id_a).x - positions.at(id_b).x;
-  dist.y = positions.at(id_a).y - positions.at(id_b).y;
-  dist.z = positions.at(id_a).z - positions.at(id_b).z;
+  dist.x() = positions.at(id_a).x() - positions.at(id_b).x();
+  dist.y() = positions.at(id_a).y() - positions.at(id_b).y();
+  dist.z() = positions.at(id_a).z() - positions.at(id_b).z();
 
-  double distance = std::sqrt(std::pow((dist.x), 2) + std::pow((dist.y), 2) +
-                              std::pow((dist.z), 2));
+  double distance = std::sqrt(std::pow((dist.x()), 2) + std::pow((dist.y()), 2) +
+                              std::pow((dist.z()), 2));
   return distance;
 }
 
@@ -57,15 +56,15 @@ ComputeDistance::ecludian_distance(T d1, T d2)
 
 template<typename T>
 double
-ComputeDistance::traveled_distances(lt::position3D<T> pos_t,
-                               lt::position3D<T> pos_t_1)
+ComputeDistance::traveled_distances(ignition::math::Vector3d  pos_t,
+                               ignition::math::Vector3d  pos_t_1)
 {
-  lt::position3D<double> dist;
+  ignition::math::Vector3d dist;
 
   /* Travelled distance between time steps */
-  dist.x = pos_t.x - pos_t_1.x;
-  dist.y = pos_t.y - pos_t_1.y;
-  dist.z = pos_t.z - pos_t_1.z;
+  dist.x() = pos_t.x() - pos_t_1.x();
+  dist.y() = pos_t.y() - pos_t_1.y();
+  dist.z() = pos_t.z() - pos_t_1.z();
 
   double traveled_distance;
 
@@ -73,7 +72,7 @@ ComputeDistance::traveled_distances(lt::position3D<T> pos_t,
       agent during each trajectory */
 
   /*  Distance travelled by the leader */
-  traveled_distance = std::sqrt(std::pow((dist.x), 2) + std::pow((dist.y), 2) +
-                                std::pow((dist.z), 2));
+  traveled_distance = std::sqrt(std::pow((dist.x()), 2) + std::pow((dist.y()), 2) +
+                                std::pow((dist.z()), 2));
   return traveled_distance;
 }

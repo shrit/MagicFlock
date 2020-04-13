@@ -6,8 +6,11 @@
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/msgs/pose.pb.h>
 #include <gazebo/transport/transport.hh>
+#include <ignition/math6/ignition/math/Vector3.hh>
+#include <ignition/math6/ignition/math/Vector4.hh>
 
 #include <mutex>
+#include <vector>
 
 #include "config_ini.hh"
 #include "global.hh"
@@ -38,8 +41,8 @@ public:
              std::string rcs_file);
 
   lt::rssi<double> rssi() const;
-  std::vector<lt::position3D<double>> positions() const;
-  std::vector<lt::orientation<double>> orientations() const;
+  std::vector<ignition::math::Vector3d> positions() const;
+  std::vector<ignition::math::Vector4d> orientations() const;
 
   Gazebo(Gazebo const&) = delete;
   Gazebo(Gazebo&&) = default;
@@ -51,10 +54,10 @@ private:
   NodePtr node_;
 
   mutable std::mutex _positions_mutex{};
-  std::vector<lt::position3D<double>> _positions;
+  std::vector<ignition::math::Vector3d> _positions;
 
   mutable std::mutex _orientations_mutex{};
-  std::vector<lt::orientation<double>> _orientations;
+  std::vector<ignition::math::Vector4d> _orientations;
 
   mutable std::mutex _signal_mutex{};
   lt::rssi<double> _signal;

@@ -24,44 +24,12 @@ struct dist3D
 };
 
 template<class T>
-struct position3D
-{
-  T x;
-  T y;
-  T z;
-};
-
-template<class T>
 struct position_GPS
 {
   T latitude_deg;
   T longitude_deg;
   T absolute_altitude_m;
   T relative_altitude_m;
-};
-
-template<typename T>
-struct orientation
-{
-  T x;
-  T y;
-  T z;
-  T w;
-};
-
-template<typename T>
-struct triangle
-{
-  T f1; /* Distance between the leader and the true follower */
-  T f2; /* Distance between the true follower and the fake follower */
-  T f3; /* Distance between the leader and the fake follower  */
-};
-
-template<typename T>
-struct error
-{
-  T x;
-  T y;
 };
 
 template<typename T>
@@ -99,15 +67,6 @@ operator<<(std::ostream& out, const local_types::dist3D<T>& v)
   return out;
 }
 
-/*  Overloading the << operator to print local structs, vectors and classes */
-template<typename T>
-std::ostream&
-operator<<(std::ostream& out, const local_types::position3D<T>& p)
-{
-  out << "[" << p.x << ", " << p.y << ", " << p.z << "]";
-  return out;
-}
-
 template<typename T>
 std::ostream&
 operator<<(std::ostream& out, const local_types::position_GPS<T>& p)
@@ -122,14 +81,6 @@ std::ostream&
 operator<<(std::ostream& out, const local_types::rssi<T>& r)
 { /*  Print in order  f1, f2 ,f3, according to TF FF TL */
   out << r.f1() << "," << r.f2() << "," << r.f3();
-  return out;
-}
-
-template<typename T>
-std::ostream&
-operator<<(std::ostream& out, const local_types::triangle<T>& t)
-{ /*  Print in order  f1, f2 ,f3, according to TF FF TL */
-  out << t.f1 << "," << t.f2 << "," << t.f3;
   return out;
 }
 

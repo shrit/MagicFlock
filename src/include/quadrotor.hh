@@ -41,8 +41,8 @@ public:
   double distance_to(int id);
   std::vector<double> distances_to_neighbors();
 
-  lt::position3D<double> position();
-  std::vector<lt::position3D<double>> position_of_neighbors();
+  ignition::math::Vector3d position();
+  std::vector<ignition::math::Vector3d> position_of_neighbors();
 
   /*  State related functions */
   void sample_state();

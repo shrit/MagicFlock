@@ -3,6 +3,8 @@
 #include <map>
 #include <vector>
 
+#include <ignition/math6/ignition/math/Vector3.hh>
+
 #include "global.hh"
 
 namespace lt = local_types;
@@ -12,14 +14,12 @@ class ComputeDistance
 public:
   ComputeDistance() {}
 
-  template<typename T>
   std::map<unsigned int, double> distances_to_neighbors(
     unsigned int id,
     std::vector<unsigned int> nearest_neighbors,
-    std::vector<lt::position3D<T>> positions);
+    std::vector<ignition::math::Vector3d> positions);
 
-  template<typename T>
-  double distance_a_2_b(std::vector<lt::position3D<T>> positions,
+  double distance_a_2_b(std::vector<ignition::math::Vector3d> positions,
                         unsigned int id_a,
                         unsigned int id_b);
 
@@ -29,8 +29,8 @@ public:
   template<typename T>
   int ecludian_distance(T d1, T d2);
 
-  template<typename T>
-  double traveled_distances(lt::position3D<T> pos_t, lt::position3D<T> pos_t_1);
+  double traveled_distances(ignition::math::Vector3d pos_t,
+                            ignition::math::Vector3d pos_t_1);
 };
 
 #include "compute_distance.hxx"

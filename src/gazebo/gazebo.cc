@@ -1,9 +1,9 @@
-#include "include/gazebo.hh"
+#include "../include/gazebo.hh"
 
 Gazebo::Gazebo(int argc, char* argv[], Configs config)
   : node_(new gazebo::transport::Node())
-  , _positions(4, lt::position3D<double>())
-  , _orientations(4, lt::orientation<double>())
+  , _positions(4, ignition::math::Vector3d())
+  , _orientations(4, ignition::math::Vector4d())
   , config_(config)
 {
   gazebo::client::setup(argc, argv);
@@ -86,16 +86,11 @@ Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
       if (name == std::string(config_.quad_names().at(j))) {
         const ::gazebo::msgs::Vector3d& position = pose.position();
 
-        _positions.at(j).x = position.x();
-        _positions.at(j).y = position.y();
-        _positions.at(j).z = position.z();
+        _positions.at(j) = position;
 
         const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
 
-        _orientations.at(j).x = orientation.x();
-        _orientations.at(j).y = orientation.y();
-        _orientations.at(j).z = orientation.z();
-        _orientations.at(j).w = orientation.w();
+        _orientations.at(j) = orientation;
       }
     }
   }
@@ -141,14 +136,14 @@ Gazebo::rssi() const
   return _signal;
 }
 
-std::vector<lt::position3D<double>>
+std::vector<ignition::math::Vector3d>
 Gazebo::positions() const
 {
   std::lock_guard<std::mutex> lock(_positions_mutex);
   return _positions;
 }
 
-std::vector<lt::orientation<double>>
+std::vector<ignition::math::Vector4d>
 Gazebo::orientations() const
 {
   std::lock_guard<std::mutex> lock(_orientations_mutex);

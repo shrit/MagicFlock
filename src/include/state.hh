@@ -63,8 +63,8 @@ private:
   /*  Create a shared pointer to a simulator interface The interface
       need to have all the required data about the quadcopter*/
   std::shared_ptr<simulator_t> sim_interface_;
-  std::vector<lt::position3D<double>>::iterator leader_;
-  std::vector<lt::position3D<double>>::iterator follower_;
+  std::vector<ignition::math::Vector3d>::iterator leader_;
+  std::vector<ignition::math::Vector3d>::iterator follower_;
 };
 
 #include "state.hxx"

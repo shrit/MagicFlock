@@ -20,14 +20,12 @@ Flocking::cohesionVelocity()
   ignition::math::Vector3d cohesionVelocity;
   double param = cohesion_gain_ / number_of_neighbors_;
   ignition::math::Vector3d total_sum{ 0, 0, 0 };
+
   for (std::size_t i = 0; i < position_of_neighbors_.size(); ++i) {
-    total_sum.X() += position_of_neighbors_.at(i).X();
-    total_sum.Y() += position_of_neighbors_.at(i).Y();
-    total_sum.Z() += position_of_neighbors_.at(i).Z();
+    total_sum += position_of_neighbors_.at(i);
+ 
   }
-  cohesionVelocity.X() = total_sum.X() * param;
-  cohesionVelocity.Y() = total_sum.Y() * param;
-  cohesionVelocity.Z() = total_sum.Z() * param;  
+  cohesionVelocity = total_sum * param;
   return cohesionVelocity;
 }
 

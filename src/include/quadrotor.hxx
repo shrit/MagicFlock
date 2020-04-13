@@ -1,9 +1,10 @@
 #pragma once
 
 template<class simulator_t, class NoiseType>
-Quadrotor<simulator_t, NoiseType>::Quadrotor(unsigned int id,
-                                  std::string name,
-                                  std::shared_ptr<simulator_t> sim_interface)
+Quadrotor<simulator_t, NoiseType>::Quadrotor(
+  unsigned int id,
+  std::string name,
+  std::shared_ptr<simulator_t> sim_interface)
   : id_(id)
   , name_(name)
   , sim_interface_(sim_interface)
@@ -45,7 +46,8 @@ void
 Quadrotor<simulator_t, NoiseType>::start_sampling_rt_state(int interval)
 {
   rt_samples_->start(interval, [this]() {
-    State<simulator_t, NoiseType> state(sim_interface_, id_, nearest_neighbors_);
+    State<simulator_t, NoiseType> state(
+      sim_interface_, id_, nearest_neighbors_);
     current_state_ = state;
     all_states_.push_back(state);
   });
@@ -66,13 +68,21 @@ Quadrotor<simulator_t, NoiseType>::sample_state()
   current_state_ = state;
   all_states_.push_back(state);
 
-  data_set_.plot_distance_to_neighbor(
-    0, "Distance to first leader", "Time Step", "Distance", name_ + "_distance_to_0",
-    "lines", all_states_);
+  data_set_.plot_distance_to_neighbor(0,
+                                      "Distance to first leader",
+                                      "Time Step",
+                                      "Distance",
+                                      name_ + "_distance_to_0",
+                                      "lines",
+                                      all_states_);
 
-  data_set_.plot_distance_to_neighbor(
-    2, "Distance to second leader", "Time Step", "Distance", name_+ "_distance_to_2",
-    "lines", all_states_);
+  data_set_.plot_distance_to_neighbor(2,
+                                      "Distance to second leader",
+                                      "Time Step",
+                                      "Distance",
+                                      name_ + "_distance_to_2",
+                                      "lines",
+                                      all_states_);
 }
 
 template<class simulator_t, class NoiseType>
@@ -275,7 +285,8 @@ Quadrotor<simulator_t, NoiseType>::register_data_set_with_current_predictions()
 
 template<class simulator_t, class NoiseType>
 void
-Quadrotor<simulator_t, NoiseType>::register_data_set_with_current_enhanced_predictions()
+Quadrotor<simulator_t,
+          NoiseType>::register_data_set_with_current_enhanced_predictions()
 {
   data_set_.save_csv_data_set_2_file(
     name_ + "_enhanced_predictions",
@@ -358,14 +369,14 @@ Quadrotor<simulator_t, NoiseType>::height()
 }
 
 template<class simulator_t, class NoiseType>
-lt::position3D<double>
+ignition::math::Vector3d
 Quadrotor<simulator_t, NoiseType>::position()
 {
   return sim_interface_->positions().at(id);
 }
 
 template<class simulator_t, class NoiseType>
-std::vector<lt::position3D<double>>
+std::vector<ignition::math::Vector3d>
 Quadrotor<simulator_t, NoiseType>::position_of_neighbors()
 {
   return sim_interface_->positions();
