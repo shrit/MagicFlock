@@ -3,7 +3,7 @@
 Gazebo::Gazebo(int argc, char* argv[], Configs config)
   : node_(new gazebo::transport::Node())
   , _positions(4, ignition::math::Vector3d())
-  , _orientations(4, ignition::math::Vector4d())
+  , _orientations(4, ignition::math::Quaternion<double>())
   , config_(config)
 {
   gazebo::client::setup(argc, argv);
@@ -11,14 +11,10 @@ Gazebo::Gazebo(int argc, char* argv[], Configs config)
 }
 
 void
-Gazebo::subscriber(topic_name name)
+Gazebo::subscriber(std::string name)
 {
   if (name == "/gazebo/default/1/2") {
-    subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_rssi_msg_0, this));
-  } else if (name == "/gazebo/default/1/3") {
-    subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_rssi_msg_1, this));
-  } else if (name == "/gazebo/default/2/3") {
-    subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_rssi_msg_2, this));
+    subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_rssi_msg, this));
   } else if (name == "/gazebo/default/pose/info") {
     subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_position_msg, this));
   } else if (name == "/gazebo/default/world_stats")
@@ -26,7 +22,7 @@ Gazebo::subscriber(topic_name name)
 }
 
 void
-Gazebo::publisher(topic_name name)
+Gazebo::publisher(std::string name)
 {
   if (name == "/gazebo/default/iris_1/model_reset") {
     pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));
@@ -53,25 +49,11 @@ Gazebo::reset_models()
   }
 }
 
-/*  Parsing the RSSI send by NS3 */
+/*  Parsing the RSSI send by Gazebo */
 void
-Gazebo::Parse_rssi_msg_0(ConstVector2dPtr& msg)
+Gazebo::Parse_rssi_msg(ConstVector2dPtr& msg)
 {
-  _signal.f3(msg->x());
-}
-
-/*  Parsing the RSSI send by NS3 */
-void
-Gazebo::Parse_rssi_msg_1(ConstVector2dPtr& msg)
-{
-  _signal.f1(msg->x());
-}
-
-/*  Parsing the RSSI send by NS3 */
-void
-Gazebo::Parse_rssi_msg_2(ConstVector2dPtr& msg)
-{
-  _signal.f2(msg->x());
+  _signal.X() = msg->x();
 }
 
 /*  positin msg received from gazebo */
@@ -86,50 +68,50 @@ Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
       if (name == std::string(config_.quad_names().at(j))) {
         const ::gazebo::msgs::Vector3d& position = pose.position();
 
-        _positions.at(j) = position;
+        _positions.at(j) = ::gazebo::msgs::ConvertIgn(position);
 
         const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
 
-        _orientations.at(j) = orientation;
+        _orientations.at(j) = ::gazebo::msgs::ConvertIgn(orientation);
       }
     }
   }
 }
 
-void
-Gazebo::Parse_time_msg(ConstWorldStatisticsPtr& msg)
-{
-  msg->sim_time().sec(), msg->sim_time().nsec());
-  Time rt(msg->real_time().sec(), msg->real_time().nsec());
-}
+// void
+// Gazebo::Parse_time_msg(ConstWorldStatisticsPtr& msg)
+// {
+  //  msg->sim_time().sec(), msg->sim_time().nsec());
+  //  Time rt(msg->real_time().sec(), msg->real_time().nsec());
+// }
 
-void
-Gazebo::spawn(const std::vector<Point>& homes,
-              std::string sdf_file,
-              std::string rcs_file)
-{
-  tansa::msgs::SpawnRequest req;
+// void
+// Gazebo::spawn(const std::vector<ignition::math::Vector3d>& homes,
+//               std::string sdf_file,
+//               std::string rcs_file)
+// {
+// tansa::msgs::SpawnRequest req;
 
-  for (int i = 0; i < homes.size(); i++) {
-    tansa::msgs::SpawnRequest_Vehicle* v = req.add_vehicles();
-    v->set_id(i);
-    gazebo::msgs::Vector3d* pos = v->mutable_pos();
-    gazebo::msgs::Vector3d* orient = v->mutable_orient();
-    pos->set_x(homes[i].x());
-    pos->set_y(homes[i].y());
-    pos->set_z(homes[i].z());
+// for (int i = 0; i < homes.size(); i++) {
+//   tansa::msgs::SpawnRequest_Vehicle* v = req.add_vehicles();
+//   v->set_id(i);
+//   gazebo::msgs::Vector3d* pos = v->mutable_pos();
+//   gazebo::msgs::Vector3d* orient = v->mutable_orient();
+//   pos->set_x(homes[i].x());
+//   pos->set_y(homes[i].y());
+//   pos->set_z(homes[i].z());
 
-    orient->set_x(0);
-    orient->set_y(0);
-    orient->set_z(0);
-  }
+//   orient->set_x(0);
+//   orient->set_y(0);
+//   orient->set_z(0);
+// }
 
-  req.set_sdf_file(sdf_file);
-  req.set_rcs_file(rcs_file);
-  spawn_pub->Publish(req);
-}
+// req.set_sdf_file(sdf_file);
+// req.set_rcs_file(rcs_file);
+// spawn_pub->Publish(req);
+// }
 
-lt::rssi<double>
+ignition::math::Vector2d
 Gazebo::rssi() const
 {
   std::lock_guard<std::mutex> lock(_signal_mutex);
@@ -143,7 +125,7 @@ Gazebo::positions() const
   return _positions;
 }
 
-std::vector<ignition::math::Vector4d>
+  std::vector<ignition::math::Quaternion<double>>
 Gazebo::orientations() const
 {
   std::lock_guard<std::mutex> lock(_orientations_mutex);
