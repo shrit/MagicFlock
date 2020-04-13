@@ -216,4 +216,3 @@ operator<<(std::ostream& out, const std::vector<std::vector<T>>& v)
   }
   return out;
 }
-

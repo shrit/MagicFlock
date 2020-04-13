@@ -2,9 +2,10 @@
 
 template<typename T>
 std::map<unsigned int, double>
-ComputeDistance::distances_to_neighbors(unsigned int id,
-                                   std::vector<unsigned int> nearest_neighbors,
-                                   std::vector<ignition::math::Vector3d> positions)
+ComputeDistance::distances_to_neighbors(
+  unsigned int id,
+  std::vector<unsigned int> nearest_neighbors,
+  std::vector<ignition::math::Vector3d> positions)
 {
   std::map<unsigned int, double> distances;
   for (auto&& i : nearest_neighbors) {
@@ -15,9 +16,9 @@ ComputeDistance::distances_to_neighbors(unsigned int id,
 
 template<typename T>
 double
-ComputeDistance::distance_a_2_b(std::vector<ignition::math::Vector3d > positions,
-                           unsigned int id_a,
-                           unsigned int id_b)
+ComputeDistance::distance_a_2_b(std::vector<ignition::math::Vector3d> positions,
+                                unsigned int id_a,
+                                unsigned int id_b)
 {
   ignition::math::Vector3d dist;
   /*  Distance between a and b */
@@ -25,14 +26,16 @@ ComputeDistance::distance_a_2_b(std::vector<ignition::math::Vector3d > positions
   dist.y() = positions.at(id_a).y() - positions.at(id_b).y();
   dist.z() = positions.at(id_a).z() - positions.at(id_b).z();
 
-  double distance = std::sqrt(std::pow((dist.x()), 2) + std::pow((dist.y()), 2) +
-                              std::pow((dist.z()), 2));
+  double distance =
+    std::sqrt(std::pow((dist.x()), 2) + std::pow((dist.y()), 2) +
+              std::pow((dist.z()), 2));
   return distance;
 }
 
 template<typename Arg>
 bool
-ComputeDistance::hamming_distance_one_hot(std::vector<Arg> v1, std::vector<Arg> v2)
+ComputeDistance::hamming_distance_one_hot(std::vector<Arg> v1,
+                                          std::vector<Arg> v2)
 {
   bool distance = false;
   if (v1.size() == v2.size()) {
@@ -56,8 +59,8 @@ ComputeDistance::ecludian_distance(T d1, T d2)
 
 template<typename T>
 double
-ComputeDistance::traveled_distances(ignition::math::Vector3d  pos_t,
-                               ignition::math::Vector3d  pos_t_1)
+ComputeDistance::traveled_distances(ignition::math::Vector3d pos_t,
+                                    ignition::math::Vector3d pos_t_1)
 {
   ignition::math::Vector3d dist;
 
@@ -72,7 +75,8 @@ ComputeDistance::traveled_distances(ignition::math::Vector3d  pos_t,
       agent during each trajectory */
 
   /*  Distance travelled by the leader */
-  traveled_distance = std::sqrt(std::pow((dist.x()), 2) + std::pow((dist.y()), 2) +
-                                std::pow((dist.z()), 2));
+  traveled_distance =
+    std::sqrt(std::pow((dist.x()), 2) + std::pow((dist.y()), 2) +
+              std::pow((dist.z()), 2));
   return traveled_distance;
 }

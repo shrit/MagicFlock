@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vector>
 #include <ignition/math6/ignition/math/Vector3.hh>
+#include <vector>
 
 class Flocking
 {
@@ -29,5 +29,4 @@ private:
   double cutoff_distance_;
   int number_of_neighbors_;
   std::vector<ignition::math::Vector3d> position_of_neighbors_;
-
 };
