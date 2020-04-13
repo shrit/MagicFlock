@@ -3,8 +3,6 @@
 #include <map>
 #include <vector>
 
-#include "global.hh"
-
 class Histogram
 {
 public:

@@ -11,7 +11,7 @@ Gazebo::Gazebo(int argc, char* argv[], Configs config)
 }
 
 void
-Gazebo::subscriber(lt::topic_name name)
+Gazebo::subscriber(topic_name name)
 {
   if (name == "/gazebo/default/1/2") {
     subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_rssi_msg_0, this));
@@ -22,11 +22,11 @@ Gazebo::subscriber(lt::topic_name name)
   } else if (name == "/gazebo/default/pose/info") {
     subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_position_msg, this));
   } else if (name == "/gazebo/default/world_stats")
-    subs_.push_back(node->Subscribe(name, &Gazebo::Parse_time_msg, this));
+    subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_time_msg, this));
 }
 
 void
-Gazebo::publisher(lt::topic_name name)
+Gazebo::publisher(topic_name name)
 {
   if (name == "/gazebo/default/iris_1/model_reset") {
     pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));

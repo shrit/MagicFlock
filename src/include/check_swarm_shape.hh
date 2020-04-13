@@ -5,7 +5,6 @@
 
 #include <ignition/math6/ignition/math/Vector3.hh>
 
-#include "global.hh"
 #include "compute_distance.hh"
 #include "Vector.hh"
 

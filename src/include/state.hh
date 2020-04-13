@@ -12,10 +12,7 @@
 /*  Local includes */
 #include "compute_distance.hh"
 #include "gaussian_noise.hh"
-#include "global.hh"
 #include "math_tools.hh"
-
-namespace lt = local_types;
 
 template<class simulator_t, class NoiseType>
 class State

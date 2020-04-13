@@ -8,7 +8,6 @@
  */
 
 /*  Local includes */
-#include "global.hh"
 #include "math_tools.hh"
 #include "state.hh"
 

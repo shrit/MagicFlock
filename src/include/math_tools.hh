@@ -10,7 +10,6 @@
 #include <mlpack/core.hpp>
 
 /* local includes */
-#include "global.hh"
 #include "logger.hh"
 
 namespace lt = local_types;

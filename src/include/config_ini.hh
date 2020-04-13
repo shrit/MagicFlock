@@ -4,13 +4,14 @@
 #include <iostream>
 #include <string>
 
-#include "global.hh"
 #include "ini.hh"
 
 namespace lt = local_types;
 
 class Configs
 {
+  using port_type = uint16_t;
+
 public:
   Configs();
   Configs(std::string file_name);
@@ -26,7 +27,7 @@ public:
   std::string reset_1() const;
   std::string reset_2() const;
   std::string reset_3() const;
-  std::string reset_4() const;  
+  std::string reset_4() const;
 
   int quad_number() const;
   std::vector<std::string> quad_names() const;

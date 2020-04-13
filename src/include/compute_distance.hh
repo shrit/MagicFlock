@@ -5,9 +5,7 @@
 
 #include <ignition/math6/ignition/math/Vector3.hh>
 
-#include "global.hh"
-
-namespace lt = local_types;
+#include "logger.hh"
 
 class ComputeDistance
 {

@@ -18,7 +18,6 @@
 #include <mlpack/methods/ann/loss_functions/mean_squared_error.hpp>
 
 /* local includes  */
-#include "global.hh"
 #include "logger.hh"
 #include "one_hot_encoding.hh"
 #include "quadrotor.hh"

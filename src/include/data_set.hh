@@ -18,7 +18,6 @@
 
 /*  local defined include */
 #include "action.hh"
-#include "global.hh"
 #include "plot.hh"
 //#include "utils.h"
 #include "Vector.hh"

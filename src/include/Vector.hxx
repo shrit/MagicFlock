@@ -216,3 +216,13 @@ operator<<(std::ostream& out, const std::vector<std::vector<T>>& v)
   }
   return out;
 }
+
+template<typename T1, typename T2>
+std::ostream&
+operator<<(std::ostream& out, const std::map<T1, T2>& m)
+{
+  for (auto it : m) {
+    out << "[" << it.first << ":" << it.second << "]";
+  }
+  return out;
+}

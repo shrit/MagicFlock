@@ -9,7 +9,6 @@
 /*  Local includes */
 #include "action.hh"
 #include "logger.hh"
-#include "global.hh"
 
 template<class flight_controller_t>
 class SwarmDevice

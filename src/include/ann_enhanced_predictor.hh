@@ -13,7 +13,6 @@
 #include "ann_error_predictor.hh"
 #include "ann_state_predictor.hh"
 #include "argmin.hh"
-#include "global.hh"
 #include "logger.hh"
 #include "math_tools.hh"
 #include "quadrotor.hh"

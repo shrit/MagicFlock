@@ -20,7 +20,6 @@
 /* local includes */
 #include "ann_predictor.hh"
 #include "argmin.hh"
-#include "global.hh"
 #include "logger.hh"
 #include "math_tools.hh"
 #include "quadrotor.hh"

@@ -23,8 +23,6 @@
 #include <mavsdk/plugins/shell/shell.h>
 #include <mavsdk/plugins/telemetry/telemetry.h>
 
-/*  local includes */
-#include "global.hh"
 #include "logger.hh"
 
 using namespace mavsdk;
@@ -37,13 +35,14 @@ using namespace ILMR;
 #define TELEMETRY_CONSOLE_TEXT "\033[34m" // Turn text on console blue
 #define NORMAL_CONSOLE_TEXT "\033[0m"     // Restore normal console colour
 
-namespace lt = local_types;
-
 class Px4Device
 {
 
+  using port_type = uint16_t;
+  using connection_type = std::string;
+
 public:
-  Px4Device(lt::connection_type socket, lt::port_type port);
+  Px4Device(connection_type socket, port_type port);
 
   bool arm();
   bool reboot();

@@ -6,6 +6,7 @@
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/msgs/pose.pb.h>
 #include <gazebo/transport/transport.hh>
+#include <ignition/math6/ignition/math/Vector2.hh>
 #include <ignition/math6/ignition/math/Vector3.hh>
 #include <ignition/math6/ignition/math/Vector4.hh>
 
@@ -13,13 +14,12 @@
 #include <vector>
 
 #include "config_ini.hh"
-#include "global.hh"
 #include "log.hh"
-
-namespace lt = local_types;
 
 class Gazebo
 {
+  using topic_name = std::string;
+
 public:
   using SubPtr = gazebo::transport::SubscriberPtr;
   using PubPtr = gazebo::transport::PublisherPtr;
@@ -27,8 +27,8 @@ public:
 
   Gazebo(int argc, char* argv[], Configs config);
 
-  void subscriber(lt::topic_name name);
-  void publisher(lt::topic_name name);
+  void subscriber(topic_name name);
+  void publisher(topic_name name);
   void reset_models();
 
   void Parse_position_msg(ConstPosesStampedPtr& posesStamped);
@@ -40,7 +40,7 @@ public:
              std::string sdf_file,
              std::string rcs_file);
 
-  lt::rssi<double> rssi() const;
+  ignition::math::Vector2d rssi() const;
   std::vector<ignition::math::Vector3d> positions() const;
   std::vector<ignition::math::Vector4d> orientations() const;
 
@@ -60,7 +60,7 @@ private:
   std::vector<ignition::math::Vector4d> _orientations;
 
   mutable std::mutex _signal_mutex{};
-  lt::rssi<double> _signal;
+  ignition::math::Vector2d _signal;
 
   Configs config_;
 };

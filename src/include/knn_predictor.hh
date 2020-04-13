@@ -17,7 +17,6 @@
 /* local includes  */
 #include "data_set.hh"
 #include "distance_state.hh"
-#include "global.hh"
 #include "math_tools.hh"
 #include "quadrotor.hh"
 

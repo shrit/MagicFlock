@@ -2,7 +2,6 @@
 
 #include <cmath>
 
-#include "global.hh"
 #include "logger.hh"
 #include "math_tools.hh"
 
