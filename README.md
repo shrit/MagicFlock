@@ -1,6 +1,6 @@
 # IL4MRC
 
-[![Build Status]](https://travis-ci.com/shrit/QCopters) [![Build Status: develop](https://travis-ci.com/shrit/QCopters.svg?token=ERsskMDsU2icrkrWzj6i&branch=develop)](https://travis-ci.com/shrit/QCopters) [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
+[![Build Status]]() [![Build Status: develop]()]() [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 
 IL4MRC (Iterative Learning Models for Models Reactive Control), is a model
 reactive control library that provide the users with a data driven approach to control a swarm
