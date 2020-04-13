@@ -10,6 +10,8 @@
 
 #include "logger.hh"
 
+using namespace ILMR;
+
 class VectorHelper
 {
 public:

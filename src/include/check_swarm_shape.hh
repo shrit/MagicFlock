@@ -8,6 +8,8 @@
 #include "compute_distance.hh"
 #include "Vector.hh"
 
+using namespace ILMR;
+
 class CheckShape
 {
 public:

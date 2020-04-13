@@ -7,6 +7,8 @@
 
 #include "logger.hh"
 
+using namespace ILMR;
+
 class ComputeDistance
 {
 public:

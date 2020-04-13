@@ -18,9 +18,9 @@
 
 class Gazebo
 {
-  using topic_name = std::string;
 
 public:
+  using topic_name = std::string;  
   using SubPtr = gazebo::transport::SubscriberPtr;
   using PubPtr = gazebo::transport::PublisherPtr;
   using NodePtr = gazebo::transport::NodePtr;

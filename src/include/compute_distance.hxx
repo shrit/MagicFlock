@@ -1,6 +1,5 @@
 #pragma once
 
-template<typename T>
 std::map<unsigned int, double>
 ComputeDistance::distances_to_neighbors(
   unsigned int id,
@@ -14,7 +13,6 @@ ComputeDistance::distances_to_neighbors(
   return distances;
 }
 
-template<typename T>
 double
 ComputeDistance::distance_a_2_b(std::vector<ignition::math::Vector3d> positions,
                                 unsigned int id_a,
@@ -22,13 +20,13 @@ ComputeDistance::distance_a_2_b(std::vector<ignition::math::Vector3d> positions,
 {
   ignition::math::Vector3d dist;
   /*  Distance between a and b */
-  dist.x() = positions.at(id_a).x() - positions.at(id_b).x();
-  dist.y() = positions.at(id_a).y() - positions.at(id_b).y();
-  dist.z() = positions.at(id_a).z() - positions.at(id_b).z();
+  dist.X() = positions.at(id_a).X() - positions.at(id_b).X();
+  dist.Y() = positions.at(id_a).Y() - positions.at(id_b).Y();
+  dist.Z() = positions.at(id_a).Z() - positions.at(id_b).Z();
 
   double distance =
-    std::sqrt(std::pow((dist.x()), 2) + std::pow((dist.y()), 2) +
-              std::pow((dist.z()), 2));
+    std::sqrt(std::pow((dist.X()), 2) + std::pow((dist.Y()), 2) +
+              std::pow((dist.Z()), 2));
   return distance;
 }
 
@@ -57,7 +55,6 @@ ComputeDistance::ecludian_distance(T d1, T d2)
   return distance;
 }
 
-template<typename T>
 double
 ComputeDistance::traveled_distances(ignition::math::Vector3d pos_t,
                                     ignition::math::Vector3d pos_t_1)
@@ -65,9 +62,9 @@ ComputeDistance::traveled_distances(ignition::math::Vector3d pos_t,
   ignition::math::Vector3d dist;
 
   /* Travelled distance between time steps */
-  dist.x() = pos_t.x() - pos_t_1.x();
-  dist.y() = pos_t.y() - pos_t_1.y();
-  dist.z() = pos_t.z() - pos_t_1.z();
+  dist.X() = pos_t.X() - pos_t_1.X();
+  dist.Y() = pos_t.Y() - pos_t_1.Y();
+  dist.Z() = pos_t.Z() - pos_t_1.Z();
 
   double traveled_distance;
 
@@ -76,7 +73,7 @@ ComputeDistance::traveled_distances(ignition::math::Vector3d pos_t,
 
   /*  Distance travelled by the leader */
   traveled_distance =
-    std::sqrt(std::pow((dist.x()), 2) + std::pow((dist.y()), 2) +
-              std::pow((dist.z()), 2));
+    std::sqrt(std::pow((dist.X()), 2) + std::pow((dist.Y()), 2) +
+              std::pow((dist.Z()), 2));
   return traveled_distance;
 }

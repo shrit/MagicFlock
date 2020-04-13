@@ -1,6 +1,7 @@
 #ifndef CONFIG_INI_HH_
 #define CONFIG_INI_HH_
 
+#include <cstdint>
 #include <iostream>
 #include <string>
 
@@ -8,9 +9,9 @@
 
 class Configs
 {
-  using port_type = uint16_t;
-
 public:
+  using port_type = std::uint16_t;  
+
   Configs();
   Configs(std::string file_name);
 

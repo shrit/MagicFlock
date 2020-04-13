@@ -1,6 +1,9 @@
 #include "include/config_ini.hh"
 
-Configs::Configs() {}
+Configs::Configs() 
+{
+  // Nothing to do here.
+}
 
 Configs::Configs(std::string file_name)
 {
@@ -76,7 +79,7 @@ Configs::quad_names() const
   return quad_names_;
 }
 
-std::vector<port_type>
+std::vector<Configs::port_type>
 Configs::quads_ports() const
 {
   return ports_;
