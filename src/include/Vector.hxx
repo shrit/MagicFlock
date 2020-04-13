@@ -89,3 +89,131 @@ VectorHelper::variance(std::vector<Arg> vec)
                                   ((val - mean) * (val - mean) / (sz - 1));
                          });
 }
+
+template<typename T>
+std::ostream&
+operator<<(std::ostream& out, const std::vector<T>& v)
+{
+  if (!v.empty()) {
+    for (size_t i = 0; i < v.size(); i++) {
+      out << v.at(i);
+
+      if (i != v.size() - 1)
+        out << ",";
+    }
+  }
+  return out;
+}
+
+template<typename T>
+const std::vector<T>
+operator-(const std::vector<T>& v, const std::vector<T>& v1)
+{
+  if (v.size() != v1.size()) {
+    logger::logger_->error(
+      "Can not preform operation on vectors of different sizes");
+  }
+  std::vector<T> result;
+  result.resize(v);
+  std::transform(
+    v.begin(), v.end(), v1.begin(), result.begin(), std::minus<T>());
+  return result;
+}
+
+template<typename T>
+const std::vector<T>
+operator+(const std::vector<T>& v, const std::vector<T>& v1)
+{
+  if (v.size() != v1.size()) {
+    logger::logger_->error(
+      "Can not preform operation on vectors of different sizes");
+  }
+  std::vector<T> result;
+  std::transform(
+    v.begin(), v.end(), v1.begin(), result.begin(), std::plus<T>());
+  return result;
+}
+
+template<typename T>
+bool
+operator<(const std::vector<T>& v, const std::vector<T>& v1)
+{
+  bool value = false;
+  if (v.size() != v1.size()) {
+    logger::logger_->error(
+      "Can not preform operation on vectors of different sizes");
+  }
+  std::vector<double> result;
+  result.resize(v.size());
+  std::transform(v.begin(),
+                 v.end(),
+                 v1.begin(),
+                 result.begin(),
+                 [&](const double& v, const double& v1) {
+                   if ((v + 0.15) < v1) {
+                     return true;
+                   } else
+                     return false;
+                 });
+  if (std::equal(result.begin() + 1, result.end(), result.begin())) {
+    value = true;
+  }
+  return value;
+}
+
+template<typename T>
+bool
+operator>(const std::vector<T>& v, const std::vector<T>& v1)
+{
+  bool value = false;
+  if (v.size() != v1.size()) {
+    logger::logger_->error(
+      "Can not preform operation on vectors of different sizes");
+  }
+  std::vector<T> result;
+  result.resize(v.size());
+  std::transform(v.begin(),
+                 v.end(),
+                 v1.begin(),
+                 result.begin(),
+                 [&](const double& v, const double& v1) {
+                   if (v > (v1 + 0.15)) {
+                     return true;
+                   } else
+                     return false;
+                 });
+  if (std::equal(result.begin() + 1, result.end(), result.begin())) {
+    value = true;
+  }
+  return value;
+}
+
+template<typename T>
+const std::vector<T> operator*(const std::vector<T>& v,
+                               const std::vector<T>& v1)
+{
+  if (v.size() != v1.size()) {
+    logger::logger_->error(
+      "Can not preform operation on vectors of different sizes");
+  }
+  std::vector<T> result;
+  result.resize(v);
+  std::transform(
+    v.begin(), v.end(), v1.begin(), result.begin(), std::multiplies<T>());
+  return result;
+}
+
+template<typename T>
+std::ostream&
+operator<<(std::ostream& out, const std::vector<std::vector<T>>& v)
+{
+  if (!v.empty()) {
+    out << '[';
+    for (int i = 0; i < v.size(); i++)
+      std::copy(
+        v.at(i).begin(), v.at(i).end(), std::ostream_iterator<T>(out, ","));
+    out << "\b\b]";
+  }
+  return out;
+}
+
