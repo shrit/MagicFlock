@@ -365,7 +365,7 @@ template<class simulator_t, class NoiseType>
 double
 Quadrotor<simulator_t, NoiseType>::height()
 {
-  return sim_interface_->positions().at(id_).z;
+  return sim_interface_->positions().at(id_).Z();
 }
 
 template<class simulator_t, class NoiseType>

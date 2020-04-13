@@ -17,8 +17,9 @@ Gazebo::subscriber(std::string name)
     subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_rssi_msg, this));
   } else if (name == "/gazebo/default/pose/info") {
     subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_position_msg, this));
-  } else if (name == "/gazebo/default/world_stats")
-    subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_time_msg, this));
+  } else if (name == "/gazebo/default/world_stats") {
+  //  subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_time_msg, this));  
+  }
 }
 
 void

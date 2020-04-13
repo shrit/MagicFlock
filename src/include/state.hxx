@@ -36,7 +36,7 @@ State<simulator_t, NoiseType>::State(
 
   data_ = mtools_.map_to_arma(neighbor_dists_3D_);
   data_ = noise.apply_noise(data_);
-  double alti_diff = (leader_->z - follower_->z);
+  double alti_diff = (leader_->Z() - follower_->Z());
   data_.resize(data_.n_rows + 1);
   data_.at(data_.n_rows - 1) = alti_diff;
 }
@@ -60,7 +60,7 @@ State<simulator_t, NoiseType>::State(
     id, nearest_neighbors, sim_interface_->positions());
 
   data_ = mtools_.map_to_arma(neighbor_dists_3D_);
-  double alti_diff = (leader_->z - follower_->z);
+  double alti_diff = (leader_->Z() - follower_->Z());
   data_.resize(data_.n_rows + 1);
   data_.at(data_.n_rows - 1) = alti_diff;
 }

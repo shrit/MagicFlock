@@ -213,10 +213,10 @@ SwarmDevice<flight_controller_t>::land_specific_quadrotor(unsigned int id)
 }
 
 template<class flight_controller_t>
-std::vector<lt::position_GPS<double>>
+std::vector<position_GPS<double>>
 SwarmDevice<flight_controller_t>::positions_GPS()
 {
-  std::vector<lt::position_GPS<double>> positions;
+  std::vector<position_GPS<double>> positions;
   for (auto i : iris_x_) {
     positions.push_back(i->get_position_GPS());
   }

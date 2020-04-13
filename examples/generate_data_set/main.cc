@@ -26,6 +26,8 @@
 /*
  *  Main file: Start generate dataset
  */
+using port_type = std::uint16_t;
+
 int
 main(int argc, char* argv[])
 {
@@ -36,7 +38,7 @@ main(int argc, char* argv[])
   auto logger = ILMR::logger::init();
   ILMR::logger::create_library_logger(logger);
   spdlog::set_level(spdlog::level::debug);
-  std::vector<lt::port_type> ports = configs.quads_ports();
+  std::vector<port_type> ports = configs.quads_ports();
 
   /* Create a vector of controllers. Each controller connect to one
    * quadcopters at a time

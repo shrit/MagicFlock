@@ -9,6 +9,7 @@
 /*  Local includes */
 #include "action.hh"
 #include "logger.hh"
+#include "position_gps.hh"
 
 template<class flight_controller_t>
 class SwarmDevice
@@ -33,7 +34,7 @@ public:
   bool land();
   bool land_specific_quadrotor(unsigned int id);
 
-  std::vector<lt::position_GPS<double>> positions_GPS();
+  std::vector<position_GPS<double>> positions_GPS();
 
   bool takeoff(float meters);
   bool takeoff_specific_quadrotor(float meters, unsigned int id);
