@@ -405,10 +405,10 @@ Px4Device::reboot()
   return true;
 }
 
-lt::position_GPS<double>
+position_GPS<double>
 Px4Device::get_position_GPS()
 {
-  lt::position_GPS<double> pos;
+  position_GPS<double> pos;
   pos.latitude_deg = position_.latitude_deg;
   pos.longitude_deg = position_.longitude_deg;
   pos.absolute_altitude_m = position_.absolute_altitude_m;

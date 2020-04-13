@@ -24,6 +24,7 @@
 #include <mavsdk/plugins/telemetry/telemetry.h>
 
 #include "logger.hh"
+#include "position_gps.hh"
 
 using namespace mavsdk;
 using std::chrono::milliseconds;
@@ -90,7 +91,7 @@ public:
   ConnectionResult connect_to_quad(std::string connection_url);
 
   /*  Position from PX4 autopilot, intilized usually by GPS */
-  lt::position_GPS<double> get_position_GPS();
+  position_GPS<double> get_position_GPS();
   void position_async();
 
   /*  Position_ned */
