@@ -7,6 +7,7 @@
 
 /**
  * Time class used to set and receive simulation time
+ * Part of this code has been ported from tansa the dancing robotic plateform
  */
 class Time
 {

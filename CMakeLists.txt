@@ -37,7 +37,7 @@ add_library(ILMR SHARED
   src/logger.cc
   src/px4_device.cc
   src/real_time_samples.cc
-  src/timer.cc
+  src/time.cc
   src/time_steps.cc
   ${HEADER_LIST}
   ${HEADER_LIST_XX}
