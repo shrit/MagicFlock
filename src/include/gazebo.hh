@@ -15,6 +15,7 @@
 
 #include "config_ini.hh"
 #include "log.hh"
+#include "time.hh"
 
 class Gazebo
 {

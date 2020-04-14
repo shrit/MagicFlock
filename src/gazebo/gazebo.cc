@@ -18,7 +18,7 @@ Gazebo::subscriber(std::string name)
   } else if (name == "/gazebo/default/pose/info") {
     subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_position_msg, this));
   } else if (name == "/gazebo/default/world_stats") {
-  //  subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_time_msg, this));  
+    subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_time_msg, this));
   }
 }
 
@@ -79,12 +79,13 @@ Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
   }
 }
 
-// void
-// Gazebo::Parse_time_msg(ConstWorldStatisticsPtr& msg)
-// {
-  //  msg->sim_time().sec(), msg->sim_time().nsec());
-  //  Time rt(msg->real_time().sec(), msg->real_time().nsec());
-// }
+void
+Gazebo::Parse_time_msg(ConstWorldStatisticsPtr& msg)
+{
+  Time t(msg->sim_time().sec(), msg->sim_time().nsec());
+  Time rt(msg->real_time().sec(), msg->real_time().nsec());
+  Time::setTime(t, t.seconds() / rt.seconds());
+}
 
 // void
 // Gazebo::spawn(const std::vector<ignition::math::Vector3d>& homes,
@@ -126,7 +127,7 @@ Gazebo::positions() const
   return _positions;
 }
 
-  std::vector<ignition::math::Quaternion<double>>
+std::vector<ignition::math::Quaternion<double>>
 Gazebo::orientations() const
 {
   std::lock_guard<std::mutex> lock(_orientations_mutex);
