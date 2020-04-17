@@ -13,8 +13,9 @@ find_package(Armadillo REQUIRED)
 find_package(Boost COMPONENTS serialization program_options date_time REQUIRED)
 
 include_directories(
-  ${GAZEBO_INCLUDE_DIRS}  
+  ${GAZEBO_INCLUDE_DIRS}
   /usr/local/include/mavsdk
+  include
   )
 
 set(file_system "/usr/lib/libstdc++fs.a")
