@@ -6,9 +6,9 @@
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/msgs/pose.pb.h>
 #include <gazebo/transport/transport.hh>
+#include <ignition/math4/ignition/math/Quaternion.hh>
 #include <ignition/math6/ignition/math/Vector2.hh>
 #include <ignition/math6/ignition/math/Vector3.hh>
-#include <ignition/math4/ignition/math/Quaternion.hh>
 
 #include <mutex>
 #include <vector>
@@ -47,16 +47,17 @@ public:
   Gazebo(Gazebo&&) = default;
 
 private:
-  
   std::vector<SubPtr> subs_;
   std::vector<PubPtr> pubs_;
   NodePtr node_;
 
   mutable std::mutex _positions_mutex{};
-  std::vector<ignition::math::Vector3d> _positions;
+  std::vector<ignition::math::Vector3d> _positions, _WR_positions,
+    _WT_positions;
 
   mutable std::mutex _orientations_mutex{};
-  std::vector<ignition::math::Quaternion<double>> _orientations;
+  std::vector<ignition::math::Quaternion<double>> _orientations, _WR_orientations,
+    _WT_orientations;
 
   mutable std::mutex _signal_mutex{};
   ignition::math::Vector2d _signal;
