@@ -13,7 +13,7 @@ Gazebo::Gazebo(int argc, char* argv[], Configs config)
 void
 Gazebo::subscriber(std::string name)
 {
-  if (name == "/gazebo/default/1/2") {
+  if (name == "/gazebo/default/") {
     subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_rssi_msg, this));
   } else if (name == "/gazebo/default/pose/info") {
     subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_position_msg, this));
@@ -57,7 +57,7 @@ Gazebo::Parse_rssi_msg(ConstVector2dPtr& msg)
   _signal.X() = msg->x();
 }
 
-/*  positin msg received from gazebo */
+/*  Position messages received from gazebo topics */
 void
 Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
 {
@@ -68,12 +68,24 @@ Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
     for (std::size_t j = 0; j < config_.quad_names().size(); ++j) {
       if (name == std::string(config_.quad_names().at(j))) {
         const ::gazebo::msgs::Vector3d& position = pose.position();
-
         _positions.at(j) = ::gazebo::msgs::ConvertIgn(position);
 
         const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
-
         _orientations.at(j) = ::gazebo::msgs::ConvertIgn(orientation);
+
+      } else if (name = std::string(config_.WT_names().at(j))) {
+        const ::gazebo::msgs::Vector3d& position = pose.position();
+        _WT_positions.at(j) = ::gazebo::msgs::ConvertIgn(position);
+
+        const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
+        _WT_orientations.at(j) = ::gazebo::msgs::ConvertIgn(orientation);
+
+      } else if (name == std::string(config_.WR_names().at(j))) {
+        const ::gazebo::msgs::Vector3d& position = pose.position();
+        _WR_positions.at(j) = ::gazebo::msgs::ConvertIgn(position);
+
+        const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
+        _WR_orientations.at(j) = ::gazebo::msgs::ConvertIgn(orientation);
       }
     }
   }
