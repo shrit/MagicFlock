@@ -17,8 +17,7 @@ include_directories(
   /usr/local/include/mavsdk
   )
 
-set(file_system "/usr/lib/libstdc++fs.a")
-set(pthread_lib "/usr/lib/libpthread.so")
+
 set(mlpack "/usr/local/lib64/libmlpack.so")
 set(gomp "/usr/lib/libgomp.so")
 
@@ -53,10 +52,10 @@ target_link_libraries(ILMR
   ${GAZEBO_LIBRARIES}
   ${ARMADILLO_LIBRARIES}
   ${BOOST_LIBRARIES}
-  ${file_system}
-  ${pthread_lib}
   ${mlpack}
   ${gomp}
+  stdc++fs
+  pthread
 
   MAVSDK::mavsdk_action
   MAVSDK::mavsdk_calibration  

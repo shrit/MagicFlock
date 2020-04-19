@@ -15,7 +15,7 @@
 #include <mutex>
 #include <thread>
 
-/*  DronecodeSDK includes */
+/*  MAVSDK includes */
 #include <mavsdk/mavsdk.h>
 #include <mavsdk/plugins/action/action.h>
 #include <mavsdk/plugins/calibration/calibration.h>
