@@ -18,7 +18,6 @@ include_directories(
   include
   )
 
-
 set(mlpack "/usr/local/lib64/libmlpack.so")
 set(gomp "/usr/lib/libgomp.so")
 
@@ -28,7 +27,6 @@ file(GLOB HEADER_LIST_XX CONFIGURE_DEPENDS "src/include/*.hxx")
 add_library(ILMR SHARED
   src/action.cc
   src/check_swarm_shape.cc 
-  src/config_ini.cc
   src/flocking.cc
   src/gazebo/gazebo.cc
   src/keyboard.cc

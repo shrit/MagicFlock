@@ -6,8 +6,8 @@ Iterative_learning<QuadrotorType>::Iterative_learning(
   std::shared_ptr<spdlog::logger> logger)
   : episode_(0)
   , max_episode_(10000)
-  , swarm_(std::move(iris_x))
-  , quadrotors_(std::move(quadrotors))
+  , swarm_(quadrotors)
+  , quadrotors_(quadrotors)
   , logger_(logger)
 {
   /*  Allow easier access and debugging to all quadrotors state */
@@ -74,15 +74,7 @@ Iterative_learning<QuadrotorType>::generate_trajectory_using_model()
 
   Actions::Action follower_1_action_s = predict_f1.best_predicted_action();
   Actions::Action follower_1_action_e = predict_e_f1.best_predicted_action();
-
-  // AnnErrorPredictor<QuadrotorType> predict_error_f1(
-  //   "/meta/lemon/examples/iterative_learning/build/error_f1/model.txt",
-  //   "model",
-  //   follower_1_);
-
-  // arma::colvec predicted_f1_loss_vec =
-  //   predict_error_f1.predict_specific_action_error(follower_1_action);
-
+ 
   AnnEnhancedPredictor<QuadrotorType> predict_e_f2(
     "/meta/lemon/examples/iterative_learning/build/f2/model.txt",
     "model",
@@ -97,14 +89,6 @@ Iterative_learning<QuadrotorType>::generate_trajectory_using_model()
 
   Actions::Action follower_2_action_e = predict_e_f2.best_predicted_action();
   Actions::Action follower_2_action_s = predict_f2.best_predicted_action();
-
-  // AnnErrorPredictor<QuadrotorType> predict_error_f2(
-  //   "/meta/lemon/examples/iterative_learning/build/error_f2/model.txt",
-  //   "model",
-  //   follower_2_);
-
-  // arma::colvec predicted_f2_loss_vec =
-  //   predict_error_f2.predict_specific_action_error(follower_2_action);
 
   follower_1_->current_action(follower_1_action_e);
   follower_2_->current_action(follower_2_action_e);
@@ -144,25 +128,10 @@ Iterative_learning<QuadrotorType>::generate_trajectory_using_model()
                         follower_1_->current_action(),
                         follower_2_->current_action());
 
-  // double predicted_loss_f1 = predict_error_f1.real_time_loss();
-  // double predicted_loss_f2 = predict_error_f2.real_time_loss();
-
   double real_loss_f1 = predict_f1.real_time_loss();
   double real_loss_f2 = predict_f2.real_time_loss();
   arma::vec real_loss_vec_f1 = predict_f1.loss_vector();
   arma::vec real_loss_vec_f2 = predict_f2.loss_vector();
-
-  Math_tools mtools;
-
-  // follower_1_->register_loss(mtools.to_std_vector(predicted_f1_loss_vec),
-  //                            predicted_loss_f1,
-  //                            mtools.to_std_vector(real_loss_vec_f1),
-  //                            real_loss_f1);
-
-  // follower_2_->register_loss(mtools.to_std_vector(predicted_f2_loss_vec),
-  //                            predicted_loss_f2,
-  //                            mtools.to_std_vector(real_loss_vec_f2),
-  //                            real_loss_f2);
 
   logger_->info("Real time loss f1: {}", real_loss_f1);
   logger_->info("Real time loss f2: {}", real_loss_f2);
@@ -170,9 +139,6 @@ Iterative_learning<QuadrotorType>::generate_trajectory_using_model()
                                            follower_1_action_s);
   follower_2_->register_actions_evaluation(follower_2_action_e,
                                            follower_2_action_s);
-
-  // logger_->info("Predicted loss f1: {}", predicted_loss_f1);
-  // logger_->info("Predicted loss f2: {}", predicted_loss_f2);
 }
 
 template<class QuadrotorType>

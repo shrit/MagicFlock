@@ -17,10 +17,8 @@
 #include "iterative_learning.hh"
 
 /* ILMR library include  */
-#include <ILMR/config_ini.hh>
 #include <ILMR/gazebo.hh>
 #include <ILMR/logger.hh>
-#include <ILMR/px4_device.hh>
 #include <ILMR/quadrotor.hh>
 
 /*  CLI11 library headers */
@@ -36,9 +34,10 @@ main(int argc, char* argv[])
   ILMR::logger::create_library_logger(logger);
 
   CLI::App app{
-    "This example shows how to use the library to do iterative learning." 
+    "This example shows how to use the library to do iterative learning."
     "This example requires two model files to be used to generate trajectory."
-    "Users need to generate dataset, then train it using the training example to aquire these model files."
+    "Users need to generate dataset, then train it using the training example "
+    "to aquire these model files."
   };
   app.require_subcommand(1);
   auto model_files =
@@ -59,45 +58,39 @@ main(int argc, char* argv[])
 
   /*  Gazebo simulator */
   std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(argc, argv);
-  gz->subscriber(configs.positions());
-
-  gz->publisher(configs.reset_1());
-  gz->publisher(configs.reset_2());
-  gz->publisher(configs.reset_3());
-  gz->publisher(configs.reset_4());  
+  gz->subscribe_position_topic();
+  gz->publishe_model_reset();
 
   /* Wait for 10 seconds, Just to finish subscribe to
    * gazebo topics */
   std::this_thread::sleep_for(std::chrono::seconds(10));
 
   /*  Create a vector of quadrotors, each one has an id + a name  */
-  /*  Try to see if it is possible or efficient to merge quadrotors +
-      device controller */
-  using QuadrotorType = Quadrotor<Px4Device, Gazebo, GaussianNoise<arma::vec>>;  std::vector<QuadrotorType> quadrotors;
-  quadrotors.emplace_back("leader", gz); // Alice
-  quadrotors.emplace_back("follower_1", gz); // Charlie
-  quadrotors.emplace_back("follower_2", gz); // Bob
-  quadrotors.emplace_back("leader_2_", gz);  // Delta
+  using QuadrotorType = Quadrotor<Px4Device, GaussianNoise<arma::vec>>;
+  std::vector<QuadrotorType> quadrotors;
+  quadrotors.emplace_back("leader");     // Alice
+  quadrotors.emplace_back("follower_1"); // Charlie
+  quadrotors.emplace_back("follower_2"); // Bob
+  quadrotors.emplace_back("leader_2_");  // Delta
 
   /*  Add neighbors list  */
   quadrotors.at(0).add_nearest_neighbor_id(1);
   quadrotors.at(0).add_nearest_neighbor_id(2);
   quadrotors.at(0).add_nearest_neighbor_id(3);
- 
+
   quadrotors.at(1).add_nearest_neighbor_id(0);
   quadrotors.at(1).add_nearest_neighbor_id(2);
   quadrotors.at(1).add_nearest_neighbor_id(3);
-    
+
   quadrotors.at(2).add_nearest_neighbor_id(0);
   quadrotors.at(2).add_nearest_neighbor_id(1);
   quadrotors.at(2).add_nearest_neighbor_id(3);
-  
+
   quadrotors.at(3).add_nearest_neighbor_id(0);
   quadrotors.at(3).add_nearest_neighbor_id(1);
   quadrotors.at(3).add_nearest_neighbor_id(2);
-  
+
   /*  Test the trained model and improve it  */
-  Iterative_learning<QuadrotorType> ilearning(
-    iris_x, quadrotors, logger);
+  Iterative_learning<QuadrotorType> ilearning(quadrotors, logger);
   ilearning.run();
 }

@@ -47,10 +47,10 @@ main(int argc, char* argv[])
   /*  Create a vector of quadrotors, each one has an id + a label  */
   using QuadrotorType = Quadrotor<Px4Device, GaussianNoise<arma::vec>>;
   std::vector<QuadrotorType> quadrotors;
-  quadrotors.emplace_back("leader", gz);
-  quadrotors.emplace_back("follower_1", gz);
-  quadrotors.emplace_back("follower_2", gz);
-  quadrotors.emplace_back("leader_2", gz);
+  quadrotors.emplace_back("leader");
+  quadrotors.emplace_back("follower_1");
+  quadrotors.emplace_back("follower_2");
+  quadrotors.emplace_back("leader_2");
   /*  Add neighbors list -> Variadic template by label*/
   quadrotors.at(0).add_nearest_neighbor_id(1);
   quadrotors.at(0).add_nearest_neighbor_id(2);

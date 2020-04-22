@@ -16,7 +16,6 @@
 #include "example.hh"
 
 /* ILMR library include  */
-#include <ILMR/config_ini.hh>
 #include <ILMR/gazebo.hh>
 #include <ILMR/logger.hh>
 #include <ILMR/px4_device.hh>
@@ -25,10 +24,6 @@
 int
 main(int argc, char* argv[])
 {
-  /*  Initialize configurations, these configurations are used for examples and
-   * for the library */
-  Configs configs("../../../quad.ini");
-
   /*Start using the logging system*/
   auto logger = ILMR::logger::init();
 
@@ -36,35 +31,16 @@ main(int argc, char* argv[])
    * create this function in order to enable logging in the library side*/
   ILMR::logger::create_library_logger(logger);
 
-  /* Create a vectors of UDP ports numbers to communicate with quadrotors */
-  std::vector<lt::port_type> ports = configs.quads_ports();
-
-  /* Create a vector of quadrotor controllers. Each controller connect to one
-   * quadcopters at a time
-   */
-  std::vector<std::shared_ptr<Px4Device>> iris_x;
-
-  for (auto& it : ports) {
-    iris_x.push_back(std::make_shared<Px4Device>("udp", it));
-    logger::logger_->info("Add an iris Quadrotor!");
-  }
-
-  /* Print each port number for each connected quadrotor*/
-  logger::logger_->info("Ports number: {}", ports);
-
   /*  We have to create a Gazebo simulator object, in order to subscribe to
    * position information published by gazebo for each quadrotor */
-  std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(argc, argv, configs);
+  std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(argc, argv);
 
   /* Subscribe to position information published by gazebo*/
-  gz->subscriber(configs.positions());
+  gz->subscriber();
 
   /* Publish the reset plugin, this plugin will allow to reset the quadrotors at
    * the end of each episode*/
-  gz->publisher(configs.reset_1());
-  gz->publisher(configs.reset_2());
-  gz->publisher(configs.reset_3());
-  gz->publisher(configs.reset_4());
+  gz->publish_model_reset();
 
   /* Waiting for 10 seconds, Just to finish subscribing and publishing
    * gazebo topics */
@@ -74,10 +50,10 @@ main(int argc, char* argv[])
   /*  Try to see if it is possible or efficient to merge quadrotors +
       device controller */
   std::vector<Quadrotor<Gazebo>> quadrotors;
-  quadrotors.emplace_back(0, "leader", gz);
-  quadrotors.emplace_back(1, "follower_1", gz);
-  quadrotors.emplace_back(2, "follower_2", gz);
-  quadrotors.emplace_back(3, "leader_2", gz);
+  quadrotors.emplace_back("leader");
+  quadrotors.emplace_back("follower_1");
+  quadrotors.emplace_back("follower_2");
+  quadrotors.emplace_back("leader_2");
 
   /*  Add neighbors list for each quadrotor */
   /* Users can decide as the want the neighbors list for each quadrotors as the
@@ -100,6 +76,6 @@ main(int argc, char* argv[])
   quadrotors.at(3).add_nearest_neighbor_id(2);
 
   /*  Start simulation episodes to fly quadrotors... */
-  Example<Px4Device, Gazebo> example(iris_x, quadrotors, gz, logger);
+  Example<Px4Device> example(quadrotors, gz, logger);
   example.run();
 }
