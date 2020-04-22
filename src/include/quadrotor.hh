@@ -137,7 +137,7 @@ private:
   std::shared_ptr<RTSamples> rt_samples_;
   unsigned int id_;   /* Quadrotor id  (Parsed from gazebo)*/
   std::string name_;  /* Quadrotor name  (Parsed from gazebo)*/
-  std::string label_; /* Quadrotor label */
+  std::string label_; /* Quadrotor label (Given by the user, leader, follower, etc)*/
   std::vector<unsigned int> nearest_neighbors_;
   std::shared_ptr<flight_controller_t> controller_;
 

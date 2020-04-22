@@ -37,18 +37,15 @@ main(int argc, char* argv[])
   /*  Gazebo simulator */
   std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(argc, argv);
 
-  gz->subscriber(configs.positions());
-  gz->publisher(configs.reset_1());
-  gz->publisher(configs.reset_2());
-  gz->publisher(configs.reset_3());
-  gz->publisher(configs.reset_4());
-
+  gz->subscribe_position_topic();
+  gz->publishe_model_reset();
+ 
   /* Wait for 10 seconds, Just to finish subscribe to
    * gazebo topics */
   std::this_thread::sleep_for(std::chrono::seconds(10));
 
   /*  Create a vector of quadrotors, each one has an id + a label  */
-  using QuadrotorType = Quadrotor<Px4Device, Gazebo, GaussianNoise<arma::vec>>;
+  using QuadrotorType = Quadrotor<Px4Device, GaussianNoise<arma::vec>>;
   std::vector<QuadrotorType> quadrotors;
   quadrotors.emplace_back("leader", gz);
   quadrotors.emplace_back("follower_1", gz);

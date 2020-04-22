@@ -1,10 +1,9 @@
 #pragma once
 
 template<class flight_controller_t, class NoiseType>
-Quadrotor<flight_controller_t, NoiseType>::Quadrotor(
-  std::string label,
-  std::shared_ptr< : label_(label)
-  , 
+Quadrotor<flight_controller_t, NoiseType>::Quadrotor(std::string label)
+  : label_(label)
+{
   data_set_.init_dataset_directory();
   rt_samples_ = std::make_shared<RTSamples>();
   controller_ = std::make_shared<flight_controller_t>("udp", port_number_);
@@ -34,16 +33,14 @@ Quadrotor<flight_controller_t, NoiseType>::add_nearest_neighbor_id(
 
 template<class flight_controller_t, class NoiseType>
 std::vector<unsigned int>
-Quadrotor<flight_controller_t, NoiseType>::nearest_neighbors()
-  const
+Quadrotor<flight_controller_t, NoiseType>::nearest_neighbors() const
 {
   return nearest_neighbors_;
 }
 
 template<class flight_controller_t, class NoiseType>
 void
-Quadrotor<flight_controller_t, NoiseType>::start_sampling_rt_state(
-  int interval)
+Quadrotor<flight_controller_t, NoiseType>::start_sampling_rt_state(int interval)
 {
   rt_samples_->start(interval, [this]() {
     State<NoiseType> state(id_, nearest_neighbors_);
@@ -93,32 +90,29 @@ Quadrotor<flight_controller_t, NoiseType>::current_state() const
 
 template<class flight_controller_t, class NoiseType>
 State<NoiseType>&
-Quadrotor<flight_controller_t, NoiseType>::
-  current_predicted_state()
+Quadrotor<flight_controller_t, NoiseType>::current_predicted_state()
 {
   return current_predicted_state_;
 }
 
 template<class flight_controller_t, class NoiseType>
 State<NoiseType>
-Quadrotor<flight_controller_t, NoiseType>::
-  current_predicted_state() const
+Quadrotor<flight_controller_t, NoiseType>::current_predicted_state() const
 {
   return current_predicted_state_;
 }
 
 template<class flight_controller_t, class NoiseType>
 State<NoiseType>&
-Quadrotor<flight_controller_t, NoiseType>::
-  current_predicted_enhanced_state()
+Quadrotor<flight_controller_t, NoiseType>::current_predicted_enhanced_state()
 {
   return current_predicted_enhanced_state_;
 }
 
 template<class flight_controller_t, class NoiseType>
 State<NoiseType>
-Quadrotor<flight_controller_t, NoiseType>::
-  current_predicted_enhanced_state() const
+Quadrotor<flight_controller_t, NoiseType>::current_predicted_enhanced_state()
+  const
 {
   return current_predicted_enhanced_state_;
 }
@@ -175,8 +169,7 @@ Quadrotor<flight_controller_t, NoiseType>::reset_all_states()
 
 template<class flight_controller_t, class NoiseType>
 void
-Quadrotor<flight_controller_t, NoiseType>::current_loss(
-  arma::vec loss_vector)
+Quadrotor<flight_controller_t, NoiseType>::current_loss(arma::vec loss_vector)
 {
   loss_vector_ = loss_vector;
 }
@@ -276,8 +269,8 @@ Quadrotor<flight_controller_t, NoiseType>::register_data_set()
 
 template<class flight_controller_t, class NoiseType>
 void
-Quadrotor<flight_controller_t, NoiseType>::
-  register_data_set_with_current_predictions()
+Quadrotor<flight_controller_t,
+          NoiseType>::register_data_set_with_current_predictions()
 {
   data_set_.save_csv_data_set_2_file(
     name_ + "_current_predictions",
@@ -291,8 +284,8 @@ Quadrotor<flight_controller_t, NoiseType>::
 
 template<class flight_controller_t, class NoiseType>
 void
-Quadrotor<flight_controller_t, NoiseType>::
-  register_data_set_with_current_enhanced_predictions()
+Quadrotor<flight_controller_t,
+          NoiseType>::register_data_set_with_current_enhanced_predictions()
 {
   data_set_.save_csv_data_set_2_file(
     name_ + "_enhanced_predictions",
@@ -306,8 +299,7 @@ Quadrotor<flight_controller_t, NoiseType>::
 
 template<class flight_controller_t, class NoiseType>
 void
-Quadrotor<flight_controller_t, NoiseType>::
-  register_data_set_with_loss()
+Quadrotor<flight_controller_t, NoiseType>::register_data_set_with_loss()
 {
   data_set_.save_csv_data_set_2_file(
     name_ + "_loss",
@@ -321,17 +313,14 @@ Quadrotor<flight_controller_t, NoiseType>::
 template<class flight_controller_t, class NoiseType>
 template<class flight_controller_t, typename Arg, typename... Args>
 void
-Quadrotor<flight_controller_t, NoiseType>::register_loss(
-  Arg arg,
-  Args... args)
+Quadrotor<flight_controller_t, NoiseType>::register_loss(Arg arg, Args... args)
 {
   data_set_.save_error_file(name_, arg, args...);
 }
 
 template<class flight_controller_t, class NoiseType>
 void
-Quadrotor<flight_controller_t, NoiseType>::register_histogram(
-  int count)
+Quadrotor<flight_controller_t, NoiseType>::register_histogram(int count)
 {
   /*  Save a version of the time steps to create a histogram */
   /*  Increase one since count start from 0 */
@@ -344,9 +333,9 @@ Quadrotor<flight_controller_t, NoiseType>::register_histogram(
 
 template<class flight_controller_t, class NoiseType>
 void
-Quadrotor<flight_controller_t, NoiseType>::
-  register_actions_evaluation(Actions::Action first_action,
-                              Actions::Action second_action)
+Quadrotor<flight_controller_t, NoiseType>::register_actions_evaluation(
+  Actions::Action first_action,
+  Actions::Action second_action)
 {
   if (first_action == second_action) {
     data_set_.save_actions(name_, 1);
@@ -357,8 +346,7 @@ Quadrotor<flight_controller_t, NoiseType>::
 
 template<class flight_controller_t, class NoiseType>
 void
-Quadrotor<flight_controller_t, NoiseType>::register_episodes(
-  int n_episodes)
+Quadrotor<flight_controller_t, NoiseType>::register_episodes(int n_episodes)
 {
   data_set_.save_episodes(n_episodes);
 }
@@ -396,8 +384,7 @@ Quadrotor<flight_controller_t, NoiseType>::position()
 
 template<class flight_controller_t, class NoiseType>
 ignition::math::Vector3d
-Quadrotor<flight_controller_t, NoiseType>::wr_1_antenna_position()
-  const
+Quadrotor<flight_controller_t, NoiseType>::wr_1_antenna_position() const
 {
   std::lock_guard<std::mutex> lock(_position_mutex);
   return _position;
@@ -413,8 +400,7 @@ Quadrotor<flight_controller_t, NoiseType>::wr_1_antenna_position()
 
 template<class flight_controller_t, class NoiseType>
 ignition::math::Vector3d
-Quadrotor<flight_controller_t, NoiseType>::wr_2_antenna_position()
-  const
+Quadrotor<flight_controller_t, NoiseType>::wr_2_antenna_position() const
 {
   std::lock_guard<std::mutex> lock(_position_mutex);
   return _position;
@@ -430,8 +416,7 @@ Quadrotor<flight_controller_t, NoiseType>::wr_2_antenna_position()
 
 template<class flight_controller_t, class NoiseType>
 ignition::math::Vector3d
-Quadrotor<flight_controller_t, NoiseType>::wt_antenna_position()
-  const
+Quadrotor<flight_controller_t, NoiseType>::wt_antenna_position() const
 {
   std::lock_guard<std::mutex> lock(_position_mutex);
   return _position;
@@ -497,16 +482,14 @@ Quadrotor<flight_controller_t, NoiseType>::reset_topic_name()
 
 template<class flight_controller_t, class NoiseType>
 std::string
-Quadrotor<flight_controller_t, NoiseType>::
-  wireless_receiver_topic_name()
+Quadrotor<flight_controller_t, NoiseType>::wireless_receiver_topic_name()
 {
   return "/gazebo/default/" + name + "/WR";
 }
 
 template<class flight_controller_t, class NoiseType>
 std::string
-Quadrotor<flight_controller_t, NoiseType>::
-  wireless_transmitter_topic_name()
+Quadrotor<flight_controller_t, NoiseType>::wireless_transmitter_topic_name()
 {
   return "/gazebo/default/" + name + "/WT";
 }
@@ -525,4 +508,3 @@ Quadrotor<flight_controller_t, NoiseType>::controller()
   return controller_;
 }
 
-// positions = /gazebo/default/pose/info hard coded inside gazebo
