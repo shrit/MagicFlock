@@ -25,7 +25,7 @@ public:
   using PubPtr = gazebo::transport::PublisherPtr;
   using NodePtr = gazebo::transport::NodePtr;
 
-  Gazebo(int argc, char* argv[], Configs config);
+  Gazebo(int argc, char* argv[]);
 
   void subscriber(std::string name);
   void publisher(std::string name);
@@ -61,8 +61,6 @@ private:
 
   mutable std::mutex _signal_mutex{};
   ignition::math::Vector2d _signal;
-
-  Configs config_;
 };
 
 #endif
