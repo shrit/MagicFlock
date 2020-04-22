@@ -14,7 +14,7 @@
 #include "gaussian_noise.hh"
 #include "math_tools.hh"
 
-template<class simulator_t, class NoiseType>
+template<class NoiseType>
 class State
 {
 
@@ -23,13 +23,11 @@ public:
 
   State(const arma::colvec& data);
 
-  State(std::shared_ptr<simulator_t> sim_interface,
-        unsigned int id,
+  State(unsigned int id,
         std::vector<unsigned int> nearest_neighbors,
         NoiseType noise);
 
-  State(std::shared_ptr<simulator_t> sim_interface,
-        unsigned int id,
+  State(unsigned int id,
         std::vector<unsigned int> nearest_neighbors);
 
   arma::colvec Data() const;
@@ -57,9 +55,8 @@ private:
   std::map<unsigned int, double> neighbor_dists_3D_;
 
   arma::colvec data_;
-  /*  Create a shared pointer to a simulator interface The interface
+  /*  Create a shared pointer to a nterface The interface
       need to have all the required data about the quadcopter*/
-  std::shared_ptr<simulator_t> sim_interface_;
   std::vector<ignition::math::Vector3d>::iterator leader_;
   std::vector<ignition::math::Vector3d>::iterator follower_;
 };
