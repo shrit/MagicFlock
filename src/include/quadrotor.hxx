@@ -3,10 +3,8 @@
 template<class flight_controller_t, class simulator_t, class NoiseType>
 Quadrotor<flight_controller_t, simulator_t, NoiseType>::Quadrotor(
   std::string label,
-  std::shared_ptr<simulator_t> sim_interface)
-  : label_(label)
-  , sim_interface_(sim_interface)
-{
+  std::shared_ptr<simulator_t>  : label_(label)
+  , 
   data_set_.init_dataset_directory();
   rt_samples_ = std::make_shared<RTSamples>();
   controller_ = std::make_shared<flight_controller_t>("udp", port_number_);
@@ -48,8 +46,7 @@ Quadrotor<flight_controller_t, simulator_t, NoiseType>::start_sampling_rt_state(
   int interval)
 {
   rt_samples_->start(interval, [this]() {
-    State<simulator_t, NoiseType> state(
-      sim_interface_, id_, nearest_neighbors_);
+    State<simulator_t, NoiseType> state(id_, nearest_neighbors_);
     current_state_ = state;
     all_states_.push_back(state);
   });
@@ -66,7 +63,7 @@ template<class flight_controller_t, class simulator_t, class NoiseType>
 void
 Quadrotor<flight_controller_t, simulator_t, NoiseType>::sample_state()
 {
-  State<simulator_t, NoiseType> state(sim_interface_, id_, nearest_neighbors_);
+  State<simulator_t, NoiseType> state(id_, nearest_neighbors_);
   current_state_ = state;
   all_states_.push_back(state);
 
@@ -370,8 +367,7 @@ template<class flight_controller_t, class simulator_t, class NoiseType>
 bool
 Quadrotor<flight_controller_t, simulator_t, NoiseType>::examin_geometric_shape()
 {
-  bool shape =
-    shape_.is_good_shape(id_, nearest_neighbors_, sim_interface_->positions());
+  bool shape = shape_.is_good_shape(id_, nearest_neighbors_, positions());
   return shape;
 }
 
@@ -379,72 +375,46 @@ template<class flight_controller_t, class simulator_t, class NoiseType>
 double
 Quadrotor<flight_controller_t, simulator_t, NoiseType>::height()
 {
-  return sim_interface_->positions().at(id_).Z();
+  return position().Z();
 }
 
 template<class flight_controller_t, class simulator_t, class NoiseType>
 ignition::math::Vector3d
+Quadrotor<flight_controller_t, simulator_t, NoiseType>::position() const
+{
+  std::lock_guard<std::mutex> lock(_position_mutex);
+  return _position;
+}
+
+template<class flight_controller_t, class simulator_t, class NoiseType>
+ignition::math::Vector3d&
 Quadrotor<flight_controller_t, simulator_t, NoiseType>::position()
 {
-  return sim_interface_->positions().at(id);
+  std::lock_guard<std::mutex> lock(_position_mutex);
+  return _position;
 }
 
 template<class flight_controller_t, class simulator_t, class NoiseType>
-std::vector<ignition::math::Vector3d>
-Quadrotor<flight_controller_t, simulator_t, NoiseType>::position_of_neighbors()
+ignition::math::Vector3d
+Quadrotor<flight_controller_t, simulator_t, NoiseType>::orientation() const
 {
-  return sim_interface_->positions();
+  std::lock_guard<std::mutex> lock(_orientation_mutex);
+  return _orientation;
 }
 
 template<class flight_controller_t, class simulator_t, class NoiseType>
-double&
-Quadrotor<flight_controller_t, simulator_t, NoiseType>::speed()
+ignition::math::Vector3d&
+Quadrotor<flight_controller_t, simulator_t, NoiseType>::orientation()
 {
-  return speed_;
-}
-
-template<class flight_controller_t, class simulator_t, class NoiseType>
-double
-Quadrotor<flight_controller_t, simulator_t, NoiseType>::speed() const
-{
-  return speed_;
-}
-
-template<class flight_controller_t, class simulator_t, class NoiseType>
-void
-Quadrotor<flight_controller_t, simulator_t, NoiseType>::increase_speed()
-{
-  speed_++;
-}
-
-template<class flight_controller_t, class simulator_t, class NoiseType>
-void
-Quadrotor<flight_controller_t, simulator_t, NoiseType>::decrease_speed()
-{
-  speed_--;
-}
-
-template<class flight_controller_t, class simulator_t, class NoiseType>
-void
-Quadrotor<flight_controller_t, simulator_t, NoiseType>::increase_speed_by_value(
-  double speed)
-{
-  speed_ = speed_ + speed;
-}
-
-template<class flight_controller_t, class simulator_t, class NoiseType>
-void
-Quadrotor<flight_controller_t, simulator_t, NoiseType>::decrease_speed_by_value(
-  double speed)
-{
-  speed_ = speed_ - speed;
+  std::lock_guard<std::mutex> lock(_orientation_mutex);
+  return _orientation;
 }
 
 template<class flight_controller_t, class simulator_t, class NoiseType>
 void
 Quadrotor<flight_controller_t, simulator_t, NoiseType>::reset_models()
 {
-  sim_interface_->reset_models();
+  reset_models();
 }
 
 template<class flight_controller_t, class simulator_t, class NoiseType>
@@ -453,8 +423,8 @@ Quadrotor<flight_controller_t, simulator_t, NoiseType>::distances_to_neighbors()
 {
   std::vector<double> distances;
   std::map<unsigned int, double> neigh_distances;
-  neigh_distances = dist_.distances_to_neighbors(
-    id_, nearest_neighbors_, sim_interface_->positions());
+  neigh_distances =
+    dist_.distances_to_neighbors(id_, nearest_neighbors_, positions());
   distances = vec_.map_to_vector(neigh_distances);
   return distances;
 }

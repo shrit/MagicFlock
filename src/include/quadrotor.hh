@@ -22,15 +22,17 @@
 #include "real_time_samples.hh"
 #include "state.hh"
 
+/* Ignition related headers*/
+#include <ignition/math4/ignition/math/Quaternion.hh>
+#include <ignition/math6/ignition/math/Vector2.hh>
+#include <ignition/math6/ignition/math/Vector3.hh>
+
 template<class flight_controller_t, class simulator_t, class NoiseType>
 class Quadrotor
 {
 
 public:
-  using port_type = std::uint16_t;
-
-  Quadrotor(std::string label,
-            std::shared_ptr<simulator_t> sim_interface);
+  Quadrotor(std::string label, std::shared_ptr<simulator_t> sim_interface);
 
   unsigned int id() const;
   std::string name() const;
@@ -42,8 +44,16 @@ public:
   double distance_to(int id);
   std::vector<double> distances_to_neighbors();
 
-  ignition::math::Vector3d position();
-  std::vector<ignition::math::Vector3d> position_of_neighbors();
+  /* Position related functions */
+  ignition::math::Vector3d position() const;
+  ignition::math::Vector3d& position();
+  ignition::math::Vector3d antenna_position() const;
+  ignition::math::Vector3d& antenna_position();
+  ignition::math::Quaternion<double> orientations() const;
+  ignition::math::Quaternion<double>& orientations();
+  ignition::math::Quaternion<double> anetenna_orientations() const;
+  ignition::math::Quaternion<double>& anetenna_orientations();
+  std::vector<ignition::math::Vector3d> position_of_neighbors() const;
 
   /*  State related functions */
   void sample_state();
@@ -86,14 +96,6 @@ public:
   void register_state();
   void register_actions_evaluation(Actions::Action first_action,
                                    Actions::Action second_action);
-  /*  Speed related functions */
-  double& speed();
-  double speed() const;
-  void increase_speed();
-  void decrease_speed();
-  void increase_speed_by_value(double speed);
-  void decrease_speed_by_value(double speed);
-
   bool examin_geometric_shape();
 
   void reset_models();
@@ -102,7 +104,8 @@ public:
   std::string wireless_receiver_topic_name();
   std::string wireless_transmitter_topic_name();
 
-  port_type port_number();
+  std::string port_number();
+  std::shared_ptr<flight_controller_t> controller();
 
 private:
   Actions::Action current_action_{ Actions::Action::Unknown };
@@ -133,10 +136,26 @@ private:
   unsigned int id_;   /* Quadrotor id  (Parsed from gazebo)*/
   std::string name_;  /* Quadrotor name  (Parsed from gazebo)*/
   std::string label_; /* Quadrotor label */
-  double speed_ = 1;  /*  Quadrotors speed. Default speed is equal to 1 m/s */
   std::vector<unsigned int> nearest_neighbors_;
-  std::shared_ptr<simulator_t> sim_interface_;
   std::shared_ptr<flight_controller_t> controller_;
+
+  mutable std::mutex _position_mutex{};
+  ignition::math::Vector3d _position;
+
+  mutable std::mutex _WR_position_mutex{};
+  ignition::math::Vector3d _WR_position;
+
+  mutable std::mutex _WT_position_mutex{};
+  ignition::math::Vector3d _WT_position;
+
+  mutable std::mutex _orientation_mutex{};
+  ignition::math::Quaternion<double> _orientation;
+
+  mutable std::mutex _WR_orientation_mutex{};
+  ignition::math::Quaternion<double> _WR_orientation;
+
+  mutable std::mutex _WT_orientation_mutex{};
+  ignition::math::Quaternion<double> _WT_orientation;
 };
 
 #include "quadrotor.hxx"
