@@ -1,59 +1,63 @@
 #pragma once
 
-template<class flight_controller_t>
-SwarmDevice<flight_controller_t>::SwarmDevice(
-  std::vector<std::shared_ptr<flight_controller_t>> quads)
-  : iris_x_(std::move(quads))
+template<class QuadrotorType>
+SwarmDevice<QuadrotorType>::SwarmDevice(
+  std::vector<std::shared_ptr<QuadrotorType>> quads)
+  : quads_(std::move(quads))
 {
   // Nothing to do here
 }
 
-template<class flight_controller_t>
+template<class QuadrotorType>
 void
-SwarmDevice<flight_controller_t>::one_quad_execute_trajectory(
+SwarmDevice<QuadrotorType>::one_quad_execute_trajectory(
   unsigned int id,
   Actions::Action action,
   int speed,
   unsigned int milliseconds)
 {
   if (action == Actions::Action::left) {
-    iris_x_.at(id)->left(speed, milliseconds);
+    quads_.at(id).controller()->left(speed, milliseconds);
 
   } else if (action == Actions::Action::right) {
-    iris_x_.at(id)->right(speed, milliseconds);
+    quads_.at(id).controller()->right(speed, milliseconds);
 
   } else if (action == Actions::Action::forward) {
-    iris_x_.at(id)->forward(speed, milliseconds);
+    quads_.at(id).controller()->forward(speed, milliseconds);
 
   } else if (action == Actions::Action::backward) {
-    iris_x_.at(id)->backward(speed, milliseconds);
+    quads_.at(id).controller()->backward(speed, milliseconds);
 
   } else if (action == Actions::Action::up) {
-    iris_x_.at(id)->up(speed, milliseconds);
+    quads_.at(id).controller()->up(speed, milliseconds);
 
   } else if (action == Actions::Action::down) {
-    iris_x_.at(id)->down(speed, milliseconds);
+    quads_.at(id).controller()->down(speed, milliseconds);
   }
 }
 
-template<class flight_controller_t>
+template<class QuadrotorType>
 bool
-SwarmDevice<flight_controller_t>::arm()
+SwarmDevice<QuadrotorType>::arm()
 {
-  std::vector<bool> results(iris_x_.size(), false);
+  std::vector<bool> results(quads_.size(), false);
   std::vector<std::thread> threads;
 
-  threads.push_back(
-    std::thread([&]() { results.at(0) = iris_x_.at(0)->arm(); }));
+  threads.push_back(std::thread([&]() {
+    results.at(0).controller() = quads_.at(0) -.controller() > arm();
+  }));
 
-  threads.push_back(
-    std::thread([&]() { results.at(1) = iris_x_.at(1)->arm(); }));
+  threads.push_back(std::thread([&]() {
+    results.at(1).controller() = quads_.at(1) -.controller() > arm();
+  }));
 
-  threads.push_back(
-    std::thread([&]() { results.at(2) = iris_x_.at(2)->arm(); }));
+  threads.push_back(std::thread([&]() {
+    results.at(2).controller() = quads_.at(2) -.controller() > arm();
+  }));
 
-  threads.push_back(
-    std::thread([&]() { results.at(3) = iris_x_.at(3)->arm(); }));
+  threads.push_back(std::thread([&]() {
+    results.at(3).controller() = quads_.at(3) -.controller() > arm();
+  }));
 
   for (auto& thread : threads) {
     thread.join();
@@ -67,50 +71,54 @@ SwarmDevice<flight_controller_t>::arm()
   return true;
 }
 
-template<class flight_controller_t>
+template<class QuadrotorType>
 bool
-SwarmDevice<flight_controller_t>::arm_specific_quadrotor(unsigned int id)
+SwarmDevice<QuadrotorType>::arm_specific_quadrotor(unsigned int id)
 {
-  bool arm = iris_x_.at(id)->arm();
+  bool arm = quads_.at(id).controller()->arm();
   if (!arm)
     return false;
 
   return true;
 }
 
-template<class flight_controller_t>
+template<class QuadrotorType>
 void
-SwarmDevice<flight_controller_t>::init_speed()
+SwarmDevice<QuadrotorType>::init_speed()
 {
-  for (auto it : iris_x_) {
+  for (auto it : quads_) {
     it->init_speed();
   }
 }
 
-template<class flight_controller_t>
+template<class QuadrotorType>
 void
-SwarmDevice<flight_controller_t>::init_speed_specific_quadrotor(unsigned int id)
+SwarmDevice<QuadrotorType>::init_speed_specific_quadrotor(unsigned int id)
 {
-  iris_x_.at(id)->init_speed();
+  quads_.at(id).controller()->init_speed();
 }
 
-template<class flight_controller_t>
+template<class QuadrotorType>
 bool
-SwarmDevice<flight_controller_t>::start_offboard_mode()
+SwarmDevice<QuadrotorType>::start_offboard_mode()
 {
   std::vector<std::thread> threads;
-  std::vector<bool> results(iris_x_.size(), false);
-  threads.push_back(std::thread(
-    [&]() { results.at(0) = iris_x_.at(0)->start_offboard_mode(); }));
+  std::vector<bool> results(quads_.size(), false);
+  threads.push_back(std::thread([&]() {
+    results.at(0) = quads_.at(0).controller()->start_offboard_mode();
+  }));
 
-  threads.push_back(std::thread(
-    [&]() { results.at(1) = iris_x_.at(1)->start_offboard_mode(); }));
+  threads.push_back(std::thread([&]() {
+    results.at(1) = quads_.at(1).controller()->start_offboard_mode();
+  }));
 
-  threads.push_back(std::thread(
-    [&]() { results.at(2) = iris_x_.at(2)->start_offboard_mode(); }));
+  threads.push_back(std::thread([&]() {
+    results.at(2) = quads_.at(2).controller()->start_offboard_mode();
+  }));
 
-  threads.push_back(std::thread(
-    [&]() { results.at(3) = iris_x_.at(3)->start_offboard_mode(); }));
+  threads.push_back(std::thread([&]() {
+    results.at(3) = quads_.at(3).controller()->start_offboard_mode();
+  }));
 
   for (auto& thread : threads) {
     thread.join();
@@ -124,35 +132,35 @@ SwarmDevice<flight_controller_t>::start_offboard_mode()
   return true;
 }
 
-template<class flight_controller_t>
+template<class QuadrotorType>
 bool
-SwarmDevice<flight_controller_t>::start_offboard_mode_specific_quadrotor(
+SwarmDevice<QuadrotorType>::start_offboard_mode_specific_quadrotor(
   unsigned int id)
 {
-  bool offboard_mode = iris_x_.at(id)->start_offboard_mode();
+  bool offboard_mode = quads_.at(id).controller()->start_offboard_mode();
   if (!offboard_mode)
     return false;
 
   return true;
 }
 
-template<class flight_controller_t>
+template<class QuadrotorType>
 bool
-SwarmDevice<flight_controller_t>::takeoff(float meters)
+SwarmDevice<QuadrotorType>::takeoff(float meters)
 {
   std::vector<std::thread> threads;
-  std::vector<bool> results(iris_x_.size(), false);
-  threads.push_back(
-    std::thread([&]() { results.at(0) = iris_x_.at(0)->takeoff(meters); }));
+  std::vector<bool> results(quads_.size(), false);
+  threads.push_back(std::thread(
+    [&]() { results.at(0) = quads_.at(0).controller()->takeoff(meters); }));
 
-  threads.push_back(
-    std::thread([&]() { results.at(1) = iris_x_.at(1)->takeoff(meters); }));
+  threads.push_back(std::thread(
+    [&]() { results.at(1) = quads_.at(1).controller()->takeoff(meters); }));
 
-  threads.push_back(
-    std::thread([&]() { results.at(2) = iris_x_.at(2)->takeoff(meters); }));
+  threads.push_back(std::thread(
+    [&]() { results.at(2) = quads_.at(2).controller()->takeoff(meters); }));
 
-  threads.push_back(
-    std::thread([&]() { results.at(3) = iris_x_.at(3)->takeoff(meters); }));
+  threads.push_back(std::thread(
+    [&]() { results.at(3) = quads_.at(3).controller()->takeoff(meters); }));
 
   for (auto& thread : threads) {
     thread.join();
@@ -165,32 +173,36 @@ SwarmDevice<flight_controller_t>::takeoff(float meters)
   return true;
 }
 
-template<class flight_controller_t>
+template<class QuadrotorType>
 bool
-SwarmDevice<flight_controller_t>::takeoff_specific_quadrotor(float meters,
-                                                             unsigned int id)
+SwarmDevice<QuadrotorType>::takeoff_specific_quadrotor(float meters,
+                                                       unsigned int id)
 {
-  bool takeoff = iris_x_.at(id)->takeoff(meters);
+  bool takeoff = quads_.at(id).controller()->takeoff(meters);
   if (!takeoff)
     return false;
 
   return true;
 }
 
-template<class flight_controller_t>
+template<class QuadrotorType>
 bool
-SwarmDevice<flight_controller_t>::land()
+SwarmDevice<QuadrotorType>::land()
 {
   bool land = true;
   std::vector<std::thread> threads;
 
-  threads.push_back(std::thread([&]() { land = iris_x_.at(0)->land(); }));
+  threads.push_back(
+    std::thread([&]() { land = quads_.at(0).controller()->land(); }));
 
-  threads.push_back(std::thread([&]() { land = iris_x_.at(1)->land(); }));
+  threads.push_back(
+    std::thread([&]() { land = quads_.at(1).controller()->land(); }));
 
-  threads.push_back(std::thread([&]() { land = iris_x_.at(2)->land(); }));
+  threads.push_back(
+    std::thread([&]() { land = quads_.at(2).controller()->land(); }));
 
-  threads.push_back(std::thread([&]() { land = iris_x_.at(3)->land(); }));
+  threads.push_back(
+    std::thread([&]() { land = quads_.at(3).controller()->land(); }));
 
   for (auto& thread : threads) {
     thread.join();
@@ -201,32 +213,32 @@ SwarmDevice<flight_controller_t>::land()
   return true;
 }
 
-template<class flight_controller_t>
+template<class QuadrotorType>
 bool
-SwarmDevice<flight_controller_t>::land_specific_quadrotor(unsigned int id)
+SwarmDevice<QuadrotorType>::land_specific_quadrotor(unsigned int id)
 {
-  bool land = iris_x_.at(id)->land();
+  bool land = quads_.at(id).controller()->land();
   if (!land)
     return false;
 
   return true;
 }
 
-template<class flight_controller_t>
+template<class QuadrotorType>
 std::vector<position_GPS<double>>
-SwarmDevice<flight_controller_t>::positions_GPS()
+SwarmDevice<QuadrotorType>::positions_GPS()
 {
   std::vector<position_GPS<double>> positions;
-  for (auto i : iris_x_) {
+  for (auto i : quads_) {
     positions.push_back(i->get_position_GPS());
   }
   return positions;
 }
 
 /* This function do arming, takoff, and offboard mode for a swarm*/
-template<class flight_controller_t>
+template<class QuadrotorType>
 bool
-SwarmDevice<flight_controller_t>::in_air(float meters)
+SwarmDevice<QuadrotorType>::in_air(float meters)
 {
   bool start_episode = true;
   bool arm = this->arm();

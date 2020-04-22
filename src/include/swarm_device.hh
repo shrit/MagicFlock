@@ -11,12 +11,12 @@
 #include "logger.hh"
 #include "position_gps.hh"
 
-template<class flight_controller_t>
+template<class QuadrotorType>
 class SwarmDevice
 {
 
 public:
-  SwarmDevice(std::vector<std::shared_ptr<flight_controller_t>> quads);
+  SwarmDevice(std::vector<std::shared_ptr<QuadrotorType>> quads);
 
   void one_quad_execute_trajectory(unsigned int id,
                                    Actions::Action action,
@@ -44,7 +44,7 @@ public:
   SwarmDevice(SwarmDevice&&) = default;
 
 private:
-  std::vector<std::shared_ptr<flight_controller_t>> iris_x_;
+  std::vector<std::shared_ptr<QuadrotorType>> quads_;
 };
 
 #include "swarm_device.hxx"
