@@ -27,10 +27,9 @@ class Quadrotor
 {
 
 public:
-using port_type = std::uint16_t;  
+  using port_type = std::uint16_t;
 
-Quadrotor(std::string label,
-            std::shared_ptr<flight_controller_t> controller,
+  Quadrotor(std::string label,
             std::shared_ptr<simulator_t> sim_interface);
 
   unsigned int id() const;
@@ -63,11 +62,9 @@ Quadrotor(std::string label,
 
   /* Loss related functions */
   void current_loss(arma::vec current_loss);
-using port_type = std::uint16_t;  arma::vec current_loss() const;
+  arma::vec current_loss() const;
 
-  /*
-                           */
-  Action related functions */
+  /*Action related functions */
   Actions::Action current_action() const;
   void current_action(Actions::Action action);
   Actions::Action last_action();
@@ -105,7 +102,7 @@ using port_type = std::uint16_t;  arma::vec current_loss() const;
   std::string wireless_receiver_topic_name();
   std::string wireless_transmitter_topic_name();
 
-  std::string port_number();
+  port_type port_number();
 
 private:
   Actions::Action current_action_{ Actions::Action::Unknown };
@@ -133,10 +130,10 @@ private:
   std::vector<State<simulator_t, NoiseType>> all_states_;
 
   std::shared_ptr<RTSamples> rt_samples_;
-  unsigned int id_;  /* Quadrotor id  (Parsed from gazebo)*/
-  std::string name_; /* Quadrotor name  (Parsed from gazebo)*/
+  unsigned int id_;   /* Quadrotor id  (Parsed from gazebo)*/
+  std::string name_;  /* Quadrotor name  (Parsed from gazebo)*/
   std::string label_; /* Quadrotor label */
-  double speed_ = 1; /*  Quadrotors speed. Default speed is equal to 1 m/s */
+  double speed_ = 1;  /*  Quadrotors speed. Default speed is equal to 1 m/s */
   std::vector<unsigned int> nearest_neighbors_;
   std::shared_ptr<simulator_t> sim_interface_;
   std::shared_ptr<flight_controller_t> controller_;

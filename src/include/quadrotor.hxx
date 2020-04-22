@@ -2,16 +2,14 @@
 
 template<class flight_controller_t, class simulator_t, class NoiseType>
 Quadrotor<flight_controller_t, simulator_t, NoiseType>::Quadrotor(
-  flight_controller_t,
-  unsigned int id,
-  std::string name,
+  std::string label,
   std::shared_ptr<simulator_t> sim_interface)
-  : id_(id)
-  , name_(name)
+  : label_(label)
   , sim_interface_(sim_interface)
 {
   data_set_.init_dataset_directory();
   rt_samples_ = std::make_shared<RTSamples>();
+  controller_ = std::make_shared<flight_controller_t>("udp", port_number_);
 }
 
 template<class flight_controller_t, class simulator_t, class NoiseType>
