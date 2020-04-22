@@ -1,8 +1,7 @@
 #pragma once
 
-template<class flight_controller_t, class QuadrotorType>
-Iterative_learning<flight_controller_t, QuadrotorType>::Iterative_learning(
-  std::vector<std::shared_ptr<flight_controller_t>> iris_x,
+template<class QuadrotorType>
+Iterative_learning<QuadrotorType>::Iterative_learning(
   const std::vector<QuadrotorType>& quadrotors,
   std::shared_ptr<spdlog::logger> logger)
   : episode_(0)
@@ -18,10 +17,9 @@ Iterative_learning<flight_controller_t, QuadrotorType>::Iterative_learning(
   leader_2_ = std::next(quadrotors_.begin(), 3);
 }
 
-template<class flight_controller_t, class QuadrotorType>
+template<class QuadrotorType>
 void
-Iterative_learning<flight_controller_t,
-                   QuadrotorType>::generate_trajectory_using_model()
+Iterative_learning<QuadrotorType>::generate_trajectory_using_model()
 {
   ActionGenerator<QuadrotorType> leader_generator(leader_);
   ActionGenerator<QuadrotorType> follower_1_generator(follower_1_);
@@ -173,15 +171,13 @@ Iterative_learning<flight_controller_t,
   follower_2_->register_actions_evaluation(follower_2_action_e,
                                            follower_2_action_s);
 
-
-
   // logger_->info("Predicted loss f1: {}", predicted_loss_f1);
   // logger_->info("Predicted loss f2: {}", predicted_loss_f2);
 }
 
-template<class flight_controller_t, class QuadrotorType>
+template<class QuadrotorType>
 void
-Iterative_learning<flight_controller_t, QuadrotorType>::run()
+Iterative_learning<QuadrotorType>::run()
 {
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
 
@@ -204,7 +200,7 @@ Iterative_learning<flight_controller_t, QuadrotorType>::run()
 
         follower_1_->register_data_set_with_current_predictions();
         follower_2_->register_data_set_with_current_predictions();
-        
+
         follower_1_->register_data_set_with_current_enhanced_predictions();
         follower_2_->register_data_set_with_current_enhanced_predictions();
 

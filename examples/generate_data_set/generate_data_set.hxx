@@ -1,8 +1,7 @@
 #pragma once
 
-template<class flight_controller_t, class QuadrotorType>
-Generator<flight_controller_t, QuadrotorType>::Generator(
-  std::vector<std::shared_ptr<flight_controller_t>> quads,
+template<class QuadrotorType>
+Generator<quadrotorType>::Generator(
   const std::vector<QuadrotorType>& quadrotors,
   std::shared_ptr<spdlog::logger> logger)
   : episode_(0)
@@ -20,9 +19,9 @@ Generator<flight_controller_t, QuadrotorType>::Generator(
 }
 
 /*  Phase one: Data Set generation */
-template<class flight_controller_t, class QuadrotorType>
+template<class QuadrotorType>
 void
-Generator<flight_controller_t, QuadrotorType>::generate_trajectory()
+Generator<quadrotorType>::generate_trajectory()
 {
   ActionGenerator<QuadrotorType> leader_generator(leader_);
   ActionGenerator<QuadrotorType> follower_1_generator(follower_1_);
@@ -119,9 +118,9 @@ Generator<flight_controller_t, QuadrotorType>::generate_trajectory()
   std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 }
 
-template<class flight_controller_t, class QuadrotorType>
+template<class QuadrotorType>
 void
-Generator<flight_controller_t, QuadrotorType>::run()
+Generator<quadrotorType>::run()
 {
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
 

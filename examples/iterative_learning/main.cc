@@ -32,9 +32,6 @@
 int
 main(int argc, char* argv[])
 {
-  /*  Init configs */
-  Configs configs("/meta/lemon/quad.ini");
-
   auto logger = ILMR::logger::init();
   ILMR::logger::create_library_logger(logger);
 
@@ -60,22 +57,8 @@ main(int argc, char* argv[])
     }
   });
 
-  std::vector<lt::port_type> ports = configs.quads_ports();
-
-  /* Create a vector of controllers. Each controller connect to one
-   * quadcopters at a time
-   */
-  std::vector<std::shared_ptr<Px4Device>> iris_x;
-
-  for (auto& it : ports) {
-    iris_x.push_back(std::make_shared<Px4Device>("udp", it));
-    logger::logger_->info("Add an iris QuadCopter!");
-  }
-
-  logger::logger_->info("Ports number: {}", ports);
-
   /*  Gazebo simulator */
-  std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(argc, argv, configs);
+  std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(argc, argv);
   gz->subscriber(configs.positions());
 
   gz->publisher(configs.reset_1());
@@ -90,11 +73,11 @@ main(int argc, char* argv[])
   /*  Create a vector of quadrotors, each one has an id + a name  */
   /*  Try to see if it is possible or efficient to merge quadrotors +
       device controller */
-  using QuadrotorType = Quadrotor<Gazebo, GaussianNoise<arma::vec>>;  std::vector<QuadrotorType> quadrotors;
-  quadrotors.emplace_back(0, "leader", gz); // Alice
-  quadrotors.emplace_back(1, "follower_1", gz); // Charlie
-  quadrotors.emplace_back(2, "follower_2", gz); // Bob
-  quadrotors.emplace_back(3, "leader_2_", gz);  // Delta
+  using QuadrotorType = Quadrotor<Px4Device, Gazebo, GaussianNoise<arma::vec>>;  std::vector<QuadrotorType> quadrotors;
+  quadrotors.emplace_back("leader", gz); // Alice
+  quadrotors.emplace_back("follower_1", gz); // Charlie
+  quadrotors.emplace_back("follower_2", gz); // Bob
+  quadrotors.emplace_back("leader_2_", gz);  // Delta
 
   /*  Add neighbors list  */
   quadrotors.at(0).add_nearest_neighbor_id(1);
@@ -114,7 +97,7 @@ main(int argc, char* argv[])
   quadrotors.at(3).add_nearest_neighbor_id(2);
   
   /*  Test the trained model and improve it  */
-  Iterative_learning<Px4Device, QuadrotorType> ilearning(
+  Iterative_learning<QuadrotorType> ilearning(
     iris_x, quadrotors, logger);
   ilearning.run();
 }

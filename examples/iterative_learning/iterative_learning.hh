@@ -15,12 +15,11 @@
 #include <ILMR/time_steps.hh>
 #include <ILMR/timer.hh>
 
-template<class flight_controller_t, class QuadrotorType>
+template<class QuadrotorType>
 class Iterative_learning
 {
 public:
-  Iterative_learning(std::vector<std::shared_ptr<flight_controller_t>> iris_x,
-                     const std::vector<QuadrotorType>& quadrotors,
+  Iterative_learning(const std::vector<QuadrotorType>& quadrotors,
                      std::shared_ptr<spdlog::logger> logger);
 
   void generate_trajectory_using_model();
@@ -37,7 +36,7 @@ private:
   std::vector<double> step_errors_;
   TimeSteps time_steps_;
   Timer timer_;
-  SwarmDevice<flight_controller_t> swarm_;
+  SwarmDevice<QuadrotorType> swarm_;
   bool start_episode_;
   std::vector<QuadrotorType> quadrotors_;
 

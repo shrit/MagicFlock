@@ -13,13 +13,12 @@
 #include <ILMR/time_steps.hh>
 #include <ILMR/timer.hh>
 
-template<class flight_controller_t, class QuadrotorType>
+template<class QuadrotorType>
 class Generator
 {
 
 public:
-  Generator(std::vector<std::shared_ptr<flight_controller_t>> quads,
-            const std::vector<QuadrotorType>& quadrotors,
+  Generator(const std::vector<QuadrotorType>& quadrotors,
             std::shared_ptr<spdlog::logger> logger);
 
   void generate_trajectory();
@@ -32,7 +31,7 @@ private:
   int episode_;
   int max_episode_;
   bool start_episode_;
-  SwarmDevice<flight_controller_t> swarm_;
+  SwarmDevice<QuadrotorType> swarm_;
   std::vector<QuadrotorType> quadrotors_;
   TimeSteps time_steps_;
   Timer timer_;
