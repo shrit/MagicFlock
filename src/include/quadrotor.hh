@@ -47,12 +47,14 @@ public:
   /* Position related functions */
   ignition::math::Vector3d position() const;
   ignition::math::Vector3d& position();
-  ignition::math::Vector3d antenna_position() const;
-  ignition::math::Vector3d& antenna_position();
+  ignition::math::Vector3d wr_1_antenna_position() const;
+  ignition::math::Vector3d& wr_1_antenna_position();
+  ignition::math::Vector3d wr_2_antenna_position() const;
+  ignition::math::Vector3d& wr_2_antenna_position();
+  ignition::math::Vector3d wt_antenna_position() const;
+  ignition::math::Vector3d& wt_antenna_position();
   ignition::math::Quaternion<double> orientations() const;
   ignition::math::Quaternion<double>& orientations();
-  ignition::math::Quaternion<double> anetenna_orientations() const;
-  ignition::math::Quaternion<double>& anetenna_orientations();
   std::vector<ignition::math::Vector3d> position_of_neighbors() const;
 
   /*  State related functions */
@@ -142,20 +144,23 @@ private:
   mutable std::mutex _position_mutex{};
   ignition::math::Vector3d _position;
 
-  mutable std::mutex _WR_position_mutex{};
-  ignition::math::Vector3d _WR_position;
+  mutable std::mutex _wr_1_position_mutex{};
+  ignition::math::Vector3d _wr_1_position;
 
-  mutable std::mutex _WT_position_mutex{};
-  ignition::math::Vector3d _WT_position;
+  mutable std::mutex _wr_2_position_mutex{};
+  ignition::math::Vector3d _wr_2_position;
+
+  mutable std::mutex _wt_position_mutex{};
+  ignition::math::Vector3d _wt_position;
 
   mutable std::mutex _orientation_mutex{};
   ignition::math::Quaternion<double> _orientation;
 
-  mutable std::mutex _WR_orientation_mutex{};
-  ignition::math::Quaternion<double> _WR_orientation;
+  mutable std::mutex _wr_orientation_mutex{};
+  ignition::math::Quaternion<double> _wr_orientation;
 
-  mutable std::mutex _WT_orientation_mutex{};
-  ignition::math::Quaternion<double> _WT_orientation;
+  mutable std::mutex _wt_orientation_mutex{};
+  ignition::math::Quaternion<double> _wt_orientation;
 };
 
 #include "quadrotor.hxx"

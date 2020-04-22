@@ -396,6 +396,54 @@ Quadrotor<flight_controller_t, simulator_t, NoiseType>::position()
 
 template<class flight_controller_t, class simulator_t, class NoiseType>
 ignition::math::Vector3d
+Quadrotor<flight_controller_t, simulator_t, NoiseType>::wr_1_antenna_position() const
+{
+  std::lock_guard<std::mutex> lock(_position_mutex);
+  return _position;
+}
+
+template<class flight_controller_t, class simulator_t, class NoiseType>
+ignition::math::Vector3d&
+Quadrotor<flight_controller_t, simulator_t, NoiseType>::wr_1_antenna_position()
+{
+  std::lock_guard<std::mutex> lock(_position_mutex);
+  return _position;
+}
+
+template<class flight_controller_t, class simulator_t, class NoiseType>
+ignition::math::Vector3d
+Quadrotor<flight_controller_t, simulator_t, NoiseType>::wr_2_antenna_position() const
+{
+  std::lock_guard<std::mutex> lock(_position_mutex);
+  return _position;
+}
+
+template<class flight_controller_t, class simulator_t, class NoiseType>
+ignition::math::Vector3d&
+Quadrotor<flight_controller_t, simulator_t, NoiseType>::wr_2_antenna_position()
+{
+  std::lock_guard<std::mutex> lock(_position_mutex);
+  return _position;
+}
+
+template<class flight_controller_t, class simulator_t, class NoiseType>
+ignition::math::Vector3d
+Quadrotor<flight_controller_t, simulator_t, NoiseType>::wt_antenna_position() const
+{
+  std::lock_guard<std::mutex> lock(_position_mutex);
+  return _position;
+}
+
+template<class flight_controller_t, class simulator_t, class NoiseType>
+ignition::math::Vector3d&
+Quadrotor<flight_controller_t, simulator_t, NoiseType>::wt_antenna_position()
+{
+  std::lock_guard<std::mutex> lock(_position_mutex);
+  return _position;
+}
+
+template<class flight_controller_t, class simulator_t, class NoiseType>
+ignition::math::Vector3d
 Quadrotor<flight_controller_t, simulator_t, NoiseType>::orientation() const
 {
   std::lock_guard<std::mutex> lock(_orientation_mutex);
