@@ -3,7 +3,6 @@
  *
  * This file implement the states, actions of a quadrotor
  *
- *
  */
 #pragma once
 
@@ -23,17 +22,20 @@
 #include "real_time_samples.hh"
 #include "state.hh"
 
-template<class simulator_t, class NoiseType>
+template<class flight_controller_t, class simulator_t, class NoiseType>
 class Quadrotor
 {
 
 public:
-  Quadrotor(unsigned int id,
-            std::string name,
+using port_type = std::uint16_t;  
+
+Quadrotor(std::string label,
+            std::shared_ptr<flight_controller_t> controller,
             std::shared_ptr<simulator_t> sim_interface);
 
   unsigned int id() const;
   std::string name() const;
+  std::string label() const;
 
   /* Neighbors related fuctions*/
   std::vector<unsigned int> nearest_neighbors() const;
@@ -61,9 +63,11 @@ public:
 
   /* Loss related functions */
   void current_loss(arma::vec current_loss);
-  arma::vec current_loss() const;
+using port_type = std::uint16_t;  arma::vec current_loss() const;
 
-  /*  Action related functions */
+  /*
+                           */
+  Action related functions */
   Actions::Action current_action() const;
   void current_action(Actions::Action action);
   Actions::Action last_action();
@@ -97,6 +101,12 @@ public:
 
   void reset_models();
 
+  std::string reset_topic_name();
+  std::string wireless_receiver_topic_name();
+  std::string wireless_transmitter_topic_name();
+
+  std::string port_number();
+
 private:
   Actions::Action current_action_{ Actions::Action::Unknown };
   Actions::Action last_action_{ Actions::Action::Unknown };
@@ -123,11 +133,13 @@ private:
   std::vector<State<simulator_t, NoiseType>> all_states_;
 
   std::shared_ptr<RTSamples> rt_samples_;
-  unsigned int id_;  /* Quadrotor id */
-  std::string name_; /* Quadrotor name */
+  unsigned int id_;  /* Quadrotor id  (Parsed from gazebo)*/
+  std::string name_; /* Quadrotor name  (Parsed from gazebo)*/
+  std::string label_; /* Quadrotor label */
   double speed_ = 1; /*  Quadrotors speed. Default speed is equal to 1 m/s */
   std::vector<unsigned int> nearest_neighbors_;
   std::shared_ptr<simulator_t> sim_interface_;
+  std::shared_ptr<flight_controller_t> controller_;
 };
 
 #include "quadrotor.hxx"
