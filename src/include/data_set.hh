@@ -21,7 +21,6 @@
 #include "plot.hh"
 #include "Vector.hh"
 
-template<class simulator_t>
 class DataSet
 {
 

@@ -1,12 +1,10 @@
 #pragma once
 
-template<class simulator_t>
-DataSet<simulator_t>::DataSet()
+DataSet::DataSet()
 {}
 
-template<class simulator_t>
 void
-DataSet<simulator_t>::parse_dataset_file(std::string file_name)
+DataSet::parse_dataset_file(std::string file_name)
 {
   dataset_.load(file_name, arma::csv_ascii);
 
@@ -45,9 +43,8 @@ DataSet<simulator_t>::parse_dataset_file(std::string file_name)
   st_2_mat_ = st_2_mat.t();
 }
 
-template<class simulator_t>
 void
-DataSet<simulator_t>::load_knn_dataset(std::string dataset_file)
+DataSet::load_knn_dataset(std::string dataset_file)
 {
   // Load the training set.
   mlpack::data::Load(dataset_file, dataset_knn_, true);
@@ -57,9 +54,8 @@ DataSet<simulator_t>::load_knn_dataset(std::string dataset_file)
     s_a_s_t_1_mat_(arma::span(0, s_a_s_t_1_mat_.n_rows - 1), arma::span(0, 0)));
 }
 
-template<class simulator_t>
 void
-DataSet<simulator_t>::load_dataset_file(std::string&& dataset_file)
+DataSet::load_dataset_file(std::string&& dataset_file)
 {
   // Load the training set.
   mlpack::data::Load(dataset_file, dataset_, true);
@@ -69,9 +65,8 @@ DataSet<simulator_t>::load_dataset_file(std::string&& dataset_file)
 /* This function define the number of columns used for features and
    labels. Note that, mlpack is column major. Thus, rows are columns
    @param x is the number of columns used for label*/
-template<class simulator_t>
 void
-DataSet<simulator_t>::set_label_column_number(int x)
+DataSet::set_label_column_number(int x)
 {
   // Split the labels from the training set.
   train_features_ =
@@ -88,100 +83,86 @@ DataSet<simulator_t>::set_label_column_number(int x)
     testset_.n_rows - x, 0, testset_.n_rows - 1, testset_.n_cols - 1);
 }
 
-template<class simulator_t>
 arma::mat
-DataSet<simulator_t>::dataset() const
+DataSet::dataset() const
 {
   return dataset_;
 }
 
-template<class simulator_t>
 arma::mat
-DataSet<simulator_t>::trainset() const
+DataSet::trainset() const
 {
   return trainset_;
 }
 
-template<class simulator_t>
 arma::mat
-DataSet<simulator_t>::testset() const
+DataSet::testset() const
 {
   return testset_;
 }
 
-template<class simulator_t>
 arma::mat
-DataSet<simulator_t>::train_features() const
+DataSet::train_features() const
 {
   return train_features_;
 }
 
-template<class simulator_t>
 arma::mat
-DataSet<simulator_t>::train_labels() const
+DataSet::train_labels() const
 {
   return train_labels_;
 }
 
-template<class simulator_t>
 arma::mat
-DataSet<simulator_t>::test_labels() const
+DataSet::test_labels() const
 {
   return test_labels_;
 }
 
-template<class simulator_t>
 arma::mat
-DataSet<simulator_t>::test_features() const
+DataSet::test_features() const
 {
   return test_features_;
 }
 
-template<class simulator_t>
 arma::mat
-DataSet<simulator_t>::st_mat() const
+DataSet::st_mat() const
 {
   return st_mat_;
 }
 
-template<class simulator_t>
 arma::mat
-DataSet<simulator_t>::at_mat() const
+DataSet::at_mat() const
 {
   return at_mat_;
 }
 
-template<class simulator_t>
 arma::mat
-DataSet<simulator_t>::st_1_mat() const
+DataSet::st_1_mat() const
 {
   return st_1_mat_;
 }
 
-template<class simulator_t>
 arma::mat
-DataSet<simulator_t>::at_1_mat() const
+DataSet::at_1_mat() const
 {
   return at_1_mat_;
 }
 
-template<class simulator_t>
 arma::mat
-DataSet<simulator_t>::st_2_mat() const
+DataSet::st_2_mat() const
 {
   return st_2_mat_;
 }
 
-template<class simulator_t>
 arma::mat
-DataSet<simulator_t>::s_a_s_t_1_mat() const
+DataSet::s_a_s_t_1_mat() const
 {
   return s_a_s_t_1_mat_;
 }
 
-template<class simulator_t>
 void
-DataSet<simulator_t>::init_dataset_directory()
+DataSet::init_dataset_directory()
 {
   boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
 
@@ -231,9 +212,8 @@ DataSet<simulator_t>::init_dataset_directory()
                     time_stream.str() + "/images" + "/plot";
 }
 
-template<class simulator_t>
 void
-DataSet<simulator_t>::init_model_directory()
+DataSet::init_model_directory()
 {
   boost::posix_time::ptime now = boost::posix_time::second_clock::local_time();
 
@@ -252,19 +232,17 @@ DataSet<simulator_t>::init_model_directory()
                      "/model" + time_stream.str();
 }
 
-template<class simulator_t>
 template<typename ModelType>
 void
-DataSet<simulator_t>::save_model(ModelType&& model, std::string model_name)
+DataSet::save_model(ModelType&& model, std::string model_name)
 {
   mlpack::data::Save(
     model_file_name_, model_name, std::forward<ModelType>(model), false);
 }
 
-template<class simulator_t>
 template<typename Arg>
 void
-DataSet<simulator_t>::save_state(std::string file_name, Arg&& arg)
+DataSet::save_state(std::string file_name, Arg&& arg)
 {
   std::ofstream file;
   file.open(state_file_name_, std::ios::out | std::ios::app);
@@ -276,10 +254,9 @@ DataSet<simulator_t>::save_state(std::string file_name, Arg&& arg)
   file.close();
 }
 
-template<class simulator_t>
 template<typename Arg, typename... Args>
 void
-DataSet<simulator_t>::save_evaluation(Arg&& arg, Args&&... args)
+DataSet::save_evaluation(Arg&& arg, Args&&... args)
 {
   std::ofstream file;
   file.open(evaluate_file_name_, std::ios::out);
@@ -291,10 +268,9 @@ DataSet<simulator_t>::save_evaluation(Arg&& arg, Args&&... args)
   file.close();
 }
 
-template<class simulator_t>
 template<typename Arg, typename... Args>
 void
-DataSet<simulator_t>::save_csv_data_set(Arg&& arg, Args&&... args)
+DataSet::save_csv_data_set(Arg&& arg, Args&&... args)
 {
   std::ofstream file;
   file.open(dataset_file_name_, std::ios::out | std::ios::app);
@@ -307,10 +283,9 @@ DataSet<simulator_t>::save_csv_data_set(Arg&& arg, Args&&... args)
   file.close();
 }
 
-template<class simulator_t>
 template<typename Arg, typename... Args>
 void
-DataSet<simulator_t>::save_csv_data_set_2_file(std::string file_name,
+DataSet::save_csv_data_set_2_file(std::string file_name,
                                                Arg&& arg,
                                                Args&&... args)
 {
@@ -326,10 +301,9 @@ DataSet<simulator_t>::save_csv_data_set_2_file(std::string file_name,
   file.close();
 }
 
-template<class simulator_t>
 template<typename Arg, typename... Args>
 void
-DataSet<simulator_t>::save_error_file(std::string file_name,
+DataSet::save_error_file(std::string file_name,
                                       Arg&& arg,
                                       Args&&... args)
 {
@@ -345,10 +319,9 @@ DataSet<simulator_t>::save_error_file(std::string file_name,
   file.close();
 }
 
-template<class simulator_t>
 template<typename Arg>
 void
-DataSet<simulator_t>::save_histogram(Arg&& arg)
+DataSet::save_histogram(Arg&& arg)
 {
   std::ofstream file;
   file.open(histogram_file_name_, std::ios::out);
@@ -360,10 +333,9 @@ DataSet<simulator_t>::save_histogram(Arg&& arg)
   file.close();
 }
 
-template<class simulator_t>
 template<typename Arg>
 void
-DataSet<simulator_t>::save_controller_count(Arg&& arg)
+DataSet::save_controller_count(Arg&& arg)
 {
   std::ofstream file;
   file.open(count_file_name_, std::ios::out | std::ios::app);
@@ -374,10 +346,9 @@ DataSet<simulator_t>::save_controller_count(Arg&& arg)
   file.close();
 }
 
-template<class simulator_t>
 template<typename Arg>
 void
-DataSet<simulator_t>::save_episodes(Arg&& arg)
+DataSet::save_episodes(Arg&& arg)
 {
   std::ofstream file;
   file.open(episodes_file_name_, std::ios::out | std::ios::app);
@@ -388,10 +359,9 @@ DataSet<simulator_t>::save_episodes(Arg&& arg)
   file.close();
 }
 
-template<class simulator_t>
 template<typename Arg>
 void
-DataSet<simulator_t>::save_actions(std::string file_name, Arg&& arg)
+DataSet::save_actions(std::string file_name, Arg&& arg)
 {
   std::ofstream file;
   file.open(action_file_name_ + "_" + file_name, std::ios::out | std::ios::app);
@@ -402,10 +372,9 @@ DataSet<simulator_t>::save_actions(std::string file_name, Arg&& arg)
   file.close();
 }
 
-template<class simulator_t>
 template<typename StateType>
 void
-DataSet<simulator_t>::plot_distance_to_neighbor(int neighbor_id,
+DataSet::plot_distance_to_neighbor(int neighbor_id,
                                                 std::string title,
                                                 std::string xlabel,
                                                 std::string ylabel,
@@ -421,10 +390,9 @@ DataSet<simulator_t>::plot_distance_to_neighbor(int neighbor_id,
   plot(title, xlabel, ylabel, file_name, type, x, distances);
 }
 
-template<class simulator_t>
 template<typename HistoType>
 void
-DataSet<simulator_t>::plot_histogram(int neighbor_id,
+DataSet::plot_histogram(int neighbor_id,
                                      std::string title,
                                      std::string xlabel,
                                      std::string ylabel,
@@ -435,10 +403,9 @@ DataSet<simulator_t>::plot_histogram(int neighbor_id,
   // plot(title, xlabel, ylabel, file_name, type);
 }
 
-template<class simulator_t>
 template<typename xType, typename yType>
 void
-DataSet<simulator_t>::plot(std::string title,
+DataSet::plot(std::string title,
                            std::string xlabel,
                            std::string ylabel,
                            std::string file_name,
@@ -464,9 +431,8 @@ DataSet<simulator_t>::plot(std::string title,
   plt.Flush();
 }
 
-template<class simulator_t>
 arma::mat
-DataSet<simulator_t>::submat_using_indices(arma::mat matrix_to_sub,
+DataSet::submat_using_indices(arma::mat matrix_to_sub,
                                            arma::Mat<size_t> indices)
 {
   arma::rowvec row;
