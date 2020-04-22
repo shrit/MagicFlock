@@ -22,7 +22,7 @@ Gazebo::subscriber(std::string name)
 }
 
 void
-Gazebo::publisher(std::string name)
+Gazebo::publishe_model_reset(std::string name)
 {
   if (name == "/gazebo/default/iris_1/model_reset") {
     pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));
@@ -131,16 +131,3 @@ Gazebo::rssi() const
   return _signal;
 }
 
-std::vector<ignition::math::Vector3d>
-Gazebo::positions() const
-{
-  std::lock_guard<std::mutex> lock(_positions_mutex);
-  return _positions;
-}
-
-std::vector<ignition::math::Quaternion<double>>
-Gazebo::orientations() const
-{
-  std::lock_guard<std::mutex> lock(_orientations_mutex);
-  return _orientations;
-}
