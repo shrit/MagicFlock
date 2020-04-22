@@ -38,12 +38,8 @@ using namespace ILMR;
 
 class Px4Device
 {
-
-  using port_type = uint16_t;
-  using connection_type = std::string;
-
 public:
-  Px4Device(connection_type socket, port_type port);
+  Px4Device(std::string socket, std::string port);
 
   bool arm();
   bool reboot();

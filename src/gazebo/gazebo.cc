@@ -4,7 +4,6 @@ Gazebo::Gazebo(int argc, char* argv[])
   : node_(new gazebo::transport::Node())
   , _positions(4, ignition::math::Vector3d())
   , _orientations(4, ignition::math::Quaternion<double>())
-  , config_(config)
 {
   gazebo::client::setup(argc, argv);
   node_->Init();

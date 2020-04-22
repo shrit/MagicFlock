@@ -471,26 +471,37 @@ template<class flight_controller_t, class simulator_t, class NoiseType>
 std::string
 Quadrotor<flight_controller_t, simulator_t, NoiseType>::reset_topic_name()
 {
-  return "/gazebo/default/iris_1/model_reset";
+  return "/gazebo/default/" + name + "/model_reset";
 }
 
 template<class flight_controller_t, class simulator_t, class NoiseType>
 std::string
 Quadrotor<flight_controller_t, simulator_t, NoiseType>::
   wireless_receiver_topic_name()
-{}
+{
+  return "/gazebo/default/" + name + "/WR";
+}
 
 template<class flight_controller_t, class simulator_t, class NoiseType>
 std::string
 Quadrotor<flight_controller_t, simulator_t, NoiseType>::
   wireless_transmitter_topic_name()
-{}
+{
+  return "/gazebo/default/" + name + "/WT";
+}
 
 template<class flight_controller_t, class simulator_t, class NoiseType>
 std::string
 Quadrotor<flight_controller_t, simulator_t, NoiseType>::port_number()
 {
-  // 1454 + i number of quadroto
+  return "1454" + name.back(); // This one can parsed from sdf file if required
 }
 
-// positions = /gazebo/default/pose/info
+template<class flight_controller_t, class simulator_t, class NoiseType>
+std::shared_ptr<flight_controller_t>
+Quadrotor<flight_controller_t, simulator_t, NoiseType>::controller()
+{
+  return controller_;
+}
+
+// positions = /gazebo/default/pose/info hard coded inside gazebo
