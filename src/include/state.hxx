@@ -21,15 +21,10 @@ State<NoiseType>::State(unsigned int id,
   : id_(id)
   , data_(nearest_neighbors.size(), arma::fill::zeros)
 {
-  leader_ = sim_interface_->positions().begin();
-  follower_ = sim_interface_->positions().begin() + id;
-
-  neighbor_dists_3D_ = dist_.distances_to_neighbors(
-    id, nearest_neighbors, sim_interface_->positions());
 
   data_ = mtools_.map_to_arma(neighbor_dists_3D_);
   data_ = noise.apply_noise(data_);
-  double alti_diff = (leader_->Z() - follower_->Z());
+
   data_.resize(data_.n_rows + 1);
   data_.at(data_.n_rows - 1) = alti_diff;
 }
@@ -41,14 +36,8 @@ State<NoiseType>::State(std::shared_ptr < sim_interface,
   : id_(id)
   , data_(nearest_neighbors.size(), arma::fill::zeros)
 {
-  leader_ = sim_interface_->positions().begin();
-  follower_ = sim_interface_->positions().begin() + id;
-
-  neighbor_dists_3D_ = dist_.distances_to_neighbors(
-    id, nearest_neighbors, sim_interface_->positions());
 
   data_ = mtools_.map_to_arma(neighbor_dists_3D_);
-  double alti_diff = (leader_->Z() - follower_->Z());
   data_.resize(data_.n_rows + 1);
   data_.at(data_.n_rows - 1) = alti_diff;
 }
@@ -69,14 +58,28 @@ State<NoiseType>::Data()
 
 template<class NoiseType>
 arma::colvec
-State<NoiseType>::Distances() const
+State<NoiseType>::RSSI() const
 {
   return data_;
 }
 
 template<class NoiseType>
 arma::colvec&
-State<NoiseType>::Distances()
+State<NoiseType>::RSSI()
+{
+  return data_;
+}
+
+template<class NoiseType>
+arma::colvec
+State<NoiseType>::TOAs() const
+{
+  return data_;
+}
+
+template<class NoiseType>
+arma::colvec&
+State<NoiseType>::TOAs()
 {
   return data_;
 }
@@ -99,39 +102,7 @@ template<class NoiseType>
 inline std::ostream&
 operator<<(std::ostream& out, const State<NoiseType>& s)
 {
-  out << s.Distances() << "," << s.AltitudeDiff();
+  out << s.RSSI() << "," << s.TOAs();
   return out;
 }
 
-namespace ILMR {
-bool
-comparator(double d1, double d2)
-{
-  double epsilon = 0.5;
-  if ((d1 - d2) < epsilon) {
-    return true;
-  } else
-    return false;
-}
-}
-
-template<class NoiseType>
-inline bool
-operator==(const State<NoiseType>& s, const State<NoiseType>& s1)
-{
-  bool result_distance = std::equal(s.Distances().begin(),
-                                    s.Distances().end(),
-                                    s1.Distances().begin(),
-                                    [](const double& d, const double& d1) {
-                                      bool result = ILMR::comparator(d, d1);
-                                      return result;
-                                    });
-
-  bool result_height = comparator(s.AltitudeDiff(), s1.AltitudeDiff());
-
-  bool result = false;
-  if (result_distance and result_height) {
-    result = true;
-  }
-  return result;
-}

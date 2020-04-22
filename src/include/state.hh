@@ -34,13 +34,13 @@ public:
 
   arma::colvec& Data();
 
-  double AltitudeDiff() const;
+  arma::colvec RSSI() const;
 
-  double& AltitudeDiff();
+  arma::colvec& RSSI();
 
-  arma::colvec Distances() const;
-
-  arma::colvec& Distances();
+  arma::colvec TOAs() const;
+  
+  arma::colvec& TOAs();
 
   std::map<unsigned int, double> neighbor_dists_3D() const;
 
@@ -55,10 +55,6 @@ private:
   std::map<unsigned int, double> neighbor_dists_3D_;
 
   arma::colvec data_;
-  /*  Create a shared pointer to a nterface The interface
-      need to have all the required data about the quadcopter*/
-  std::vector<ignition::math::Vector3d>::iterator leader_;
-  std::vector<ignition::math::Vector3d>::iterator follower_;
 };
 
 #include "state.hxx"
