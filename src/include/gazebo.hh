@@ -9,9 +9,9 @@
 #include <ignition/math6/ignition/math/Vector2.hh>
 #include <ignition/math6/ignition/math/Vector3.hh>
 
+#include <memory>
 #include <mutex>
 #include <vector>
-#include <memory>
 
 #include "time.hh"
 
@@ -28,13 +28,14 @@ public:
          char* argv[],
          std::vector<std::shared_ptr<QuadrotorType>>& quadrotors);
 
-  void subscribe_position_topic();
-  void publishe_model_reset(std::string name);
-  void reset_models();
+  void subsPosTimeTopic();
+  void subRxTopic();
+  void pubModelReset();
+  void ResetModels();
 
-  void Parse_time_msg(ConstWorldStatisticsPtr& msg);
-  void Parse_position_msg(ConstPosesStampedPtr& posesStamped);
-  void Parse_rssi_msg(ConstVector2dPtr& msg);
+  void TimeMsg(ConstWorldStatisticsPtr& msg);
+  void PosMsg(ConstPosesStampedPtr& posesStamped);
+  void RxMsg(const ConstWirelessNodesPtr& _msg);
 
   // void spawn(const std::vector<ignition::math::Vector3d>& homes,
   //            std::string sdf_file,
@@ -50,6 +51,6 @@ private:
   std::vector<PubPtr> pubs_;
   NodePtr node_;
 
-  mutable std::mutex _signal_mutex{};
-  ignition::math::Vector2d _signal;
+  mutable std::mutex _rx_mutex{};
+  ConstWirelessNodesPtr& _msg;
 };

@@ -12,35 +12,43 @@ Gazebo<QuadrotorType>::Gazebo(int argc, char* argv[])
 
 template<class QuadrotorType>
 void
-Gazebo<QuadrotorType>::subscriber(std::string name)
+Gazebo<QuadrotorType>::subsPosTimeTopic()
 {
-  if (name == "/gazebo/default/") {
-    subs_.push_back(node_->Subscribe(name, &Gazebo<QuadrotorType>::Parse_rssi_msg, this));
-  } else if (name == "/gazebo/default/pose/info") {
-    subs_.push_back(node_->Subscribe(name, &Gazebo<QuadrotorType>::Parse_position_msg, this));
-  } else if (name == "/gazebo/default/world_stats") {
-    subs_.push_back(node_->Subscribe(name, &Gazebo<QuadrotorType>::Parse_time_msg, this));
+  subs_.push_back(node_->Subscribe(
+    "/gazebo/default/pose/info", &Gazebo<QuadrotorType>::PosMsg, this));
+  subs_.push_back(node_->Subscribe(
+    "/gazebo/default/world_stats", &Gazebo<QuadrotorType>::TimeMsg, this));
+}
+
+template<class QuadrotorType>
+void
+Gazebo<QuadrotorType>::subRxTopic()
+{
+  for (auto it : quadrotors) {
+    std::string topic_WR_1 =
+      "/gazebo/default/" + it->name() + "WR_1/Wireless Reveiver/transceiver";
+    subs_.push_back(
+      node_->Subscribe(topic_WR_1, &Gazebo<QuadrotorType>::RxMsg, this));
+    std::string topic_WR_2 =
+      "/gazebo/default/" + it->name() + "WR_2/Wireless Reveiver/transceiver";
+    subs_.push_back(
+      node_->Subscribe(topic_WR_2, &Gazebo<QuadrotorType>::RxMsg, this));
   }
 }
 
 template<class QuadrotorType>
 void
-Gazebo<QuadrotorType>::publishe_model_reset(std::string name)
+Gazebo<QuadrotorType>::pubModelReset()
 {
-  if (name == "/gazebo/default/iris_1/model_reset") {
-    pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));
-  } else if (name == "/gazebo/default/iris_2/model_reset") {
-    pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));
-  } else if (name == "/gazebo/default/iris_3/model_reset") {
-    pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));
-  } else if (name == "/gazebo/default/iris_4/model_reset") {
-    pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));
+  for (auto it : quadrotors) {
+    std::string topic = "/gazebo/default/" + it->name() + "/model_reset";
+    pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(topic));
   }
 }
 
 template<class QuadrotorType>
 void
-Gazebo<QuadrotorType>::reset_models()
+Gazebo<QuadrotorType>::ResetModels()
 {
   for (auto it : pubs_) {
     if (it->WaitForConnection(5)) {
@@ -56,9 +64,19 @@ Gazebo<QuadrotorType>::reset_models()
 /*  Parsing the RSSI send by Gazebo */
 template<class QuadrotorType>
 void
-Gazebo<QuadrotorType>::Parse_rssi_msg(ConstVector2dPtr& msg)
+Gazebo::RxMsg(const ConstWirelessNodesPtr& _msg)
 {
-  _signal.X() = msg->x();
+  std::lock_guard<std::mutex> lock(_rx_mutex);
+  this->RxNodesMsg = _msg;
+  gazebo::msgs::WirelessNodes txNodes;
+  int numTxNodes = nodesMsg->node_size();
+
+  for (int i = 0; i < numTxNodes; ++i) {
+    gazebo::msgs::WirelessNode RxNode = RxNodesMsg->node(i);
+    std::string essid = txNode.essid();
+    txNode.frequency();
+    txNode.signal_level();
+  }
 }
 
 /*  Position messages received from gazebo topics */
@@ -105,9 +123,10 @@ Gazebo<QuadrotorType>::Parse_time_msg(ConstWorldStatisticsPtr& msg)
   Time::setTime(t, t.seconds() / rt.seconds());
 }
 
-//template<class QuadrotorType>
+// template<class QuadrotorType>
 // void
-// Gazebo<QuadrotorType>::spawn(const std::vector<ignition::math::Vector3d>& homes,
+// Gazebo<QuadrotorType>::spawn(const std::vector<ignition::math::Vector3d>&
+// homes,
 //               std::string sdf_file,
 //               std::string rcs_file)
 // {
@@ -131,12 +150,4 @@ Gazebo<QuadrotorType>::Parse_time_msg(ConstWorldStatisticsPtr& msg)
 // req.set_rcs_file(rcs_file);
 // spawn_pub->Publish(req);
 // }
-
-template<class QuadrotorType>
-ignition::math::Vector2d
-Gazebo<QuadrotorType>::rssi() const
-{
-  std::lock_guard<std::mutex> lock(_signal_mutex);
-  return _signal;
-}
 
