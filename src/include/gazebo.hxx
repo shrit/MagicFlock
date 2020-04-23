@@ -52,8 +52,8 @@ Gazebo<QuadrotorType>::ResetModels()
 {
   for (auto it : pubs_) {
     if (it->WaitForConnection(5)) {
-      gazebo::msgs::Vector2d msg;
-      gazebo::msgs::Set(&msg, ignition::math::Vector2d(1, 0));
+      reset_model_msg::msg::ResetModel msg;
+      gazebo::msgs::Set(&msg, true);
       it->Publish(msg);
     } else {
       LogDebug() << "NO Connection from the subscriber to reset the model";
@@ -67,12 +67,12 @@ void
 Gazebo::RxMsg(const ConstWirelessNodesPtr& _msg)
 {
   std::lock_guard<std::mutex> lock(_rx_mutex);
-  this->RxNodesMsg = _msg;
+  this->_RxNodesMsg = _msg;
   gazebo::msgs::WirelessNodes txNodes;
   int numTxNodes = nodesMsg->node_size();
 
   for (int i = 0; i < numTxNodes; ++i) {
-    gazebo::msgs::WirelessNode RxNode = RxNodesMsg->node(i);
+    gazebo::msgs::WirelessNode RxNode = _RxNodesMsg->node(i);
     std::string essid = txNode.essid();
     txNode.frequency();
     txNode.signal_level();
@@ -84,31 +84,32 @@ template<class QuadrotorType>
 void
 Gazebo<QuadrotorType>::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
 {
-  /*  Get the model name from the config ini file */
   for (int i = 0; i < posesStamped->pose_size(); ++i) {
     const ::gazebo::msgs::Pose& pose = posesStamped->pose(i);
     std::string name = pose.name();
-    for (std::size_t j = 0; j < config_.quad_names().size(); ++j) {
-      if (name == std::string(config_.quad_names().at(j))) {
+    for (std::size_t j = 0; j < quadrotors.size(); ++j) {
+      if (name == std::string(quadrotors.at(j)->names()) {
         const ::gazebo::msgs::Vector3d& position = pose.position();
-        _positions.at(j) = ::gazebo::msgs::ConvertIgn(position);
+        quadrotors.at(j)->position() = ::gazebo::msgs::ConvertIgn(position);
 
         const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
-        _orientations.at(j) = ::gazebo::msgs::ConvertIgn(orientation);
+        quadrotors.at(j)->orientation() =
+          ::gazebo::msgs::ConvertIgn(orientation);
 
-      } else if (name = std::string(config_.WT_names().at(j))) {
+      } else if (name = std::string(quadrotors.at(j)->wt_name()) {
         const ::gazebo::msgs::Vector3d& position = pose.position();
-        _WT_positions.at(j) = ::gazebo::msgs::ConvertIgn(position);
+        quadrotors.at(j)->wt_antenna_position() =
+          ::gazebo::msgs::ConvertIgn(position);
 
-        const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
-        _WT_orientations.at(j) = ::gazebo::msgs::ConvertIgn(orientation);
-
-      } else if (name == std::string(config_.WR_names().at(j))) {
+      } else if (name == std::string(quadrotors.at(j)->wr_1_name()) {
         const ::gazebo::msgs::Vector3d& position = pose.position();
-        _WR_positions.at(j) = ::gazebo::msgs::ConvertIgn(position);
+        quadrotors.at(j)->wr_1_antenna_position() =
+          ::gazebo::msgs::ConvertIgn(position);
 
-        const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
-        _WR_orientations.at(j) = ::gazebo::msgs::ConvertIgn(orientation);
+      } else if (name == std::string(quadrotors.at(j)->wr_2_name()) {
+        const ::gazebo::msgs::Vector3d& position = pose.position();
+        quadrotors.at(j)->wr_2_antenna_position() =
+          ::gazebo::msgs::ConvertIgn(position);
       }
     }
   }
@@ -150,4 +151,3 @@ Gazebo<QuadrotorType>::Parse_time_msg(ConstWorldStatisticsPtr& msg)
 // req.set_rcs_file(rcs_file);
 // spawn_pub->Publish(req);
 // }
-

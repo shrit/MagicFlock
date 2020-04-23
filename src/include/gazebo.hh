@@ -13,6 +13,8 @@
 #include <mutex>
 #include <vector>
 
+#include "ResetModel.pb.h"
+
 #include "time.hh"
 
 template<class QuadrotorType>
@@ -52,5 +54,5 @@ private:
   NodePtr node_;
 
   mutable std::mutex _rx_mutex{};
-  ConstWirelessNodesPtr& _msg;
+  ConstWirelessNodesPtr& _RxNodesMsg;
 };
