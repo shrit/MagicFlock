@@ -120,6 +120,8 @@ public:
   std::string port_number();
   std::shared_ptr<flight_controller_t> controller();
 
+  void start_controller();
+
   Quadrotor(const Quadrotor&);
 
 private:

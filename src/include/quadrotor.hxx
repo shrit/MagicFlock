@@ -6,6 +6,12 @@ Quadrotor<flight_controller_t, NoiseType>::Quadrotor(std::string label)
 {
   data_set_.init_dataset_directory();
   rt_samples_ = std::make_shared<RTSamples>();
+}
+
+template<class flight_controller_t, class NoiseType>
+void
+Quadrotor<flight_controller_t, NoiseType>::start_controller()
+{
   controller_ = std::make_shared<flight_controller_t>("udp", port_number());
 }
 
