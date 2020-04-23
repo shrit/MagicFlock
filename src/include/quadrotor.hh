@@ -27,6 +27,13 @@
 #include <ignition/math6/ignition/math/Vector2.hh>
 #include <ignition/math6/ignition/math/Vector3.hh>
 
+struct RSSI
+{
+  double antenna_1; /* Value measured on antenna 1*/
+  double antenna_2; /* Value measured on antenna 2*/
+  std::string name; /* Name of the transmitter quadrotor */
+};
+
 template<class flight_controller_t, class NoiseType>
 class Quadrotor
 {
@@ -102,6 +109,9 @@ public:
 
   void reset_models();
 
+  std::vector<RSSI> rssi_received_from_neighbors() const;
+  std::vector<RSSI>& rssi_received_from_neighbors();
+
   std::string reset_topic_name();
   std::string wireless_receiver_topic_name();
   std::string wireless_transmitter_topic_name();
@@ -116,8 +126,6 @@ private:
   Actions::Action before_2_last_action_{ Actions::Action::Unknown };
   std::vector<Actions::Action> all_actions_;
   std::vector<Actions::Action> action_container_;
-  std::stack<Actions::Action> stack_of_future_actions_;
-  std::queue<Actions::Action> queue_of_future_actions_;
 
   ComputeDistance dist_;
   VectorHelper vec_;
@@ -134,10 +142,14 @@ private:
   State<NoiseType> before_2_last_state_;
   std::vector<State<NoiseType>> all_states_;
 
+  mutable std::mutex _rssi_received_from_neighbors_mutex{};
+  std::vector<RSSI> _rssi_received_from_neighbors;
+
   std::shared_ptr<RTSamples> rt_samples_;
-  unsigned int id_;   /* Quadrotor id  (Parsed from gazebo)*/
-  std::string name_;  /* Quadrotor name  (Parsed from gazebo)*/
-  std::string label_; /* Quadrotor label (Given by the user, leader, follower, etc)*/
+  unsigned int id_;  /* Quadrotor id  (Parsed from gazebo)*/
+  std::string name_; /* Quadrotor name  (Parsed from gazebo)*/
+  /* Quadrotor label (Given by the user, leader, follower, etc)*/
+  std::string label_;
   std::vector<unsigned int> nearest_neighbors_;
   std::shared_ptr<flight_controller_t> controller_;
 
