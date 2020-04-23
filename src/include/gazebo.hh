@@ -14,7 +14,6 @@
 #include <vector>
 
 #include "ResetModel.pb.h"
-
 #include "time.hh"
 
 template<class QuadrotorType>
@@ -42,8 +41,6 @@ public:
   // void spawn(const std::vector<ignition::math::Vector3d>& homes,
   //            std::string sdf_file,
   //            std::string rcs_file);
-
-  ignition::math::Vector2d rssi() const;
 
   Gazebo(Gazebo const&) = delete;
   Gazebo(Gazebo&&) = default;

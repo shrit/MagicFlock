@@ -60,8 +60,8 @@ public:
   ignition::math::Vector3d& wr_2_antenna_position();
   ignition::math::Vector3d wt_antenna_position() const;
   ignition::math::Vector3d& wt_antenna_position();
-  ignition::math::Quaternion<double> orientations() const;
-  ignition::math::Quaternion<double>& orientations();
+  ignition::math::Quaternion<double> orientation() const;
+  ignition::math::Quaternion<double>& orientation();
   std::vector<ignition::math::Vector3d> position_of_neighbors() const;
 
   /*  State related functions */
@@ -113,11 +113,14 @@ public:
   std::vector<RSSI>& rssi_received_from_neighbors();
 
   std::string reset_topic_name();
-  std::string wireless_receiver_topic_name();
+  std::string wireless_receiver_1_topic_name();
+  std::string wireless_receiver_2_topic_name();
   std::string wireless_transmitter_topic_name();
 
   std::string port_number();
   std::shared_ptr<flight_controller_t> controller();
+
+  Quadrotor(const Quadrotor&);
 
 private:
   Actions::Action current_action_{ Actions::Action::Unknown };
@@ -167,12 +170,6 @@ private:
 
   mutable std::mutex _orientation_mutex{};
   ignition::math::Quaternion<double> _orientation;
-
-  mutable std::mutex _wr_orientation_mutex{};
-  ignition::math::Quaternion<double> _wr_orientation;
-
-  mutable std::mutex _wt_orientation_mutex{};
-  ignition::math::Quaternion<double> _wt_orientation;
 };
 
 #include "quadrotor.hxx"

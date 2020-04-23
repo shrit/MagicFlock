@@ -311,7 +311,7 @@ Quadrotor<flight_controller_t, NoiseType>::register_data_set_with_loss()
 }
 
 template<class flight_controller_t, class NoiseType>
-template<class flight_controller_t, typename Arg, typename... Args>
+template<typename Arg, typename... Args>
 void
 Quadrotor<flight_controller_t, NoiseType>::register_loss(Arg arg, Args... args)
 {
@@ -355,7 +355,7 @@ template<class flight_controller_t, class NoiseType>
 bool
 Quadrotor<flight_controller_t, NoiseType>::examin_geometric_shape()
 {
-  bool shape = shape_.is_good_shape(id_, nearest_neighbors_, positions());
+  bool shape = shape_.is_good_shape(id_, nearest_neighbors_, position());
   return shape;
 }
 
@@ -431,7 +431,7 @@ Quadrotor<flight_controller_t, NoiseType>::wt_antenna_position()
 }
 
 template<class flight_controller_t, class NoiseType>
-ignition::math::Vector3d
+ignition::math::Quaternion<double>
 Quadrotor<flight_controller_t, NoiseType>::orientation() const
 {
   std::lock_guard<std::mutex> lock(_orientation_mutex);
@@ -439,7 +439,7 @@ Quadrotor<flight_controller_t, NoiseType>::orientation() const
 }
 
 template<class flight_controller_t, class NoiseType>
-ignition::math::Vector3d&
+ignition::math::Quaternion<double>&
 Quadrotor<flight_controller_t, NoiseType>::orientation()
 {
   std::lock_guard<std::mutex> lock(_orientation_mutex);
@@ -476,7 +476,7 @@ Quadrotor<flight_controller_t, NoiseType>::distances_to_neighbors()
   std::vector<double> distances;
   std::map<unsigned int, double> neigh_distances;
   neigh_distances =
-    dist_.distances_to_neighbors(id_, nearest_neighbors_, positions());
+    dist_.distances_to_neighbors(id_, nearest_neighbors_, position());
   distances = vec_.map_to_vector(neigh_distances);
   return distances;
 }
