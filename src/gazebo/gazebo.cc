@@ -1,6 +1,7 @@
 #include "../include/gazebo.hh"
 
-Gazebo::Gazebo(int argc, char* argv[])
+template<class QuadrotorType>
+Gazebo<QuadrotorType>::Gazebo(int argc, char* argv[])
   : node_(new gazebo::transport::Node())
   , _positions(4, ignition::math::Vector3d())
   , _orientations(4, ignition::math::Quaternion<double>())
@@ -9,20 +10,22 @@ Gazebo::Gazebo(int argc, char* argv[])
   node_->Init();
 }
 
+template<class QuadrotorType>
 void
-Gazebo::subscriber(std::string name)
+Gazebo<QuadrotorType>::subscriber(std::string name)
 {
   if (name == "/gazebo/default/") {
-    subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_rssi_msg, this));
+    subs_.push_back(node_->Subscribe(name, &Gazebo<QuadrotorType>::Parse_rssi_msg, this));
   } else if (name == "/gazebo/default/pose/info") {
-    subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_position_msg, this));
+    subs_.push_back(node_->Subscribe(name, &Gazebo<QuadrotorType>::Parse_position_msg, this));
   } else if (name == "/gazebo/default/world_stats") {
-    subs_.push_back(node_->Subscribe(name, &Gazebo::Parse_time_msg, this));
+    subs_.push_back(node_->Subscribe(name, &Gazebo<QuadrotorType>::Parse_time_msg, this));
   }
 }
 
+template<class QuadrotorType>
 void
-Gazebo::publishe_model_reset(std::string name)
+Gazebo<QuadrotorType>::publishe_model_reset(std::string name)
 {
   if (name == "/gazebo/default/iris_1/model_reset") {
     pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(name));
@@ -35,8 +38,9 @@ Gazebo::publishe_model_reset(std::string name)
   }
 }
 
+template<class QuadrotorType>
 void
-Gazebo::reset_models()
+Gazebo<QuadrotorType>::reset_models()
 {
   for (auto it : pubs_) {
     if (it->WaitForConnection(5)) {
@@ -50,15 +54,17 @@ Gazebo::reset_models()
 }
 
 /*  Parsing the RSSI send by Gazebo */
+template<class QuadrotorType>
 void
-Gazebo::Parse_rssi_msg(ConstVector2dPtr& msg)
+Gazebo<QuadrotorType>::Parse_rssi_msg(ConstVector2dPtr& msg)
 {
   _signal.X() = msg->x();
 }
 
 /*  Position messages received from gazebo topics */
+template<class QuadrotorType>
 void
-Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
+Gazebo<QuadrotorType>::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
 {
   /*  Get the model name from the config ini file */
   for (int i = 0; i < posesStamped->pose_size(); ++i) {
@@ -90,16 +96,18 @@ Gazebo::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
   }
 }
 
+template<class QuadrotorType>
 void
-Gazebo::Parse_time_msg(ConstWorldStatisticsPtr& msg)
+Gazebo<QuadrotorType>::Parse_time_msg(ConstWorldStatisticsPtr& msg)
 {
   Time t(msg->sim_time().sec(), msg->sim_time().nsec());
   Time rt(msg->real_time().sec(), msg->real_time().nsec());
   Time::setTime(t, t.seconds() / rt.seconds());
 }
 
+//template<class QuadrotorType>
 // void
-// Gazebo::spawn(const std::vector<ignition::math::Vector3d>& homes,
+// Gazebo<QuadrotorType>::spawn(const std::vector<ignition::math::Vector3d>& homes,
 //               std::string sdf_file,
 //               std::string rcs_file)
 // {
@@ -124,8 +132,9 @@ Gazebo::Parse_time_msg(ConstWorldStatisticsPtr& msg)
 // spawn_pub->Publish(req);
 // }
 
+template<class QuadrotorType>
 ignition::math::Vector2d
-Gazebo::rssi() const
+Gazebo<QuadrotorType>::rssi() const
 {
   std::lock_guard<std::mutex> lock(_signal_mutex);
   return _signal;
