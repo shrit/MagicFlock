@@ -25,12 +25,10 @@ void
 Gazebo<QuadrotorType>::subRxTopic()
 {
   for (auto it : quadrotors) {
-    std::string topic_WR_1 =
-      "/gazebo/default/" + it->name() + "WR_1/Wireless Reveiver/transceiver";
+    std::string topic_WR_1 = it->wireless_receiver_1_topic_name();
     subs_.push_back(
       node_->Subscribe(topic_WR_1, &Gazebo<QuadrotorType>::RxMsg, this));
-    std::string topic_WR_2 =
-      "/gazebo/default/" + it->name() + "WR_2/Wireless Reveiver/transceiver";
+    std::string topic_WR_2 = it->wireless_receiver_2_topic_name();
     subs_.push_back(
       node_->Subscribe(topic_WR_2, &Gazebo<QuadrotorType>::RxMsg, this));
   }

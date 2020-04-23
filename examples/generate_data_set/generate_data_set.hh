@@ -11,7 +11,7 @@
 #include <ILMR/quadrotor.hh>
 #include <ILMR/swarm_device.hh>
 #include <ILMR/time_steps.hh>
-#include <ILMR/timer.hh>
+#include <ILMR/time.hh>
 
 template<class QuadrotorType>
 class Generator

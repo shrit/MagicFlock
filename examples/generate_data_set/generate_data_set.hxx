@@ -1,7 +1,7 @@
 #pragma once
 
 template<class QuadrotorType>
-Generator<quadrotorType>::Generator(
+Generator<QuadrotorType>::Generator(
   const std::vector<QuadrotorType>& quadrotors,
   std::shared_ptr<spdlog::logger> logger)
   : episode_(0)
@@ -21,7 +21,7 @@ Generator<quadrotorType>::Generator(
 /*  Phase one: Data Set generation */
 template<class QuadrotorType>
 void
-Generator<quadrotorType>::generate_trajectory()
+Generator<QuadrotorType>::generate_trajectory()
 {
   ActionGenerator<QuadrotorType> leader_generator(leader_);
   ActionGenerator<QuadrotorType> follower_1_generator(follower_1_);
@@ -120,7 +120,7 @@ Generator<quadrotorType>::generate_trajectory()
 
 template<class QuadrotorType>
 void
-Generator<quadrotorType>::run()
+Generator<QuadrotorType>::run()
 {
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
 

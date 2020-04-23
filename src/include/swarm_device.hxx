@@ -44,19 +44,19 @@ SwarmDevice<QuadrotorType>::arm()
   std::vector<std::thread> threads;
 
   threads.push_back(std::thread([&]() {
-    results.at(0).controller() = quads_.at(0) -.controller() > arm();
+    results.at(0) = quads_.at(0).controller()->arm();
   }));
 
   threads.push_back(std::thread([&]() {
-    results.at(1).controller() = quads_.at(1) -.controller() > arm();
+    results.at(1) = quads_.at(1).controller()->arm();
   }));
 
   threads.push_back(std::thread([&]() {
-    results.at(2).controller() = quads_.at(2) -.controller() > arm();
+    results.at(2) = quads_.at(2).controller()->arm();
   }));
 
   threads.push_back(std::thread([&]() {
-    results.at(3).controller() = quads_.at(3) -.controller() > arm();
+    results.at(3) = quads_.at(3).controller()->arm();
   }));
 
   for (auto& thread : threads) {

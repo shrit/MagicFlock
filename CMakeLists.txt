@@ -64,10 +64,16 @@ target_link_libraries(ILMR
   MAVSDK::mavsdk_shell  
   MAVSDK::mavsdk  
   )
+target_include_directories(ILMR PRIVATE 
+  ${CMAKE_CURRENT_BINARY_DIR}/src/gazebo
+)
+file(GLOB PROTO_HEADER_LIST CONFIGURE_DEPENDS 
+"${CMAKE_CURRENT_BINARY_DIR}/src/gazebo/*.h")
 
 install(FILES
   ${HEADER_LIST}
   ${HEADER_LIST_XX}
+  ${PROTO_HEADER_LIST}
   ${THIRD_PARTY_LIST}
   
   DESTINATION include/ILMR

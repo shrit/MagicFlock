@@ -6,7 +6,7 @@ Quadrotor<flight_controller_t, NoiseType>::Quadrotor(std::string label)
 {
   data_set_.init_dataset_directory();
   rt_samples_ = std::make_shared<RTSamples>();
-  controller_ = std::make_shared<flight_controller_t>("udp", port_number_);
+  controller_ = std::make_shared<flight_controller_t>("udp", port_number());
 }
 
 template<class flight_controller_t, class NoiseType>
@@ -493,28 +493,35 @@ template<class flight_controller_t, class NoiseType>
 std::string
 Quadrotor<flight_controller_t, NoiseType>::reset_topic_name()
 {
-  return "/gazebo/default/" + name + "/model_reset";
+  return "/gazebo/default/" + name() + "/model_reset";
 }
 
 template<class flight_controller_t, class NoiseType>
 std::string
-Quadrotor<flight_controller_t, NoiseType>::wireless_receiver_topic_name()
+Quadrotor<flight_controller_t, NoiseType>::wireless_receiver_1_topic_name()
 {
-  return "/gazebo/default/" + name + "/WR";
+  return "/gazebo/default/" + name() + "/WR_1/Wireless Reveiver/transceiver";
+}
+
+template<class flight_controller_t, class NoiseType>
+std::string
+Quadrotor<flight_controller_t, NoiseType>::wireless_receiver_2_topic_name()
+{
+  return "/gazebo/default/" + name() + "/WR_2/Wireless Reveiver/transceiver";
 }
 
 template<class flight_controller_t, class NoiseType>
 std::string
 Quadrotor<flight_controller_t, NoiseType>::wireless_transmitter_topic_name()
 {
-  return "/gazebo/default/" + name + "/WT";
+  return "/gazebo/default/" + name() + "/WT/Wireless Transmitter/transceiver";
 }
 
 template<class flight_controller_t, class NoiseType>
 std::string
 Quadrotor<flight_controller_t, NoiseType>::port_number()
 {
-  return "1454" + name.back(); // This one can parsed from sdf file if required
+  return "1454" + name().back(); // This one can parsed from sdf file if required
 }
 
 template<class flight_controller_t, class NoiseType>
