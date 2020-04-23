@@ -5,5 +5,5 @@ include_directories(${GAZEBO_INCLUDE_DIRS})
 link_directories(${GAZEBO_LIBRARY_DIRS})
 list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
 
-add_library(ResetPlugin SHARED model_reset.cc)
+add_library(ResetPlugin SHARED gazebo_model_reset_plugin.cc)
 target_link_libraries(ResetPlugin ${GAZEBO_LIBRARIES})
