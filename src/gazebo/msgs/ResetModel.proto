@@ -3,5 +3,5 @@ package reset_model_msg.msg;
 
 message ResetModel
 {
-    required bool = false;
+    required bool reset = 1;
 }

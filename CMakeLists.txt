@@ -24,13 +24,12 @@ set(gomp "/usr/lib/libgomp.so")
 file(GLOB HEADER_LIST CONFIGURE_DEPENDS "src/include/*.hh")
 file(GLOB HEADER_LIST_XX CONFIGURE_DEPENDS "src/include/*.hxx")
 
-add_subdirecotry( src/gazebo )
+add_subdirectory( src/gazebo )
 
 add_library(ILMR SHARED
   src/action.cc
   src/check_swarm_shape.cc 
   src/flocking.cc
-  src/gazebo/gazebo.cc
   src/keyboard.cc
   src/joystick.cc
   src/log.cc

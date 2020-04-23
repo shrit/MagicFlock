@@ -9,26 +9,29 @@
 #ifndef _GAZEBO_RESET_PLUGIN_HH_
 #define _GAZEBO_RESET_PLUGIN_HH_
 
-#include <gazebo/gazebo.hh>
-#include <gazebo/physics/physics.hh>
 #include <gazebo/common/common.hh>
+#include <gazebo/gazebo.hh>
 #include <gazebo/msgs/msgs.hh>
+#include <gazebo/physics/physics.hh>
 
-namespace gazebo
+#include "ResetModel.pb.h"
+
+using ConstResetModelPtr =
+  const boost::shared_ptr<const reset_model_msg::msg::ResetModel>;
+
+namespace gazebo {
+class ResetPlugin : public ModelPlugin
 {
-  class ResetPlugin : public ModelPlugin
-  {
-  public:
-    ResetPlugin();
+public:
+  ResetPlugin();
 
-    void Load(physics::ModelPtr _parent, sdf::ElementPtr);
-    void OnMsg(ConstVector2dPtr &_msg);
+  void Load(physics::ModelPtr _parent, sdf::ElementPtr);
+  void OnMsg(ConstResetModelPtr& _msg);
 
-  private:
-    physics::ModelPtr model;
-    transport::NodePtr node;
-    transport::SubscriberPtr sub;
-
-  };
+private:
+  physics::ModelPtr model;
+  transport::NodePtr node;
+  transport::SubscriberPtr sub;
+};
 }
 #endif

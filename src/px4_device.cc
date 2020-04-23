@@ -1,6 +1,6 @@
 #include "include/px4_device.hh"
 
-Px4Device::Px4Device(connection_type socket, std::string port)
+Px4Device::Px4Device(std::string socket, std::string port)
 {
   std::string connection_url = socket + "://:" + port;
 

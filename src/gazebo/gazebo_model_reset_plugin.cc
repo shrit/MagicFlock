@@ -1,4 +1,4 @@
-#include <gazebo_model_reset_plugin.h>
+#include "gazebo_model_reset_plugin.hh"
 
 
 namespace gazebo
@@ -18,9 +18,9 @@ namespace gazebo
                                       &ResetPlugin::OnMsg, this);
   }
 
-  void ResetPlugin::OnMsg(reset_model_msgs::msg &_msg)
+  void ResetPlugin::OnMsg(ConstResetModelPtr& _msg)
   {
-    if (_msg->ResetModel){
+    if (_msg->reset()){
       this->model->Reset();
       this->model->ResetPhysicsStates();
     }
