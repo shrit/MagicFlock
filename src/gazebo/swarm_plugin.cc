@@ -1,10 +1,9 @@
 /*
-        Gazebo plugin loaded into an empty world to make it easy add in many
-   distinguishable drone models
-
-        The mavlink interface in sitl_gazebo listens for messages on a random
-   port and sends messages to the given config port (default 14560). Likewise
-   the PX4 simulator module be default listens for messages on 14560
+  Gazebo plugin loaded into an empty world to make it easy add in many
+  distinguishable drone models.
+  The mavlink interface in sitl_gazebo listens for messages on a random
+  port and sends messages to the given config port (default 14560). Likewise
+  the PX4 simulator module be default listens for messages on 14560
 */
 
 #include "gazebo/common/Plugin.hh"
