@@ -1,5 +1,26 @@
 cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
+find_package(Protobuf REQUIRED)
+
+set(PROTOBUF_IMPORT_DIRS)
+foreach(ITR ${GAZEBO_INCLUDE_DIRS})
+  if(ITR MATCHES ".*gazebo-[0-9.]+$")
+    set(PROTOBUF_IMPORT_DIRS "${ITR}/gazebo/msgs/proto")
+  endif()
+endforeach()
+
+set(SwarmMsgs
+  msgs/spawn.proto
+  ${PROTOBUF_IMPORT_DIRS}/vector3d.proto
+  ${PROTOBUF_IMPORT_DIRS}/header.proto
+  ${PROTOBUF_IMPORT_DIRS}/time.proto
+)
+
+PROTOBUF_GENERATE_CPP(MSG_PROTO_SRCS MSG_PROTO_HDRS ${SwarmMsgs})
+
+add_library(swarm_plugin_msgs SHARED ${MSG_PROTO_SRCS})
+link_libraries(swarm_plugin_msgs)
+
 set(reset_model_msgs msgs/ResetModel.proto)
 PROTOBUF_GENERATE_CPP(RES_PROTO_SRCS RES_PROTO_HDRS ${reset_model_msgs})
 
@@ -15,3 +36,6 @@ add_library(ResetPlugin SHARED gazebo_model_reset_plugin.cc)
 target_link_libraries(ResetPlugin ${GAZEBO_LIBRARIES} reset_model_msgs)
 target_include_directories(ResetPlugin PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
+add_library(SwarmPlugin SHARED gazebo_swarm_plugin.cc)
+target_link_libraries(SwarmPlugin ${GAZEBO_LIBRARIES} swarm_plugin_msgs)
+target_include_directories(SwarmPlugin PRIVATE ${CMAKE_CURRENT_BINARY_DIR})

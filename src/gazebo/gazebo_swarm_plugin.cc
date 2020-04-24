@@ -1,9 +1,10 @@
 /*
-  Gazebo plugin loaded into an empty world to make it easy add in many
-  distinguishable drone models.
-  The mavlink interface in sitl_gazebo listens for messages on a random
-  port and sends messages to the given config port (default 14560). Likewise
-  the PX4 simulator module be default listens for messages on 14560
+   Gazebo plugin loaded into an empty world to make it easy add in many
+   distinguishable drone models.
+
+   The mavlink interface in sitl_gazebo listens for messages on a random
+   port and sends messages to the given config port (default 14560). Likewise
+   the PX4 simulator module be default listens for messages on 14560
 */
 
 #include "gazebo/common/Plugin.hh"
@@ -12,31 +13,36 @@
 #include "gazebo/physics/physics.hh"
 #include "gazebo/transport/transport.hh"
 #include <sdf/sdf.hh>
-
+#include <ignition/math6/ignition/math/Pose3.hh>
 #include "spawn.pb.h"
 
 #include <fstream>
-#include <memory>
 #include <signal.h>
 #include <streambuf>
 #include <string>
 #include <sys/wait.h>
 #include <unistd.h>
 
-using SpawnRequestPtr = const std::shared_ptr<const tansa::msgs::SpawnRequest>;
-using PosePtr = const std::shared_ptr<const gazebo::msgs::Pose>;
+#include <boost/shared_ptr.hpp>
+
+#include <iostream>
+#include <string>
+
+typedef const boost::shared_ptr<const tansa::msgs::SpawnRequest>
+  SpawnRequestPtr;
+typedef const boost::shared_ptr<const gazebo::msgs::Pose> PosePtr;
 
 namespace gazebo {
 class SwarmPlugin : public WorldPlugin
 {
 public:
-  void Load(physics::WorldPtr _parent, sdf::ElementPtr _sdf)
+  void Load(physics::WorldPtr _parent, sdf::ElementPtr)
   {
 
     node = transport::NodePtr(new transport::Node());
     world = _parent;
 
-    node->Init(world->GetName());
+    node->Init(world->Name());
     spawnSub = node->Subscribe("~/spawn", &SwarmPlugin::spawn_callback, this);
 
     requestPub = node->Advertise<gazebo::msgs::Request>("~/request");
@@ -51,7 +57,7 @@ public:
 
     // Figure out what to do with existing models in the world
     int nexist = 0;
-    for (physics::ModelPtr m : world->GetModels()) {
+    for (physics::ModelPtr m : world->Models()) {
       std::string name = m->GetName();
       if (strncmp(name.c_str(), "vehicle_", 8) == 0) {
         // TODO: This doesn't work
@@ -62,7 +68,7 @@ public:
         int num = atoi(name.c_str() + 8);
         if (num < msg->vehicles_size()) { // Reuse it
           const tansa::msgs::SpawnRequest_Vehicle& v = msg->vehicles(num);
-          m->SetRelativePose(math::Pose(v.pos().x(),
+          m->SetRelativePose(ignition::math::Pose3d(v.pos().x(),
                                         v.pos().y(),
                                         v.pos().z(),
                                         v.orient().x(),
@@ -134,8 +140,8 @@ public:
   {
     int p = fork();
     if (p == 0) { // Child
-      char* const bash = (char* const) "/bin/bash";
-      char* const script = (char* const) "scripts/start_many_instances.sh";
+      char* const bash = (char*) "/bin/bash";
+      char* const script = (char*) "scripts/start_many_instances.sh";
       char num[16];
       strcpy(num, std::to_string(n).c_str());
 
@@ -154,11 +160,12 @@ public:
   }
 
 private:
-  gazebo::transport::NodePtr node;
-  gazebo::transport::SubscriberPtr spawnSub;
-  gazebo::transport::PublisherPtr requestPub;
-  gazebo::physics::WorldPtr world;
-  gazebo::transport::SubscriberPtr world_sub;
+  transport::NodePtr node;
+  transport::SubscriberPtr spawnSub;
+  transport::PublisherPtr requestPub;
+  physics::WorldPtr world;
+
+  transport::SubscriberPtr world_sub;
 
   int sitl_process = 0;
 };
