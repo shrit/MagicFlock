@@ -27,7 +27,7 @@ public:
 
   Gazebo(int argc,
          char* argv[],
-         std::vector<std::shared_ptr<QuadrotorType>>& quadrotors);
+         std::vector<std::shared_ptr<QuadrotorType>> quadrotors);
 
   void subsPosTimeTopic();
   void subRxTopic();
@@ -38,9 +38,12 @@ public:
   void PosMsg(ConstPosesStampedPtr& posesStamped);
   void RxMsg(const ConstWirelessNodesPtr& _msg);
 
-  // void spawn(const std::vector<ignition::math::Vector3d>& homes,
-  //            std::string sdf_file,
-  //            std::string rcs_file);
+  void spawn(const std::vector<std::shared_ptr<QuadrotorType>> quadrotors,
+             std::string sdf_file,
+             std::string rcs_file);
+
+  void start_sitl(int n);
+  void stop_sitl();
 
   Gazebo(Gazebo const&) = delete;
   Gazebo(Gazebo&&) = default;
@@ -49,7 +52,7 @@ private:
   std::vector<SubPtr> subs_;
   std::vector<PubPtr> pubs_;
   NodePtr node_;
-
+  int sitl_process = 0;
   mutable std::mutex _rx_mutex{};
   ConstWirelessNodesPtr& _RxNodesMsg;
 };

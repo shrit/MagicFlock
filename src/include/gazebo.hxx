@@ -3,8 +3,6 @@
 template<class QuadrotorType>
 Gazebo<QuadrotorType>::Gazebo(int argc, char* argv[])
   : node_(new gazebo::transport::Node())
-  , _positions(4, ignition::math::Vector3d())
-  , _orientations(4, ignition::math::Quaternion<double>())
 {
   gazebo::client::setup(argc, argv);
   node_->Init();
@@ -54,7 +52,8 @@ Gazebo<QuadrotorType>::ResetModels()
       gazebo::msgs::Set(&msg, true);
       it->Publish(msg);
     } else {
-      LogDebug() << "NO Connection from the subscriber to reset the model";
+      logger::logger->info(
+        "NO Connection from the subscriber to reset the model");
     }
   }
 }
@@ -122,30 +121,61 @@ Gazebo<QuadrotorType>::Parse_time_msg(ConstWorldStatisticsPtr& msg)
   Time::setTime(t, t.seconds() / rt.seconds());
 }
 
-// template<class QuadrotorType>
-// void
-// Gazebo<QuadrotorType>::spawn(const std::vector<ignition::math::Vector3d>&
-// homes,
-//               std::string sdf_file,
-//               std::string rcs_file)
-// {
-// tansa::msgs::SpawnRequest req;
+template<class QuadrotorType>
+void
+Gazebo<QuadrotorType>::spawn(
+  const std::vector<std::shared_ptr<QuadrotorType>> quadrotors,
+  std::string sdf_file,
+  std::string rcs_file)
+{
+  tansa::msgs::SpawnRequest req;
 
-// for (int i = 0; i < homes.size(); i++) {
-//   tansa::msgs::SpawnRequest_Vehicle* v = req.add_vehicles();
-//   v->set_id(i);
-//   gazebo::msgs::Vector3d* pos = v->mutable_pos();
-//   gazebo::msgs::Vector3d* orient = v->mutable_orient();
-//   pos->set_x(homes[i].x());
-//   pos->set_y(homes[i].y());
-//   pos->set_z(homes[i].z());
+  for (int i = 0; i < homes.size(); i++) {
+    tansa::msgs::SpawnRequest_Vehicle* v = req.add_vehicles();
+    v->set_id(i);
+    gazebo::msgs::Vector3d* pos = v->mutable_pos();
+    gazebo::msgs::Vector3d* orient = v->mutable_orient();
+    pos->set_x(quadrotors.at(i)->position().X());
+    pos->set_y(quadrotors.at(i)->position().Y());
+    pos->set_z(quadrotors.at(i)->position().Z());
 
-//   orient->set_x(0);
-//   orient->set_y(0);
-//   orient->set_z(0);
-// }
+    orient->set_x(0);
+    orient->set_y(0);
+    orient->set_z(0);
+  }
 
-// req.set_sdf_file(sdf_file);
-// req.set_rcs_file(rcs_file);
-// spawn_pub->Publish(req);
-// }
+  spawn_pub->Publish(req);
+}
+
+template<class QuadrotorType>
+void
+Gazebo<QuadrotorType>::start_sitl(int n)
+{
+  int p = fork();
+  if (p == 0) { // Child
+    char* const bash = (char*)"/bin/bash";
+    char* const script =
+      (char*)"lib/Firmware/Tools/gazebo_sitl_multiple_run.sh";
+    char num[16];
+    strcpy(num, std::to_string(n).c_str());
+
+    char* const argv[] = { bash, script, "-n", num, "-m", "iris", NULL };
+
+    execv(bash, argv);
+
+    exit(0);
+    return;
+  }
+
+  sitl_process = p;
+}
+template<class QuadrotorType>
+void
+Gazebo<QuadrotorType>::stop_sitl()
+{
+  if (sitl_process == 0)
+    return;
+
+  kill(sitl_process, SIGINT);
+  waitpid(sitl_process, NULL, 0);
+}
