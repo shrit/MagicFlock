@@ -1,8 +1,12 @@
-#include "../include/gazebo.hh"
+#pragma once
 
 template<class QuadrotorType>
-Gazebo<QuadrotorType>::Gazebo(int argc, char* argv[])
+Gazebo<QuadrotorType>::Gazebo(
+  int argc,
+  char* argv[],
+  std::vector<std::shared_ptr<QuadrotorType>> quadrotors)
   : node_(new gazebo::transport::Node())
+  , quadrotors_(quadrotors)
 {
   gazebo::client::setup(argc, argv);
   node_->Init();
@@ -87,25 +91,25 @@ Gazebo<QuadrotorType>::Parse_position_msg(ConstPosesStampedPtr& posesStamped)
     for (std::size_t j = 0; j < quadrotors.size(); ++j) {
       if (name == std::string(quadrotors.at(j)->names()) {
         const ::gazebo::msgs::Vector3d& position = pose.position();
-        quadrotors.at(j)->position() = ::gazebo::msgs::ConvertIgn(position);
+        quadrotors_.at(j)->position() = ::gazebo::msgs::ConvertIgn(position);
 
         const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
-        quadrotors.at(j)->orientation() =
+        quadrotors_.at(j)->orientation() =
           ::gazebo::msgs::ConvertIgn(orientation);
 
-      } else if (name = std::string(quadrotors.at(j)->wt_name()) {
+      } else if (name = std::string(quadrotors_.at(j)->wt_name()) {
         const ::gazebo::msgs::Vector3d& position = pose.position();
-        quadrotors.at(j)->wt_antenna_position() =
+        quadrotors_.at(j)->wt_antenna_position() =
           ::gazebo::msgs::ConvertIgn(position);
 
-      } else if (name == std::string(quadrotors.at(j)->wr_1_name()) {
+      } else if (name == std::string(quadrotors_.at(j)->wr_1_name()) {
         const ::gazebo::msgs::Vector3d& position = pose.position();
-        quadrotors.at(j)->wr_1_antenna_position() =
+        quadrotors_.at(j)->wr_1_antenna_position() =
           ::gazebo::msgs::ConvertIgn(position);
 
-      } else if (name == std::string(quadrotors.at(j)->wr_2_name()) {
+      } else if (name == std::string(quadrotors_.at(j)->wr_2_name()) {
         const ::gazebo::msgs::Vector3d& position = pose.position();
-        quadrotors.at(j)->wr_2_antenna_position() =
+        quadrotors_.at(j)->wr_2_antenna_position() =
           ::gazebo::msgs::ConvertIgn(position);
       }
     }
@@ -124,9 +128,7 @@ Gazebo<QuadrotorType>::Parse_time_msg(ConstWorldStatisticsPtr& msg)
 template<class QuadrotorType>
 void
 Gazebo<QuadrotorType>::spawn(
-  const std::vector<std::shared_ptr<QuadrotorType>> quadrotors,
-  std::string sdf_file,
-  std::string rcs_file)
+  const std::vector<std::shared_ptr<QuadrotorType>> quadrotors)
 {
   tansa::msgs::SpawnRequest req;
 
@@ -135,15 +137,14 @@ Gazebo<QuadrotorType>::spawn(
     v->set_id(i);
     gazebo::msgs::Vector3d* pos = v->mutable_pos();
     gazebo::msgs::Vector3d* orient = v->mutable_orient();
-    pos->set_x(quadrotors.at(i)->position().X());
-    pos->set_y(quadrotors.at(i)->position().Y());
-    pos->set_z(quadrotors.at(i)->position().Z());
+    pos->set_x(quadrotors_.at(i)->position().X());
+    pos->set_y(quadrotors_.at(i)->position().Y());
+    pos->set_z(quadrotors_.at(i)->position().Z());
 
     orient->set_x(0);
     orient->set_y(0);
     orient->set_z(0);
   }
-
   spawn_pub->Publish(req);
 }
 
@@ -169,6 +170,7 @@ Gazebo<QuadrotorType>::start_sitl(int n)
 
   sitl_process = p;
 }
+
 template<class QuadrotorType>
 void
 Gazebo<QuadrotorType>::stop_sitl()
