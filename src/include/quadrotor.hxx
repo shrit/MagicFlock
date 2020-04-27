@@ -454,18 +454,18 @@ Quadrotor<flight_controller_t, NoiseType>::orientation()
 
 template<class flight_controller_t, class NoiseType>
 std::vector<RSSI>
-Quadrotor<flight_controller_t, NoiseType>::rssi_received_from_neighbors() const
+Quadrotor<flight_controller_t, NoiseType>::rssi_from_neighbors() const
 {
-  std::lock_guard<std::mutex> lock(_rssi_received_from_neighbors_mutex);
-  return _rssi_received_from_neighbors;
+  std::lock_guard<std::mutex> lock(_rssi_from_neighbors_mutex);
+  return _rssi_from_neighbors;
 }
 
 template<class flight_controller_t, class NoiseType>
 std::vector<RSSI>&
-Quadrotor<flight_controller_t, NoiseType>::rssi_received_from_neighbors()
+Quadrotor<flight_controller_t, NoiseType>::rssi_from_neighbors()
 {
-  std::lock_guard<std::mutex> lock(_rssi_received_from_neighbors_mutex);
-  return _rssi_received_from_neighbors;
+  std::lock_guard<std::mutex> lock(_rssi_from_neighbors_mutex);
+  return _rssi_from_neighbors;
 }
 
 template<class flight_controller_t, class NoiseType>

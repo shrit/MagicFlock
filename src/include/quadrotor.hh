@@ -109,8 +109,8 @@ public:
 
   void reset_models();
 
-  std::vector<RSSI> rssi_received_from_neighbors() const;
-  std::vector<RSSI>& rssi_received_from_neighbors();
+  std::vector<RSSI> rssi_from_neighbors() const;
+  std::vector<RSSI>& rssi_from_neighbors();
 
   std::string reset_topic_name();
   std::string wireless_receiver_1_topic_name();
@@ -147,8 +147,8 @@ private:
   State<NoiseType> before_2_last_state_;
   std::vector<State<NoiseType>> all_states_;
 
-  mutable std::mutex _rssi_received_from_neighbors_mutex{};
-  std::vector<RSSI> _rssi_received_from_neighbors;
+  mutable std::mutex _rssi_from_neighbors_mutex{};
+  std::vector<RSSI> _rssi_from_neighbors;
 
   std::shared_ptr<RTSamples> rt_samples_;
   unsigned int id_;  /* Quadrotor id  (Parsed from gazebo)*/

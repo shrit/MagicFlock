@@ -62,7 +62,7 @@ public:
 
   void TimeMsg(ConstWorldStatisticsPtr& msg);
   void PosMsg(ConstPosesStampedPtr& posesStamped);
-  void RxMsg(const ConstWirelessNodesPtr& _msg);
+  void RxMsg(ConstWirelessNodesPtr& _msg, int n_antenna);
 
   void spawn(const std::vector<std::shared_ptr<QuadrotorType>> quadrotors,
              std::string sdf_file,

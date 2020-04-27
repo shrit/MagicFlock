@@ -29,10 +29,10 @@ Gazebo<QuadrotorType>::subRxTopic()
   for (auto it : quadrotors) {
     std::string topic_WR_1 = it->wireless_receiver_1_topic_name();
     subs_.push_back(
-      node_->Subscribe(topic_WR_1, &Gazebo<QuadrotorType>::RxMsg, this));
+      node_->Subscribe(topic_WR_1, &Gazebo<QuadrotorType>::RxMsg, this, 1));
     std::string topic_WR_2 = it->wireless_receiver_2_topic_name();
     subs_.push_back(
-      node_->Subscribe(topic_WR_2, &Gazebo<QuadrotorType>::RxMsg, this));
+      node_->Subscribe(topic_WR_2, &Gazebo<QuadrotorType>::RxMsg, this, 2));
   }
 }
 
@@ -65,7 +65,7 @@ Gazebo<QuadrotorType>::ResetModels()
 /*  Parsing the RSSI send by Gazebo */
 template<class QuadrotorType>
 void
-Gazebo::RxMsg(const ConstWirelessNodesPtr& _msg)
+Gazebo::RxMsg(const ConstWirelessNodesPtr& _msg, int n_antenna)
 {
   std::lock_guard<std::mutex> lock(_rx_mutex);
   this->_RxNodesMsg = _msg;
@@ -73,10 +73,17 @@ Gazebo::RxMsg(const ConstWirelessNodesPtr& _msg)
   int numTxNodes = nodesMsg->node_size();
 
   for (int i = 0; i < numTxNodes; ++i) {
-    gazebo::msgs::WirelessNode RxNode = _RxNodesMsg->node(i);
-    std::string essid = txNode.essid();
-    txNode.frequency();
-    txNode.signal_level();
+    if (n_antenna == 1) {
+      gazebo::msgs::WirelessNode RxNode = _RxNodesMsg->node(i);
+      quadrotors_.at(i)->rssi_from_neighbors()->name = txNode.essid();
+      quadrotors_.at(i)->rssi_from_neighbors()->antenna_1 =
+        txNode.signal_level();
+    } else if (n_antenna == 2) {
+      gazebo::msgs::WirelessNode RxNode = _RxNodesMsg->node(i);
+      quadrotors_.at(i)->rssi_from_neighbors()->name = txNode.essid();
+      quadrotors_.at(i)->rssi_from_neighbors()->antenna_2 =
+        txNode.signal_level();
+    }
   }
 }
 
