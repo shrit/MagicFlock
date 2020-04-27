@@ -35,7 +35,6 @@ typedef const boost::shared_ptr<const tansa::msgs::SpawnRequest>
   SpawnRequestPtr;
 typedef const boost::shared_ptr<const gazebo::msgs::Pose> PosePtr;
 
-
 class SwarmPlugin : public WorldPlugin
 {
 public:

@@ -1,13 +1,22 @@
-/**
+/*
  * @brief Model reset plugin
  *
- * This plugin reset the simulated model into their home position
+ * This is a reset plugin to bring the quadrotors back at the end of each
+ * episode.
+ * It is possible to bring the quadrotors either to their initial positions, or
+ * to a random position with a specific place as a starting point.
+ * A random generator will genenrate the cooridnation of the new position with
+ * respect to other quadrotors positions. A radius is defined as the max
+ * distance between the quadrotrs and a min distance to avoid collision during
+ * the spawning.
  *
- * @author Omar Shrit <shrit@lri.fr>
- */
+ * Some part of this code has been inspired by tansa the dancing swarm
+ * platforme.
+ *
+ * @author: Omar Shrit <shrit@lri.fr>
+ * */
 
-#ifndef _GAZEBO_RESET_PLUGIN_HH_
-#define _GAZEBO_RESET_PLUGIN_HH_
+#pragma once
 
 #include <gazebo/common/common.hh>
 #include <gazebo/gazebo.hh>
@@ -34,4 +43,3 @@ private:
   transport::SubscriberPtr sub;
 };
 }
-#endif
