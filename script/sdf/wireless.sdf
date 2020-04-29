@@ -30,7 +30,7 @@
      <update_rate>20</update_rate>
      <visualize>true</visualize>
      <transceiver>
-       <essid>osrf_10</essid>
+       <essid>osrf</essid>
        <frequency>2442.0</frequency>
        <power>14.5</power>
        <gain>2.5</gain>

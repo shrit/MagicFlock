@@ -29,6 +29,7 @@ while [ $n -lt $num_vehicles ]; do
 
 	gz sdf -p  sdf/${PX4_SIM_MODEL}_${n}.urdf > sdf/${PX4_SIM_MODEL}_${n}.sdf
 	sed -i '346 r sdf/wireless.sdf' sdf/${PX4_SIM_MODEL}_${n}.sdf
+	sed -i -e "s/osrf/${PX4_SIM_MODEL}_${n}/g"  sdf/${PX4_SIM_MODEL}_${n}.sdf
 	n=$(($n + 1))
 done
 
