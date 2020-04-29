@@ -10,11 +10,8 @@ paper/auto/*
 material/auto/*
 model_plugin/build/*
 model/*
+__pycache__
 
-
-GPATH
-GRTAGS
-GTAGS
 
 config.*
 ._*
@@ -54,5 +51,3 @@ config.*
 # Executables
 *.out
 
-#emacs generated directories and files
-.dir-locals.el
