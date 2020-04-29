@@ -19,11 +19,12 @@ done
 num_vehicles=${NUM_VEHICLES:=3}
 export PX4_SIM_MODEL=${VEHICLE_MODEL:=iris}
 
+echo "Generating sdf files into sdf directory"
 n=0
 while [ $n -lt $num_vehicles ]; do
 
 	python3 xacro.py rotors_description/urdf/${PX4_SIM_MODEL}_base.xacro \
-		rotors_description_dir:=rotors_description mavlink_udp_port:=$(($mavlink_udp_port+$n))\
+		rotors_description_dir:=/meta/lemon/script/rotors_description mavlink_udp_port:=$(($mavlink_udp_port+$n))\
 		mavlink_tcp_port:=$(($mavlink_tcp_port+$n))  -o sdf/${PX4_SIM_MODEL}_${n}.urdf
 
 	gz sdf -p  sdf/${PX4_SIM_MODEL}_${n}.urdf > sdf/${PX4_SIM_MODEL}_${n}.sdf
