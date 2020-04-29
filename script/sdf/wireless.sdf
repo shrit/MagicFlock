@@ -1,0 +1,119 @@
+   <joint name="WT_joint" type="fixed">
+      <pose relative_to='base_link'>0 0 0.02 0 0 -0 0 </pose>
+      <child>WT</child>
+      <parent>base_link</parent>
+    </joint>
+    <link name="WT">
+    <pose relative_to='WT_joint'>0 0 -0.020 0 -0 0</pose>
+    <inertial>
+     <mass>0.01</mass>
+    </inertial>
+   <visual name="antenna">
+     <pose>0 0 .04 0 0 0</pose>
+     <geometry>
+       <cylinder>
+         <radius>.002</radius>
+         <length>.04</length>
+       </cylinder>
+     </geometry>
+   <collision name="base_collision">
+      <geometry>
+        <cylinder>
+          <radius>.002</radius>
+          <length>.04</length>
+        </cylinder>
+      </geometry>
+    </collision>
+   </visual>
+   <sensor name="Wireless Transmitter" type="wireless_transmitter">
+     <always_on>1</always_on>
+     <update_rate>20</update_rate>
+     <visualize>true</visualize>
+     <transceiver>
+       <essid>osrf_10</essid>
+       <frequency>2442.0</frequency>
+       <power>14.5</power>
+       <gain>2.5</gain>
+     </transceiver>
+   </sensor>
+   </link>
+   <joint name="WR_joint" type="fixed">
+      <pose relative_to='base_link'>-0.135 -0.17 0 0 0 -0 0 </pose>
+      <child>WR</child>
+      <parent>base_link</parent>
+    </joint>
+    <link name="WR">
+      <pose relative_to='WR_joint'>0 0 0 0 -0 0</pose>
+     <inertial>
+      <mass>0.01</mass>
+      </inertial>
+    <visual name="antenna">
+    <pose>0 0 -0.020 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>.002</radius>
+          <length>.04</length>
+        </cylinder>
+      </geometry>
+    <collision name="base_collision">
+      <geometry>
+        <cylinder>
+          <radius>.002</radius>
+          <length>.04</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    </visual>
+    <sensor name="Wireless Receiver" type="wireless_receiver">
+      <always_on>1</always_on>
+      <update_rate>20</update_rate>
+      <visualize>true</visualize>
+      <transceiver>
+        <min_frequency>2412.0</min_frequency>
+        <max_frequency>2484.0</max_frequency>
+        <power>14.5</power>
+        <gain>2.5</gain>
+        <sensitivity>-90.0</sensitivity>
+      </transceiver>
+    </sensor>
+  </link>
+   <joint name="WR_1_joint" type="fixed">
+      <pose relative_to='base_link'>0.115 0.17 0 0 0 -0 0 </pose>
+      <child>WR_1</child>
+      <parent>base_link</parent>
+    </joint>
+    <link name="WR_1">
+      <pose relative_to='WR_1_joint'>0 0 0 0 -0 0</pose>
+     <inertial>
+      <mass>0.01</mass>
+      </inertial>
+    <visual name="antenna">
+    <pose>0 0 -0.020 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>.002</radius>
+          <length>.04</length>
+        </cylinder>
+      </geometry>
+    <collision name="base_collision">
+      <geometry>
+        <cylinder>
+          <radius>.002</radius>
+          <length>.04</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    </visual>
+    <sensor name="Wireless Receiver" type="wireless_receiver">
+      <always_on>1</always_on>
+      <update_rate>20</update_rate>
+      <visualize>true</visualize>
+      <transceiver>
+        <min_frequency>2412.0</min_frequency>
+        <max_frequency>2484.0</max_frequency>
+        <power>14.5</power>
+        <gain>2.5</gain>
+        <sensitivity>-90.0</sensitivity>
+      </transceiver>
+    </sensor>
+  </link>
