@@ -36,12 +36,14 @@ then
 fi
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-src_path="$SCRIPT_DIR/.."
+src_path="/sim/Firmware_10/Firmware/"
 
 build_path=${src_path}/build/px4_sitl_default
 mavlink_udp_port=14560
 mavlink_tcp_port=4560
 world="empty"
+
+projet_path=/meta/lemon/script/
 
 echo "killing running instances"
 pkill -x px4 || true
@@ -56,20 +58,24 @@ sleep 5
 
 n=0
 while [ $n -lt $num_vehicles ]; do
-	working_dir="$build_path/instance_$n"
+	working_dir="./instance_$n"
 	[ ! -d "$working_dir" ] && mkdir -p "$working_dir"
 
 	pushd "$working_dir" &>/dev/null
 	echo "starting instance $n in $(pwd)"
 	../bin/px4 -i $n -d "$src_path/ROMFS/px4fmu_common" -w sitl_${PX4_SIM_MODEL}_${n} -s etc/init.d-posix/rcS >out.log 2>err.log &
-	python3 ${src_path}/Tools/sitl_gazebo/scripts/xacro.py ${src_path}/Tools/sitl_gazebo/models/rotors_description/urdf/${PX4_SIM_MODEL}_base.xacro \
-		rotors_description_dir:=${src_path}/Tools/sitl_gazebo/models/rotors_description mavlink_udp_port:=$(($mavlink_udp_port+$n)) \
-		mavlink_tcp_port:=$(($mavlink_tcp_port+$n))  -o /tmp/${PX4_SIM_MODEL}_${n}.urdf
 
-	gz sdf -p  /tmp/${PX4_SIM_MODEL}_${n}.urdf > /tmp/${PX4_SIM_MODEL}_${n}.sdf
+	python3 /meta/lemon/script/xacro.py /meta/lemon/script/rotors_description/urdf/${PX4_SIM_MODEL}_base.xacro \
+		rotors_description_dir:=/meta/lemon/script/rotors_description mavlink_udp_port:=$(($mavlink_udp_port+$n))\
+		mavlink_tcp_port:=$(($mavlink_tcp_port+$n))  -o ${projet_path}/sdf/${PX4_SIM_MODEL}_${n}.urdf
+
+	gz sdf -p  ${projet_path}/sdf/${PX4_SIM_MODEL}_${n}.urdf > ${projet_path}/sdf/${PX4_SIM_MODEL}_${n}.sdf
+	sed -i "346 r ${projet_path}/sdf/wireless.sdf" ${projet_path}/sdf/${PX4_SIM_MODEL}_${n}.sdf
+	sed -i -e "s/osrf/${PX4_SIM_MODEL}_${n}/g"  ${projet_path}/sdf/${PX4_SIM_MODEL}_${n}.sdf
+
 	echo "Spawning ${PX4_SIM_MODEL}_${n}"
 
-	gz model --spawn-file=/tmp/${PX4_SIM_MODEL}_${n}.sdf --model-name=${PX4_SIM_MODEL}_${n} -x 0.0 -y $((3*${n})) -z 0.0
+	gz model --spawn-file=../sdf/${PX4_SIM_MODEL}_${n}.sdf --model-name=${PX4_SIM_MODEL}_${n} -x 0.0 -y $((3*${n})) -z 0.0
 
 	popd &>/dev/null
 
