@@ -28,7 +28,7 @@ while [ $n -lt $num_vehicles ]; do
 		mavlink_tcp_port:=$(($mavlink_tcp_port+$n))  -o sdf/${PX4_SIM_MODEL}_${n}.urdf
 
 	gz sdf -p  sdf/${PX4_SIM_MODEL}_${n}.urdf > sdf/${PX4_SIM_MODEL}_${n}.sdf
-	#sed -i '2 r file3.txt' file1.txt
+	sed -i '346 r sdf/wireless.sdf' sdf/${PX4_SIM_MODEL}_${n}.sdf
 	n=$(($n + 1))
 done
 
