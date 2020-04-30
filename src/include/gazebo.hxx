@@ -163,7 +163,7 @@ Gazebo<QuadrotorType>::start_sitl(int n)
   if (p == 0) { // Child
     char* const bash = (char*)"/bin/bash";
     char* const script =
-      (char*)"lib/Firmware/Tools/gazebo_sitl_multiple_run.sh";
+      (char*)"../script/gazebo_sitl_multiple_run.sh";
     char num[16];
     strcpy(num, std::to_string(n).c_str());
 

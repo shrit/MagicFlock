@@ -23,7 +23,7 @@
 #include "state.hh"
 
 /* Ignition related headers*/
-#include <ignition/math4/ignition/math/Quaternion.hh>
+#include <ignition/math6/ignition/math/Quaternion.hh>
 #include <ignition/math6/ignition/math/Vector2.hh>
 #include <ignition/math6/ignition/math/Vector3.hh>
 

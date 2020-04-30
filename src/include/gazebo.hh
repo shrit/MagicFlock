@@ -24,9 +24,6 @@
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/msgs/pose.pb.h>
 #include <gazebo/transport/transport.hh>
-#include <ignition/math4/ignition/math/Quaternion.hh>
-#include <ignition/math6/ignition/math/Vector2.hh>
-#include <ignition/math6/ignition/math/Vector3.hh>
 
 /* C++ includes*/
 #include <memory>
