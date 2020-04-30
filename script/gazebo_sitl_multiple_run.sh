@@ -65,12 +65,12 @@ while [ $n -lt $num_vehicles ]; do
 	echo "starting instance $n in $(pwd)"
 	../bin/px4 -i $n -d "$src_path/ROMFS/px4fmu_common" -w sitl_${PX4_SIM_MODEL}_${n} -s etc/init.d-posix/rcS >out.log 2>err.log &
 
-	python3 /meta/lemon/script/xacro.py /meta/lemon/script/rotors_description/urdf/${PX4_SIM_MODEL}_base.xacro \
-		rotors_description_dir:=/meta/lemon/script/rotors_description mavlink_udp_port:=$(($mavlink_udp_port+$n))\
+	python3 ${projet_path}/xacro.py ${projet_path}/rotors_description/urdf/${PX4_SIM_MODEL}_base.xacro \
+		rotors_description_dir:=${projet_path}/rotors_description mavlink_udp_port:=$(($mavlink_udp_port+$n))\
 		mavlink_tcp_port:=$(($mavlink_tcp_port+$n))  -o ${projet_path}/sdf/${PX4_SIM_MODEL}_${n}.urdf
 
 	gz sdf -p  ${projet_path}/sdf/${PX4_SIM_MODEL}_${n}.urdf > ${projet_path}/sdf/${PX4_SIM_MODEL}_${n}.sdf
-	sed -i "346 r ${projet_path}/sdf/wireless.sdf" ${projet_path}/sdf/${PX4_SIM_MODEL}_${n}.sdf
+	sed -i "345 r ${projet_path}/sdf/wireless.sdf" ${projet_path}/sdf/${PX4_SIM_MODEL}_${n}.sdf
 	sed -i -e "s/osrf/${PX4_SIM_MODEL}_${n}/g"  ${projet_path}/sdf/${PX4_SIM_MODEL}_${n}.sdf
 
 	echo "Spawning ${PX4_SIM_MODEL}_${n}"
