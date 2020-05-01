@@ -25,21 +25,31 @@
 
 #include "ResetModel.pb.h"
 
+#include <vector>
+#include <random>
+#include <utility>
+
 using ConstResetModelPtr =
   const boost::shared_ptr<const reset_model_msg::msg::ResetModel>;
 
 namespace gazebo {
-class ResetPlugin : public ModelPlugin
+class ResetPlugin : public WorldPlugin
 {
 public:
   ResetPlugin();
 
-  void Load(physics::ModelPtr _parent, sdf::ElementPtr);
+  void Load(physics::WorldPtr _parent, sdf::ElementPtr);
   void OnMsg(ConstResetModelPtr& _msg);
+  std::vector<ignition::math::Pose3d> RandomPoseGenerator(int quad_number);
 
 private:
   physics::ModelPtr model;
+  physics::WorldPtr world_;
   transport::NodePtr node;
   transport::SubscriberPtr sub;
+
+  std::uniform_real_distribution<> distribution_real_;
+  std::random_device random_dev;
+  std::mt19937 generator_;
 };
 }
