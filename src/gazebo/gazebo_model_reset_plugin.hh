@@ -22,7 +22,7 @@
 #include <gazebo/gazebo.hh>
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/physics/physics.hh>
-
+#include <ignition/math/Vector3.hh>
 #include "ResetModel.pb.h"
 
 #include <vector>
@@ -40,7 +40,7 @@ public:
 
   void Load(physics::WorldPtr _parent, sdf::ElementPtr);
   void OnMsg(ConstResetModelPtr& _msg);
-  std::vector<ignition::math::Pose3d> RandomPoseGenerator(int quad_number);
+  std::vector<ignition::math::Vector3d> RandomPoseGenerator(int quad_number);
 
 private:
   physics::ModelPtr model;
