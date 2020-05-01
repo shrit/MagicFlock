@@ -22,17 +22,27 @@ Gazebo<QuadrotorType>::subsPosTimeTopic()
     "/gazebo/default/world_stats", &Gazebo<QuadrotorType>::TimeMsg, this));
 }
 
+/*
+ * A logical solution would be creating a gazebo::transport::node inside
+ * each quadrotor, and init this node in this costr. Then, a propore
+ * implmentation would be possible for each quadrotor to receive data from each
+ * rxnode.
+ */
+
 template<class QuadrotorType>
+template<class flight_controller_t, class NoiseType>
 void
 Gazebo<QuadrotorType>::subRxTopic()
 {
   for (auto it : quadrotors_) {
     std::string topic_WR_1 = it->wireless_receiver_1_topic_name();
-    subs_.push_back(
-      node_->Subscribe(topic_WR_1, &Gazebo<QuadrotorType>::RxMsgN1, this));
+
+    subs_.push_back(it->node_->Subscribe(
+      topic_WR_1, &Quadrotor<flight_controller_t, NoiseType>::RxMsgN1, it));
+
     std::string topic_WR_2 = it->wireless_receiver_2_topic_name();
-    subs_.push_back(
-      node_->Subscribe(topic_WR_2, &Gazebo<QuadrotorType>::RxMsgN2, this));
+    subs_.push_back(it->node_->Subscribe(
+      topic_WR_2, &Quadrotor<flight_controller_t, NoiseType>::RxMsgN2, it));
   }
 }
 
@@ -62,44 +72,6 @@ Gazebo<QuadrotorType>::ResetModels()
   }
 }
 
-/*
- * There is a small problem in rssi from rssi_from_neighbors
- */
-
-/*  Parsing the RSSI send by Gazebo */
-template<class QuadrotorType>
-void
-Gazebo<QuadrotorType>::RxMsgN1(const ConstWirelessNodesPtr& _msg)
-{
-  std::lock_guard<std::mutex> lock(_rx_mutex);
-  this->_RxNodesMsg = _msg;
-  int numRxNodes = _RxNodesMsg->node_size();
-
-  for (int i = 0; i < numRxNodes; ++i) {
-    gazebo::msgs::WirelessNode RxNode = _RxNodesMsg->node(i);
-    quadrotors_.at(i)->rssi_from_neighbors().name = RxNode.essid();
-    quadrotors_.at(i)->rssi_from_neighbors().antenna_1 = RxNode.signal_level();
-  }
-}
-
-template<class QuadrotorType>
-void
-Gazebo<QuadrotorType>::RxMsgN2(const ConstWirelessNodesPtr& _msg)
-{
-  std::lock_guard<std::mutex> lock(_rx_mutex);
-  this->_RxNodesMsg = _msg;
-  int numRxNodes = _RxNodesMsg->node_size();
-
-  for (int i = 0; i < numRxNodes; ++i) {
-    for (int j = 0; j < numRxNodes; ++j) {
-      gazebo::msgs::WirelessNode RxNode = _RxNodesMsg->node(j);
-      quadrotors_.at(i)->rssi_from_neighbors().name = RxNode.essid();
-      quadrotors_.at(i)->rssi_from_neighbors().antenna_2.at(j) =
-        RxNode.signal_level();
-    }
-  }
-}
-
 /*  Position messages received from gazebo topics */
 template<class QuadrotorType>
 void
@@ -109,7 +81,7 @@ Gazebo<QuadrotorType>::PosMsg(ConstPosesStampedPtr& posesStamped)
     const ::gazebo::msgs::Pose& pose = posesStamped->pose(i);
     std::string name = pose.name();
     for (std::size_t j = 0; j < quadrotors_.size(); ++j) {
-      if (name == std::string(quadrotors_.at(j)->names()) {
+      if (name == std::string(quadrotors_.at(j)->names())) {
         const ::gazebo::msgs::Vector3d& position = pose.position();
         quadrotors_.at(j)->position() = ::gazebo::msgs::ConvertIgn(position);
 
@@ -117,17 +89,17 @@ Gazebo<QuadrotorType>::PosMsg(ConstPosesStampedPtr& posesStamped)
         quadrotors_.at(j)->orientation() =
           ::gazebo::msgs::ConvertIgn(orientation);
 
-      } else if (name = std::string(quadrotors_.at(j)->wt_name()) {
+      } else if (name = std::string(quadrotors_.at(j)->wt_name())) {
         const ::gazebo::msgs::Vector3d& position = pose.position();
         quadrotors_.at(j)->wt_antenna_position() =
           ::gazebo::msgs::ConvertIgn(position);
 
-      } else if (name == std::string(quadrotors_.at(j)->wr_1_name()) {
+      } else if (name == std::string(quadrotors_.at(j)->wr_1_name())) {
         const ::gazebo::msgs::Vector3d& position = pose.position();
         quadrotors_.at(j)->wr_1_antenna_position() =
           ::gazebo::msgs::ConvertIgn(position);
 
-      } else if (name == std::string(quadrotors_.at(j)->wr_2_name()) {
+      } else if (name == std::string(quadrotors_.at(j)->wr_2_name())) {
         const ::gazebo::msgs::Vector3d& position = pose.position();
         quadrotors_.at(j)->wr_2_antenna_position() =
           ::gazebo::msgs::ConvertIgn(position);

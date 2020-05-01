@@ -11,7 +11,6 @@
  * 6. Recover the simulation time and the realtime from gazebo
  * 7. Synchronize the actual software with gazebo.
  *
- *
  * Author: Omar Shrit <shrit@lri.fr>
  *
  */
@@ -53,17 +52,18 @@ public:
          std::vector<std::shared_ptr<QuadrotorType>> quadrotors);
 
   void subsPosTimeTopic();
+  template<class flight_controller_t, class NoiseType>
   void subRxTopic();
   void pubModelReset();
   void ResetModels();
 
   void TimeMsg(ConstWorldStatisticsPtr& msg);
   void PosMsg(ConstPosesStampedPtr& posesStamped);
-  void RxMsgN1(ConstWirelessNodesPtr& _msg); 
+  void RxMsgN1(ConstWirelessNodesPtr& _msg);
   void RxMsgN2(ConstWirelessNodesPtr& _msg);
-  
-  void start_sitl(int n);
-  void stop_sitl();
+
+  void start_simulation(int n);
+  void stop_simulation();
 
   Gazebo(Gazebo const&) = delete;
   Gazebo(Gazebo&&) = default;
@@ -73,8 +73,6 @@ private:
   std::vector<PubPtr> pubs_;
   NodePtr node_;
   int sitl_process = 0;
-  mutable std::mutex _rx_mutex{};
-  ConstWirelessNodesPtr& _RxNodesMsg;
   std::vector<std::shared_ptr<QuadrotorType>> quadrotors_;
 };
 
