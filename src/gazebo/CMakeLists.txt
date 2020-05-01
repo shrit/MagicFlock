@@ -35,7 +35,3 @@ list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
 add_library(ResetPlugin SHARED gazebo_model_reset_plugin.cc)
 target_link_libraries(ResetPlugin ${GAZEBO_LIBRARIES} reset_model_msgs)
 target_include_directories(ResetPlugin PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-
-add_library(SwarmPlugin SHARED gazebo_swarm_plugin.cc)
-target_link_libraries(SwarmPlugin ${GAZEBO_LIBRARIES} swarm_plugin_msgs)
-target_include_directories(SwarmPlugin PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
