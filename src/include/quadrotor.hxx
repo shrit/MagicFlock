@@ -3,8 +3,10 @@
 template<class flight_controller_t, class NoiseType>
 Quadrotor<flight_controller_t, NoiseType>::Quadrotor(std::string label)
   : label_(label)
+  , node_(new gazebo::transport::Node())
 {
   data_set_.init_dataset_directory();
+  node_->Init();
   rt_samples_ = std::make_shared<RTSamples>();
 }
 
@@ -527,7 +529,8 @@ template<class flight_controller_t, class NoiseType>
 std::string
 Quadrotor<flight_controller_t, NoiseType>::port_number()
 {
-  return "1454" + name().back(); // This one can parsed from sdf file if required
+  return "1454" +
+         name().back(); // This one can parsed from sdf file if required
 }
 
 template<class flight_controller_t, class NoiseType>
@@ -537,3 +540,38 @@ Quadrotor<flight_controller_t, NoiseType>::controller()
   return controller_;
 }
 
+/*  Parsing the RSSI send by Gazebo */
+template<class flight_controller_t, class NoiseType>
+void
+Quadrotor<flight_controller_t, NoiseType>::RxMsgN1(
+  const ConstWirelessNodesPtr& _msg)
+{
+  std::lock_guard<std::mutex> lock(_rx_mutex);
+  this->_RxNodesMsg = _msg;
+  int numRxNodes = _RxNodesMsg->node_size();
+
+  for (int i = 0; i < numRxNodes; ++i) {
+    gazebo::msgs::WirelessNode RxNode = _RxNodesMsg->node(i);
+    rssi_from_neighbors().name = RxNode.essid();
+    rssi_from_neighbors().antenna_1 = RxNode.signal_level();
+  }
+}
+
+template<class flight_controller_t, class NoiseType>
+void
+Quadrotor<flight_controller_t, NoiseType>::RxMsgN2(
+  const ConstWirelessNodesPtr& _msg)
+{
+  std::lock_guard<std::mutex> lock(_rx_mutex);
+  this->_RxNodesMsg = _msg;
+  int numRxNodes = _RxNodesMsg->node_size();
+
+  for (int i = 0; i < numRxNodes; ++i) {
+    for (int j = 0; j < numRxNodes; ++j) {
+      gazebo::msgs::WirelessNode RxNode = _RxNodesMsg->node(j);
+      rssi_from_neighbors().name = RxNode.essid();
+      rssi_from_neighbors().antenna_2.at(j) =
+        RxNode.signal_level();
+    }
+  }
+}

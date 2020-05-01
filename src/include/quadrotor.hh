@@ -27,6 +27,9 @@
 #include <ignition/math6/ignition/math/Vector2.hh>
 #include <ignition/math6/ignition/math/Vector3.hh>
 
+#include <gazebo/transport/transport.hh>
+#include <gazebo/msgs/msgs.hh>
+
 struct RSSI
 {
   double antenna_1; /* Value measured on antenna 1*/
@@ -40,6 +43,8 @@ class Quadrotor
 
 public:
   Quadrotor(std::string label);
+
+  using NodePtr = gazebo::transport::NodePtr;
 
   unsigned int id() const;
   std::string name() const;
@@ -122,6 +127,9 @@ public:
 
   void start_controller();
 
+  void RxMsgN1(const ConstWirelessNodesPtr& _msg);
+  void RxMsgN2(const ConstWirelessNodesPtr& _msg);
+  
   Quadrotor(const Quadrotor&);
 
 private:
@@ -172,6 +180,9 @@ private:
 
   mutable std::mutex _orientation_mutex{};
   ignition::math::Quaternion<double> _orientation;
+  mutable std::mutex _rx_mutex{};
+  ConstWirelessNodesPtr& _RxNodesMsg;
+  NodePtr node_;
 };
 
 #include "quadrotor.hxx"
