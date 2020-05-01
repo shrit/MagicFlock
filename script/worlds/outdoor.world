@@ -1,6 +1,5 @@
 <?xml version="1.0" ?>
-
-<sdf version="1.6">
+<sdf version="1.7">
   <world name="default">
     <scene>
       <grid>false</grid>
@@ -71,25 +70,7 @@
     <!-- <!-\-   </pose> -\-> -->
     <!-- <!-\-   <uri>model://ocean</uri> -\-> -->
     <!-- <!-\- </include> -\-> -->
-    
-    <!-- QuadCopters -->
-    <include>
-      <uri>model://iris_1</uri>
-      <pose>3.00 0.00 000 0 0 -0.85</pose>
-    </include>
-    <include>
-      <uri>model://iris_2</uri>
-      <pose>0.00 0.00 0.00 0 0 -0.85</pose>
-    </include>
-    <include>
-      <uri>model://iris_3</uri>
-      <pose>1.50 2.59800 0.00 0 0 -0.85</pose>
-    </include>
-     <include>
-      <uri>model://iris_4</uri>
-      <pose>-1.50 2.59800 0.00 0 0 -0.85</pose>
-    </include>
-    
+  
     <physics name='default_physics' default='0' type='ode'>
       <ode>
         <solver>
