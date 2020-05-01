@@ -36,14 +36,14 @@ then
 fi
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-src_path="/sim/Firmware_10/Firmware/"
+src_path="../lib/Firmware"
 
 build_path=${src_path}/build/px4_sitl_default
 mavlink_udp_port=14560
 mavlink_tcp_port=4560
-world="empty"
+world="outdoor"
 
-projet_path=/meta/lemon/script/
+project_path=/meta/lemon/script
 
 echo "killing running instances"
 pkill -x px4 || true
@@ -53,7 +53,7 @@ sleep 1
 source ${src_path}/Tools/setup_gazebo.bash ${src_path} ${src_path}/build/px4_sitl_default
 
 echo "Starting gazebo"
-gzserver ${src_path}/Tools/sitl_gazebo/worlds/${world}.world --verbose &
+gzserver ${project_path}/worlds/${world}.world --verbose &
 sleep 5
 
 n=0
@@ -65,13 +65,13 @@ while [ $n -lt $num_vehicles ]; do
 	echo "starting instance $n in $(pwd)"
 	../bin/px4 -i $n -d "$src_path/ROMFS/px4fmu_common" -w sitl_${PX4_SIM_MODEL}_${n} -s etc/init.d-posix/rcS >out.log 2>err.log &
 
-	python3 ${projet_path}/xacro.py ${projet_path}/rotors_description/urdf/${PX4_SIM_MODEL}_base.xacro \
-		rotors_description_dir:=${projet_path}/rotors_description mavlink_udp_port:=$(($mavlink_udp_port+$n))\
-		mavlink_tcp_port:=$(($mavlink_tcp_port+$n))  -o ${projet_path}/sdf/${PX4_SIM_MODEL}_${n}.urdf
+	python3 ${project_path}/xacro.py ${project_path}/rotors_description/urdf/${PX4_SIM_MODEL}_base.xacro \
+		rotors_description_dir:=${project_path}/rotors_description mavlink_udp_port:=$(($mavlink_udp_port+$n))\
+		mavlink_tcp_port:=$(($mavlink_tcp_port+$n)) enable_lockstep:=$((0))  -o ${project_path}/sdf/${PX4_SIM_MODEL}_${n}.urdf
 
-	gz sdf -p  ${projet_path}/sdf/${PX4_SIM_MODEL}_${n}.urdf > ${projet_path}/sdf/${PX4_SIM_MODEL}_${n}.sdf
-	sed -i "345 r ${projet_path}/sdf/wireless.sdf" ${projet_path}/sdf/${PX4_SIM_MODEL}_${n}.sdf
-	sed -i -e "s/osrf/${PX4_SIM_MODEL}_${n}/g"  ${projet_path}/sdf/${PX4_SIM_MODEL}_${n}.sdf
+	gz sdf -p  ${project_path}/sdf/${PX4_SIM_MODEL}_${n}.urdf > ${project_path}/sdf/${PX4_SIM_MODEL}_${n}.sdf
+	sed -i "345 r ${project_path}/sdf/wireless.sdf" ${project_path}/sdf/${PX4_SIM_MODEL}_${n}.sdf
+	sed -i -e "s/osrf/${PX4_SIM_MODEL}_${n}/g"  ${project_path}/sdf/${PX4_SIM_MODEL}_${n}.sdf
 
 	echo "Spawning ${PX4_SIM_MODEL}_${n}"
 
@@ -85,4 +85,4 @@ done
 trap "cleanup" SIGINT SIGTERM EXIT
 
 echo "Starting gazebo client"
-gzclient
+gzclient --verbose
