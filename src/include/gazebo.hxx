@@ -110,16 +110,19 @@ Gazebo<QuadrotorType>::TimeMsg(ConstWorldStatisticsPtr& msg)
 
 template<class QuadrotorType>
 void
-Gazebo<QuadrotorType>::start_simulation(int n)
+Gazebo<QuadrotorType>::start_simulation(std::string path_script,
+                                        int n,
+                                        std::string type)
 {
   int p = fork();
   if (p == 0) { // Child
     char* const bash = (char*)"/bin/bash";
-    char* const script = (char*)"../script/gazebo_sitl_multiple_run.sh";
+    char* const script = &path_script[0];
+    char* const typ = &type[0];
     char num[16];
     strcpy(num, std::to_string(n).c_str());
 
-    char* const argv[] = { bash, script, "-n", num, "-m", "iris", NULL };
+    char* const argv[] = { bash, script, "-n", num, "-m", typ, NULL };
 
     execv(bash, argv);
 

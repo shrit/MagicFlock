@@ -36,7 +36,6 @@ main(int argc, char* argv[])
 
   using QuadrotorType = Quadrotor<Px4Device, GaussianNoise<arma::vec>>;
 
-
   /*  Create a vector of quadrotors, each one has an id + a label  */
   std::vector<std::shared_ptr<QuadrotorType>> quadrotors;
   // quadrotors.emplace_back("leader");
@@ -48,12 +47,11 @@ main(int argc, char* argv[])
   /*  Gazebo simulator */ 
   std::shared_ptr<Gazebo<QuadrotorType>> gz =
     std::make_shared<Gazebo<QuadrotorType>>(argc, argv, quadrotors);
-
+  gz->start_simulation("/meta/lemon/script/gazebo_sitl_multiple_run.sh", 4, "iris");
   gz->subsPosTimeTopic();
   gz->subRxTopic();
   gz->pubModelReset();
-  gz->spawn(
-        quadrotors, "config/gazebo/models/x340/x340.sdf", "config/models/x340/rcS");
+
   /* Wait for 10 seconds, Just to finish subscribe to
    * gazebo topics */
   std::this_thread::sleep_for(std::chrono::seconds(10));
