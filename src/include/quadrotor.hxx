@@ -572,8 +572,8 @@ Quadrotor<flight_controller_t, NoiseType>::RxMsgN1(
 
   for (int i = 0; i < numRxNodes; ++i) {
     gazebo::msgs::WirelessNode RxNode = _msg->node(i);
-    rssi_from_neighbors().name = RxNode.essid();
-    rssi_from_neighbors().antenna_1 = RxNode.signal_level();
+    rssi_from_neighbors().at(i).name = RxNode.essid();
+    rssi_from_neighbors().at(i).antenna_1 = RxNode.signal_level();
   }
 }
 
@@ -587,8 +587,8 @@ Quadrotor<flight_controller_t, NoiseType>::RxMsgN2(
 
   for (int i = 0; i < numRxNodes; ++i) {
       gazebo::msgs::WirelessNode RxNode = _msg->node(i);
-      rssi_from_neighbors().name = RxNode.essid();
-      rssi_from_neighbors().antenna_2.at(i) = RxNode.signal_level();
+      rssi_from_neighbors().at(i).name = RxNode.essid();
+      rssi_from_neighbors().at(i).antenna_2 = RxNode.signal_level();
   }
 }
 

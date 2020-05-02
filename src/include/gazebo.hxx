@@ -57,7 +57,7 @@ Gazebo<QuadrotorType>::ResetModels()
       msg.set_reset(true);
       it->Publish(msg);
     } else {
-      ILMR::logger::logger->error(
+      ILMR::logger::logger_->error(
         "NO Connection from the subscriber to reset the model");
     }
   }
@@ -72,7 +72,7 @@ Gazebo<QuadrotorType>::PosMsg(ConstPosesStampedPtr& posesStamped)
     const ::gazebo::msgs::Pose& pose = posesStamped->pose(i);
     std::string name = pose.name();
     for (std::size_t j = 0; j < quadrotors_.size(); ++j) {
-      if (name == std::string(quadrotors_.at(j)->names())) {
+      if (name == std::string(quadrotors_.at(j)->name())) {
         const ::gazebo::msgs::Vector3d& position = pose.position();
         quadrotors_.at(j)->position() = ::gazebo::msgs::ConvertIgn(position);
 
@@ -80,7 +80,7 @@ Gazebo<QuadrotorType>::PosMsg(ConstPosesStampedPtr& posesStamped)
         quadrotors_.at(j)->orientation() =
           ::gazebo::msgs::ConvertIgn(orientation);
 
-      } else if (name = std::string(quadrotors_.at(j)->wt_name())) {
+      } else if (name == std::string(quadrotors_.at(j)->wt_name())) {
         const ::gazebo::msgs::Vector3d& position = pose.position();
         quadrotors_.at(j)->wt_antenna_position() =
           ::gazebo::msgs::ConvertIgn(position);
