@@ -52,7 +52,6 @@ public:
          std::vector<std::shared_ptr<QuadrotorType>> quadrotors);
 
   void subsPosTimeTopic();
-  template<class flight_controller_t, class NoiseType>
   void subRxTopic();
   void pubModelReset();
   void ResetModels();

@@ -27,8 +27,8 @@
 #include <ignition/math6/ignition/math/Vector2.hh>
 #include <ignition/math6/ignition/math/Vector3.hh>
 
-#include <gazebo/transport/transport.hh>
 #include <gazebo/msgs/msgs.hh>
+#include <gazebo/transport/transport.hh>
 
 struct RSSI
 {
@@ -45,6 +45,7 @@ public:
   Quadrotor(std::string label);
 
   using NodePtr = gazebo::transport::NodePtr;
+  using SubPtr = gazebo::transport::SubscriberPtr;
 
   unsigned int id() const;
   std::string name() const;
@@ -97,6 +98,7 @@ public:
   std::vector<Actions::Action> all_actions() const;
   void reset_all_actions();
   double height();
+  void subRxTopic();
 
   /*  Data set related functions */
   void register_data_set();
@@ -121,15 +123,19 @@ public:
   std::string wireless_receiver_1_topic_name();
   std::string wireless_receiver_2_topic_name();
   std::string wireless_transmitter_topic_name();
+  std::string wr_1_name(); /* Wireless antenna name */
+  std::string wr_2_name();
+  std::string wt_name();
 
   std::string port_number();
   std::shared_ptr<flight_controller_t> controller();
+  NodePtr node();
 
   void start_controller();
 
   void RxMsgN1(const ConstWirelessNodesPtr& _msg);
   void RxMsgN2(const ConstWirelessNodesPtr& _msg);
-  
+
   Quadrotor(const Quadrotor&);
 
 private:
@@ -139,7 +145,7 @@ private:
   Actions::Action before_2_last_action_{ Actions::Action::Unknown };
   std::vector<Actions::Action> all_actions_;
   std::vector<Actions::Action> action_container_;
-
+  std::vector<SubPtr> subs_;
   ComputeDistance dist_;
   VectorHelper vec_;
   OneHotEncoding encode_;
@@ -180,8 +186,8 @@ private:
 
   mutable std::mutex _orientation_mutex{};
   ignition::math::Quaternion<double> _orientation;
-  mutable std::mutex _rx_mutex{};
-  ConstWirelessNodesPtr& _RxNodesMsg;
+  mutable std::mutex _rx_1_mutex{};
+  mutable std::mutex _rx_2_mutex{};  
   NodePtr node_;
 };
 

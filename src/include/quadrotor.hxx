@@ -540,18 +540,38 @@ Quadrotor<flight_controller_t, NoiseType>::controller()
   return controller_;
 }
 
+template<class flight_controller_t, class NoiseType>
+std::string
+Quadrotor<flight_controller_t, NoiseType>::wt_name()
+{
+  return name() + "::wireless_transmitter::link";
+}
+
+template<class flight_controller_t, class NoiseType>
+std::string
+Quadrotor<flight_controller_t, NoiseType>::wr_1_name()
+{
+  return name() + "::wireless_receiver_1::link";
+}
+
+template<class flight_controller_t, class NoiseType>
+std::string
+Quadrotor<flight_controller_t, NoiseType>::wr_2_name()
+{
+  return name() + "::wireless_receiver_2::link";
+}
+
 /*  Parsing the RSSI send by Gazebo */
 template<class flight_controller_t, class NoiseType>
 void
 Quadrotor<flight_controller_t, NoiseType>::RxMsgN1(
   const ConstWirelessNodesPtr& _msg)
 {
-  std::lock_guard<std::mutex> lock(_rx_mutex);
-  this->_RxNodesMsg = _msg;
-  int numRxNodes = _RxNodesMsg->node_size();
+  std::lock_guard<std::mutex> lock(_rx_1_mutex);
+  int numRxNodes = _msg->node_size();
 
   for (int i = 0; i < numRxNodes; ++i) {
-    gazebo::msgs::WirelessNode RxNode = _RxNodesMsg->node(i);
+    gazebo::msgs::WirelessNode RxNode = _msg->node(i);
     rssi_from_neighbors().name = RxNode.essid();
     rssi_from_neighbors().antenna_1 = RxNode.signal_level();
   }
@@ -562,16 +582,34 @@ void
 Quadrotor<flight_controller_t, NoiseType>::RxMsgN2(
   const ConstWirelessNodesPtr& _msg)
 {
-  std::lock_guard<std::mutex> lock(_rx_mutex);
-  this->_RxNodesMsg = _msg;
-  int numRxNodes = _RxNodesMsg->node_size();
+  std::lock_guard<std::mutex> lock(_rx_2_mutex);
+  int numRxNodes = _msg->node_size();
 
   for (int i = 0; i < numRxNodes; ++i) {
-    for (int j = 0; j < numRxNodes; ++j) {
-      gazebo::msgs::WirelessNode RxNode = _RxNodesMsg->node(j);
+      gazebo::msgs::WirelessNode RxNode = _msg->node(i);
       rssi_from_neighbors().name = RxNode.essid();
-      rssi_from_neighbors().antenna_2.at(j) =
-        RxNode.signal_level();
-    }
+      rssi_from_neighbors().antenna_2.at(i) = RxNode.signal_level();
   }
 }
+
+template<class flight_controller_t, class NoiseType>
+gazebo::transport::NodePtr
+Quadrotor<flight_controller_t, NoiseType>::node()
+{
+  return node_;
+}
+
+template<class flight_controller_t, class NoiseType>
+void
+Quadrotor<flight_controller_t, NoiseType>::subRxTopic()
+{
+  std::string topic_WR_1 = wireless_receiver_1_topic_name();
+  subs_.push_back(node_->Subscribe(
+    topic_WR_1, &Quadrotor<flight_controller_t, NoiseType>::RxMsgN1, this));
+
+  std::string topic_WR_2 = wireless_receiver_2_topic_name();
+  subs_.push_back(node_->Subscribe(
+    topic_WR_2, &Quadrotor<flight_controller_t, NoiseType>::RxMsgN2, this));
+}
+
+

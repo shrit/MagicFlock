@@ -28,21 +28,12 @@ Gazebo<QuadrotorType>::subsPosTimeTopic()
  * implmentation would be possible for each quadrotor to receive data from each
  * rxnode.
  */
-
 template<class QuadrotorType>
-template<class flight_controller_t, class NoiseType>
 void
 Gazebo<QuadrotorType>::subRxTopic()
 {
   for (auto it : quadrotors_) {
-    std::string topic_WR_1 = it->wireless_receiver_1_topic_name();
-
-    subs_.push_back(it->node_->Subscribe(
-      topic_WR_1, &Quadrotor<flight_controller_t, NoiseType>::RxMsgN1, it));
-
-    std::string topic_WR_2 = it->wireless_receiver_2_topic_name();
-    subs_.push_back(it->node_->Subscribe(
-      topic_WR_2, &Quadrotor<flight_controller_t, NoiseType>::RxMsgN2, it));
+    it->subRxTopic();
   }
 }
 
@@ -63,7 +54,7 @@ Gazebo<QuadrotorType>::ResetModels()
   for (auto it : pubs_) {
     if (it->WaitForConnection(5)) {
       reset_model_msg::msg::ResetModel msg;
-      gazebo::msgs::Set(&msg, true);
+      msg.set_reset(true);
       it->Publish(msg);
     } else {
       ILMR::logger::logger->error(
