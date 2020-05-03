@@ -1,8 +1,10 @@
 #pragma once
 
 template<class flight_controller_t, class NoiseType>
-Quadrotor<flight_controller_t, NoiseType>::Quadrotor(std::string label)
-  : label_(label)
+Quadrotor<flight_controller_t, NoiseType>::Quadrotor(unsigned int id, std::string name, std::string label)
+  :id_(id)
+  , name_(name)
+  , label_(label)
   , node_(new gazebo::transport::Node())
 {
   data_set_.init_dataset_directory();

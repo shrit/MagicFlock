@@ -42,7 +42,7 @@ class Quadrotor
 {
 
 public:
-  Quadrotor(std::string label);
+  Quadrotor(unsigned int id, std::string name, std::string label);
 
   using NodePtr = gazebo::transport::NodePtr;
   using SubPtr = gazebo::transport::SubscriberPtr;
