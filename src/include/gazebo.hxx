@@ -114,6 +114,7 @@ Gazebo<QuadrotorType>::start_simulation(std::string path_script,
                                         int n,
                                         std::string type)
 {
+  ILMR::logger::logger_->info("Starting simulator and PX4 instances...");
   int p = fork();
   if (p == 0) { // Child
     char* const bash = (char*)"/bin/bash";

@@ -44,10 +44,11 @@ main(int argc, char* argv[])
   // quadrotors.emplace_back("leader_2");
   /*  Add neighbors list -> Variadic template by label*/
 
-  /*  Gazebo simulator */ 
+  /*  Gazebo simulator */
   std::shared_ptr<Gazebo<QuadrotorType>> gz =
     std::make_shared<Gazebo<QuadrotorType>>(argc, argv, quadrotors);
-  gz->start_simulation("/meta/lemon/script/gazebo_sitl_multiple_run.sh", 4, "iris");
+  gz->start_simulation(
+    "/meta/lemon/script/gazebo_sitl_multiple_run.sh", 4, "iris");
   gz->subsPosTimeTopic();
   gz->subRxTopic();
   gz->pubModelReset();
@@ -55,6 +56,9 @@ main(int argc, char* argv[])
   /* Wait for 10 seconds, Just to finish subscribe to
    * gazebo topics */
   std::this_thread::sleep_for(std::chrono::seconds(10));
+  ILMR::logger::logger_->info(
+    "Communciation established with simulator"); 
+
   /*  Generate a dataset  */
   // Generator<QuadrotorType> generator(quadrotors, logger);
   // generator.run();

@@ -36,7 +36,7 @@ then
 fi
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-src_path="../lib/Firmware"
+src_path="/meta/lemon/lib/Firmware"
 
 build_path=${src_path}/build/px4_sitl_default
 mavlink_udp_port=14560
@@ -75,7 +75,7 @@ while [ $n -lt $num_vehicles ]; do
 
 	echo "Spawning ${PX4_SIM_MODEL}_${n}"
 
-	gz model --spawn-file=../sdf/${PX4_SIM_MODEL}_${n}.sdf --model-name=${PX4_SIM_MODEL}_${n} -x 0.0 -y $((3*${n})) -z 0.0
+	gz model --spawn-file=${project_path}/sdf/${PX4_SIM_MODEL}_${n}.sdf --model-name=${PX4_SIM_MODEL}_${n} -x 0.0 -y $((3*${n})) -z 0.0
 
 	popd &>/dev/null
 
