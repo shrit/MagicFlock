@@ -42,22 +42,10 @@ SwarmDevice<QuadrotorType>::arm()
 {
   std::vector<bool> results(quads_.size(), false);
   std::vector<std::thread> threads;
-
-  threads.push_back(std::thread([&]() {
-    results.at(0) = quads_.at(0).controller()->arm();
-  }));
-
-  threads.push_back(std::thread([&]() {
-    results.at(1) = quads_.at(1).controller()->arm();
-  }));
-
-  threads.push_back(std::thread([&]() {
-    results.at(2) = quads_.at(2).controller()->arm();
-  }));
-
-  threads.push_back(std::thread([&]() {
-    results.at(3) = quads_.at(3).controller()->arm();
-  }));
+  for (std::size_t i = 0; i < quads_.size(); ++i) {
+    threads.push_back(
+      std::thread([&]() { results.at(i) = quads_.at(i).controller()->arm(); }));
+  }
 
   for (auto& thread : threads) {
     thread.join();
@@ -104,21 +92,11 @@ SwarmDevice<QuadrotorType>::start_offboard_mode()
 {
   std::vector<std::thread> threads;
   std::vector<bool> results(quads_.size(), false);
-  threads.push_back(std::thread([&]() {
-    results.at(0) = quads_.at(0).controller()->start_offboard_mode();
-  }));
-
-  threads.push_back(std::thread([&]() {
-    results.at(1) = quads_.at(1).controller()->start_offboard_mode();
-  }));
-
-  threads.push_back(std::thread([&]() {
-    results.at(2) = quads_.at(2).controller()->start_offboard_mode();
-  }));
-
-  threads.push_back(std::thread([&]() {
-    results.at(3) = quads_.at(3).controller()->start_offboard_mode();
-  }));
+  for (std::size_t i = 0; i < quads_.size(); ++i) {
+    threads.emplace_back(std::thread([&]() {
+      results.at(i) = quads_.at(i).controller()->start_offboard_mode();
+    }));
+  }
 
   for (auto& thread : threads) {
     thread.join();
@@ -150,17 +128,10 @@ SwarmDevice<QuadrotorType>::takeoff(float meters)
 {
   std::vector<std::thread> threads;
   std::vector<bool> results(quads_.size(), false);
-  threads.push_back(std::thread(
-    [&]() { results.at(0) = quads_.at(0).controller()->takeoff(meters); }));
-
-  threads.push_back(std::thread(
-    [&]() { results.at(1) = quads_.at(1).controller()->takeoff(meters); }));
-
-  threads.push_back(std::thread(
-    [&]() { results.at(2) = quads_.at(2).controller()->takeoff(meters); }));
-
-  threads.push_back(std::thread(
-    [&]() { results.at(3) = quads_.at(3).controller()->takeoff(meters); }));
+  for (std::size_t i = 0; i < quads_.size(); ++i) {
+    threads.emplace_back(std::thread(
+      [&]() { results.at(i) = quads_.at(i).controller()->takeoff(meters); }));
+  }
 
   for (auto& thread : threads) {
     thread.join();
@@ -191,23 +162,18 @@ SwarmDevice<QuadrotorType>::land()
 {
   bool land = true;
   std::vector<std::thread> threads;
-
-  threads.push_back(
-    std::thread([&]() { land = quads_.at(0).controller()->land(); }));
-
-  threads.push_back(
-    std::thread([&]() { land = quads_.at(1).controller()->land(); }));
-
-  threads.push_back(
-    std::thread([&]() { land = quads_.at(2).controller()->land(); }));
-
-  threads.push_back(
-    std::thread([&]() { land = quads_.at(3).controller()->land(); }));
+  std::vector<bool> results(quads_.size(), false);
+  for (std::size_t i = 0; i < quads_.size(); ++i) {
+    threads.emplace_back(std::thread(
+      [&]() { results.at(i) = quads_.at(i).controller()->land(); }));
+  }
 
   for (auto& thread : threads) {
     thread.join();
   }
-  if (!land)
+  if (std::any_of(results.begin(), results.end(), [](bool value) {
+        return value == false;
+      }))
     return false;
 
   return true;
