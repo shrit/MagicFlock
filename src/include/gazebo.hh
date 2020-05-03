@@ -47,10 +47,9 @@ public:
   using PubPtr = gazebo::transport::PublisherPtr;
   using NodePtr = gazebo::transport::NodePtr;
 
-  Gazebo(int argc,
-         char* argv[],
-         std::vector<std::shared_ptr<QuadrotorType>> quadrotors);
+  Gazebo(std::vector<std::shared_ptr<QuadrotorType>> quadrotors);
 
+  void Setup(int argc, char* argv[]);
   void subsPosTimeTopic();
   void subRxTopic();
   void pubModelReset();

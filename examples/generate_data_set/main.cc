@@ -25,7 +25,6 @@
 /*
  *  Main file: Start generating dataset
  */
-
 int
 main(int argc, char* argv[])
 {
@@ -36,30 +35,28 @@ main(int argc, char* argv[])
 
   using QuadrotorType = Quadrotor<Px4Device, GaussianNoise<arma::vec>>;
 
+  logger->info("Create quadrotors objects");
   /*  Create a vector of quadrotors, each one has an id + a label  */
   std::vector<std::shared_ptr<QuadrotorType>> quadrotors;
-  // quadrotors.emplace_back("leader");
-  // quadrotors.emplace_back("follower_1");
-  // quadrotors.emplace_back("follower_2");
-  // quadrotors.emplace_back("leader_2");
-  /*  Add neighbors list -> Variadic template by label*/
 
   /*  Gazebo simulator */
   std::shared_ptr<Gazebo<QuadrotorType>> gz =
-    std::make_shared<Gazebo<QuadrotorType>>(argc, argv, quadrotors);
+    std::make_shared<Gazebo<QuadrotorType>>(quadrotors);
   gz->start_simulation(
     "/meta/lemon/script/gazebo_sitl_multiple_run.sh", 4, "iris");
+  gz->Setup(argc, argv);
   gz->subsPosTimeTopic();
   gz->subRxTopic();
   gz->pubModelReset();
 
   /* Wait for 10 seconds, Just to finish subscribe to
    * gazebo topics */
-  std::this_thread::sleep_for(std::chrono::seconds(10));
+  std::this_thread::sleep_for(std::chrono::seconds(60));
   ILMR::logger::logger_->info(
     "Communciation established with simulator"); 
 
   /*  Generate a dataset  */
   // Generator<QuadrotorType> generator(quadrotors, logger);
   // generator.run();
+  return 0;
 }

@@ -2,11 +2,15 @@
 
 template<class QuadrotorType>
 Gazebo<QuadrotorType>::Gazebo(
-  int argc,
-  char* argv[],
   std::vector<std::shared_ptr<QuadrotorType>> quadrotors)
   : node_(new gazebo::transport::Node())
   , quadrotors_(quadrotors)
+{}
+
+/* Need to be called after start_simulation*/
+template<class QuadrotorType>
+void
+Gazebo<QuadrotorType>::Setup(int argc, char* argv[])
 {
   gazebo::client::setup(argc, argv);
   node_->Init();
