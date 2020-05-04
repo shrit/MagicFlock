@@ -10,6 +10,7 @@ Quadrotor<flight_controller_t, NoiseType>::Quadrotor(unsigned int id, std::strin
   data_set_.init_dataset_directory();
   node_->Init();
   rt_samples_ = std::make_shared<RTSamples>();
+  port_number_= std::to_string(1454) +std::to_string(id);
 }
 
 template<class flight_controller_t, class NoiseType>
@@ -529,10 +530,16 @@ Quadrotor<flight_controller_t, NoiseType>::wireless_transmitter_topic_name()
 
 template<class flight_controller_t, class NoiseType>
 std::string
+Quadrotor<flight_controller_t, NoiseType>::port_number() const
+{
+  return port_number_;
+}
+
+template<class flight_controller_t, class NoiseType>
+std::string&
 Quadrotor<flight_controller_t, NoiseType>::port_number()
 {
-  return "1454" +
-         name().back(); // This one can parsed from sdf file if required
+  return port_number_;
 }
 
 template<class flight_controller_t, class NoiseType>

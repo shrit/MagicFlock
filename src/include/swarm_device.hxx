@@ -43,8 +43,8 @@ SwarmDevice<QuadrotorType>::arm()
   std::vector<bool> results(quads_.size(), false);
   std::vector<std::thread> threads;
   for (std::size_t i = 0; i < quads_.size(); ++i) {
-    threads.push_back(
-      std::thread([&]() { results.at(i) = quads_.at(i)->controller()->arm(); }));
+    threads.emplace_back(std::thread(
+      [&]() { results.at(i) = quads_.at(i)->controller()->arm(); }));
   }
 
   for (auto& thread : threads) {

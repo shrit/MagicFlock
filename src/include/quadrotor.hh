@@ -127,7 +127,9 @@ public:
   std::string wr_2_name();
   std::string wt_name();
 
-  std::string port_number();
+  std::string port_number() const;
+  std::string& port_number();  
+  
   std::shared_ptr<flight_controller_t> controller();
   NodePtr node();
 
@@ -189,6 +191,7 @@ private:
   mutable std::mutex _rx_1_mutex{};
   mutable std::mutex _rx_2_mutex{};  
   NodePtr node_;
+  std::string port_number_;
 };
 
 #include "quadrotor.hxx"

@@ -3,7 +3,7 @@
 Px4Device::Px4Device(std::string socket, std::string port)
 {
   std::string connection_url = socket + "://:" + port;
-
+  logger::logger_->debug("connection_url: {}", connection_url);
   connect_to_quad(connection_url);
   discover_system();
   System& system = mavsdk_.system();
@@ -384,6 +384,7 @@ Px4Device::turnToRight()
 bool
 Px4Device::arm()
 {
+  logger::logger_->debug("Arming...");
   Action::Result arm_result = action_->arm();
   if (arm_result != Action::Result::SUCCESS) {
     logger::logger_->error("Arming failed: {}", Action::result_str(arm_result));
