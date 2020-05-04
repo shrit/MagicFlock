@@ -63,7 +63,7 @@ while [ $n -lt $num_vehicles ]; do
 
 	pushd "$working_dir" &>/dev/null
 	echo "starting instance $n in $(pwd)"
-	../bin/px4 -i $n -d "$src_path/ROMFS/px4fmu_common" -w sitl_${PX4_SIM_MODEL}_${n} -s etc/init.d-posix/rcS >out.log 2>err.log &
+	${src_path}/build/px4_sitl_default/bin/px4 -i $n -d "$src_path/ROMFS/px4fmu_common" -w sitl_${PX4_SIM_MODEL}_${n} -s etc/init.d-posix/rcS >out.log 2>err.log &
 
 	python3 ${project_path}/xacro.py ${project_path}/rotors_description/urdf/${PX4_SIM_MODEL}_base.xacro \
 		rotors_description_dir:=${project_path}/rotors_description mavlink_udp_port:=$(($mavlink_udp_port+$n))\
