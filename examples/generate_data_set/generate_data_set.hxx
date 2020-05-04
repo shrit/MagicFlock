@@ -2,7 +2,7 @@
 
 template<class QuadrotorType>
 Generator<QuadrotorType>::Generator(
-  const std::vector<QuadrotorType>& quadrotors,
+  std::vector<std::shared_ptr<QuadrotorType>> quadrotors,
   std::shared_ptr<spdlog::logger> logger)
   : episode_(0)
   , max_episode_(10000)
@@ -10,43 +10,38 @@ Generator<QuadrotorType>::Generator(
   , swarm_(quadrotors)
   , quadrotors_(quadrotors)
   , logger_(logger)
-{
-  /*  Allow easier access and debugging to all quadrotors state */
-  leader_ = quadrotors_.begin();
-  follower_1_ = std::next(quadrotors_.begin(), 1);
-  follower_2_ = std::next(quadrotors_.begin(), 2);
-  leader_2_ = std::next(quadrotors_.begin(), 3);
-}
+{}
 
 /*  Phase one: Data Set generation */
 template<class QuadrotorType>
 void
 Generator<QuadrotorType>::generate_trajectory()
 {
-  std::vector<std::thread> threads;
+  //  std::vector<std::thread> threads;
+
   /*  Do not allow follower to move, at this time step,
         block the follower and log not move*/
 
   /*  Threading Quadrotors */
-  threads.push_back(std::thread([&]() {
+  // threads.push_back(std::thread([&]() {
 
-  }));
+  // }));
 
-  /*  Threading Quadrotors */
-  threads.push_back(std::thread([&]() {
+  // /*  Threading Quadrotors */
+  // threads.push_back(std::thread([&]() {
 
-  }));
+  // }));
 
-  /* Get the next state at time t + 1  */
-  logger_->info("Sampling states at t +1");
+  // /* Get the next state at time t + 1  */
+  // logger_->info("Sampling states at t +1");
 
-  threads.push_back(std::thread([&]() {}));
+  // threads.push_back(std::thread([&]() {}));
 
-  threads.push_back(std::thread([&]() {}));
+  // threads.push_back(std::thread([&]() {}));
 
-  for (auto& thread : threads) {
-    thread.join();
-  }
+  // for (auto& thread : threads) {
+  //   thread.join();
+  // }
 }
 
 template<class QuadrotorType>
@@ -68,44 +63,46 @@ Generator<QuadrotorType>::run()
       /*  Verify that vectors are clear when starting new episode */
       logger_->info("Taking off has finished. Start generating trajectories");
       time_steps_.reset();
-      while (start_episode_) {
-        generate_trajectory();
+      //    while (start_episode_) {
+      //    generate_trajectory();
 
-        leader_->reset_all_actions();
-        follower_1_->register_data_set();
-        follower_2_->register_data_set();
+      // leader_->reset_all_actions();
+      // follower_1_->register_data_set();
+      // follower_2_->register_data_set();
 
-        follower_1_->register_episodes(episode_);
+      // follower_1_->register_episodes(episode_);
 
-        /*  Check the geometrical shape */
-        std::vector<bool> shapes;
-        for (auto it : quadrotors_) {
-          shapes.push_back(it.examin_geometric_shape());
-        }
-        if (std::any_of(shapes.begin(), shapes.end(), [](const bool& shape) {
-              if (!shape)
-                return true;
-              else
-                return false;
-            })) {
-          logger_->info("The geometrical figure is no longer conserved");
-          break;
-        }
-        time_steps_.tic();
-        logger_->flush();
-      }
+      /*  Check the geometrical shape */
+      //     std::vector<bool> shapes;
+      //     for (auto it : quadrotors_) {
+      //       shapes.push_back(it.examin_geometric_shape());
+      //     }
+      //     if (std::any_of(shapes.begin(), shapes.end(), [](const bool&
+      //     shape) {
+      //           if (!shape)
+      //             return true;
+      //           else
+      //             return false;
+      //         })) {
+      //       logger_->info("The geometrical figure is no longer conserved");
+      //       break;
+      //     }
+      //     time_steps_.tic();
+      //     logger_->flush();
+      //   }
+      // }
+      // /*  Save a version of the time steps to create a histogram */
+      // follower_1_->register_histogram(time_steps_.steps());
+      // follower_2_->register_histogram(time_steps_.steps());
+
+      /* Landing is blocking untill touching the ground*/
+      swarm_.land();
+      std::string flight_time = timer_.stop_and_get_time();
+      logger_->info("Flight time: {}", flight_time);
     }
-    /*  Save a version of the time steps to create a histogram */
-    follower_1_->register_histogram(time_steps_.steps());
-    follower_2_->register_histogram(time_steps_.steps());
-
-    /* Landing is blocking untill touching the ground*/
-    swarm_.land();
-    std::string flight_time = timer_.stop_and_get_time();
-    logger_->info("Flight time: {}", flight_time);
 
     /* Resetting the entire swarm after the end of each episode*/
-    leader_->reset_models();
+    // leader_->reset_models();
 
     logger_->info("All quadrotors have been reset...");
 
@@ -129,7 +126,7 @@ Generator<QuadrotorType>::run()
      * accelerometer values without any problems!
      */
 
-    /*  I have quite tested a lot of different solution. Frankly, if I am going
-     * to find a better one, I will replace it directly. */
+    /*  I have quite tested a lot of different solution. Frankly, if I am
+     * going to find a better one, I will replace it directly. */
   }
 }
