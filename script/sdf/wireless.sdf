@@ -7,7 +7,15 @@
     <pose relative_to='WT_joint'>0 0 -0.020 0 -0 0</pose>
     <inertial>
      <mass>0.01</mass>
-    </inertial>
+        <inertia>
+          <ixx>0.963796e-6</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.963796e-6</iyy>
+          <iyz>0</iyz>
+          <izz>2e-8</izz>
+        </inertia> 
+     </inertial>
    <visual name="antenna">
      <pose>0 0 .04 0 0 0</pose>
      <geometry>
@@ -37,16 +45,24 @@
      </transceiver>
    </sensor>
    </link>
-   <joint name="WR_joint" type="fixed">
+   <joint name="WR_1_joint" type="fixed">
       <pose relative_to='base_link'>-0.135 -0.17 0 0 0 -0 0 </pose>
-      <child>WR</child>
+      <child>WR_1</child>
       <parent>base_link</parent>
     </joint>
-    <link name="WR">
-      <pose relative_to='WR_joint'>0 0 0 0 -0 0</pose>
+    <link name="WR_1">
+      <pose relative_to='WR_1_joint'>0 0 0 0 -0 0</pose>
      <inertial>
       <mass>0.01</mass>
-      </inertial>
+        <inertia>
+         <ixx>0.963796e-6</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.963796e-6</iyy>
+          <iyz>0</iyz>
+          <izz>2e-8</izz>
+        </inertia>
+     </inertial>
     <visual name="antenna">
     <pose>0 0 -0.020 0 -0 0</pose>
       <geometry>
@@ -77,15 +93,23 @@
       </transceiver>
     </sensor>
   </link>
-   <joint name="WR_1_joint" type="fixed">
+   <joint name="WR_2_joint" type="fixed">
       <pose relative_to='base_link'>0.115 0.17 0 0 0 -0 0 </pose>
-      <child>WR_1</child>
+      <child>WR_2</child>
       <parent>base_link</parent>
     </joint>
-    <link name="WR_1">
-      <pose relative_to='WR_1_joint'>0 0 0 0 -0 0</pose>
+    <link name="WR_2">
+      <pose relative_to='WR_2_joint'>0 0 0 0 -0 0</pose>
      <inertial>
       <mass>0.01</mass>
+        <inertia>
+         <ixx>0.963796e-6</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.963796e-6</iyy>
+          <iyz>0</iyz>
+          <izz>2e-8</izz>
+        </inertia>
       </inertial>
     <visual name="antenna">
     <pose>0 0 -0.020 0 -0 0</pose>
