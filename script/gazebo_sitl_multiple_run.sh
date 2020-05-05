@@ -85,4 +85,4 @@ done
 trap "cleanup" SIGINT SIGTERM EXIT
 
 echo "Starting gazebo client"
-gzclient --verbose
+gzclient > /dev/null 2>&1
