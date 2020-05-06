@@ -22,6 +22,9 @@
 #include <ILMR/px4_device.hh>
 #include <ILMR/quadrotor.hh>
 
+/*  CLI11 library headers */
+#include <CLI/CLI.hpp>
+
 /*
  *  Main file: Start generating dataset
  */
@@ -33,14 +36,30 @@ main(int argc, char* argv[])
   ILMR::logger::create_library_logger(logger);
   spdlog::set_level(spdlog::level::debug);
 
-  std::size_t num_of_quads = 5;
+  CLI::App app{
+    "This example shows how to use the library to generate dataset. "
+    "This example requires to specify the number of quadrotors to simulate. "
+    "Generated dataset are saved in a dataset folder which contains dataset "
+    "generated in each run."
+  };
+
+  std::size_t num_of_quads = 3;
+
+  app.add_option("-n, --number_of_quadrotors",
+                 num_of_quads,
+                 " Number of quadrotor to create inside the simulator.");
+  CLI11_PARSE(app, argc, argv);
 
   using QuadrotorType = Quadrotor<Px4Device, GaussianNoise<arma::vec>>;
 
   /*  Create a vector of quadrotors, each one has an id + a label  */
   std::vector<std::shared_ptr<QuadrotorType>> quadrotors;
   for (std::size_t i = 0; i < num_of_quads; ++i) {
-    quadrotors.emplace_back(std::make_shared<QuadrotorType>(i, "iris_" + std::to_string(i), ""));
+    quadrotors.emplace_back(
+      std::make_shared<QuadrotorType>(i, "iris_" + std::to_string(i), ""));
+  }
+  for (std::size_t i = 0; i < num_of_quads; ++i) {
+    logger->info(quadrotors.at(i)->port_number());
   }
 
   /*  Gazebo simulator */
@@ -48,6 +67,10 @@ main(int argc, char* argv[])
     std::make_shared<Gazebo<QuadrotorType>>(quadrotors);
   gz->start_simulation(
     "/meta/lemon/script/gazebo_sitl_multiple_run.sh", num_of_quads, "iris");
+
+  logger->info(
+    "Waiting for 30 seconds until gazebo start and spawining finish");
+  std::this_thread::sleep_for(std::chrono::seconds(30));
   gz->Setup(argc, argv);
   gz->subsPosTimeTopic();
   gz->subRxTopic();
@@ -55,10 +78,13 @@ main(int argc, char* argv[])
 
   /* Wait for 10 seconds, Just to finish subscribe to
    * gazebo topics */
-  logger->info("Waiting for 60 seconds until gazebo start and spawining finish");
-  std::this_thread::sleep_for(std::chrono::seconds(60));
-  ILMR::logger::logger_->info(
-    "Communciation established with simulator"); 
+  std::this_thread::sleep_for(std::chrono::seconds(10));
+
+  ILMR::logger::logger_->info("Communciation established with simulator");
+
+  for (std::size_t i = 0; i < num_of_quads; ++i) {
+    quadrotors.at(i)->start_controller();
+  }
 
   /*  Generate a dataset  */
   Generator<QuadrotorType> generator(quadrotors, logger);

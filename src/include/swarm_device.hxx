@@ -132,7 +132,7 @@ SwarmDevice<QuadrotorType>::takeoff(float meters)
   std::vector<bool> results;
   for (auto it : quads_) {
     threads.emplace_back(std::thread(
-      [&]() { results.emplace_back(it->controller()->takeoff(meters); }));
+      [&]() { results.emplace_back(it->controller()->takeoff(meters)); }));
   }
 
   for (auto& thread : threads) {
