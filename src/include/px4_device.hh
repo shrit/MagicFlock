@@ -36,7 +36,7 @@ using namespace ILMR;
 #define TELEMETRY_CONSOLE_TEXT "\033[34m" // Turn text on console blue
 #define NORMAL_CONSOLE_TEXT "\033[0m"     // Restore normal console colour
 
-class Px4Device
+class Px4Device : public std::enable_shared_from_this<Px4Device>
 {
 public:
   Px4Device(std::string socket, std::string port);
