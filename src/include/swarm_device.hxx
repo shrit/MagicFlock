@@ -40,11 +40,11 @@ template<class QuadrotorType>
 bool
 SwarmDevice<QuadrotorType>::arm()
 {
-  std::vector<bool> results(quads_.size(), false);
   std::vector<std::thread> threads;
-  for (std::size_t i = 0; i < quads_.size(); ++i) {
-    threads.emplace_back(std::thread(
-      [&]() { results.at(i) = quads_.at(i)->controller()->arm(); }));
+  std::vector<bool> results;
+  for (auto it : quads_) {
+    threads.emplace_back(
+      std::thread([&]() { results.emplace_back(it->controller()->arm()); }));
   }
 
   for (auto& thread : threads) {
@@ -74,8 +74,10 @@ template<class QuadrotorType>
 void
 SwarmDevice<QuadrotorType>::init_speed()
 {
+  std::vector<std::thread> threads;
   for (auto it : quads_) {
-    it->controller()->init_speed();
+    threads.emplace_back(
+      std::thread([&]() { it->controller()->init_speed(); }));
   }
 }
 
@@ -91,10 +93,10 @@ bool
 SwarmDevice<QuadrotorType>::start_offboard_mode()
 {
   std::vector<std::thread> threads;
-  std::vector<bool> results(quads_.size(), false);
-  for (std::size_t i = 0; i < quads_.size(); ++i) {
+  std::vector<bool> results;
+  for (auto it : quads_) {
     threads.emplace_back(std::thread([&]() {
-      results.at(i) = quads_.at(i)->controller()->start_offboard_mode();
+      results.emplace_back(it->controller()->start_offboard_mode());
     }));
   }
 
@@ -127,10 +129,10 @@ bool
 SwarmDevice<QuadrotorType>::takeoff(float meters)
 {
   std::vector<std::thread> threads;
-  std::vector<bool> results(quads_.size(), false);
-  for (std::size_t i = 0; i < quads_.size(); ++i) {
+  std::vector<bool> results;
+  for (auto it : quads_) {
     threads.emplace_back(std::thread(
-      [&]() { results.at(i) = quads_.at(i)->controller()->takeoff(meters); }));
+      [&]() { results.emplace_back(it->controller()->takeoff(meters); }));
   }
 
   for (auto& thread : threads) {
@@ -162,10 +164,10 @@ SwarmDevice<QuadrotorType>::land()
 {
   bool land = true;
   std::vector<std::thread> threads;
-  std::vector<bool> results(quads_.size(), false);
-  for (std::size_t i = 0; i < quads_.size(); ++i) {
-    threads.emplace_back(std::thread(
-      [&]() { results.at(i) = quads_.at(i)->controller()->land(); }));
+  std::vector<bool> results;
+  for (auto it : quads_) {
+    threads.emplace_back(
+      std::thread([&]() { results.emplace_back(it->controller()->land()); }));
   }
 
   for (auto& thread : threads) {

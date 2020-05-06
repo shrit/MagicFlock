@@ -128,8 +128,8 @@ public:
   std::string wt_name();
 
   std::string port_number() const;
-  std::string& port_number();  
-  
+  std::string& port_number();
+
   std::shared_ptr<flight_controller_t> controller();
   NodePtr node();
 
@@ -189,7 +189,7 @@ private:
   mutable std::mutex _orientation_mutex{};
   ignition::math::Quaternion<double> _orientation;
   mutable std::mutex _rx_1_mutex{};
-  mutable std::mutex _rx_2_mutex{};  
+  mutable std::mutex _rx_2_mutex{};
   NodePtr node_;
   std::string port_number_;
 };
