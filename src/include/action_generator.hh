@@ -2,19 +2,18 @@
  * @author: Omar Shrit
  *
  * This file implement the actions of a quadrotor
- *
- *
- */
+ * 
+*/
 #pragma once
 
 #include <random>
 #include <utility>
 
-#include "action.hh"
+#include "discret_actions.hh"
 #include "quadrotor.hh"
 
 template<class QuadrotorType>
-class ActionGenerator : public Actions
+class ActionGenerator : public DiscretActions
 {
 
 public:

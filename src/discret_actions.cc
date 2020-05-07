@@ -1,13 +1,13 @@
 #include "include/action.hh"
 
-Actions::Actions()
+DiscretActions::DiscretActions()
   : distribution_int_(0, 5)
   , distribution_real_(0, 1)
   , generator_(random_dev())
 {}
 
 std::string
-Actions::action_to_str(Action action)
+DiscretActions::action_to_str(Action action)
 {
   std::string string_action = "";
   switch (action) {
@@ -39,21 +39,21 @@ Actions::action_to_str(Action action)
   return string_action;
 }
 
-Actions::Action
-Actions::int_to_action(int action_value)
+DiscretActions::Action
+DiscretActions::int_to_action(int action_value)
 {
   Action action;
   return action = static_cast<Action>(action_value);
 }
 
-std::vector<Actions::Action>
-Actions::all_possible_actions() const
+std::vector<DiscretActions::Action>
+DiscretActions::all_possible_actions() const
 {
   return possible_actions_;
 }
 
-Actions::Action
-Actions::random_action_generator()
+DiscretActions::Action
+DiscretActions::random_action_generator()
 {
   int random_action = distribution_int_(generator_);
   Action action = static_cast<Action>(random_action);
@@ -61,7 +61,7 @@ Actions::random_action_generator()
 }
 
 double
-Actions::generate_real_random()
+DiscretActions::generate_real_random()
 {
   double random_double = distribution_real_(generator_);
   return random_double;
@@ -71,8 +71,8 @@ Actions::generate_real_random()
     comfortable since the opposed action apply high noise on traveled
     distance. Also this is more logic, since allow more variability in
     the data set */
-Actions::Action
-Actions::random_action_generator_with_all_conditions(Action action)
+DiscretActions::Action
+DiscretActions::random_action_generator_with_all_conditions(Action action)
 {
   Action action_ = Action::Unknown;
 
@@ -116,8 +116,8 @@ Actions::random_action_generator_with_all_conditions(Action action)
     action. This is more comfortable since the opposed action apply
     high noise on traveled distance. Also this is more logic, since
     allow more variability in the data set */
-Actions::Action
-Actions::random_action_generator_with_only_opposed_condition(Action action)
+DiscretActions::Action
+DiscretActions::random_action_generator_with_only_opposed_condition(Action action)
 {
   Action action_ = Action::Unknown;
 
@@ -157,48 +157,48 @@ Actions::random_action_generator_with_only_opposed_condition(Action action)
   return action_;
 }
 
-Actions::Action
-Actions::undo_action(Actions::Action action)
+DiscretActions::Action
+DiscretActions::undo_action(DiscretActions::Action action)
 {
-  Actions::Action undo_action = Actions::Action::Unknown;
+  DiscretActions::Action undo_action = DiscretActions::Action::Unknown;
   switch (action) {
-    case Actions::Action::forward:
-      undo_action = Actions::Action::backward;
+    case DiscretActions::Action::forward:
+      undo_action = DiscretActions::Action::backward;
       break;
-    case Actions::Action::backward:
-      undo_action = Actions::Action::forward;
+    case DiscretActions::Action::backward:
+      undo_action = DiscretActions::Action::forward;
       break;
-    case Actions::Action::left:
-      undo_action = Actions::Action::right;
+    case DiscretActions::Action::left:
+      undo_action = DiscretActions::Action::right;
       break;
-    case Actions::Action::right:
-      undo_action = Actions::Action::left;
+    case DiscretActions::Action::right:
+      undo_action = DiscretActions::Action::left;
       break;
-    case Actions::Action::up:
-      undo_action = Actions::Action::down;
+    case DiscretActions::Action::up:
+      undo_action = DiscretActions::Action::down;
       break;
-    case Actions::Action::down:
-      undo_action = Actions::Action::up;
+    case DiscretActions::Action::down:
+      undo_action = DiscretActions::Action::up;
       break;
-    case Actions::Action::NoMove:
-      undo_action = Actions::Action::NoMove;
+    case DiscretActions::Action::NoMove:
+      undo_action = DiscretActions::Action::NoMove;
       break;
-    case Actions::Action::Unknown:
-      undo_action = Actions::Action::Unknown;
+    case DiscretActions::Action::Unknown:
+      undo_action = DiscretActions::Action::Unknown;
       break;
   }
   return undo_action;
 }
 
-std::tuple<Actions::Action, Actions::Action>
-Actions::generate_followers_action_using_distance(double distance_t_1_b,
+std::tuple<DiscretActions::Action, DiscretActions::Action>
+DiscretActions::generate_followers_action_using_distance(double distance_t_1_b,
                                                   double distance_t_b,
                                                   double distance_t_1_c,
                                                   double distance_t_c,
                                                   double alti_diff_t)
 {
-  Actions::Action action_b = Action::NoMove;
-  Actions::Action action_c = Action::NoMove;
+  DiscretActions::Action action_b = Action::NoMove;
+  DiscretActions::Action action_c = Action::NoMove;
 
   if (distance_t_b > distance_t_1_b and distance_t_c > distance_t_1_c and
       std::fabs(alti_diff_t) < 0.4) {
@@ -247,14 +247,14 @@ Actions::generate_followers_action_using_distance(double distance_t_1_b,
   return std::make_tuple(action_b, action_c);
 }
 
-Actions::Action
-Actions::generate_follower_action_using_oracle(double distance_t_1_b,
+DiscretActions::Action
+DiscretActions::generate_follower_action_using_oracle(double distance_t_1_b,
                                                double distance_t_b,
                                                double distance_t_1_c,
                                                double distance_t_c,
                                                double alti_diff_t)
 {
-  Actions::Action action = Action::Unknown;
+  DiscretActions::Action action = Action::Unknown;
   if (distance_t_b > distance_t_1_b and distance_t_c > distance_t_1_c and
       std::fabs(alti_diff_t) < 0.4) {
     action = Action::forward;
@@ -279,23 +279,23 @@ Actions::generate_follower_action_using_oracle(double distance_t_1_b,
   return action;
 }
 
-Actions::Action
-Actions::generate_leader_action(bool change_leader_action,
+DiscretActions::Action
+DiscretActions::generate_leader_action(bool change_leader_action,
                                 bool stop_going_down,
-                                Actions::Action last_action,
-                                Actions::Action current_action)
+                                DiscretActions::Action last_action,
+                                DiscretActions::Action current_action)
 {
-  Actions::Action leader_action = Actions::Action::Unknown;
+  DiscretActions::Action leader_action = DiscretActions::Action::Unknown;
 
   if (change_leader_action == true) {
     leader_action =
       random_action_generator_with_only_opposed_condition(last_action);
   } else if (stop_going_down == true) {
-    while (leader_action == Actions::Action::down) {
+    while (leader_action == DiscretActions::Action::down) {
       leader_action =
         random_action_generator_with_only_opposed_condition(last_action);
     }
-  } else if (last_action == Actions::Action::Unknown) {
+  } else if (last_action == DiscretActions::Action::Unknown) {
     leader_action = current_action;
 
   } else {
@@ -304,14 +304,14 @@ Actions::generate_leader_action(bool change_leader_action,
   return leader_action;
 }
 
-Actions::Action
-Actions::validate_leader_action(double distance_to_b,
+DiscretActions::Action
+DiscretActions::validate_leader_action(double distance_to_b,
                                 double distance_to_b_1,
                                 double distance_to_c,
                                 double distance_to_c_1,
-                                Actions::Action current_action)
+                                DiscretActions::Action current_action)
 {
-  Actions::Action leader_action = current_action;
+  DiscretActions::Action leader_action = current_action;
   if (std::fabs(distance_to_b - distance_to_b_1) > 0.80 or
       std::fabs(distance_to_c - distance_to_c_1) > 0.80) {
     leader_action = Action::NoMove;
@@ -319,14 +319,14 @@ Actions::validate_leader_action(double distance_to_b,
   return leader_action;
 }
 
-Actions::Action
-Actions::validate_followers_action(std::vector<double> current_distances,
+DiscretActions::Action
+DiscretActions::validate_followers_action(std::vector<double> current_distances,
                                    std::vector<double> last_distances,
-                                   Actions::Action before_2_last_action,
-                                   Actions::Action current_action)
+                                   DiscretActions::Action before_2_last_action,
+                                   DiscretActions::Action current_action)
 {
-  Actions::Action follower_action = current_action;
-  if (before_2_last_action == Actions::Action::Unknown) {
+  DiscretActions::Action follower_action = current_action;
+  if (before_2_last_action == DiscretActions::Action::Unknown) {
     follower_action = current_action;
   } else if (std::fabs(current_distances.at(0) - last_distances.at(0)) > 0.80 or
              std::fabs(current_distances.at(1) - last_distances.at(1)) > 0.80) {

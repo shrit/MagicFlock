@@ -3,7 +3,6 @@
  *
  * This file implement the actions of a quadrotor
  *
- *
  */
 #pragma once
 
@@ -12,11 +11,11 @@
 
 #include "math_tools.hh"
 
-class Actions
+class DiscretActions
 {
 
 public:
-  Actions();
+  DiscretActions();
 
   /*  Add action to str printer  */
   enum class Action
@@ -50,16 +49,16 @@ public:
 
   Action random_action_generator_with_all_conditions(Action action);
 
-  std::tuple<Actions::Action, Actions::Action>
+  std::tuple<DiscretActions::Action, DiscretActions::Action>
   generate_followers_action_using_distance(double distance_t_1_b,
                                            double distance_t_b,
                                            double distance_t_1_c,
                                            double distance_t_c,
                                            double alti_diff_t);
 
-  Actions::Action undo_action(Actions::Action action);
-  Actions::Action pair_action_bob(Actions::Action action);
-  Actions::Action pair_action_charlie(Actions::Action action);
+  DiscretActions::Action undo_action(DiscretActions::Action action);
+  DiscretActions::Action pair_action_bob(DiscretActions::Action action);
+  DiscretActions::Action pair_action_charlie(DiscretActions::Action action);
 
   Action generate_follower_action_using_oracle(double distances_t_1_b,
                                                double distances_t_b,

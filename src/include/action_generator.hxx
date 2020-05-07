@@ -9,7 +9,7 @@ ActionGenerator<QuadrotorType>::ActionGenerator(
 }
 
 template<class QuadrotorType>
-Actions::Action
+DiscretActions::Action
 ActionGenerator<QuadrotorType>::generate_random_action()
 {
   int random_action = distribution_int_(generator_);
@@ -18,11 +18,11 @@ ActionGenerator<QuadrotorType>::generate_random_action()
 }
 
 template<class QuadrotorType>
-Actions::Action
+DiscretActions::Action
 ActionGenerator<QuadrotorType>::generate_persistant_action(int for_n_timestep,
                                                            int timesteps)
 {
-  Actions::Action action = Actions::Action::Unknown;
+  DiscretActions::Action action = DiscretActions::Action::Unknown;
 
   if (timesteps % for_n_timestep == 0) {
     action = random_action_generator_with_only_opposed_condition(
@@ -32,7 +32,7 @@ ActionGenerator<QuadrotorType>::generate_persistant_action(int for_n_timestep,
   }
 
   if (quad_->height() < 15) {
-    if (quad_->current_action() == Actions::Action::down)
+    if (quad_->current_action() == DiscretActions::Action::down)
       action = random_action_generator_with_only_opposed_condition(
         quad_->current_action());
   }
@@ -45,44 +45,44 @@ ActionGenerator<QuadrotorType>::generate_persistant_action(int for_n_timestep,
  * allow more variability in the data set
  * */
 template<class QuadrotorType>
-Actions::Action
+DiscretActions::Action
 ActionGenerator<QuadrotorType>::generate_random_action_no_opposed(
-  Actions::Action action)
+  DiscretActions::Action action)
 {
-  Actions::Action action_ = Actions::Action::Unknown;
+  DiscretActions::Action action_ = DiscretActions::Action::Unknown;
 
-  if (action == Actions::Action::backward) {
+  if (action == DiscretActions::Action::backward) {
     action_ = generate_random_action();
-    while (action_ == Actions::Action::forward) {
+    while (action_ == DiscretActions::Action::forward) {
       action_ = generate_random_action();
     }
-  } else if (action == Actions::Action::down) {
+  } else if (action == DiscretActions::Action::down) {
     action_ = generate_random_action();
-    while (action_ == Actions::Action::up) {
+    while (action_ == DiscretActions::Action::up) {
       action_ = generate_random_action();
     }
-  } else if (action == Actions::Action::up) {
+  } else if (action == DiscretActions::Action::up) {
     action_ = generate_random_action();
-    while (action_ == Actions::Action::down) {
+    while (action_ == DiscretActions::Action::down) {
       action_ = generate_random_action();
     }
-  } else if (action == Actions::Action::forward) {
+  } else if (action == DiscretActions::Action::forward) {
     action_ = generate_random_action();
-    while (action_ == Actions::Action::backward) {
+    while (action_ == DiscretActions::Action::backward) {
       action_ = generate_random_action();
     }
-  } else if (action == Actions::Action::right) {
+  } else if (action == DiscretActions::Action::right) {
     action_ = generate_random_action();
-    while (action_ == Actions::Action::left) {
+    while (action_ == DiscretActions::Action::left) {
       action_ = generate_random_action();
     }
-  } else if (action == Actions::Action::left) {
+  } else if (action == DiscretActions::Action::left) {
     action_ = generate_random_action();
-    while (action_ == Actions::Action::right) {
+    while (action_ == DiscretActions::Action::right) {
       action_ = generate_random_action();
     }
-  } else if (action == Actions::Action::Unknown or
-             action == Actions::Action::NoMove) {
+  } else if (action == DiscretActions::Action::Unknown or
+             action == DiscretActions::Action::NoMove) {
     action_ = generate_random_action();
   }
   return action_;
@@ -94,58 +94,58 @@ ActionGenerator<QuadrotorType>::generate_random_action_no_opposed(
      distance. Also this is more logic, since allow more variability in
      the data set */
 template<class QuadrotorType>
-Actions::Action
+DiscretActions::Action
 ActionGenerator<QuadrotorType>::generate_random_action_no_opposed_no_same(
-  Actions::Action action)
+  DiscretActions::Action action)
 {
-  Actions::Action action_ = Actions::Action::Unknown;
+  DiscretActions::Action action_ = DiscretActions::Action::Unknown;
 
-  if (action == Actions::Action::backward) {
+  if (action == DiscretActions::Action::backward) {
     action_ = generate_random_action();
-    while (action_ == Actions::Action::forward or
-           action_ == Actions::Action::backward) {
+    while (action_ == DiscretActions::Action::forward or
+           action_ == DiscretActions::Action::backward) {
       action_ = generate_random_action();
     }
-  } else if (action == Actions::Action::down) {
+  } else if (action == DiscretActions::Action::down) {
     action_ = generate_random_action();
-    while (action_ == Actions::Action::up or action_ == Actions::Action::down) {
+    while (action_ == DiscretActions::Action::up or action_ == DiscretActions::Action::down) {
       action_ = generate_random_action();
     }
-  } else if (action == Actions::Action::up) {
+  } else if (action == DiscretActions::Action::up) {
     action_ = generate_random_action();
-    while (action_ == Actions::Action::down or action_ == Actions::Action::up) {
+    while (action_ == DiscretActions::Action::down or action_ == DiscretActions::Action::up) {
       action_ = generate_random_action();
     }
-  } else if (action == Actions::Action::forward) {
+  } else if (action == DiscretActions::Action::forward) {
     action_ = generate_random_action();
-    while (action_ == Actions::Action::backward or
-           action_ == Actions::Action::forward) {
+    while (action_ == DiscretActions::Action::backward or
+           action_ == DiscretActions::Action::forward) {
       action_ = generate_random_action();
     }
-  } else if (action == Actions::Action::right) {
+  } else if (action == DiscretActions::Action::right) {
     action_ = generate_random_action();
-    while (action_ == Actions::Action::left or
-           action_ == Actions::Action::right) {
+    while (action_ == DiscretActions::Action::left or
+           action_ == DiscretActions::Action::right) {
       action_ = generate_random_action();
     }
-  } else if (action == Actions::Action::left) {
+  } else if (action == DiscretActions::Action::left) {
     action_ = generate_random_action();
-    while (action_ == Actions::Action::right or
-           action_ == Actions::Action::left) {
+    while (action_ == DiscretActions::Action::right or
+           action_ == DiscretActions::Action::left) {
       action_ = generate_random_action();
     }
-  } else if (action == Actions::Action::Unknown or
-             action == Actions::Action::NoMove) {
+  } else if (action == DiscretActions::Action::Unknown or
+             action == DiscretActions::Action::NoMove) {
     action_ = generate_random_action();
   }
   return action_;
 }
 
 template<class QuadrotorType>
-Actions::Action
+DiscretActions::Action
 ActionGenerator<QuadrotorType>::generate_action_from_oracle()
 {
-  Actions::Action action = Actions::Action::Unknown;
+  DiscretActions::Action action = DiscretActions::Action::Unknown;
 
   if (quad_->id() == 1) {
     if (quad_->current_state().distance_to(0) >
@@ -153,30 +153,30 @@ ActionGenerator<QuadrotorType>::generate_action_from_oracle()
         quad_->current_state().distance_to(3) >
           quad_->last_state().distance_to(3) and
         quad_->height_difference() < 0.4) {
-      action = Actions::Action::left;
+      action = DiscretActions::Action::left;
 
     } else if (quad_->current_state().distance_to(0) >
                  quad_->last_state().distance_to(0) and
                quad_->current_state().distance_to(3) <
                  quad_->last_state().distance_to(3) and
                quad_->height_difference() < 0.4) {
-      action = Actions::Action::forward;
+      action = DiscretActions::Action::forward;
     } else if (quad_->current_state().distance_to(0) <
                  quad_->last_state().distance_to(0) and
                quad_->current_state().distance_to(3) >
                  quad_->last_state().distance_to(3) and
                quad_->height_difference() < 0.4) {
-      action = Actions::Action::backward;
+      action = DiscretActions::Action::backward;
     } else if (quad_->current_state().distance_to(0) <
                  quad_->last_state().distance_to(0) and
                quad_->current_state().distance_to(3) <
                  quad_->last_state().distance_to(3) and
                quad_->height_difference() < 0.4) {
-      action = Actions::Action::right;
+      action = DiscretActions::Action::right;
     } else if (quad_->height_difference() > 0.7) {
-      action = Actions::Action::up;
+      action = DiscretActions::Action::up;
     } else {
-      action = Actions::Action::down;
+      action = DiscretActions::Action::down;
     }
   } else if (quad_->id() == 2) {
     if (quad_->current_state().distance_to(0) >
@@ -184,30 +184,30 @@ ActionGenerator<QuadrotorType>::generate_action_from_oracle()
         quad_->current_state().distance_to(3) >
           quad_->last_state().distance_to(3) and
         quad_->height_difference() < 0.4) {
-      action = Actions::Action::right;
+      action = DiscretActions::Action::right;
 
     } else if (quad_->current_state().distance_to(0) >
                  quad_->last_state().distance_to(0) and
                quad_->current_state().distance_to(3) <
                  quad_->last_state().distance_to(3) and
                quad_->height_difference() < 0.4) {
-      action = Actions::Action::forward;
+      action = DiscretActions::Action::forward;
     } else if (quad_->current_state().distance_to(0) <
                  quad_->last_state().distance_to(0) and
                quad_->current_state().distance_to(3) >
                  quad_->last_state().distance_to(3) and
                quad_->height_difference() < 0.4) {
-      action = Actions::Action::backward;
+      action = DiscretActions::Action::backward;
     } else if (quad_->current_state().distance_to(0) <
                  quad_->last_state().distance_to(0) and
                quad_->current_state().distance_to(3) >
                  quad_->last_state().distance_to(3) and
                quad_->height_difference() < 0.4) {
-      action = Actions::Action::left;
+      action = DiscretActions::Action::left;
     } else if (quad_->height_difference() > 0.7) {
-      action = Actions::Action::up;
+      action = DiscretActions::Action::up;
     } else {
-      action = Actions::Action::down;
+      action = DiscretActions::Action::down;
     }
   }
   return action;
