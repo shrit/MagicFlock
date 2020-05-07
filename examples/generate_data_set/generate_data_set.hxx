@@ -15,33 +15,23 @@ Generator<QuadrotorType>::Generator(
 /*  Phase one: Data Set generation */
 template<class QuadrotorType>
 void
-Generator<QuadrotorType>::generate_trajectory()
+Generator<QuadrotorType>::go_to_destination()
 {
-  //  std::vector<std::thread> threads;
-
-  /*  Do not allow follower to move, at this time step,
-        block the follower and log not move*/
+  std::vector<std::thread> threads;
 
   /*  Threading Quadrotors */
-  // threads.push_back(std::thread([&]() {
+  for (auto it : quadrotors_) {
+    threads.push_back(std::thread([&]() {
 
-  // }));
-
-  // /*  Threading Quadrotors */
-  // threads.push_back(std::thread([&]() {
-
-  // }));
-
-  // /* Get the next state at time t + 1  */
-  // logger_->info("Sampling states at t +1");
-
-  // threads.push_back(std::thread([&]() {}));
-
-  // threads.push_back(std::thread([&]() {}));
-
-  // for (auto& thread : threads) {
-  //   thread.join();
+    }));
+  }
+  /* Move the Examination the geomatrical shape inside the flocking model*/
+  // for (auto it : quadrotors_) {
+  //   shapes.push_back(it.examin_geometric_shape());
   // }
+  for (auto& thread : threads) {
+    thread.join();
+  }
 }
 
 template<class QuadrotorType>
@@ -53,59 +43,49 @@ Generator<QuadrotorType>::run()
     logger_->info("Episode : {}", episode_);
     timer_.start();
     start_episode_ = swarm_.in_air(25);
-    /*  Collect dataset by creating a set of trajectories, each time
-                                the leader_and the follower execute their
-       trajectory randomly, we check the geometrical figure (whether the
-       follower is too close or too far) finally we break the loop after 10
-       trajectorise of 1 second each */
+
+    /* Collect dataset by creating a specific destination.
+     * Each quadrotor use the flocking model to stay close to
+     * their neighbors. All quadrotors have the same destination.
+     * An episode ends when a quadrotor reachs the destination,
+     * or quadrotors are very dispersed.
+     */
 
     if (start_episode_) {
       /*  Verify that vectors are clear when starting new episode */
-      logger_->info("Taking off has finished. Start generating trajectories");
+      logger_->info("Taking off has finished. Start sampling dataset");
+      for (auto it : quadrotors_) {
+        it->start_sampling_rt_state(50);
+      }
       time_steps_.reset();
-      //    while (start_episode_) {
-      //    generate_trajectory();
+      go_to_destination();
 
-      // leader_->reset_all_actions();
       // follower_1_->register_data_set();
       // follower_2_->register_data_set();
 
       // follower_1_->register_episodes(episode_);
 
-      /*  Check the geometrical shape */
-      //     std::vector<bool> shapes;
-      //     for (auto it : quadrotors_) {
-      //       shapes.push_back(it.examin_geometric_shape());
-      //     }
-      //     if (std::any_of(shapes.begin(), shapes.end(), [](const bool&
-      //     shape) {
-      //           if (!shape)
-      //             return true;
-      //           else
-      //             return false;
-      //         })) {
-      //       logger_->info("The geometrical figure is no longer conserved");
-      //       break;
-      //     }
-      //     time_steps_.tic();
-      //     logger_->flush();
-      //   }
-      // }
-      // /*  Save a version of the time steps to create a histogram */
-      // follower_1_->register_histogram(time_steps_.steps());
-      // follower_2_->register_histogram(time_steps_.steps());
-
-      /* Landing is blocking untill touching the ground*/
-      swarm_.land();
-      std::string flight_time = timer_.stop_and_get_time();
-      logger_->info("Flight time: {}", flight_time);
+      logger_->flush();
     }
+
+    // /*  Save a version of the time steps to create a histogram */
+    // follower_1_->register_histogram(time_steps_.steps());
+    // follower_2_->register_histogram(time_steps_.steps());
+
+    for (auto it : quadrotors_) {
+      it->stop_sampling_rt_state();
+    }
+
+    std::string flight_time = timer_.stop_and_get_time();
+    logger_->info("Flight time: {}", flight_time);
+    /* Landing is blocking untill all quadrotors in the swarm touch the
+     * ground */
+    swarm_.land();
 
     /* Resetting the entire swarm after the end of each episode*/
     // leader_->reset_models();
 
     logger_->info("All quadrotors have been reset...");
-
     std::this_thread::sleep_for(std::chrono::seconds(35));
 
     /*BIAS accelerometer problem after resetting the models*/

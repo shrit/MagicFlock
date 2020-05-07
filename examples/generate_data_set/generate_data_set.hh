@@ -22,7 +22,7 @@ public:
   Generator(std::vector<std::shared_ptr<QuadrotorType>> quadrotors,
             std::shared_ptr<spdlog::logger> logger);
 
-  void generate_trajectory();
+  void go_to_destination();
   void run();
 
   Generator(Generator const&) = delete;
