@@ -1,4 +1,4 @@
-#include "include/action.hh"
+#include "include/discret_actions.hh"
 
 DiscretActions::DiscretActions()
   : distribution_int_(0, 5)

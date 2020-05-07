@@ -53,7 +53,13 @@ public:
   bool set_altitude_rtl_max(float meters);
   bool set_takeoff_altitude(float meters);
 
-  /*  Linear trajectories */
+  template<typename VecType>
+  void set_velocity_vector(VecType vec)
+  {
+    offboard_->set_velocity_body({vec.X(), vec.Y(), vec.Z(), 0.0f});
+  }
+
+  /*  Linear trajectories for discret actions*/
   void up(float speed);
   void down(float speed);
   void right(float speed);
@@ -61,7 +67,7 @@ public:
   void forward(float speed);
   void backward(float speed);
 
-  /*  Linear trajectories with a specific duaration */
+  /*  Linear trajectories with a specific duaration for discret actions*/
   void up(float speed, unsigned int milliseconds_);
   void down(float speed, unsigned int milliseconds_);
   void right(float speed, unsigned int milliseconds_);
@@ -73,7 +79,7 @@ public:
   void turnToLeft();
   void turnToRight();
 
-  /*  Add circular actions */
+  /*  Add circular trajectory for discret actions*/
   void forward_left(float speed);
   void forward_right(float speed);
   void backward_left(float speed);
