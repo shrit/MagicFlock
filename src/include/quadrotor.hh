@@ -101,17 +101,27 @@ public:
   void subRxTopic();
 
   /*  Data set related functions */
-  void register_data_set();
-  void register_data_set_with_current_predictions();
-  void register_data_set_with_current_enhanced_predictions();
-  void register_data_set_with_loss();
-  void register_episodes(int n_episode);
-  void register_histogram(int count);
+
+  /* Save dataset as rssi, velocity (r, v)*/
+  void save_dataset_rssi_velocity();
+  /* Save dataset as state action (s_t-1,a_t-1,s_t,a_t,s_t+1) */
+  void save_dataset_sasas();
+  /* Save dataset with predicted state as state action
+   * (s_t-1,a_t-1,s_t,a_t,s_t+1, s^_t+1) */
+  void save_dataset_sasassp();
+  /* Save dataset as state action (s_t-1,a_t-1,s_t,a_t,s_t+1) */
+  void save_dataset_with_current_enhanced_predictions();
+  /* Save dataset as state action (s_t-1,a_t-1,s_t,a_t,s_t+1) */
+  void save_dataset_with_loss();
+  /* Save episode number */
+  void save_episodes(int n_episode);
+
+  void save_histogram(int count);
   template<typename Arg, typename... Args>
-  void register_loss(Arg arg, Args... args);
-  void register_state();
-  void register_actions_evaluation(Actions::Action first_action,
-                                   Actions::Action second_action);
+  void save_loss(Arg arg, Args... args);
+  void save_state();
+  void save_actions_evaluation(Actions::Action first_action,
+                               Actions::Action second_action);
   bool examin_geometric_shape();
 
   void reset_models();
@@ -153,7 +163,7 @@ private:
   OneHotEncoding encode_;
   CheckShape shape_;
   Histogram histo_;
-  DataSet data_set_;
+  DataSet dataset_;
   arma::vec loss_vector_;
   State<NoiseType> current_predicted_state_;
   State<NoiseType> current_predicted_enhanced_state_;

@@ -1,16 +1,18 @@
 #pragma once
 
 template<class flight_controller_t, class NoiseType>
-Quadrotor<flight_controller_t, NoiseType>::Quadrotor(unsigned int id, std::string name, std::string label)
-  :id_(id)
+Quadrotor<flight_controller_t, NoiseType>::Quadrotor(unsigned int id,
+                                                     std::string name,
+                                                     std::string label)
+  : id_(id)
   , name_(name)
   , label_(label)
   , node_(new gazebo::transport::Node())
 {
-  data_set_.init_dataset_directory();
+  dataset_.init_dataset_directory();
   node_->Init();
   rt_samples_ = std::make_shared<RTSamples>();
-  port_number_= std::to_string(1454) +std::to_string(id);
+  port_number_ = std::to_string(1454) + std::to_string(id);
 }
 
 template<class flight_controller_t, class NoiseType>
@@ -74,22 +76,6 @@ Quadrotor<flight_controller_t, NoiseType>::sample_state()
   State<NoiseType> state(id_, nearest_neighbors_);
   current_state_ = state;
   all_states_.push_back(state);
-
-  data_set_.plot_distance_to_neighbor(0,
-                                      "Distance to first leader",
-                                      "Time Step",
-                                      "Distance",
-                                      name_ + "_distance_to_0",
-                                      "lines",
-                                      all_states_);
-
-  data_set_.plot_distance_to_neighbor(2,
-                                      "Distance to second leader",
-                                      "Time Step",
-                                      "Distance",
-                                      name_ + "_distance_to_2",
-                                      "lines",
-                                      all_states_);
 }
 
 template<class flight_controller_t, class NoiseType>
@@ -260,16 +246,26 @@ Quadrotor<flight_controller_t, NoiseType>::reset_all_actions()
 
 template<class flight_controller_t, class NoiseType>
 void
-Quadrotor<flight_controller_t, NoiseType>::register_state()
+Quadrotor<flight_controller_t, NoiseType>::save_state()
 {
-  data_set_.save_state(name_, vec_.to_std_vector(current_state().Data()));
+  dataset_.save_state(name_, vec_.to_std_vector(current_state().Data()));
+}
+
+template<class flight_controller_t, class NoiseType>
+void Quadrotor<flight_controller_t, NoiseType>::save_dataset_rssi_velocity()
+{
+  // see if it is possible to make current action generic
+  dataset_.save_csv_dataset_2_file(
+    name_,
+    vec_.to_std_vector(current_state().Data(),
+                       current_action().Data()));
 }
 
 template<class flight_controller_t, class NoiseType>
 void
-Quadrotor<flight_controller_t, NoiseType>::register_data_set()
+Quadrotor<flight_controller_t, NoiseType>::save_dataset_sasas()
 {
-  data_set_.save_csv_data_set_2_file(
+  dataset_.save_csv_dataset_2_file(
     name_,
     vec_.to_std_vector(before_last_state().Data()),
     vec_.to_std_vector(encode_.to_one_hot_encoding(last_action(), 7)),
@@ -280,10 +276,9 @@ Quadrotor<flight_controller_t, NoiseType>::register_data_set()
 
 template<class flight_controller_t, class NoiseType>
 void
-Quadrotor<flight_controller_t,
-          NoiseType>::register_data_set_with_current_predictions()
+Quadrotor<flight_controller_t, NoiseType>::save_dataset_sasasp()
 {
-  data_set_.save_csv_data_set_2_file(
+  dataset_.save_csv_dataset_2_file(
     name_ + "_current_predictions",
     vec_.to_std_vector(before_last_state().Data()),
     vec_.to_std_vector(encode_.to_one_hot_encoding(last_action(), 7)),
@@ -296,9 +291,9 @@ Quadrotor<flight_controller_t,
 template<class flight_controller_t, class NoiseType>
 void
 Quadrotor<flight_controller_t,
-          NoiseType>::register_data_set_with_current_enhanced_predictions()
+          NoiseType>::save_dataset_with_current_enhanced_predictions()
 {
-  data_set_.save_csv_data_set_2_file(
+  dataset_.save_csv_dataset_2_file(
     name_ + "_enhanced_predictions",
     vec_.to_std_vector(before_last_state().Data()),
     vec_.to_std_vector(encode_.to_one_hot_encoding(last_action(), 7)),
@@ -310,9 +305,9 @@ Quadrotor<flight_controller_t,
 
 template<class flight_controller_t, class NoiseType>
 void
-Quadrotor<flight_controller_t, NoiseType>::register_data_set_with_loss()
+Quadrotor<flight_controller_t, NoiseType>::save_dataset_with_loss()
 {
-  data_set_.save_csv_data_set_2_file(
+  dataset_.save_csv_dataset_2_file(
     name_ + "_loss",
     vec_.to_std_vector(before_last_state().Data()),
     vec_.to_std_vector(encode_.to_one_hot_encoding(last_action(), 7)),
@@ -324,42 +319,42 @@ Quadrotor<flight_controller_t, NoiseType>::register_data_set_with_loss()
 template<class flight_controller_t, class NoiseType>
 template<typename Arg, typename... Args>
 void
-Quadrotor<flight_controller_t, NoiseType>::register_loss(Arg arg, Args... args)
+Quadrotor<flight_controller_t, NoiseType>::save_loss(Arg arg, Args... args)
 {
-  data_set_.save_error_file(name_, arg, args...);
+  dataset_.save_error_file(name_, arg, args...);
 }
 
 template<class flight_controller_t, class NoiseType>
 void
-Quadrotor<flight_controller_t, NoiseType>::register_histogram(int count)
+Quadrotor<flight_controller_t, NoiseType>::save_histogram(int count)
 {
   /*  Save a version of the time steps to create a histogram */
   /*  Increase one since count start from 0 */
   /*  Need to find a solution for this with a timer */
   count++;
-  data_set_.save_controller_count(count);
+  dataset_.save_controller_count(count);
   histo_.histogram(count);
-  data_set_.save_histogram(histo_.get_histogram<int>());
+  dataset_.save_histogram(histo_.get_histogram<int>());
 }
 
 template<class flight_controller_t, class NoiseType>
 void
-Quadrotor<flight_controller_t, NoiseType>::register_actions_evaluation(
+Quadrotor<flight_controller_t, NoiseType>::save_actions_evaluation(
   Actions::Action first_action,
   Actions::Action second_action)
 {
   if (first_action == second_action) {
-    data_set_.save_actions(name_, 1);
+    dataset_.save_actions(name_, 1);
   } else {
-    data_set_.save_actions(name_, -1);
+    dataset_.save_actions(name_, -1);
   }
 }
 
 template<class flight_controller_t, class NoiseType>
 void
-Quadrotor<flight_controller_t, NoiseType>::register_episodes(int n_episodes)
+Quadrotor<flight_controller_t, NoiseType>::save_episodes(int n_episodes)
 {
-  data_set_.save_episodes(n_episodes);
+  dataset_.save_episodes(n_episodes);
 }
 
 template<class flight_controller_t, class NoiseType>
@@ -595,9 +590,9 @@ Quadrotor<flight_controller_t, NoiseType>::RxMsgN2(
   int numRxNodes = _msg->node_size();
 
   for (int i = 0; i < numRxNodes; ++i) {
-      gazebo::msgs::WirelessNode RxNode = _msg->node(i);
-      rssi_from_neighbors().at(i).name = RxNode.essid();
-      rssi_from_neighbors().at(i).antenna_2 = RxNode.signal_level();
+    gazebo::msgs::WirelessNode RxNode = _msg->node(i);
+    rssi_from_neighbors().at(i).name = RxNode.essid();
+    rssi_from_neighbors().at(i).antenna_2 = RxNode.signal_level();
   }
 }
 
@@ -620,5 +615,3 @@ Quadrotor<flight_controller_t, NoiseType>::subRxTopic()
   subs_.push_back(node_->Subscribe(
     topic_WR_2, &Quadrotor<flight_controller_t, NoiseType>::RxMsgN2, this));
 }
-
-
