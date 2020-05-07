@@ -7,7 +7,8 @@
 #include <vector>
 
 /*  Local includes */
-#include "action.hh"
+#include "discret_actions.hh"
+#include "continuous_actions.hh"
 #include "logger.hh"
 #include "position_gps.hh"
 
@@ -19,9 +20,12 @@ public:
   SwarmDevice(std::vector<std::shared_ptr<QuadrotorType>> quads);
 
   void one_quad_execute_trajectory(unsigned int id,
-                                   Actions::Action action,
+                                   DiscretActions::Action action,
                                    int speed,
                                    unsigned int milliseconds);
+
+  void one_quad_execute_trajectory(unsigned int id, ContinuousActions action);
+
   bool arm();
   bool arm_specific_quadrotor(unsigned int id);
 
