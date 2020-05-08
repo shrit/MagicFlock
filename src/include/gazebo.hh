@@ -57,8 +57,6 @@ public:
 
   void TimeMsg(ConstWorldStatisticsPtr& msg);
   void PosMsg(ConstPosesStampedPtr& posesStamped);
-  void RxMsgN1(ConstWirelessNodesPtr& _msg);
-  void RxMsgN2(ConstWirelessNodesPtr& _msg);
 
   void start_simulation(std::string path_2_simulation_script,
                         int n,
