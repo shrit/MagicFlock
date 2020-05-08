@@ -17,9 +17,9 @@
 #include <mlpack/core/data/split_data.hpp>
 
 /*  local defined include */
+#include "Vector.hh"
 #include "action.hh"
 #include "plot.hh"
-#include "Vector.hh"
 
 class DataSet
 {
@@ -37,12 +37,12 @@ public:
   void save_evaluation(Arg&& arg, Args&&... args);
 
   template<typename Arg, typename... Args>
-  void save_csv_data_set(Arg&& arg, Args&&... args);
+  void save_csv_dataset(Arg&& arg, Args&&... args);
 
   template<typename Arg, typename... Args>
-  void save_csv_data_set_2_file(std::string file_name,
-                                Arg&& arg,
-                                Args&&... args);
+  void save_csv_dataset_2_file(std::string file_name,
+                               Arg&& arg,
+                               Args&&... args);
 
   template<typename Arg, typename... Args>
   void save_error_file(std::string file_name, Arg&& arg, Args&&... args);
@@ -138,7 +138,7 @@ private:
   std::string model_file_name_;
   std::string state_file_name_;
   std::string plot_file_name_;
-  
+
   arma::mat st_mat_;
   arma::mat at_mat_;
   arma::mat st_1_mat_;

@@ -1,7 +1,6 @@
 #pragma once
 
-DataSet::DataSet()
-{}
+DataSet::DataSet() {}
 
 void
 DataSet::parse_dataset_file(std::string file_name)
@@ -270,7 +269,7 @@ DataSet::save_evaluation(Arg&& arg, Args&&... args)
 
 template<typename Arg, typename... Args>
 void
-DataSet::save_csv_data_set(Arg&& arg, Args&&... args)
+DataSet::save_csv_dataset(Arg&& arg, Args&&... args)
 {
   std::ofstream file;
   file.open(dataset_file_name_, std::ios::out | std::ios::app);
@@ -285,9 +284,9 @@ DataSet::save_csv_data_set(Arg&& arg, Args&&... args)
 
 template<typename Arg, typename... Args>
 void
-DataSet::save_csv_data_set_2_file(std::string file_name,
-                                               Arg&& arg,
-                                               Args&&... args)
+DataSet::save_csv_dataset_2_file(std::string file_name,
+                                 Arg&& arg,
+                                 Args&&... args)
 {
   std::ofstream file;
   file.open(dataset_file_name_ + "_" + file_name + ".csv",
@@ -303,9 +302,7 @@ DataSet::save_csv_data_set_2_file(std::string file_name,
 
 template<typename Arg, typename... Args>
 void
-DataSet::save_error_file(std::string file_name,
-                                      Arg&& arg,
-                                      Args&&... args)
+DataSet::save_error_file(std::string file_name, Arg&& arg, Args&&... args)
 {
   std::ofstream file;
   file.open(error_file_name_ + "_" + file_name + ".csv",
@@ -375,12 +372,12 @@ DataSet::save_actions(std::string file_name, Arg&& arg)
 template<typename StateType>
 void
 DataSet::plot_distance_to_neighbor(int neighbor_id,
-                                                std::string title,
-                                                std::string xlabel,
-                                                std::string ylabel,
-                                                std::string file_name,
-                                                std::string type,
-                                                StateType states)
+                                   std::string title,
+                                   std::string xlabel,
+                                   std::string ylabel,
+                                   std::string file_name,
+                                   std::string type,
+                                   StateType states)
 {
   std::vector<int> x = vec_.fill_range(states.size());
   std::vector<double> distances;
@@ -393,12 +390,12 @@ DataSet::plot_distance_to_neighbor(int neighbor_id,
 template<typename HistoType>
 void
 DataSet::plot_histogram(int neighbor_id,
-                                     std::string title,
-                                     std::string xlabel,
-                                     std::string ylabel,
-                                     std::string file_name,
-                                     std::string type,
-                                     HistoType histogram)
+                        std::string title,
+                        std::string xlabel,
+                        std::string ylabel,
+                        std::string file_name,
+                        std::string type,
+                        HistoType histogram)
 {
   // plot(title, xlabel, ylabel, file_name, type);
 }
@@ -406,12 +403,12 @@ DataSet::plot_histogram(int neighbor_id,
 template<typename xType, typename yType>
 void
 DataSet::plot(std::string title,
-                           std::string xlabel,
-                           std::string ylabel,
-                           std::string file_name,
-                           std::string type,
-                           xType x,
-                           yType y)
+              std::string xlabel,
+              std::string ylabel,
+              std::string file_name,
+              std::string type,
+              xType x,
+              yType y)
 {
   /*  Gnuplot Config */
   plotcpp::Plot plt(false);
@@ -433,7 +430,7 @@ DataSet::plot(std::string title,
 
 arma::mat
 DataSet::submat_using_indices(arma::mat matrix_to_sub,
-                                           arma::Mat<size_t> indices)
+                              arma::Mat<size_t> indices)
 {
   arma::rowvec row;
   arma::mat submatrix;
