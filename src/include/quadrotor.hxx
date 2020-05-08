@@ -181,21 +181,21 @@ Quadrotor<flight_controller_t, NoiseType>::current_loss() const
 template<class flight_controller_t, class NoiseType>
 void
 Quadrotor<flight_controller_t, NoiseType>::current_action(
-  Actions::Action action)
+  DiscretActions::Action action)
 {
   all_actions_.push_back(action);
   current_action_ = action;
 }
 
 template<class flight_controller_t, class NoiseType>
-Actions::Action
+DiscretActions::Action
 Quadrotor<flight_controller_t, NoiseType>::current_action() const
 {
   return current_action_;
 }
 
 template<class flight_controller_t, class NoiseType>
-Actions::Action
+DiscretActions::Action
 Quadrotor<flight_controller_t, NoiseType>::last_action()
 {
   if (all_actions_.size() > 1) {
@@ -207,7 +207,7 @@ Quadrotor<flight_controller_t, NoiseType>::last_action()
 }
 
 template<class flight_controller_t, class NoiseType>
-Actions::Action
+DiscretActions::Action
 Quadrotor<flight_controller_t, NoiseType>::before_last_action()
 {
   if (all_actions_.size() > 2) {
@@ -219,7 +219,7 @@ Quadrotor<flight_controller_t, NoiseType>::before_last_action()
 }
 
 template<class flight_controller_t, class NoiseType>
-Actions::Action
+DiscretActions::Action
 Quadrotor<flight_controller_t, NoiseType>::before_2_last_action()
 {
   if (all_actions_.size() > 3) {
@@ -231,7 +231,7 @@ Quadrotor<flight_controller_t, NoiseType>::before_2_last_action()
 }
 
 template<class flight_controller_t, class NoiseType>
-std::vector<Actions::Action>
+std::vector<DiscretActions::Action>
 Quadrotor<flight_controller_t, NoiseType>::all_actions() const
 {
   return all_actions_;
@@ -340,8 +340,8 @@ Quadrotor<flight_controller_t, NoiseType>::save_histogram(int count)
 template<class flight_controller_t, class NoiseType>
 void
 Quadrotor<flight_controller_t, NoiseType>::save_actions_evaluation(
-  Actions::Action first_action,
-  Actions::Action second_action)
+  DiscretActions::Action first_action,
+  DiscretActions::Action second_action)
 {
   if (first_action == second_action) {
     dataset_.save_actions(name_, 1);
@@ -355,14 +355,6 @@ void
 Quadrotor<flight_controller_t, NoiseType>::save_episodes(int n_episodes)
 {
   dataset_.save_episodes(n_episodes);
-}
-
-template<class flight_controller_t, class NoiseType>
-bool
-Quadrotor<flight_controller_t, NoiseType>::examin_geometric_shape()
-{
-  bool shape = shape_.is_good_shape(id_, nearest_neighbors_, position());
-  return shape;
 }
 
 template<class flight_controller_t, class NoiseType>

@@ -5,28 +5,31 @@
  *
  */
 #pragma once
-
+/* C++ Standard library includes*/
 #include <queue>
 #include <stack>
 #include <utility>
 #include <vector>
 
+/* IL4MRC library includes */
 #include "Vector.hh"
-#include "action.hh"
-#include "check_swarm_shape.hh"
 #include "compute_distance.hh"
+#include "continuous_actions.hh"
 #include "data_set.hh"
+#include "discret_actions.hh"
+#include "flocking.hh"
 #include "histogram.hh"
 #include "math_tools.hh"
 #include "one_hot_encoding.hh"
 #include "real_time_samples.hh"
 #include "state.hh"
 
-/* Ignition related headers*/
+/* Ignition related headers */
 #include <ignition/math6/ignition/math/Quaternion.hh>
 #include <ignition/math6/ignition/math/Vector2.hh>
 #include <ignition/math6/ignition/math/Vector3.hh>
 
+/* Gazebo simulator includes */
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/transport/transport.hh>
 
@@ -47,15 +50,25 @@ public:
   using NodePtr = gazebo::transport::NodePtr;
   using SubPtr = gazebo::transport::SubscriberPtr;
 
+  /* Quadrotor related functions*/
   unsigned int id() const;
   std::string name() const;
   std::string label() const;
+  double height();
+  std::string port_number() const;
+  std::string& port_number();
+  std::shared_ptr<flight_controller_t> controller();
+  NodePtr node();
+  void start_controller();
+  ignition::math::Vector3d start_flocking();
 
   /* Neighbors related fuctions*/
   std::vector<unsigned int> nearest_neighbors() const;
   void add_nearest_neighbor_id(unsigned int id);
   double distance_to(int id);
   std::vector<double> distances_to_neighbors();
+  std::vector<RSSI> rssi_from_neighbors() const;
+  std::vector<RSSI>& rssi_from_neighbors();
 
   /* Position related functions */
   ignition::math::Vector3d position() const;
@@ -89,16 +102,14 @@ public:
   void current_loss(arma::vec current_loss);
   arma::vec current_loss() const;
 
-  /*Action related functions */
-  Actions::Action current_action() const;
-  void current_action(Actions::Action action);
-  Actions::Action last_action();
-  Actions::Action before_last_action();
-  Actions::Action before_2_last_action();
-  std::vector<Actions::Action> all_actions() const;
+  /* Discret Actions related functions */
+  DiscretActions::Action current_action() const;
+  void current_action(DiscretActions::Action action);
+  DiscretActions::Action last_action();
+  DiscretActions::Action before_last_action();
+  DiscretActions::Action before_2_last_action();
+  std::vector<DiscretActions::Action> all_actions() const;
   void reset_all_actions();
-  double height();
-  void subRxTopic();
 
   /*  Data set related functions */
 
@@ -108,28 +119,21 @@ public:
   void save_dataset_sasas();
   /* Save dataset with predicted state as state action
    * (s_t-1,a_t-1,s_t,a_t,s_t+1, s^_t+1) */
-  void save_dataset_sasassp();
+  void save_dataset_sasasp();
   /* Save dataset as state action (s_t-1,a_t-1,s_t,a_t,s_t+1) */
   void save_dataset_with_current_enhanced_predictions();
   /* Save dataset as state action (s_t-1,a_t-1,s_t,a_t,s_t+1) */
   void save_dataset_with_loss();
   /* Save episode number */
   void save_episodes(int n_episode);
-
   void save_histogram(int count);
   template<typename Arg, typename... Args>
   void save_loss(Arg arg, Args... args);
   void save_state();
-  void save_actions_evaluation(Actions::Action first_action,
-                               Actions::Action second_action);
-  bool examin_geometric_shape();
+  void save_actions_evaluation(DiscretActions::Action first_action,
+                               DiscretActions::Action second_action);
 
-  void reset_models();
-
-  std::vector<RSSI> rssi_from_neighbors() const;
-  std::vector<RSSI>& rssi_from_neighbors();
-
-  std::string reset_topic_name();
+  /* Topic names related functions */
   std::string wireless_receiver_1_topic_name();
   std::string wireless_receiver_2_topic_name();
   std::string wireless_transmitter_topic_name();
@@ -137,26 +141,22 @@ public:
   std::string wr_2_name();
   std::string wt_name();
 
-  std::string port_number() const;
-  std::string& port_number();
-
-  std::shared_ptr<flight_controller_t> controller();
-  NodePtr node();
-
-  void start_controller();
-
+  /* Gazebo callbacks to recover the value of the signal strenght*/
   void RxMsgN1(const ConstWirelessNodesPtr& _msg);
   void RxMsgN2(const ConstWirelessNodesPtr& _msg);
+  void subRxTopic();
 
   Quadrotor(const Quadrotor&);
 
 private:
-  Actions::Action current_action_{ Actions::Action::Unknown };
-  Actions::Action last_action_{ Actions::Action::Unknown };
-  Actions::Action before_last_action_{ Actions::Action::Unknown };
-  Actions::Action before_2_last_action_{ Actions::Action::Unknown };
-  std::vector<Actions::Action> all_actions_;
-  std::vector<Actions::Action> action_container_;
+  DiscretActions::Action current_action_{ DiscretActions::Action::Unknown };
+  DiscretActions::Action last_action_{ DiscretActions::Action::Unknown };
+  DiscretActions::Action before_last_action_{ DiscretActions::Action::Unknown };
+  DiscretActions::Action before_2_last_action_{
+    DiscretActions::Action::Unknown
+  };
+  std::vector<DiscretActions::Action> all_actions_;
+  std::vector<DiscretActions::Action> action_container_;
   std::vector<SubPtr> subs_;
   ComputeDistance dist_;
   VectorHelper vec_;
@@ -177,8 +177,8 @@ private:
   std::vector<RSSI> _rssi_from_neighbors;
 
   std::shared_ptr<RTSamples> rt_samples_;
-  unsigned int id_;  /* Quadrotor id  (Parsed from gazebo)*/
-  std::string name_; /* Quadrotor name  (Parsed from gazebo)*/
+  unsigned int id_;  /* Quadrotor id */
+  std::string name_; /* Quadrotor name */
   /* Quadrotor label (Given by the user, leader, follower, etc)*/
   std::string label_;
   std::vector<unsigned int> nearest_neighbors_;
