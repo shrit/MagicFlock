@@ -68,7 +68,7 @@ Flocking::migrationVelocity()
 }
 
 ignition::math::Vector3d
-Flocking::reynoldsVeclocity()
+Flocking::reynoldsVelocity()
 {
   return cohesionVelocity() + migrationVelocity();
 }

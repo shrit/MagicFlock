@@ -18,7 +18,7 @@ public:
   ignition::math::Vector3d cohesionVelocity();
   ignition::math::Vector3d separationVelocity();
   ignition::math::Vector3d migrationVelocity();
-  ignition::math::Vector3d reynoldsVeclocity();
+  ignition::math::Vector3d reynoldsVelocity();
   ignition::math::Vector3d Velocity();
 
   Flocking(Flocking const&) = delete;

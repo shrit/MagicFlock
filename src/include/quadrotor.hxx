@@ -23,6 +23,19 @@ Quadrotor<flight_controller_t, NoiseType>::start_controller()
 }
 
 template<class flight_controller_t, class NoiseType>
+void
+Quadrotor<flight_controller_t, NoiseType>::start_flocking(double sepGain,
+                                                          double cohGain,
+                                                          double migGain,
+                                                          double cutoffDist)
+{
+  flocking_sampler_->start(interval, [this, &]() {
+    Flocking flock(sepGain, cohGain, migGain, cutoffDist, position());
+    flock.Velocity();
+  });
+}
+
+template<class flight_controller_t, class NoiseType>
 unsigned int
 Quadrotor<flight_controller_t, NoiseType>::id() const
 {

@@ -60,7 +60,10 @@ public:
   std::shared_ptr<flight_controller_t> controller();
   NodePtr node();
   void start_controller();
-  ignition::math::Vector3d start_flocking();
+  ignition::math::Vector3d start_flocking(double sepGain,
+                                          double cohGain,
+                                          double migGain,
+                                          double cutoffDist);
 
   /* Neighbors related fuctions*/
   std::vector<unsigned int> nearest_neighbors() const;
@@ -177,7 +180,8 @@ private:
   std::vector<RSSI> _rssi_from_neighbors;
   std::vector<unsigned int> _nearest_neighbors;
 
-  std::shared_ptr<RTSamples> state_sampler_, neighbor_sampler_;
+  std::shared_ptr<RTSamples> state_sampler_, neighbor_sampler_,
+    flocking_sampler_;
   unsigned int id_;  /* Quadrotor id */
   std::string name_; /* Quadrotor name */
   /* Quadrotor label (Given by the user, leader, follower, etc)*/
