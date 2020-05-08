@@ -12,6 +12,8 @@ Quadrotor<flight_controller_t, NoiseType>::Quadrotor(unsigned int id,
   dataset_.init_dataset_directory();
   node_->Init();
   rt_samples_ = std::make_shared<RTSamples>();
+  neighbor_sampler_ = std::make_shared<RTSamples>();
+  flocking_sampler_ = std::make_shared<RTSamples>();
   port_number_ = std::to_string(1454) + std::to_string(id);
 }
 
@@ -33,6 +35,13 @@ Quadrotor<flight_controller_t, NoiseType>::start_flocking(double sepGain,
     Flocking flock(sepGain, cohGain, migGain, cutoffDist, position());
     flock.Velocity();
   });
+}
+
+template<class flight_controller_t, class NoiseType>
+void
+Quadrotor<flight_controller_t, NoiseType>::stop_flocking()
+{
+  flocking_sampler_->stop();
 }
 
 template<class flight_controller_t, class NoiseType>

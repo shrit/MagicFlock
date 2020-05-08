@@ -64,6 +64,7 @@ public:
                                           double cohGain,
                                           double migGain,
                                           double cutoffDist);
+  void stop_flocking();
 
   /* Neighbors related fuctions*/
   std::vector<unsigned int> nearest_neighbors() const;
