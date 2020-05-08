@@ -15,7 +15,7 @@
 #include "Vector.hh"
 #include "compute_distance.hh"
 #include "continuous_actions.hh"
-#include "data_set.hh"
+#include "dataset.hh"
 #include "discret_actions.hh"
 #include "flocking.hh"
 #include "histogram.hh"

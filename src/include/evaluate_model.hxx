@@ -15,9 +15,9 @@ EvaluateModel<simulator_t>::EvaluateModel()
 
 template<class simulator_t>
 void
-EvaluateModel<simulator_t>::input(Actions::Action leader_action,
-                                  Actions::Action follower_1_action,
-                                  Actions::Action follower_2_action)
+EvaluateModel<simulator_t>::input(DiscretActions::Action leader_action,
+                                  DiscretActions::Action follower_1_action,
+                                  DiscretActions::Action follower_2_action)
 {
   global_count_++;
 

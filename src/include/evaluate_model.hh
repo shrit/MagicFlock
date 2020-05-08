@@ -1,7 +1,7 @@
 #pragma once
 
-#include "action.hh"
-#include "data_set.hh"
+#include "discret_actions.hh"
+#include "dataset.hh"
 #include "gazebo.hh"
 #include <vector>
 
@@ -23,9 +23,9 @@ class EvaluateModel
 public:
   EvaluateModel();
 
-  void input(Actions::Action leader_action,
-             Actions::Action follower_1_action,
-             Actions::Action follower_2_action);
+  void input(DiscretActions::Action leader_action,
+             DiscretActions::Action follower_1_action,
+             DiscretActions::Action follower_2_action);
 
   Evaluation evaluate();
   void register_evaluation();

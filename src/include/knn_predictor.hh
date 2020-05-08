@@ -15,7 +15,7 @@
 #include <mlpack/core/util/prefixedoutstream.hpp>
 
 /* local includes  */
-#include "data_set.hh"
+#include "dataset.hh"
 #include "distance_state.hh"
 #include "math_tools.hh"
 #include "quadrotor.hh"
