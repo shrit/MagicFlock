@@ -7,8 +7,9 @@
 #include <vector>
 
 /*  Local includes */
-#include "discret_actions.hh"
+#include "check_swarm_shape.hh"
 #include "continuous_actions.hh"
+#include "discret_actions.hh"
 #include "logger.hh"
 #include "position_gps.hh"
 
@@ -43,6 +44,9 @@ public:
   bool takeoff(float meters);
   bool takeoff_specific_quadrotor(float meters, unsigned int id);
   bool in_air(float meters);
+
+  bool examin_swarm_shape();
+  void reset_models();
 
   SwarmDevice(SwarmDevice const&) = delete;
   SwarmDevice(SwarmDevice&&) = default;

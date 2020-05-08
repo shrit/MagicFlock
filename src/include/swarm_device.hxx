@@ -244,3 +244,12 @@ SwarmDevice<QuadrotorType>::in_air(float meters)
   }
   return start_episode;
 }
+
+template<class QuadrotorType>
+bool
+SwarmDevice<QuadrotorType>::examin_swarm_shape()
+{
+  bool shape = shape_.is_good_shape(quads__, position());
+  return shape;
+}
+
