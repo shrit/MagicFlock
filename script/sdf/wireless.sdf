@@ -47,8 +47,8 @@
      <transceiver>
        <essid>osrf</essid>
        <frequency>2442.0</frequency>
-       <power>14.5</power>
-       <gain>2.5</gain>
+       <power>15</power>
+       <gain>4</gain>
      </transceiver>
    </sensor>
    </link>
@@ -101,8 +101,8 @@
       <transceiver>
         <min_frequency>2412.0</min_frequency>
         <max_frequency>2484.0</max_frequency>
-        <power>14.5</power>
-        <gain>2.5</gain>
+        <power>15</power>
+        <gain>4</gain>
         <sensitivity>-90.0</sensitivity>
       </transceiver>
     </sensor>
@@ -156,8 +156,8 @@
       <transceiver>
         <min_frequency>2412.0</min_frequency>
         <max_frequency>2484.0</max_frequency>
-        <power>14.5</power>
-        <gain>2.5</gain>
+        <power>15</power>
+        <gain>4</gain>
         <sensitivity>-90.0</sensitivity>
       </transceiver>
     </sensor>
