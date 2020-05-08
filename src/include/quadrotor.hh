@@ -64,7 +64,8 @@ public:
 
   /* Neighbors related fuctions*/
   std::vector<unsigned int> nearest_neighbors() const;
-  void add_nearest_neighbor_id(unsigned int id);
+  void start_nearest_neighbor_detector();
+  void stop_nearest_neighbor_detector();
   double distance_to(int id);
   std::vector<double> distances_to_neighbors();
   std::vector<RSSI> rssi_from_neighbors() const;
@@ -161,7 +162,6 @@ private:
   ComputeDistance dist_;
   VectorHelper vec_;
   OneHotEncoding encode_;
-  CheckShape shape_;
   Histogram histo_;
   DataSet dataset_;
   arma::vec loss_vector_;
@@ -175,15 +175,15 @@ private:
 
   mutable std::mutex _rssi_from_neighbors_mutex{};
   std::vector<RSSI> _rssi_from_neighbors;
+  std::vector<unsigned int> _nearest_neighbors;
 
-  std::shared_ptr<RTSamples> rt_samples_;
+  std::shared_ptr<RTSamples> state_sampler_, neighbor_sampler_;
   unsigned int id_;  /* Quadrotor id */
   std::string name_; /* Quadrotor name */
   /* Quadrotor label (Given by the user, leader, follower, etc)*/
   std::string label_;
-  std::vector<unsigned int> nearest_neighbors_;
-  std::shared_ptr<flight_controller_t> controller_;
 
+  std::shared_ptr<flight_controller_t> controller_;
   mutable std::mutex _position_mutex{};
   ignition::math::Vector3d _position;
 

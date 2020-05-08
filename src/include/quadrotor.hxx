@@ -38,25 +38,34 @@ Quadrotor<flight_controller_t, NoiseType>::name() const
 
 template<class flight_controller_t, class NoiseType>
 void
-Quadrotor<flight_controller_t, NoiseType>::add_nearest_neighbor_id(
-  unsigned int id)
+Quadrotor<flight_controller_t, NoiseType>::start_nearest_neighbor_detector()
 {
-  nearest_neighbors_.push_back(id);
+  neighbor_sampler_->start(interval, [this]() {
+    NearestNeighbor nn;
+    _nearest_neighbors = nn.search(_rssi_from_neighbors);
+  });
+}
+
+template<class flight_controller_t, class NoiseType>
+void
+Quadrotor<flight_controller_t, NoiseType>::stop_nearest_neighbor_detector()
+{
+  neighbor_sampler_->stop();
 }
 
 template<class flight_controller_t, class NoiseType>
 std::vector<unsigned int>
 Quadrotor<flight_controller_t, NoiseType>::nearest_neighbors() const
 {
-  return nearest_neighbors_;
+  return _nearest_neighbors;
 }
 
 template<class flight_controller_t, class NoiseType>
 void
 Quadrotor<flight_controller_t, NoiseType>::start_sampling_rt_state(int interval)
 {
-  rt_samples_->start(interval, [this]() {
-    State<NoiseType> state(id_, nearest_neighbors_);
+  state_sampler_->start(interval, [this]() {
+    State<NoiseType> state(id_, nearest_neighbors());
     current_state_ = state;
     all_states_.push_back(state);
   });
@@ -252,13 +261,12 @@ Quadrotor<flight_controller_t, NoiseType>::save_state()
 }
 
 template<class flight_controller_t, class NoiseType>
-void Quadrotor<flight_controller_t, NoiseType>::save_dataset_rssi_velocity()
+void
+Quadrotor<flight_controller_t, NoiseType>::save_dataset_rssi_velocity()
 {
   // see if it is possible to make current action generic
   dataset_.save_csv_dataset_2_file(
-    name_,
-    vec_.to_std_vector(current_state().Data(),
-                       current_action().Data()));
+    name_, vec_.to_std_vector(current_state().Data(), current_action().Data()));
 }
 
 template<class flight_controller_t, class NoiseType>
