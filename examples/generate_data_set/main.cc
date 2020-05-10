@@ -62,6 +62,11 @@ main(int argc, char* argv[])
     logger->info(quadrotors.at(i)->port_number());
   }
 
+  /* Give an access to each quadrotor to all its neighbors when generating dataset */
+  for (auto it : quadrotors) {
+    it->make_reference_2_swarm(quadrotors);
+  }
+
   /*  Gazebo simulator */
   std::shared_ptr<Gazebo<QuadrotorType>> gz =
     std::make_shared<Gazebo<QuadrotorType>>(quadrotors);
