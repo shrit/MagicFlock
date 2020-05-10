@@ -10,14 +10,14 @@
 
 using namespace ILMR;
 
+template<class QuadrotorType>
 class CheckShape
 {
 public:
   CheckShape() {}
+  bool is_good_shape(std::vector<QuadrotorType> quads);
 
-  bool is_good_shape(unsigned int id,
-                     std::vector<unsigned int> nearest_neighbors,
-                     std::vector<ignition::math::Vector3d> positions);
+
 private:
 
   double lower_threshold_ =

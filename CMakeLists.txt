@@ -28,7 +28,6 @@ add_subdirectory( src/gazebo )
 
 add_library(ILMR SHARED
   src/discret_actions.cc
-  src/check_swarm_shape.cc 
   src/flocking.cc
   src/keyboard.cc
   src/joystick.cc
