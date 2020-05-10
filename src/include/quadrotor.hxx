@@ -11,10 +11,24 @@ Quadrotor<flight_controller_t, NoiseType>::Quadrotor(unsigned int id,
 {
   dataset_.init_dataset_directory();
   node_->Init();
-  rt_samples_ = std::make_shared<RTSamples>();
+  state_sampler_ = std::make_shared<RTSamples>();
   neighbor_sampler_ = std::make_shared<RTSamples>();
   flocking_sampler_ = std::make_shared<RTSamples>();
   port_number_ = std::to_string(1454) + std::to_string(id);
+}
+
+/* Check this function it is cases segfault*/
+template<class flight_controller_t, class NoiseType>
+void
+Quadrotor<flight_controller_t, NoiseType>::make_reference_2_swarm(
+  std::vector<Quadrotor<flight_controller_t, NoiseType>> quads)
+{
+  for (int i = 0; i < quads.size(); ++i) {
+    if (quads.at(i)->id() == this->id()) {
+      quads.erase(i);
+    }
+  }
+  quads_ = quads;
 }
 
 template<class flight_controller_t, class NoiseType>
@@ -25,13 +39,13 @@ Quadrotor<flight_controller_t, NoiseType>::start_controller()
 }
 
 template<class flight_controller_t, class NoiseType>
-void
+ignition::math::Vector3d
 Quadrotor<flight_controller_t, NoiseType>::start_flocking(double sepGain,
                                                           double cohGain,
                                                           double migGain,
                                                           double cutoffDist)
 {
-  flocking_sampler_->start(interval, [this, &]() {
+  flocking_sampler_->start(50, [this, =]() {
     Flocking flock(sepGain, cohGain, migGain, cutoffDist, position());
     flock.Velocity();
   });
@@ -62,8 +76,8 @@ template<class flight_controller_t, class NoiseType>
 void
 Quadrotor<flight_controller_t, NoiseType>::start_nearest_neighbor_detector()
 {
-  neighbor_sampler_->start(interval, [this]() {
-    NearestNeighbor nn;
+  neighbor_sampler_->start(50, [this]() {
+    NearestNeighbors<RSSI> nn;
     _nearest_neighbors = nn.search(_rssi_from_neighbors);
   });
 }
@@ -97,14 +111,14 @@ template<class flight_controller_t, class NoiseType>
 void
 Quadrotor<flight_controller_t, NoiseType>::stop_sampling_rt_state()
 {
-  rt_samples_->stop();
+  state_sampler_->stop();
 }
 
 template<class flight_controller_t, class NoiseType>
 void
 Quadrotor<flight_controller_t, NoiseType>::sample_state()
 {
-  State<NoiseType> state(id_, nearest_neighbors_);
+  State<NoiseType> state(id_, nearest_neighbors());
   current_state_ = state;
   all_states_.push_back(state);
 }
@@ -515,13 +529,6 @@ Quadrotor<flight_controller_t, NoiseType>::distance_to(int id)
 {
   double distance = distances_to_neighbors().at(id);
   return distance;
-}
-
-template<class flight_controller_t, class NoiseType>
-std::string
-Quadrotor<flight_controller_t, NoiseType>::reset_topic_name()
-{
-  return "/gazebo/default/" + name() + "/model_reset";
 }
 
 template<class flight_controller_t, class NoiseType>
