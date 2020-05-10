@@ -28,3 +28,5 @@ private:
   VectorHelper vec_;
   ComputeDistance dist_;
 };
+
+#include "check_swarm_shape.hxx"
