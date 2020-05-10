@@ -249,7 +249,7 @@ template<class QuadrotorType>
 bool
 SwarmDevice<QuadrotorType>::examin_swarm_shape()
 {
-  bool shape = shape_.is_good_shape(quads__, position());
+  bool shape = shape_.is_good_shape(quads_);
   return shape;
 }
 
