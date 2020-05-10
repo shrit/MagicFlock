@@ -53,7 +53,7 @@ public:
 
 private:
   std::vector<std::shared_ptr<QuadrotorType>> quads_;
-  CheckShape shape_;
+  CheckShape<QuadrotorType> shape_;
 };
 
 #include "swarm_device.hxx"

@@ -21,11 +21,11 @@ Quadrotor<flight_controller_t, NoiseType>::Quadrotor(unsigned int id,
 template<class flight_controller_t, class NoiseType>
 void
 Quadrotor<flight_controller_t, NoiseType>::make_reference_2_swarm(
-  std::vector<Quadrotor<flight_controller_t, NoiseType>> quads)
+  std::vector<std::shared_ptr<Quadrotor<flight_controller_t, NoiseType>>> quads)
 {
   for (int i = 0; i < quads.size(); ++i) {
     if (quads.at(i)->id() == this->id()) {
-      quads.erase(i);
+      quads.erase(quads.begin() + i); // needs verifications
     }
   }
   quads_ = quads;
@@ -45,7 +45,7 @@ Quadrotor<flight_controller_t, NoiseType>::start_flocking(double sepGain,
                                                           double migGain,
                                                           double cutoffDist)
 {
-  flocking_sampler_->start(50, [this, =]() {
+  flocking_sampler_->start(50, [&]() {
     Flocking flock(sepGain, cohGain, migGain, cutoffDist, position());
     flock.Velocity();
   });
@@ -77,8 +77,8 @@ void
 Quadrotor<flight_controller_t, NoiseType>::start_nearest_neighbor_detector()
 {
   neighbor_sampler_->start(50, [this]() {
-    NearestNeighbors<RSSI> nn;
-    _nearest_neighbors = nn.search(_rssi_from_neighbors);
+    NearestNeighbors<RSSI> nn(_rssi_from_neighbors);
+    _nearest_neighbors = nn.search();
   });
 }
 
@@ -505,21 +505,14 @@ Quadrotor<flight_controller_t, NoiseType>::rssi_from_neighbors()
 }
 
 template<class flight_controller_t, class NoiseType>
-void
-Quadrotor<flight_controller_t, NoiseType>::reset_models()
-{
-  reset_models();
-}
-
-template<class flight_controller_t, class NoiseType>
 std::vector<double>
 Quadrotor<flight_controller_t, NoiseType>::distances_to_neighbors()
 {
   std::vector<double> distances;
-  std::map<unsigned int, double> neigh_distances;
-  neigh_distances =
-    dist_.distances_to_neighbors(id_, nearest_neighbors_, position());
-  distances = vec_.map_to_vector(neigh_distances);
+  // std::map<unsigned int, double> neigh_distances;
+  // neigh_distances =
+  //   dist_.distances_to_neighbors(id_, nearest_neighbors_, position());
+  // distances = vec_.map_to_vector(neigh_distances);
   return distances;
 }
 

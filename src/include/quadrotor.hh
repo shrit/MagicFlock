@@ -71,7 +71,8 @@ public:
   /* This function allows you to get a shared ptr to all quadrotors in the
    * simulator*/
   void make_reference_2_swarm(
-    std::vector<Quadrotor<flight_controller_t, NoiseType>> quads);
+    std::vector<std::shared_ptr<Quadrotor<flight_controller_t, NoiseType>>>
+      quads);
   std::vector<unsigned int> nearest_neighbors() const;
   void start_nearest_neighbor_detector();
   void stop_nearest_neighbor_detector();
@@ -212,7 +213,8 @@ private:
   mutable std::mutex _rx_2_mutex{};
   NodePtr node_;
   std::string port_number_;
-  std::vector<Quadrotor<flight_controller_t, NoiseType>> quads_;
+  std::vector<std::shared_ptr<Quadrotor<flight_controller_t, NoiseType>>>
+    quads_;
 };
 
 #include "quadrotor.hxx"
