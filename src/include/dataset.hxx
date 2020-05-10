@@ -379,12 +379,6 @@ DataSet::plot_distance_to_neighbor(int neighbor_id,
                                    std::string type,
                                    StateType states)
 {
-  std::vector<int> x = vec_.fill_range(states.size());
-  std::vector<double> distances;
-  for (int i = 0; i < states.size(); ++i) {
-    distances.push_back(states.at(i).Data()[neighbor_id]);
-  }
-  plot(title, xlabel, ylabel, file_name, type, x, distances);
 }
 
 template<typename HistoType>
@@ -397,7 +391,6 @@ DataSet::plot_histogram(int neighbor_id,
                         std::string type,
                         HistoType histogram)
 {
-  // plot(title, xlabel, ylabel, file_name, type);
 }
 
 template<typename xType, typename yType>
@@ -409,24 +402,7 @@ DataSet::plot(std::string title,
               std::string type,
               xType x,
               yType y)
-{
-  /*  Gnuplot Config */
-  plotcpp::Plot plt(false);
-  plt.SetTerminal("svg");
-  plt.SetOutput(plot_file_name_ + "_" + file_name);
-  plt.SetTitle(title);
-  plt.SetXLabel(xlabel);
-  plt.SetYLabel(ylabel);
-  plt.SetAutoscale();
-
-  /*  Need to look into it... */
-  if (type == "lines")
-    plt.Draw2D(plotcpp::Lines(x.begin(), x.end(), y.begin(), "lines"));
-  else if (type == "points")
-    plt.Draw2D(plotcpp::Points(x.begin(), x.end(), y.begin(), "points"));
-
-  plt.Flush();
-}
+{}
 
 arma::mat
 DataSet::submat_using_indices(arma::mat matrix_to_sub,

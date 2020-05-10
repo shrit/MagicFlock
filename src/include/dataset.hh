@@ -19,7 +19,6 @@
 /*  local defined include */
 #include "Vector.hh"
 #include "action.hh"
-#include "plot.hh"
 
 class DataSet
 {
