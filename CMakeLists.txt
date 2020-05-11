@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_definitions("-Wall -Werror -Wextra -O -Wno-parentheses -march=native -g3 
--fopenmp -lgomp -lmavsdk")
+-fopenmp -lgomp")
 
 find_package(gazebo REQUIRED)
 find_package(MAVSDK REQUIRED)
@@ -18,7 +18,7 @@ include_directories(
   include
   )
 
-set(mlpack "/usr/local/lib64/libmlpack.so")
+set(mlpack "/usr/local/lib/libmlpack.so")
 set(gomp "/usr/lib/libgomp.so")
 
 file(GLOB HEADER_LIST CONFIGURE_DEPENDS "src/include/*.hh")
@@ -60,7 +60,7 @@ target_link_libraries(ILMR
   MAVSDK::mavsdk_offboard
   MAVSDK::mavsdk_telemetry
   MAVSDK::mavsdk_shell  
-  MAVSDK::mavsdk  
+  MAVSDK::mavsdk
   )
 target_include_directories(ILMR PRIVATE 
   ${CMAKE_CURRENT_BINARY_DIR}/src/gazebo
