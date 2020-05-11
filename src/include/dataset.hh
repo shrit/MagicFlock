@@ -18,7 +18,7 @@
 
 /*  local defined include */
 #include "Vector.hh"
-#include "action.hh"
+#include "discret_actions.hh"
 
 class DataSet
 {
@@ -148,4 +148,4 @@ private:
   VectorHelper vec_;
 };
 
-#include "data_set.hxx"
+#include "dataset.hxx"

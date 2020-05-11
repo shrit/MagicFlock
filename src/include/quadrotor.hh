@@ -42,7 +42,7 @@ struct RSSI
 };
 
 template<class flight_controller_t, class NoiseType>
-class Quadrotor
+class Quadrotor : public std::enable_shared_from_this<Quadrotor<flight_controller_t, NoiseType>>
 {
 
 public:
