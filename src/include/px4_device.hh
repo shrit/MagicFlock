@@ -56,7 +56,7 @@ public:
   template<typename VecType>
   void set_velocity_vector(VecType vec)
   {
-    offboard_->set_velocity_body({vec.X(), vec.Y(), vec.Z(), 0.0f});
+    offboard_->set_velocity_body({ vec.X(), vec.Y(), vec.Z(), 0.0f });
   }
 
   /*  Linear trajectories for discret actions*/
@@ -97,11 +97,11 @@ public:
   void position_async();
 
   /*  Position_ned */
-  Telemetry::PositionVelocityNED get_position_ned() const;
+  Telemetry::PositionVelocityNed get_position_ned() const;
   void position_ned_async();
 
-  Calibration::calibration_callback_t create_calibration_callback(
-    std::promise<void>& calibration_promise);
+  std::function<void(Calibration::Result, Calibration::ProgressData)>
+  create_calibration_callback(std::promise<void>& calibration_promise);
 
   void calibrate_accelerometer();
 
@@ -116,7 +116,7 @@ public:
   void flight_mode_async();
   Telemetry::FlightMode flight_mode() const;
 
-  bool execute_px4_shell_command(Shell::ShellMessage message);
+  bool execute_px4_shell_command(std::string command);
   bool receive_px4_shell_reponse();
 
   /*  Handles plugin results. */
@@ -132,12 +132,12 @@ public:
   Px4Device(Px4Device&&) = default;
 
 private:
-  double CalculateDistance(Telemetry::PositionVelocityNED& a,
-                           Telemetry::PositionVelocityNED& b);
+  double CalculateDistance(Telemetry::PositionVelocityNed& a,
+                           Telemetry::PositionVelocityNed& b);
 
   Mavsdk mavsdk_;
   Telemetry::Health health_;
-  Telemetry::PositionVelocityNED _position_ned{ { 0, 0, 0 }, { 0, 0, 0 } };
+  Telemetry::PositionVelocityNed _position_ned{ { 0, 0, 0 }, { 0, 0, 0 } };
   Telemetry::Position position_{ 0, 0, 0, 0 };
 
   Telemetry::LandedState _landed_state;
@@ -146,7 +146,7 @@ private:
   Telemetry::FlightMode _flight_mode;
   mutable std::mutex _flight_mode_mutex{};
 
-  Shell::ShellMessage _shell_reponse;
+  Shell::ReceiveCallback _shell_reponse;
 
   std::shared_ptr<mavsdk::Action> action_;
   std::shared_ptr<mavsdk::Calibration> calibration_;
