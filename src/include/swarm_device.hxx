@@ -89,6 +89,10 @@ SwarmDevice<QuadrotorType>::init_speed()
     threads.emplace_back(
       std::thread([&]() { it->controller()->init_speed(); }));
   }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
 }
 
 template<class QuadrotorType>
@@ -252,4 +256,3 @@ SwarmDevice<QuadrotorType>::examin_swarm_shape()
   bool shape = shape_.is_good_shape(quads_);
   return shape;
 }
-
