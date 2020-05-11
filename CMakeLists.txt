@@ -31,7 +31,6 @@ add_library(ILMR SHARED
   src/flocking.cc
   src/keyboard.cc
   src/joystick.cc
-  src/log.cc
   src/logger.cc
   src/px4_device.cc
   src/real_time_samples.cc
