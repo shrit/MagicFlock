@@ -35,7 +35,7 @@ template<class flight_controller_t, class NoiseType>
 void
 Quadrotor<flight_controller_t, NoiseType>::start_controller()
 {
-  controller_ = std::make_shared<flight_controller_t>("udp", port_number());
+  controller_ = std::make_unique<flight_controller_t>("udp", port_number());
 }
 
 template<class flight_controller_t, class NoiseType>
@@ -557,13 +557,6 @@ std::string&
 Quadrotor<flight_controller_t, NoiseType>::port_number()
 {
   return port_number_;
-}
-
-template<class flight_controller_t, class NoiseType>
-std::shared_ptr<flight_controller_t>
-Quadrotor<flight_controller_t, NoiseType>::controller()
-{
-  return controller_;
 }
 
 template<class flight_controller_t, class NoiseType>

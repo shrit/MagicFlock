@@ -42,7 +42,9 @@ struct RSSI
 };
 
 template<class flight_controller_t, class NoiseType>
-class Quadrotor : public std::enable_shared_from_this<Quadrotor<flight_controller_t, NoiseType>>
+class Quadrotor
+  : public std::enable_shared_from_this<
+      Quadrotor<flight_controller_t, NoiseType>>
 {
 
 public:
@@ -58,7 +60,6 @@ public:
   double height();
   std::string port_number() const;
   std::string& port_number();
-  std::shared_ptr<flight_controller_t> controller();
   NodePtr node();
   void start_controller();
   ignition::math::Vector3d start_flocking(double sepGain,
@@ -159,6 +160,8 @@ public:
 
   Quadrotor(const Quadrotor&);
 
+  std::unique_ptr<flight_controller_t> controller_;
+
 private:
   DiscretActions::Action current_action_{ DiscretActions::Action::Unknown };
   DiscretActions::Action last_action_{ DiscretActions::Action::Unknown };
@@ -194,7 +197,6 @@ private:
   /* Quadrotor label (Given by the user, leader, follower, etc)*/
   std::string label_;
 
-  std::shared_ptr<flight_controller_t> controller_;
   mutable std::mutex _position_mutex{};
   ignition::math::Vector3d _position;
 
