@@ -51,6 +51,30 @@ Px4Device::discover_system()
 }
 
 bool
+Px4Device::arm()
+{
+  logger::logger_->debug("Arming...");
+  Action::Result arm_result = action_->arm();
+  if (arm_result != Action::Result::Success) {
+    logger::logger_->error("Arming failed: {}", arm_result);
+    return false;
+  }
+  return true;
+}
+
+bool
+Px4Device::reboot()
+{
+  logger::logger_->debug("Rebooting...");
+  Action::Result reboot_result = action_->reboot();
+  if (reboot_result != Action::Result::Success) {
+    logger::logger_->error("Rebooting failed: {}", reboot_result);
+    return false;
+  }
+  return true;
+}
+
+bool
 Px4Device::takeoff()
 {
   const Action::Result takeoff_result = action_->takeoff();
@@ -166,6 +190,58 @@ Px4Device::set_altitude_rtl_max(float meters)
 }
 
 void
+Px4Device::arm_async()
+{
+  logger::logger_->debug("Arming async");
+  action_->arm_async([this](Action::Result result) { _arm_result = result; });
+}
+
+void
+Px4Device::disarm_async()
+{
+  logger::logger_->debug("Disarming async");
+  action_->disarm_async(
+    [this](Action::Result result) { _disarm_result = result; });
+}
+
+void
+Px4Device::kill_async()
+{
+  logger::logger_->debug("kill async");
+  action_->kill_async([this](Action::Result result) { _kill_result = result; });
+}
+
+void
+Px4Device::reboot_async()
+{
+  logger::logger_->debug("Rebooting async");
+  action_->reboot_async(
+    [this](Action::Result result) { _reboot_result = result; });
+}
+void
+Px4Device::shutdown_async()
+{
+  logger::logger_->debug("Shutdown async");
+  action_->shutdown_async(
+    [this](Action::Result result) { _shutdown_result = result; });
+}
+
+void
+Px4Device::takeoff_async()
+{
+  logger::logger_->debug("Taking off async");
+  action_->takeoff_async(
+    [this](Action::Result result) { _takeoff_result = result; });
+}
+
+void
+Px4Device::land_async()
+{
+  logger::logger_->debug("Landing async");
+  action_->land_async([this](Action::Result result) { _land_result = result; });
+}
+
+void
 Px4Device::init_speed()
 {
   offboard_->set_velocity_body({ 0.0f, 0.0f, 0.0f, 0.0f });
@@ -174,6 +250,7 @@ Px4Device::init_speed()
 bool
 Px4Device::start_offboard_mode()
 {
+  logger::logger_->debug("Start offboard mode");
   Offboard::Result offboard_result = offboard_->start();
   if (offboard_result != Offboard::Result::Success) {
     logger::logger_->error("Offboard::start() failed: {}", offboard_result);
@@ -185,6 +262,7 @@ Px4Device::start_offboard_mode()
 bool
 Px4Device::stop_offboard_mode()
 {
+  logger::logger_->debug("Stop offboard mode");
   Offboard::Result offboard_result = offboard_->stop();
   if (offboard_result != Offboard::Result::Success) {
     logger::logger_->error("Offboard::stop() failed: {}", offboard_result);
@@ -361,6 +439,7 @@ Px4Device::turnToLeft()
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({ 0.0f, 0.0f, 0.0f, 0.0f });
 }
+
 // add later the angular yaw speed
 void
 Px4Device::turnToRight()
@@ -369,30 +448,6 @@ Px4Device::turnToRight()
   offboard_->set_velocity_body({ 0.0f, 0.0f, 0.0f, 90.0f });
   sleep_for(milliseconds(50));
   offboard_->set_velocity_body({ 0.0f, 0.0f, 0.0f, 0.0f });
-}
-
-bool
-Px4Device::arm()
-{
-  logger::logger_->debug("Arming...");
-  Action::Result arm_result = action_->arm();
-  if (arm_result != Action::Result::Success) {
-    logger::logger_->error("Arming failed: {}", arm_result);
-    return false;
-  }
-  return true;
-}
-
-bool
-Px4Device::reboot()
-{
-  logger::logger_->debug("Rebooting...");
-  Action::Result reboot_result = action_->reboot();
-  if (reboot_result != Action::Result::Success) {
-    logger::logger_->error("Rebooting failed: {}", reboot_result);
-    return false;
-  }
-  return true;
 }
 
 position_GPS<double>
@@ -460,7 +515,7 @@ Px4Device::receive_px4_shell_reponse()
   // shell_->subscribe_receive(
   //   [&](Shell::ReceiveCallback reponse) { this->_shell_reponse = reponse; });
 
-  //logger::logger_->debug(_shell_reponse); See how to output later
+  // logger::logger_->debug(_shell_reponse); See how to output later
   return true;
 }
 

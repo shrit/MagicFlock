@@ -43,15 +43,20 @@ public:
 
   bool arm();
   bool reboot();
-
   bool takeoff();
   bool takeoff(float meters);
-
   bool land();
-
   bool return_to_launch();
   bool set_altitude_rtl_max(float meters);
   bool set_takeoff_altitude(float meters);
+  
+  void arm_async();
+  void disarm_async();
+  void kill_async();
+  void reboot_async();
+  void shutdown_async();
+  void takeoff_async();
+  void land_async();
 
   template<typename VecType>
   void set_velocity_vector(VecType vec)
@@ -153,4 +158,12 @@ private:
   std::shared_ptr<mavsdk::Offboard> offboard_;
   std::shared_ptr<mavsdk::Shell> shell_;
   std::shared_ptr<mavsdk::Telemetry> telemetry_;
+  Action::Result _arm_result;
+  Action::Result _disarm_result;
+  Action::Result _takeoff_result;
+  Action::Result _land_result;
+  Action::Result _kill_result;
+  Action::Result _reboot_result;
+  Action::Result _shutdown_result;
+
 };
