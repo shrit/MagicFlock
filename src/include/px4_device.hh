@@ -126,6 +126,17 @@ public:
   void flight_mode_async();
   Telemetry::FlightMode flight_mode() const;
 
+  Action::Result arm_result() const;
+  Action::Result disarm_result() const;
+  Action::Result takeoff_result() const;
+  Action::Result land_result() const;
+  Action::Result kill_result() const;
+  Action::Result reboot_result() const;
+  Action::Result shutdown_result() const;
+  
+  Offboard::Result start_offboard_result() const;
+  Offboard::Result stop_offboard_result() const;
+  
   bool execute_px4_shell_command(std::string command);
   bool receive_px4_shell_reponse();
 
@@ -172,4 +183,14 @@ private:
   Action::Result _shutdown_result;
   Offboard::Result _start_offboard_result;
   Offboard::Result _stop_offboard_result;
+  
+  mutable std::mutex _arm_result_mutex{};
+  mutable std::mutex _disarm_result_mutex{};
+  mutable std::mutex _takeoff_result_mutex{};
+  mutable std::mutex _land_result_mutex{};
+  mutable std::mutex _kill_result_mutex{};
+  mutable std::mutex _reboot_result_mutex{};
+  mutable std::mutex _shutdown_result_mutex{};
+  mutable std::mutex _start_offboard_result_mutex{};
+  mutable std::mutex _stop_offboard_result_mutex{};
 };

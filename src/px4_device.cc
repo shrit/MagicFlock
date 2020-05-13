@@ -275,22 +275,72 @@ void
 Px4Device::start_offboard_mode_async()
 {
   logger::logger_->debug("Start offboard mode");
-  offboard_->start_async([this](Offboard::Result results){
-    _start_offboard_result = results;
-  });
-} 
+  offboard_->start_async(
+    [this](Offboard::Result results) { _start_offboard_result = results; });
+}
 
 void
 Px4Device::stop_offboard_mode_async()
 {
   logger::logger_->debug("Stop offboard mode");
-  offboard_->stop_async([this](Offboard::Result results){
-    _stop_offboard_result = results;
-  });
+  offboard_->stop_async(
+    [this](Offboard::Result results) { _stop_offboard_result = results; });
 }
 
+Action::Result
+Px4Device::arm_result() const
+{
+  std::lock_guard<std::mutex> lock(_arm_result_mutex);
+  return _arm_result;
+}
+
+Action::Result
+Px4Device::disarm_result() const
+{
+  std::lock_guard<std::mutex> lock(_disarm_result_mutex);
+  return _disarm_result;
+}
+
+Action::Result
+Px4Device::takeoff_result() const
+{
+  std::lock_guard<std::mutex> lock(_takeoff_result_mutex);
+  return _takeoff_result;
+}
+
+Action::Result
+Px4Device::land_result() const
+{
+  std::lock_guard<std::mutex> lock(_land_result_mutex);
+  return _land_result;
+}
+
+Action::Result
+Px4Device::kill_result() const
+{
+  std::lock_guard<std::mutex> lock(_kill_result_mutex);
+  return _kill_result;
+}
+
+Action::Result
+Px4Device::reboot_result() const
+{
+  std::lock_guard<std::mutex> lock(_reboot_result_mutex);
+  return _reboot_result;
+}
+
+Action::Result
+Px4Device::shutdown_result() const
+{
+  std::lock_guard<std::mutex> lock(_shutdown_result_mutex);
+  return _shutdown_result;
+}
+
+Offboard::Result _start_offboard_result;
+Offboard::Result _stop_offboard_result;
+
 /*  Use the following functions set in order to generate trajectory or a
-    dataset */
+  dataset */
 void
 Px4Device::up(float speed, unsigned int milliseconds_)
 {
