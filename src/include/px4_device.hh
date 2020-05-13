@@ -1,10 +1,10 @@
 #pragma once
-
 /**
  * @file px4_device.hh
  * @brief An interface to MAVSDK, it allows users to handle quadcopters
  * @author: Omar Shrit <shrit@lri.fr>
  */
+
 /*  C++ Standard includes */
 #include <atomic>
 #include <chrono>
@@ -39,6 +39,8 @@ using namespace ILMR;
 class Px4Device : public std::enable_shared_from_this<Px4Device>
 {
 public:
+  using LandedState = Telemetry::LandedState;
+
   Px4Device(std::string socket, std::string port);
 
   bool arm();
@@ -49,7 +51,7 @@ public:
   bool return_to_launch();
   bool set_altitude_rtl_max(float meters);
   bool set_takeoff_altitude(float meters);
-  
+
   void arm_async();
   void disarm_async();
   void kill_async();
@@ -93,6 +95,9 @@ public:
   void init_speed();
   bool start_offboard_mode();
   bool stop_offboard_mode();
+
+  void start_offboard_mode_async();
+  void stop_offboard_mode_async();
 
   bool discover_system();
   ConnectionResult connect_to_quad(std::string connection_url);
@@ -165,5 +170,6 @@ private:
   Action::Result _kill_result;
   Action::Result _reboot_result;
   Action::Result _shutdown_result;
-
+  Offboard::Result _start_offboard_result;
+  Offboard::Result _stop_offboard_result;
 };

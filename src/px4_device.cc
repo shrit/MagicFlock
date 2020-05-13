@@ -271,6 +271,24 @@ Px4Device::stop_offboard_mode()
   return true;
 }
 
+void
+Px4Device::start_offboard_mode_async()
+{
+  logger::logger_->debug("Start offboard mode");
+  offboard_->start_async([this](Offboard::Result results){
+    _start_offboard_result = results;
+  });
+} 
+
+void
+Px4Device::stop_offboard_mode_async()
+{
+  logger::logger_->debug("Stop offboard mode");
+  offboard_->stop_async([this](Offboard::Result results){
+    _stop_offboard_result = results;
+  });
+}
+
 /*  Use the following functions set in order to generate trajectory or a
     dataset */
 void
