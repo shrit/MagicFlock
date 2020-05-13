@@ -71,6 +71,29 @@ SwarmDevice<QuadrotorType>::arm()
 
 template<class QuadrotorType>
 bool
+SwarmDevice<QuadrotorType>::arm_async()
+{
+  std::vector<std::thread> threads;
+  std::vector<bool> results;
+  for (auto it : quads_) {
+    threads.emplace_back(std::thread(
+      [&]() { results.emplace_back(it->controller_->arm_async()); }));
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+
+  if (std::any_of(results.begin(), results.end(), [](bool value) {
+        return value == false;
+      }))
+    return false;
+
+  return true;
+}
+
+template<class QuadrotorType>
+bool
 SwarmDevice<QuadrotorType>::arm_specific_quadrotor(unsigned int id)
 {
   bool arm = quads_.at(id)->controller_->arm();
@@ -126,6 +149,30 @@ SwarmDevice<QuadrotorType>::start_offboard_mode()
 
 template<class QuadrotorType>
 bool
+SwarmDevice<QuadrotorType>::start_offboard_mode_async()
+{
+  std::vector<std::thread> threads;
+  std::vector<bool> results;
+  for (auto it : quads_) {
+    threads.emplace_back(std::thread([&]() {
+      results.emplace_back(it->controller_->start_offboard_mode_async());
+    }));
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+
+  if (std::any_of(results.begin(), results.end(), [](bool value) {
+        return value == false;
+      }))
+    return false;
+
+  return true;
+}
+
+template<class QuadrotorType>
+bool
 SwarmDevice<QuadrotorType>::start_offboard_mode_specific_quadrotor(
   unsigned int id)
 {
@@ -145,6 +192,28 @@ SwarmDevice<QuadrotorType>::takeoff(float meters)
   for (auto it : quads_) {
     threads.emplace_back(std::thread(
       [&]() { results.emplace_back(it->controller_->takeoff(meters)); }));
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+  if (std::any_of(results.begin(), results.end(), [](bool value) {
+        return value == false;
+      }))
+    return false;
+
+  return true;
+}
+
+template<class QuadrotorType>
+bool
+SwarmDevice<QuadrotorType>::takeoff_async(float meters)
+{
+  std::vector<std::thread> threads;
+  std::vector<bool> results;
+  for (auto it : quads_) {
+    threads.emplace_back(std::thread(
+      [&]() { results.emplace_back(it->controller_->takeoff_async(meters)); }));
   }
 
   for (auto& thread : threads) {
@@ -194,6 +263,72 @@ SwarmDevice<QuadrotorType>::land()
 
 template<class QuadrotorType>
 bool
+SwarmDevice<QuadrotorType>::land_async()
+{
+  std::vector<std::thread> threads;
+  std::vector<bool> results;
+  for (auto it : quads_) {
+    threads.emplace_back(std::thread(
+      [&]() { results.emplace_back(it->controller_->land_async()); }));
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+  if (std::any_of(results.begin(), results.end(), [](bool value) {
+        return value == false;
+      }))
+    return false;
+
+  return true;
+}
+
+template<class QuadrotorType>
+bool
+SwarmDevice<QuadrotorType>::flight_mode_async()
+{
+  std::vector<std::thread> threads;
+  std::vector<bool> results;
+  for (auto it : quads_) {
+    threads.emplace_back(std::thread(
+      [&]() { results.emplace_back(it->controller_->flight_mode()); }));
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+  if (std::any_of(results.begin(), results.end(), [](bool value) {
+        return value == false;
+      }))
+    return false;
+
+  return true;
+}
+
+template<class QuadrotorType>
+bool
+SwarmDevice<QuadrotorType>::landed_state_async()
+{
+  std::vector<std::thread> threads;
+  std::vector<> results;
+  for (auto it : quads_) {
+    threads.emplace_back(std::thread(
+      [&]() { results.emplace_back(it->controller_->landed_state()); }));
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+  if (std::any_of(results.begin(), results.end(), [](bool value) {
+        return value == false;
+      }))
+    return false;
+
+  return true;
+}
+
+template<class QuadrotorType>
+bool
 SwarmDevice<QuadrotorType>::land_specific_quadrotor(unsigned int id)
 {
   bool land = quads_.at(id)->controller_->land();
@@ -220,13 +355,13 @@ bool
 SwarmDevice<QuadrotorType>::in_air(float meters)
 {
   bool start_episode = true;
-  bool arm = this->arm();
+  bool arm = this->arm_async();
   if (!arm) {
     start_episode = false;
   } else {
     std::this_thread::sleep_for(std::chrono::seconds(2));
     /* Stop the episode if one of the quad has fallen to takoff */
-    bool takeoff = this->takeoff(meters);
+    bool takeoff = this->takeoff_async(meters);
     if (!takeoff) {
       start_episode = false;
     } else {
@@ -235,7 +370,7 @@ SwarmDevice<QuadrotorType>::in_air(float meters)
       /*  Switch to offboard mode, Allow the control */
       /* Stop the episode is the one quadcopter have fallen to set
          offbaord mode */
-      bool offboard_mode = this->start_offboard_mode();
+      bool offboard_mode = this->start_offboard_mode_async();
       if (!offboard_mode)
         start_episode = false;
 
