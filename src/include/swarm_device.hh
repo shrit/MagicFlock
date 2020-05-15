@@ -28,29 +28,30 @@ public:
   void one_quad_execute_trajectory(unsigned int id, ContinuousActions action);
 
   bool arm();
-  bool arm_async();
+  void arm_async();
   bool arm_specific_quadrotor(unsigned int id);
 
   void init_speed();
   void init_speed_specific_quadrotor(unsigned int id);
 
   bool start_offboard_mode();
-  bool start_offboard_mode_async();
+  void start_offboard_mode_async();
   bool start_offboard_mode_specific_quadrotor(unsigned int id);
 
-  bool flight_mode_async();
-  bool landed_state_async();
+  void flight_mode_async();
+  void landed_state_async();
 
   bool land();
-  bool land_async();
+  void land_async();
   bool land_specific_quadrotor(unsigned int id);
 
   std::vector<position_GPS<double>> positions_GPS();
 
   bool takeoff(float meters);
-  bool takeoff_async(float meters);
+  void takeoff_async(float meters);
   bool takeoff_specific_quadrotor(float meters, unsigned int id);
   bool in_air(float meters);
+  void in_air_async(float meters);
 
   bool examin_swarm_shape();
   void reset_models();
