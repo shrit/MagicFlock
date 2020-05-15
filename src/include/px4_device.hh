@@ -43,7 +43,6 @@ public:
   using LandedState = Telemetry::LandedState;
   using ActionResult = Action::Result;
   using OffboardResult = Offboard::Result;
-  
 
   Px4Device(std::string socket, std::string port);
 
@@ -139,10 +138,10 @@ public:
   Action::Result reboot_result() const;
   Action::Result shutdown_result() const;
   Action::Result set_takeoff_result() const;
-  
+
   Offboard::Result start_offboard_result() const;
   Offboard::Result stop_offboard_result() const;
-  
+
   bool execute_px4_shell_command(std::string command);
   bool receive_px4_shell_reponse();
 
@@ -190,7 +189,7 @@ private:
   Action::Result _set_takeoff_result;
   Offboard::Result _start_offboard_result;
   Offboard::Result _stop_offboard_result;
-  
+
   mutable std::mutex _arm_result_mutex{};
   mutable std::mutex _disarm_result_mutex{};
   mutable std::mutex _takeoff_result_mutex{};
