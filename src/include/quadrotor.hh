@@ -52,6 +52,7 @@ public:
 
   using NodePtr = gazebo::transport::NodePtr;
   using SubPtr = gazebo::transport::SubscriberPtr;
+  using inner_flight_controller = flight_controller_t;
 
   /* Quadrotor related functions*/
   unsigned int id() const;

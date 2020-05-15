@@ -39,7 +39,11 @@ using namespace ILMR;
 class Px4Device : public std::enable_shared_from_this<Px4Device>
 {
 public:
+  /* Useful shortcuts */
   using LandedState = Telemetry::LandedState;
+  using ActionResult = Action::Result;
+  using OffboardResult = Offboard::Result;
+  
 
   Px4Device(std::string socket, std::string port);
 
