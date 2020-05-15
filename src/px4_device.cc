@@ -235,6 +235,17 @@ Px4Device::takeoff_async()
 }
 
 void
+Px4Device::takeoff_async(float meters)
+{
+  logger::logger_->debug("Taking off async");
+  action_->set_takeoff_altitude_async(
+    meters, [this](Action::Result result) { _set_takeoff_result = result; });
+
+  action_->takeoff_async(
+    [this](Action::Result result) { _takeoff_result = result; });
+}
+
+void
 Px4Device::land_async()
 {
   logger::logger_->debug("Landing async");
@@ -336,8 +347,26 @@ Px4Device::shutdown_result() const
   return _shutdown_result;
 }
 
-Offboard::Result _start_offboard_result;
-Offboard::Result _stop_offboard_result;
+Action::Result
+Px4Device::set_takeoff_result() const
+{
+  std::lock_guard<std::mutex> lock(_set_takeoff_result_mutex);
+  return _set_takeoff_result;
+}
+
+Offboard::Result
+Px4Device::start_offboard_result() const
+{
+  std::lock_guard<std::mutex> lock(_start_offboard_result_mutex);
+  return _start_offboard_result;
+}
+
+Offboard::Result
+Px4Device::stop_offboard_result() const
+{
+  std::lock_guard<std::mutex> lock(_stop_offboard_result_mutex);
+  return _stop_offboard_result;
+}
 
 /*  Use the following functions set in order to generate trajectory or a
   dataset */

@@ -58,6 +58,7 @@ public:
   void reboot_async();
   void shutdown_async();
   void takeoff_async();
+  void takeoff_async(float meters);
   void land_async();
 
   template<typename VecType>
@@ -133,6 +134,7 @@ public:
   Action::Result kill_result() const;
   Action::Result reboot_result() const;
   Action::Result shutdown_result() const;
+  Action::Result set_takeoff_result() const;
   
   Offboard::Result start_offboard_result() const;
   Offboard::Result stop_offboard_result() const;
@@ -181,6 +183,7 @@ private:
   Action::Result _kill_result;
   Action::Result _reboot_result;
   Action::Result _shutdown_result;
+  Action::Result _set_takeoff_result;
   Offboard::Result _start_offboard_result;
   Offboard::Result _stop_offboard_result;
   
@@ -193,4 +196,5 @@ private:
   mutable std::mutex _shutdown_result_mutex{};
   mutable std::mutex _start_offboard_result_mutex{};
   mutable std::mutex _stop_offboard_result_mutex{};
+  mutable std::mutex _set_takeoff_result_mutex{};
 };
