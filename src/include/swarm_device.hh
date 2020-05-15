@@ -62,6 +62,18 @@ public:
 private:
   std::vector<std::shared_ptr<QuadrotorType>> quads_;
   CheckShape<QuadrotorType> shape_;
+  std::vector<typename QuadrotorType::inner_flight_controller::LandedState>
+    landed_state_results_;
+  std::vector<typename QuadrotorType::inner_flight_controller::OffboardResult>
+    offboard_mode_results_;
+
+  std::vector<typename QuadrotorType::inner_flight_controller::ActionResult>
+    takeoff_results_;
+
+  std::vector<typename QuadrotorType::inner_flight_controller::ActionResult>
+    landed_results_;
+  std::vector<typename QuadrotorType::inner_flight_controller::ActionResult>
+    arming_results_;
 };
 
 #include "swarm_device.hxx"

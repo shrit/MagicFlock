@@ -201,12 +201,10 @@ void
 SwarmDevice<QuadrotorType>::takeoff_async(float meters)
 {
   std::vector<std::thread> threads;
-  std::vector<typename QuadrotorType::inner_flight_controller::ActionResult>
-    results;
   for (auto it : quads_) {
     threads.emplace_back(std::thread([&]() {
       it->controller_->takeoff_async(meters);
-      results.emplace_back(it->controller_->takeoff_result());
+      takeoff_results_.emplace_back(it->controller_->takeoff_result());
     }));
   }
 
@@ -254,12 +252,10 @@ void
 SwarmDevice<QuadrotorType>::land_async()
 {
   std::vector<std::thread> threads;
-  std::vector<typename QuadrotorType::inner_flight_controller::ActionResult>
-    results;
   for (auto it : quads_) {
     threads.emplace_back(std::thread([&]() {
       it->controller_->land_async();
-      results.emplace_back(it->controller_->land_result());
+      landed_results_.emplace_back(it->controller_->land_result());
     }));
   }
 
@@ -289,11 +285,10 @@ void
 SwarmDevice<QuadrotorType>::landed_state_async()
 {
   std::vector<std::thread> threads;
-  std::vector<typename QuadrotorType::inner_flight_controller::LandedState>
-    results;
   for (auto it : quads_) {
-    threads.emplace_back(std::thread(
-      [&]() { results.emplace_back(it->controller_->landed_state()); }));
+    threads.emplace_back(std::thread([&]() {
+      landed_state_results_.emplace_back(it->controller_->landed_state());
+    }));
   }
 
   for (auto& thread : threads) {
