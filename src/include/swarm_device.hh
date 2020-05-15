@@ -56,6 +56,9 @@ public:
   bool examin_swarm_shape();
   void reset_models();
 
+  template<class status>
+  bool checking_status(std::vector<status> results);
+  
   SwarmDevice(SwarmDevice const&) = delete;
   SwarmDevice(SwarmDevice&&) = default;
 

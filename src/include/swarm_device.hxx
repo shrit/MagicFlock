@@ -297,6 +297,24 @@ SwarmDevice<QuadrotorType>::landed_state_async()
 }
 
 template<class QuadrotorType>
+template<class status>
+bool
+SwarmDevice<QuadrotorType>::checking_status(std::vector<status> results)
+{
+  bool recheck = false;
+  if (std::any_of(results.begin(), results.end(), [](status value) {
+        if (value != status::Success) {
+          logger::logger_->error("STATUS", value);
+          return value;
+        }
+      })) {
+    std::this_thread::sleep_for(std::chrono::seconds(10));
+    recheck = true;
+  }
+  return recheck;
+}
+
+template<class QuadrotorType>
 bool
 SwarmDevice<QuadrotorType>::land_specific_quadrotor(unsigned int id)
 {
@@ -361,16 +379,29 @@ SwarmDevice<QuadrotorType>::in_air_async(float meters)
    * of time, otherwise land everyone and start from new
    * */
   this->arm_async();
+  /* Check Arming for all quadrotors */
+  if (!checking_status(arming_results_)) {
+    // Recheck after 10 seconds if things were not well;
+    checking_status(arming_results_);
+  }
+
   /* Stop the episode if one of the quad has fallen to takoff */
   this->takeoff_async(meters);
+  /* Check the takeoff for all the quadrotors*/
+  if (!checking_status(takeoff_results_)) {
+    // Recheck after 10 seconds if things were not well;
+    checking_status(takeoff_results_);
+  }
   /*  Setting up speed in order to switch the mode */
   this->init_speed();
-  /*  Switch to offboard mode, Allow the control */
-  /* Stop the episode is the one quadcopter have fallen to set
-     offbaord mode */
+  /* Check the init speed status*/
+
+  /* Switching mode is required in order to activate*/
   this->start_offboard_mode_async();
-  /*  Wait to complete the take off process */
-  std::this_thread::sleep_for(std::chrono::seconds(1));
+  if (!checking_status(offboard_mode_results_)) {
+    // Recheck after 10 seconds if things were not well;
+    checking_status(offboard_mode_results_);
+  } /*  Wait to complete the take off process */
 }
 
 template<class QuadrotorType>
