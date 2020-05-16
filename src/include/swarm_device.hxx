@@ -74,12 +74,10 @@ void
 SwarmDevice<QuadrotorType>::arm_async()
 {
   std::vector<std::thread> threads;
-  std::vector<typename QuadrotorType::inner_flight_controller::ActionResult>
-    results;
   for (auto it : quads_) {
     threads.emplace_back(std::thread([&]() {
       it->controller_->arm_async();
-      results.emplace_back(it->controller_->arm_result());
+      //arming_results_.emplace_back(it->controller_->arm_result());
     }));
   }
 
@@ -153,7 +151,7 @@ SwarmDevice<QuadrotorType>::start_offboard_mode_async()
   for (auto it : quads_) {
     threads.emplace_back(std::thread([&]() {
       it->controller_->start_offboard_mode_async();
-      results.emplace_back(it->controller_->start_offboard_result());
+      //results.emplace_back(it->controller_->start_offboard_result());
     }));
   }
 
@@ -204,7 +202,7 @@ SwarmDevice<QuadrotorType>::takeoff_async(float meters)
   for (auto it : quads_) {
     threads.emplace_back(std::thread([&]() {
       it->controller_->takeoff_async(meters);
-      takeoff_results_.emplace_back(it->controller_->takeoff_result());
+      //takeoff_results_.emplace_back(it->controller_->takeoff_result());
     }));
   }
 
@@ -255,7 +253,7 @@ SwarmDevice<QuadrotorType>::land_async()
   for (auto it : quads_) {
     threads.emplace_back(std::thread([&]() {
       it->controller_->land_async();
-      landed_results_.emplace_back(it->controller_->land_result());
+      //landed_results_.emplace_back(it->controller_->land_result());
     }));
   }
 
@@ -304,6 +302,24 @@ SwarmDevice<QuadrotorType>::checking_status(std::vector<status> results)
   bool recheck = false;
   if (std::any_of(results.begin(), results.end(), [](status value) {
         if (value != status::Success) {
+          logger::logger_->error("STATUS", value);
+          return value;
+        }
+      })) {
+    std::this_thread::sleep_for(std::chrono::seconds(10));
+    recheck = true;
+  }
+  return recheck;
+}
+
+template<class QuadrotorType>
+template<class status>
+bool
+SwarmDevice<QuadrotorType>::check_landed_state(std::vector<status> results)
+{
+  bool recheck = false;
+  if (std::any_of(results.begin(), results.end(), [](status value) {
+        if (value != status::TakingOff) {
           logger::logger_->error("STATUS", value);
           return value;
         }
@@ -380,28 +396,35 @@ SwarmDevice<QuadrotorType>::in_air_async(float meters)
    * */
   this->arm_async();
   /* Check Arming for all quadrotors */
-  if (!checking_status(arming_results_)) {
-    // Recheck after 10 seconds if things were not well;
-    checking_status(arming_results_);
-  }
+  // if (!checking_status(arming_results_)) {
+  //   // Recheck after 10 seconds if things were not well;
+  //   checking_status(arming_results_);
+  // }
 
   /* Stop the episode if one of the quad has fallen to takoff */
   this->takeoff_async(meters);
   /* Check the takeoff for all the quadrotors*/
-  if (!checking_status(takeoff_results_)) {
-    // Recheck after 10 seconds if things were not well;
-    checking_status(takeoff_results_);
-  }
+  // if (!checking_status(takeoff_results_)) {
+  //   // Recheck after 10 seconds if things were not well;
+  //   checking_status(takeoff_results_);
+  // }
+
+  std::this_thread::sleep_for(std::chrono::seconds(10));
+  // Check if quadrotors have finished taking off
+  // if (!check_landed_state(landed_state_results_)) {
+  //   // Recheck after at least 10 seconds
+  //   check_landed_state(landed_state_results_);
+  // }
   /*  Setting up speed in order to switch the mode */
   this->init_speed();
   /* Check the init speed status*/
 
   /* Switching mode is required in order to activate*/
   this->start_offboard_mode_async();
-  if (!checking_status(offboard_mode_results_)) {
-    // Recheck after 10 seconds if things were not well;
-    checking_status(offboard_mode_results_);
-  } /*  Wait to complete the take off process */
+  // if (!checking_status(offboard_mode_results_)) {
+  //   // Recheck after 10 seconds if things were not well;
+  //   checking_status(offboard_mode_results_);
+  // } /*  Wait to complete the take off process */
 }
 
 template<class QuadrotorType>

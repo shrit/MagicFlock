@@ -58,6 +58,9 @@ public:
 
   template<class status>
   bool checking_status(std::vector<status> results);
+
+  template<class status>
+  bool check_landed_state(std::vector<status> results);
   
   SwarmDevice(SwarmDevice const&) = delete;
   SwarmDevice(SwarmDevice&&) = default;
