@@ -146,12 +146,26 @@ void
 SwarmDevice<QuadrotorType>::start_offboard_mode_async()
 {
   std::vector<std::thread> threads;
-  std::vector<typename QuadrotorType::inner_flight_controller::OffboardResult>
-    results;
   for (auto it : quads_) {
     threads.emplace_back(std::thread([&]() {
       it->controller_->start_offboard_mode_async();
-      //results.emplace_back(it->controller_->start_offboard_result());
+      //offboard_mode_results_.emplace_back(it->controller_->start_offboard_result());
+    }));
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+}
+
+template<class QuadrotorType>
+void
+SwarmDevice<QuadrotorType>::stop_offboard_mode_async()
+{
+  std::vector<std::thread> threads;
+  for (auto it : quads_) {
+    threads.emplace_back(std::thread([&]() {
+      it->controller_->stop_offboard_mode_async();
     }));
   }
 

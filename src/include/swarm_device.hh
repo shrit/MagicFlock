@@ -38,6 +38,8 @@ public:
   void start_offboard_mode_async();
   bool start_offboard_mode_specific_quadrotor(unsigned int id);
 
+  void stop_offboard_mode_async();
+
   void flight_mode_async();
   void landed_state_async();
 
