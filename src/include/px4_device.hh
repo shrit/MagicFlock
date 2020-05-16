@@ -179,16 +179,16 @@ private:
   std::shared_ptr<mavsdk::Offboard> offboard_;
   std::shared_ptr<mavsdk::Shell> shell_;
   std::shared_ptr<mavsdk::Telemetry> telemetry_;
-  Action::Result _arm_result;
-  Action::Result _disarm_result;
-  Action::Result _takeoff_result;
-  Action::Result _land_result;
-  Action::Result _kill_result;
-  Action::Result _reboot_result;
-  Action::Result _shutdown_result;
-  Action::Result _set_takeoff_result;
-  Offboard::Result _start_offboard_result;
-  Offboard::Result _stop_offboard_result;
+  Action::Result _arm_result {Action::Result::Unknown};
+  Action::Result _disarm_result {Action::Result::Unknown};
+  Action::Result _takeoff_result {Action::Result::Unknown};
+  Action::Result _land_result {Action::Result::Unknown};
+  Action::Result _kill_result {Action::Result::Unknown};
+  Action::Result _reboot_result {Action::Result::Unknown};
+  Action::Result _shutdown_result {Action::Result::Unknown};
+  Action::Result _set_takeoff_result {Action::Result::Unknown};
+  Offboard::Result _start_offboard_result {Offboard::Result::Unknown};
+  Offboard::Result _stop_offboard_result {Offboard::Result::Unknown};
 
   mutable std::mutex _arm_result_mutex{};
   mutable std::mutex _disarm_result_mutex{};
