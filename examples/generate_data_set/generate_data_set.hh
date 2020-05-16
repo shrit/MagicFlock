@@ -19,7 +19,7 @@ class Generator
 {
 
 public:
-  Generator(std::vector<std::shared_ptr<QuadrotorType>> quadrotors,
+  Generator(std::vector<QuadrotorType>& quadrotors,
             std::shared_ptr<spdlog::logger> logger);
 
   void go_to_destination();
@@ -33,7 +33,7 @@ private:
   int max_episode_;
   bool start_episode_;
   SwarmDevice<QuadrotorType> swarm_;
-  std::vector<std::shared_ptr<QuadrotorType>> quadrotors_;
+  std::vector<QuadrotorType>& quadrotors_;
   TimeSteps time_steps_;
   Timer timer_;
   std::shared_ptr<spdlog::logger> logger_;

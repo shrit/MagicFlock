@@ -53,19 +53,25 @@ main(int argc, char* argv[])
   using QuadrotorType = Quadrotor<Px4Device, GaussianNoise<arma::vec>>;
 
   /*  Create a vector of quadrotors, each one has an id + a label  */
-  std::vector<std::shared_ptr<QuadrotorType>> quadrotors;
+  std::vector<QuadrotorType> quadrotors;
   for (std::size_t i = 0; i < num_of_quads; ++i) {
-    quadrotors.emplace_back(
-      std::make_shared<QuadrotorType>(i, "iris_" + std::to_string(i), ""));
-  }
-  for (std::size_t i = 0; i < num_of_quads; ++i) {
-    logger->info(quadrotors.at(i)->port_number());
+    QuadrotorType quad;
+    quadrotors.push_back(quad);
   }
 
-  /* Give an access to each quadrotor to all its neighbors when generating dataset */
-  for (auto it : quadrotors) {
-    it->make_reference_2_swarm(quadrotors);
+  for (std::size_t i = 0; i < num_of_quads; ++i) {
+   quadrotors.at(i).init(i, "iris_" + std::to_string(i), "");
   }
+  
+  for (std::size_t i = 0; i < num_of_quads; ++i) {
+    logger->info(quadrotors.at(i).port_number());
+  }
+
+  /* Give an access to each quadrotor to all its neighbors when generating
+   * dataset */
+  // for (auto it : quadrotors) {
+  //   it->make_reference_2_swarm(quadrotors);
+  // }
 
   /*  Gazebo simulator */
   std::shared_ptr<Gazebo<QuadrotorType>> gz =
@@ -77,9 +83,9 @@ main(int argc, char* argv[])
     "Waiting for 30 seconds until gazebo start and spawining finish");
   std::this_thread::sleep_for(std::chrono::seconds(30));
   gz->Setup(argc, argv);
-  gz->subsPosTimeTopic();
-  gz->subRxTopic();
-  gz->pubModelReset();
+  // gz->subsPosTimeTopic();
+  // gz->subRxTopic();
+  // gz->pubModelReset();
 
   /* Wait for 10 seconds, Just to finish subscribe to
    * gazebo topics */
@@ -88,7 +94,7 @@ main(int argc, char* argv[])
   ILMR::logger::logger_->info("Communciation established with simulator");
 
   for (std::size_t i = 0; i < num_of_quads; ++i) {
-    quadrotors.at(i)->start_controller();
+    quadrotors.at(i).start_controller();
   }
 
   /*  Generate a dataset  */
