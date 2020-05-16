@@ -1,14 +1,20 @@
 #pragma once
 
 template<class flight_controller_t, class NoiseType>
-Quadrotor<flight_controller_t, NoiseType>::Quadrotor(unsigned int id,
-                                                     std::string name,
-                                                     std::string label)
-  : id_(id)
-  , name_(name)
-  , label_(label)
-  , node_(new gazebo::transport::Node())
+Quadrotor<flight_controller_t, NoiseType>::Quadrotor()
+{}
+
+template<class flight_controller_t, class NoiseType>
+void
+Quadrotor<flight_controller_t, NoiseType>::init(unsigned int id,
+                                                std::string name,
+                                                std::string label)
 {
+  id_ = id;
+  name_ = name;
+  label_ =label;
+  NodePtr node(new gazebo::transport::Node());
+  node_ = node;
   dataset_.init_dataset_directory();
   node_->Init();
   state_sampler_ = std::make_shared<RTSamples>();
@@ -21,7 +27,7 @@ Quadrotor<flight_controller_t, NoiseType>::Quadrotor(unsigned int id,
 template<class flight_controller_t, class NoiseType>
 void
 Quadrotor<flight_controller_t, NoiseType>::make_reference_2_swarm(
-  std::vector<std::shared_ptr<Quadrotor<flight_controller_t, NoiseType>>> quads)
+  std::vector<Quadrotor<flight_controller_t, NoiseType>> quads)
 {
   for (int i = 0; i < quads.size(); ++i) {
     if (quads.at(i)->id() == this->id()) {

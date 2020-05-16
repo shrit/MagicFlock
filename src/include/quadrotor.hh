@@ -48,12 +48,13 @@ class Quadrotor
 {
 
 public:
-  Quadrotor(unsigned int id, std::string name, std::string label);
+  Quadrotor();
 
   using NodePtr = gazebo::transport::NodePtr;
   using SubPtr = gazebo::transport::SubscriberPtr;
   using inner_flight_controller = flight_controller_t;
 
+  void init(unsigned int id, std::string name, std::string label);
   /* Quadrotor related functions*/
   unsigned int id() const;
   std::string name() const;
@@ -73,8 +74,7 @@ public:
   /* This function allows you to get a shared ptr to all quadrotors in the
    * simulator*/
   void make_reference_2_swarm(
-    std::vector<std::shared_ptr<Quadrotor<flight_controller_t, NoiseType>>>
-      quads);
+    std::vector<Quadrotor<flight_controller_t, NoiseType>> quads);
   std::vector<unsigned int> nearest_neighbors() const;
   void start_nearest_neighbor_detector();
   void stop_nearest_neighbor_detector();
@@ -159,8 +159,11 @@ public:
   void RxMsgN2(const ConstWirelessNodesPtr& _msg);
   void subRxTopic();
 
-  Quadrotor(const Quadrotor&);
+  Quadrotor(const Quadrotor&){};
+  Quadrotor& operator=(const Quadrotor& quad) { return *this; };
 
+  // Quadrotor(Quadrotor&& quad) = default;
+  // Quadrotor& operator=(Quadrotor&& quad) = default;
   std::unique_ptr<flight_controller_t> controller_;
 
 private:
