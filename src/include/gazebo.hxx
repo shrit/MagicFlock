@@ -2,7 +2,7 @@
 
 template<class QuadrotorType>
 Gazebo<QuadrotorType>::Gazebo(
-  std::vector<std::shared_ptr<QuadrotorType>> quadrotors)
+  std::vector<QuadrotorType>& quadrotors)
   : node_(new gazebo::transport::Node())
   , quadrotors_(quadrotors)
 {}
@@ -36,8 +36,8 @@ template<class QuadrotorType>
 void
 Gazebo<QuadrotorType>::subRxTopic()
 {
-  for (auto it : quadrotors_) {
-    it->subRxTopic();
+  for (auto&& it : quadrotors_) {
+    it.subRxTopic();
   }
 }
 
@@ -45,8 +45,8 @@ template<class QuadrotorType>
 void
 Gazebo<QuadrotorType>::pubModelReset()
 {
-  for (auto it : quadrotors_) {
-    std::string topic = "/gazebo/default/" + it->name() + "/model_reset";
+  for (auto&& it : quadrotors_) {
+    std::string topic = "/gazebo/default/" + it.name() + "/model_reset";
     pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(topic));
   }
 }
@@ -76,27 +76,27 @@ Gazebo<QuadrotorType>::PosMsg(ConstPosesStampedPtr& posesStamped)
     const ::gazebo::msgs::Pose& pose = posesStamped->pose(i);
     std::string name = pose.name();
     for (std::size_t j = 0; j < quadrotors_.size(); ++j) {
-      if (name == std::string(quadrotors_.at(j)->name())) {
+      if (name == std::string(quadrotors_.at(j).name())) {
         const ::gazebo::msgs::Vector3d& position = pose.position();
-        quadrotors_.at(j)->position() = ::gazebo::msgs::ConvertIgn(position);
+        quadrotors_.at(j).position() = ::gazebo::msgs::ConvertIgn(position);
 
         const ::gazebo::msgs::Quaternion& orientation = pose.orientation();
-        quadrotors_.at(j)->orientation() =
+        quadrotors_.at(j).orientation() =
           ::gazebo::msgs::ConvertIgn(orientation);
 
-      } else if (name == std::string(quadrotors_.at(j)->wt_name())) {
+      } else if (name == std::string(quadrotors_.at(j).wt_name())) {
         const ::gazebo::msgs::Vector3d& position = pose.position();
-        quadrotors_.at(j)->wt_antenna_position() =
+        quadrotors_.at(j).wt_antenna_position() =
           ::gazebo::msgs::ConvertIgn(position);
 
-      } else if (name == std::string(quadrotors_.at(j)->wr_1_name())) {
+      } else if (name == std::string(quadrotors_.at(j).wr_1_name())) {
         const ::gazebo::msgs::Vector3d& position = pose.position();
-        quadrotors_.at(j)->wr_1_antenna_position() =
+        quadrotors_.at(j).wr_1_antenna_position() =
           ::gazebo::msgs::ConvertIgn(position);
 
-      } else if (name == std::string(quadrotors_.at(j)->wr_2_name())) {
+      } else if (name == std::string(quadrotors_.at(j).wr_2_name())) {
         const ::gazebo::msgs::Vector3d& position = pose.position();
-        quadrotors_.at(j)->wr_2_antenna_position() =
+        quadrotors_.at(j).wr_2_antenna_position() =
           ::gazebo::msgs::ConvertIgn(position);
       }
     }

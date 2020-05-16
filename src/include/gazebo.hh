@@ -47,7 +47,7 @@ public:
   using PubPtr = gazebo::transport::PublisherPtr;
   using NodePtr = gazebo::transport::NodePtr;
 
-  Gazebo(std::vector<std::shared_ptr<QuadrotorType>> quadrotors);
+  Gazebo(std::vector<QuadrotorType>& quadrotors);
 
   void Setup(int argc, char* argv[]);
   void subsPosTimeTopic();
@@ -71,7 +71,7 @@ private:
   std::vector<PubPtr> pubs_;
   NodePtr node_;
   int sitl_process = 0;
-  std::vector<std::shared_ptr<QuadrotorType>> quadrotors_;
+  std::vector<QuadrotorType>& quadrotors_;
 };
 
 #include "gazebo.hxx"

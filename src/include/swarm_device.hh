@@ -18,7 +18,7 @@ class SwarmDevice
 {
 
 public:
-  SwarmDevice(std::vector<std::shared_ptr<QuadrotorType>> quads);
+  SwarmDevice(std::vector<QuadrotorType>& quads);
 
   void one_quad_execute_trajectory(unsigned int id,
                                    DiscretActions::Action action,
@@ -68,7 +68,7 @@ public:
   SwarmDevice(SwarmDevice&&) = default;
 
 private:
-  std::vector<std::shared_ptr<QuadrotorType>> quads_;
+  std::vector<QuadrotorType>& quads_;
   CheckShape<QuadrotorType> shape_;
   std::vector<typename QuadrotorType::inner_flight_controller::LandedState>
     landed_state_results_;
