@@ -41,10 +41,10 @@ struct RSSI
   std::string name; /* Name of the transmitter quadrotor */
 };
 
-template<class flight_controller_t, class NoiseType>
+template<class flight_controller_t, class FilterType, class ActionType>
 class Quadrotor
   : public std::enable_shared_from_this<
-      Quadrotor<flight_controller_t, NoiseType>>
+      Quadrotor<flight_controller_t, FilterType>>
 {
 
 public:
@@ -74,7 +74,7 @@ public:
   /* This function allows you to get a shared ptr to all quadrotors in the
    * simulator*/
   void make_reference_2_swarm(
-    std::vector<Quadrotor<flight_controller_t, NoiseType>> quads);
+    std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>> quads);
   std::vector<unsigned int> nearest_neighbors() const;
   void start_nearest_neighbor_detector();
   void stop_nearest_neighbor_detector();
@@ -98,15 +98,15 @@ public:
 
   /*  State related functions */
   void sample_state();
-  State<NoiseType> current_state() const;
-  State<NoiseType>& current_predicted_state();
-  State<NoiseType> current_predicted_state() const;
-  State<NoiseType>& current_predicted_enhanced_state();
-  State<NoiseType> current_predicted_enhanced_state() const;
-  State<NoiseType> last_state();
-  State<NoiseType> before_last_state();
-  State<NoiseType> before_2_last_state();
-  std::vector<State<NoiseType>> all_states() const;
+  State<FilterType> current_state() const;
+  State<FilterType>& current_predicted_state();
+  State<FilterType> current_predicted_state() const;
+  State<FilterType>& current_predicted_enhanced_state();
+  State<FilterType> current_predicted_enhanced_state() const;
+  State<FilterType> last_state();
+  State<FilterType> before_last_state();
+  State<FilterType> before_2_last_state();
+  std::vector<State<FilterType>> all_states() const;
   void reset_all_states();
   void start_sampling_rt_state(int interval);
   void stop_sampling_rt_state();
@@ -182,13 +182,13 @@ private:
   Histogram histo_;
   DataSet dataset_;
   arma::vec loss_vector_;
-  State<NoiseType> current_predicted_state_;
-  State<NoiseType> current_predicted_enhanced_state_;
-  State<NoiseType> current_state_;
-  State<NoiseType> last_state_;
-  State<NoiseType> before_last_state_;
-  State<NoiseType> before_2_last_state_;
-  std::vector<State<NoiseType>> all_states_;
+  State<FilterType> current_predicted_state_;
+  State<FilterType> current_predicted_enhanced_state_;
+  State<FilterType> current_state_;
+  State<FilterType> last_state_;
+  State<FilterType> before_last_state_;
+  State<FilterType> before_2_last_state_;
+  std::vector<State<FilterType>> all_states_;
 
   mutable std::mutex _rssi_from_neighbors_mutex{};
   std::vector<RSSI> _rssi_from_neighbors;
@@ -219,7 +219,7 @@ private:
   mutable std::mutex _rx_2_mutex{};
   NodePtr node_;
   std::string port_number_;
-  std::vector<Quadrotor<flight_controller_t, NoiseType>>
+  std::vector<Quadrotor<flight_controller_t, FilterType>>
     quads_;
 };
 
