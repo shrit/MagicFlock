@@ -75,7 +75,7 @@ while [ $n -lt $num_vehicles ]; do
 
 	echo "Spawning ${PX4_SIM_MODEL}_${n}"
 
-	gz model --spawn-file=${project_path}/sdf/${PX4_SIM_MODEL}_${n}.sdf --model-name=${PX4_SIM_MODEL}_${n} -x 0.0 -y $((3*${n})) -z 0.0
+	gz model --spawn-file=${project_path}/sdf/${PX4_SIM_MODEL}_${n}.sdf --model-name=${PX4_SIM_MODEL}_${n} -x 0.0 -y $((1.2*${n})) -z 0.0
 
 	popd &>/dev/null
 
