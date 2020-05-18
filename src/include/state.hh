@@ -1,5 +1,4 @@
 #pragma once
-
 /*
  * @author: Omar Shrit
  *
@@ -10,11 +9,9 @@
 #include <memory>
 
 /*  Local includes */
-#include "compute_distance.hh"
-#include "gaussian_noise.hh"
 #include "math_tools.hh"
 
-template<class NoiseType, class ContainerType>
+template<class FilterType, class ContainerType>
 class State
 {
 
@@ -24,13 +21,13 @@ public:
   State(const arma::colvec& data);
 
   State(unsigned int id,
-        std::vector<unsigned int> nearest_neighbors,
-        NoiseType noise);
+        ContainerType nearest_neighbors,
+        FilterType noise);
 
   State(unsigned int id,
-        std::vector<unsigned int> nearest_neighbors);
+        ContainerType nearest_neighbors);
 
-  arma::colvec Data() const;
+  arma::colvec Data();
 
   arma::colvec& Data();
 
@@ -42,19 +39,17 @@ public:
   
   arma::colvec& TOAs();
 
-  std::map<unsigned int, double> neighbor_dists_3D() const;
-
   const arma::colvec& Encode() const;
 
   static constexpr size_t dimension = 3;
 
 private:
   int id_;
-  ComputeDistance dist_;
   Math_tools mtools_;
-  std::map<unsigned int, double> neighbor_dists_3D_;
 
   arma::colvec data_;
+  arma::colvec rssi_data_;  
+  arma::colvec toa_data_;
 };
 
 #include "state.hxx"
