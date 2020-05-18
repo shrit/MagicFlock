@@ -57,8 +57,7 @@ public:
                                            double alti_diff_t);
 
   DiscretActions::Action undo_action(DiscretActions::Action action);
-  DiscretActions::Action pair_action_bob(DiscretActions::Action action);
-  DiscretActions::Action pair_action_charlie(DiscretActions::Action action);
+
 
   Action generate_follower_action_using_oracle(double distances_t_1_b,
                                                double distances_t_b,
