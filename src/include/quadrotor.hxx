@@ -594,7 +594,7 @@ Quadrotor<flight_controller_t, NoiseType>::RxMsgN1(
 {
   std::lock_guard<std::mutex> lock(_rx_1_mutex);
   int numRxNodes = _msg->node_size();
-
+  rssi_from_neighbors().resize(numRxNodes);
   for (int i = 0; i < numRxNodes; ++i) {
     gazebo::msgs::WirelessNode RxNode = _msg->node(i);
     rssi_from_neighbors().at(i).name = RxNode.essid();
@@ -609,7 +609,7 @@ Quadrotor<flight_controller_t, NoiseType>::RxMsgN2(
 {
   std::lock_guard<std::mutex> lock(_rx_2_mutex);
   int numRxNodes = _msg->node_size();
-
+  rssi_from_neighbors().resize(numRxNodes);
   for (int i = 0; i < numRxNodes; ++i) {
     gazebo::msgs::WirelessNode RxNode = _msg->node(i);
     rssi_from_neighbors().at(i).name = RxNode.essid();

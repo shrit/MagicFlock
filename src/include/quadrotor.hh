@@ -219,7 +219,7 @@ private:
   mutable std::mutex _rx_2_mutex{};
   NodePtr node_;
   std::string port_number_;
-  std::vector<std::shared_ptr<Quadrotor<flight_controller_t, NoiseType>>>
+  std::vector<Quadrotor<flight_controller_t, NoiseType>>
     quads_;
 };
 
