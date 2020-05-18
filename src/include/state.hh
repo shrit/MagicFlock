@@ -14,7 +14,7 @@
 #include "gaussian_noise.hh"
 #include "math_tools.hh"
 
-template<class NoiseType>
+template<class NoiseType, class ContainerType>
 class State
 {
 
