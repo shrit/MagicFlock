@@ -30,6 +30,9 @@ public:
     Unknown,
   };
 
+  Action Data() const;
+  Action& Data();
+
   template<typename Enumeration>
   auto as_integer(Enumeration const value) ->
     typename std::underlying_type<Enumeration>::type
@@ -95,4 +98,5 @@ private:
                                             Action::NoMove };
 
   Math_tools mtools_;
+  Action action_;
 };

@@ -6,8 +6,18 @@ DiscretActions::DiscretActions()
   , generator_(random_dev())
 {}
 
+DiscretActions::Action DiscretActions::Data() const
+{
+  return action_;
+}
+
+DiscretActions::Action& DiscretActions::Data()
+{
+  return action_;
+}
+
 std::string
-DiscretActions::action_to_str(Action action)
+DiscretActions::DiscretActions::action_to_str(Action action)
 {
   std::string string_action = "";
   switch (action) {
