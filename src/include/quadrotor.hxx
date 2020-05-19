@@ -239,23 +239,29 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::current_loss() const
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
-void
-Quadrotor<flight_controller_t, FilterType, ActionType>::current_action(
-  DiscretActions::Action action)
+ActionType&
+Quadrotor<flight_controller_t, FilterType, ActionType>::sample_action()
 {
-  all_actions_.push_back(action);
+  all_actions_.push_back(action.Data());
   current_action_ = action;
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
-DiscretActions::Action
+ActionType&
+Quadrotor<flight_controller_t, FilterType, ActionType>::current_action()
+{
+  return current_action_;
+}
+
+template<class flight_controller_t, class FilterType, class ActionType>
+ActionType
 Quadrotor<flight_controller_t, FilterType, ActionType>::current_action() const
 {
   return current_action_;
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
-DiscretActions::Action
+ActionType
 Quadrotor<flight_controller_t, FilterType, ActionType>::last_action()
 {
   if (all_actions_.size() > 1) {
@@ -267,7 +273,7 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::last_action()
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
-DiscretActions::Action
+ActionType
 Quadrotor<flight_controller_t, FilterType, ActionType>::before_last_action()
 {
   if (all_actions_.size() > 2) {
@@ -279,7 +285,7 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::before_last_action()
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
-DiscretActions::Action
+ActionType
 Quadrotor<flight_controller_t, FilterType, ActionType>::before_2_last_action()
 {
   if (all_actions_.size() > 3) {
@@ -291,7 +297,7 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::before_2_last_action()
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
-std::vector<DiscretActions::Action>
+std::vector<ActionType>
 Quadrotor<flight_controller_t, FilterType, ActionType>::all_actions() const
 {
   return all_actions_;

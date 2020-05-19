@@ -116,12 +116,12 @@ public:
   arma::vec current_loss() const;
 
   /* Discret Actions related functions */
-  DiscretActions::Action current_action() const;
-  void current_action(DiscretActions::Action action);
-  DiscretActions::Action last_action();
-  DiscretActions::Action before_last_action();
-  DiscretActions::Action before_2_last_action();
-  std::vector<DiscretActions::Action> all_actions() const;
+  ActionType current_action() const;
+  ActionType& current_action();
+  ActionType last_action();
+  ActionType before_last_action();
+  ActionType before_2_last_action();
+  std::vector<ActionType> all_actions() const;
   void reset_all_actions();
 
   /*  Data set related functions */
@@ -167,14 +167,14 @@ public:
   std::unique_ptr<flight_controller_t> controller_;
 
 private:
-  DiscretActions::Action current_action_{ DiscretActions::Action::Unknown };
-  DiscretActions::Action last_action_{ DiscretActions::Action::Unknown };
-  DiscretActions::Action before_last_action_{ DiscretActions::Action::Unknown };
-  DiscretActions::Action before_2_last_action_{
-    DiscretActions::Action::Unknown
-  };
-  std::vector<DiscretActions::Action> all_actions_;
-  std::vector<DiscretActions::Action> action_container_;
+  // See if these actions requires initialisation.
+  ActionType current_action_;
+  ActionType last_action_;
+  ActionType before_last_action_;
+  ActionType before_2_last_action_;
+
+  std::vector<ActionType> all_actions_;
+  std::vector<ActionType> action_container_;
   std::vector<SubPtr> subs_;
   ComputeDistance dist_;
   VectorHelper vec_;
@@ -219,8 +219,7 @@ private:
   mutable std::mutex _rx_2_mutex{};
   NodePtr node_;
   std::string port_number_;
-  std::vector<Quadrotor<flight_controller_t, FilterType>>
-    quads_;
+  std::vector<Quadrotor<flight_controller_t, FilterType>> quads_;
 };
 
 #include "quadrotor.hxx"
