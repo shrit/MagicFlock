@@ -27,6 +27,7 @@ file(GLOB HEADER_LIST_XX CONFIGURE_DEPENDS "src/include/*.hxx")
 add_subdirectory( src/gazebo )
 
 add_library(ILMR SHARED
+  src/continuous_actions.cc
   src/discret_actions.cc
   src/flocking.cc
   src/keyboard.cc
