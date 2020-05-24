@@ -60,9 +60,9 @@ main(int argc, char* argv[])
   }
 
   for (std::size_t i = 0; i < num_of_quads; ++i) {
-   quadrotors.at(i).init(i, "iris_" + std::to_string(i), "");
+    quadrotors.at(i).init(i, "iris_" + std::to_string(i), "");
   }
-  
+
   for (std::size_t i = 0; i < num_of_quads; ++i) {
     logger->info(quadrotors.at(i).port_number());
   }
@@ -74,18 +74,17 @@ main(int argc, char* argv[])
   // }
 
   /*  Gazebo simulator */
-  std::shared_ptr<Gazebo<QuadrotorType>> gz =
-    std::make_shared<Gazebo<QuadrotorType>>(quadrotors);
-  gz->start_simulation(
+  Gazebo<QuadrotorType> gz(quadrotors);
+  gz.start_simulation(
     "/meta/lemon/script/gazebo_sitl_multiple_run.sh", num_of_quads, "iris");
 
   logger->info(
     "Waiting for 30 seconds until gazebo start and spawining finish");
   std::this_thread::sleep_for(std::chrono::seconds(30));
-  gz->Setup(argc, argv);
-  // gz->subsPosTimeTopic();
-  // gz->subRxTopic();
-  // gz->pubModelReset();
+  gz.Setup(argc, argv);
+  gz.subsPosTimeTopic();
+  gz.subRxTopic();
+  gz.pubModelReset();
 
   /* Wait for 10 seconds, Just to finish subscribe to
    * gazebo topics */
