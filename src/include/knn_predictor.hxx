@@ -1,18 +1,18 @@
 #pragma once
 
-template<class simulator_t>
-KnnPredictor<simulator_t>::KnnPredictor(
+template<class QuadrotorType>
+KnnPredictor<QuadrotorType>::KnnPredictor(
   std::string dataset_file,
-  typename std::vector<Quadrotor<simulator_t>>::iterator quad)
+  typename std::vector<QuadrotorType>::iterator quad)
   : quad_(quad)
 {
   dataset_.parse_dataset_file(dataset_file);
   dataset_.load_knn_dataset(dataset_file);
 }
 
-template<class simulator_t>
+template<class QuadrotorType>
 void
-KnnPredictor<simulator_t>::predict(int knn_neighbors)
+KnnPredictor<QuadrotorType>::predict(int knn_neighbors)
 {
   /* All of the following matrices are col major*/
   arma::mat s_a_s_t_1 = dataset_.s_a_s_t_1_mat();
@@ -58,12 +58,12 @@ KnnPredictor<simulator_t>::predict(int knn_neighbors)
   logger::logger_->info("action vector: {}", action);
 
   predicted_follower_action_ =
-    actions.int_to_action(mtools_.from_one_hot_encoding(action));
+    actions.int_to_action(one_hot_.from_one_hot_encoding(action));
 }
 
-template<class simulator_t>
+template<class QuadrotorType>
 Actions::Action
-KnnPredictor<simulator_t>::get_predicted_action() const
+KnnPredictor<QuadrotorType>::get_predicted_action() const
 {
   return predicted_follower_action_;
 }

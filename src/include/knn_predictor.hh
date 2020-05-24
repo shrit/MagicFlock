@@ -16,19 +16,17 @@
 
 /* local includes  */
 #include "dataset.hh"
-#include "distance_state.hh"
-#include "math_tools.hh"
-#include "quadrotor.hh"
+#include "one_hot_encoding.hh"
 
 using namespace ILMR;
 
-template<class simulator_t>
+template<class QuadrotorType>
 class KnnPredictor
 {
 public:
   KnnPredictor(
     std::string dataset_file,
-    typename std::vector<Quadrotor<simulator_t>>::iterator quad);
+    typename std::vector<QuadrotorType>::iterator quad);
 
   void predict(int knn_neighbors);
   Actions::Action get_predicted_action() const;
@@ -40,10 +38,10 @@ public:
   KnnPredictor(KnnPredictor&&) = default;
 
 private:
-  DataSet<simulator_t> dataset_;
-  Math_tools mtools_;
-  Actions::Action predicted_follower_action_;
-  typename std::vector<Quadrotor<simulator_t>>::iterator quad_;
+  OneHotEncoding one_hot_;
+  DataSet dataset_;
+  DiscretActions::Action predicted_follower_action_;
+  typename std::vector<QuadrotorType>::iterator quad_;
 };
 
 #include "knn_predictor.hxx"
