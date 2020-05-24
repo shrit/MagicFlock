@@ -42,7 +42,7 @@ SwarmDevice<QuadrotorType>::one_quad_execute_trajectory(
   unsigned int id,
   ContinuousActions action)
 {
-  ignition::math::Vector3d vec = action.velocity_vector();
+  ignition::math::Vector3d vec = action.Data();
   quads_.at(id).controller_->set_velocity_vector(vec);
 }
 

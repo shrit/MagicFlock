@@ -19,7 +19,6 @@
 #include "discret_actions.hh"
 #include "flocking.hh"
 #include "histogram.hh"
-#include "math_tools.hh"
 #include "nearest_neighbors.hh"
 #include "one_hot_encoding.hh"
 #include "real_time_samples.hh"
@@ -44,7 +43,7 @@ struct RSSI
 template<class flight_controller_t, class FilterType, class ActionType>
 class Quadrotor
   : public std::enable_shared_from_this<
-      Quadrotor<flight_controller_t, FilterType>>
+      Quadrotor<flight_controller_t, FilterType, ActionType>>
 {
 
 public:
@@ -98,15 +97,15 @@ public:
 
   /*  State related functions */
   void sample_state();
-  State<FilterType> current_state() const;
-  State<FilterType>& current_predicted_state();
-  State<FilterType> current_predicted_state() const;
-  State<FilterType>& current_predicted_enhanced_state();
-  State<FilterType> current_predicted_enhanced_state() const;
-  State<FilterType> last_state();
-  State<FilterType> before_last_state();
-  State<FilterType> before_2_last_state();
-  std::vector<State<FilterType>> all_states() const;
+  State<FilterType, std::vector<RSSI>> current_state() const;
+  State<FilterType, std::vector<RSSI>>& current_predicted_state();
+  State<FilterType, std::vector<RSSI>> current_predicted_state() const;
+  State<FilterType, std::vector<RSSI>>& current_predicted_enhanced_state();
+  State<FilterType, std::vector<RSSI>> current_predicted_enhanced_state() const;
+  State<FilterType, std::vector<RSSI>> last_state();
+  State<FilterType, std::vector<RSSI>> before_last_state();
+  State<FilterType, std::vector<RSSI>> before_2_last_state();
+  std::vector<State<FilterType, std::vector<RSSI>>> all_states() const;
   void reset_all_states();
   void start_sampling_rt_state(int interval);
   void stop_sampling_rt_state();
@@ -116,6 +115,7 @@ public:
   arma::vec current_loss() const;
 
   /* Discret Actions related functions */
+  void sample_action();
   ActionType current_action() const;
   ActionType& current_action();
   ActionType last_action();
@@ -182,13 +182,13 @@ private:
   Histogram histo_;
   DataSet dataset_;
   arma::vec loss_vector_;
-  State<FilterType> current_predicted_state_;
-  State<FilterType> current_predicted_enhanced_state_;
-  State<FilterType> current_state_;
-  State<FilterType> last_state_;
-  State<FilterType> before_last_state_;
-  State<FilterType> before_2_last_state_;
-  std::vector<State<FilterType>> all_states_;
+  State<FilterType, std::vector<RSSI>> current_predicted_state_;
+  State<FilterType, std::vector<RSSI>> current_predicted_enhanced_state_;
+  State<FilterType, std::vector<RSSI>> current_state_;
+  State<FilterType, std::vector<RSSI>> last_state_;
+  State<FilterType, std::vector<RSSI>> before_last_state_;
+  State<FilterType, std::vector<RSSI>> before_2_last_state_;
+  std::vector<State<FilterType, std::vector<RSSI>>> all_states_;
 
   mutable std::mutex _rssi_from_neighbors_mutex{};
   std::vector<RSSI> _rssi_from_neighbors;
@@ -219,7 +219,7 @@ private:
   mutable std::mutex _rx_2_mutex{};
   NodePtr node_;
   std::string port_number_;
-  std::vector<Quadrotor<flight_controller_t, FilterType>> quads_;
+  std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>> quads_;
 };
 
 #include "quadrotor.hxx"

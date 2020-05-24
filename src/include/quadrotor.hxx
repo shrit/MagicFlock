@@ -239,7 +239,7 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::current_loss() const
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
-ActionType&
+void
 Quadrotor<flight_controller_t, FilterType, ActionType>::sample_action()
 {
   all_actions_.push_back(action.Data());
@@ -383,7 +383,7 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::save_dataset_with_loss()
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
-template<typename Arg, typename... Args, class ActionType>
+template<typename Arg, typename... Args>
 void
 Quadrotor<flight_controller_t, FilterType, ActionType>::save_loss(Arg arg,
                                                                   Args... args)
