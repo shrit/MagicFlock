@@ -13,3 +13,10 @@ ArmaHelper::map_to_arma(std::map<T1, T2> m)
 
   return arma_vec;
 }
+
+template<typename T>
+arma::colvec
+ArmaHelper::vec_to_arma(std::vector<T> vec)
+{
+  return arma::conv_to<arma::colvec>::from(vec);
+}
