@@ -3,7 +3,6 @@
 #include <cmath>
 
 #include "logger.hh"
-#include "math_tools.hh"
 
 using namespace ILMR;
 
@@ -42,7 +41,6 @@ private:
   double gamma_;
   double sigma_;
 
-  Math_tools mtools_;
   std::shared_ptr<rssi_t> rssi_interface_;
 };
 

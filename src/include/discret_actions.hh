@@ -9,8 +9,6 @@
 #include <random>
 #include <utility>
 
-#include "math_tools.hh"
-
 class DiscretActions
 {
 
@@ -97,6 +95,5 @@ private:
                                             Action::up,      Action::down,
                                             Action::NoMove };
 
-  Math_tools mtools_;
   Action action_;
 };

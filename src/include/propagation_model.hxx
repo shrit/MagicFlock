@@ -47,7 +47,6 @@ Propagation_model<rssi_t, double>::friis_convert_dbm_to_distance(
     20;
   double D_log = std::log10(wave_length_) - std::log10(4 * PI) - value;
   double distance = std::pow(10, D_log);
-  distance = mtools_.pythagore_leg(diff_heights, distance);
   return distance;
 }
 
