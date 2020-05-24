@@ -1,9 +1,8 @@
 #pragma once
 
 template<class QuadrotorType>
-Generator<QuadrotorType>::Generator(
-  std::vector<QuadrotorType>& quadrotors,
-  std::shared_ptr<spdlog::logger> logger)
+Generator<QuadrotorType>::Generator(std::vector<QuadrotorType>& quadrotors,
+                                    std::shared_ptr<spdlog::logger> logger)
   : episode_(0)
   , max_episode_(10000)
   , start_episode_(false)
@@ -42,7 +41,7 @@ Generator<QuadrotorType>::run()
 
     logger_->info("Episode : {}", episode_);
     timer_.start();
-    //start_episode_ = 
+    // start_episode_ =
     swarm_.in_air_async(15);
 
     /* Collect dataset by creating a specific destination.
@@ -52,21 +51,21 @@ Generator<QuadrotorType>::run()
      * or quadrotors are very dispersed.
      */
 
-    std::this_thread::sleep_for(std::chrono::seconds(20));
     // if (start_episode_) {
     //   /*  Verify that vectors are clear when starting new episode */
     //   logger_->info("Taking off has finished. Start sampling dataset");
-    //   for (auto it : quadrotors_) {
-    //     it->start_sampling_rt_state(50);
-    //   }
-    //   time_steps_.reset();
+    for (auto&& it : quadrotors_) {
+      it.start_sampling_rt_state(50);
+    }
+    time_steps_.reset();
     //   //go_to_destination();
+    std::this_thread::sleep_for(std::chrono::seconds(20));
 
-    //   // follower_1_->register_data_set();
-    //   // follower_2_->register_data_set();
+    for (auto&& it : quadrotors_) {
+      it.save_dataset_rssi_velocity();
+    }
 
     //   // follower_1_->register_episodes(episode_);
-
     //   logger_->flush();
     // }
 
@@ -74,12 +73,12 @@ Generator<QuadrotorType>::run()
     // follower_1_->register_histogram(time_steps_.steps());
     // follower_2_->register_histogram(time_steps_.steps());
 
-    // for (auto it : quadrotors_) {
-    //   it->stop_sampling_rt_state();
-    // }
+    for (auto&& it : quadrotors_) {
+      it.stop_sampling_rt_state();
+    }
 
-    // std::string flight_time = timer_.stop_and_get_time();
-    // logger_->info("Flight time: {}", flight_time);
+    std::string flight_time = timer_.stop_and_get_time();
+    logger_->info("Flight time: {}", flight_time);
     /* Landing is blocking untill all quadrotors in the swarm touch the
      * ground */
     swarm_.stop_offboard_mode_async();

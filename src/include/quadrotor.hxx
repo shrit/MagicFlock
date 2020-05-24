@@ -111,9 +111,7 @@ void
 Quadrotor<flight_controller_t, FilterType, ActionType>::start_sampling_rt_state(
   int interval)
 {
-  state_sampler_->start(interval, [this]() {
-    sample_state();
-  });
+  state_sampler_->start(interval, [this]() { sample_state(); });
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
@@ -323,7 +321,9 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::
 {
   // see if it is possible to make current action generic
   dataset_.save_csv_dataset_2_file(
-    name_, vec_.to_std_vector(current_state().Data(), current_action().Data()));
+    name_,
+    vec_.to_std_vector(current_state().Data()),
+    current_action().Data());
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
