@@ -9,6 +9,7 @@
 #include <memory>
 
 /*  Local includes */
+#include "arma_helper.hh"
 
 template<class FilterType, class ContainerType>
 class State
@@ -44,7 +45,7 @@ public:
 
 private:
   int id_;
-
+  ArmaHelper arma;
   arma::colvec data_;
   arma::colvec rssi_data_;  
   arma::colvec toa_data_;

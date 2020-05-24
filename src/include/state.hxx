@@ -17,7 +17,7 @@ State<FilterType, ContainerType>::State(const arma::colvec& data)
 template<class FilterType, class ContainerType>
 State<FilterType, ContainerType>::State(unsigned int id,
                                         ContainerType container,
-                                        FilterType noise)
+                                        FilterType filter)
   : id_(id)
   , data_(container.size(), arma::fill::zeros)
 {
@@ -28,7 +28,8 @@ State<FilterType, ContainerType>::State(unsigned int id,
     data.push_back(container.at(i).antenna_1);
     data.push_back(container.at(i).antenna_2);
   }
-  data_ = noise.apply_noise(data_);
+  data_ = arma.vec_to_arma(data);
+  data_ = filter.apply_filter(data_);
 }
 
 template<class FilterType, class ContainerType>
@@ -44,6 +45,7 @@ State<FilterType, ContainerType>::State(unsigned int id,
     data.push_back(container.at(i).antenna_1);
     data.push_back(container.at(i).antenna_2);
   }
+  data_ = arma.vec_to_arma(data);
 }
 
 template<class FilterType, class ContainerType>
@@ -93,8 +95,7 @@ template<class FilterType, class ContainerType>
 const arma::colvec&
 State<FilterType, ContainerType>::Encode() const
 {
-  data_ = arma::join_cols(rssi_data_, toa_data_);  
-  //return data_;
+  data_ = arma::join_cols(rssi_data_, toa_data_);
 }
 
 template<class FilterType, class ContainerType>
