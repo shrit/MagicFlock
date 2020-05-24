@@ -112,9 +112,7 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::start_sampling_rt_state(
   int interval)
 {
   state_sampler_->start(interval, [this]() {
-    State<FilterType, std::vector<RSSI>> state(id_, nearest_neighbors());
-    current_state_ = state;
-    all_states_.push_back(state);
+    sample_state();
   });
 }
 
@@ -129,7 +127,7 @@ template<class flight_controller_t, class FilterType, class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, ActionType>::sample_state()
 {
-  State<FilterType, std::vector<RSSI>> state(id_, nearest_neighbors());
+  State<FilterType, std::vector<RSSI>> state(id_, rssi_from_neighbors());
   current_state_ = state;
   all_states_.push_back(state);
 }
@@ -242,6 +240,7 @@ template<class flight_controller_t, class FilterType, class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, ActionType>::sample_action()
 {
+  ActionType action;
   all_actions_.push_back(action.Data());
   current_action_ = action;
 }
