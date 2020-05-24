@@ -9,7 +9,6 @@
 #include <memory>
 
 /*  Local includes */
-#include "math_tools.hh"
 
 template<class FilterType, class ContainerType>
 class State
@@ -27,7 +26,7 @@ public:
   State(unsigned int id,
         ContainerType nearest_neighbors);
 
-  arma::colvec Data();
+  arma::colvec Data() const;
 
   arma::colvec& Data();
 
@@ -45,7 +44,6 @@ public:
 
 private:
   int id_;
-  Math_tools mtools_;
 
   arma::colvec data_;
   arma::colvec rssi_data_;  
