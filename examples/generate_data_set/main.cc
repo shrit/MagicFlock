@@ -16,6 +16,7 @@
 #include "generate_data_set.hh"
 
 /* ILMR library include  */
+#include <ILMR/continuous_actions.hh>
 #include <ILMR/gaussian_noise.hh>
 #include <ILMR/gazebo.hh>
 #include <ILMR/logger.hh>
@@ -50,7 +51,8 @@ main(int argc, char* argv[])
                  " Number of quadrotor to create inside the simulator.");
   CLI11_PARSE(app, argc, argv);
 
-  using QuadrotorType = Quadrotor<Px4Device, GaussianNoise<arma::vec>>;
+  using QuadrotorType =
+    Quadrotor<Px4Device, GaussianNoise<arma::vec>, ContinuousActions>;
 
   /*  Create a vector of quadrotors, each one has an id + a label  */
   std::vector<QuadrotorType> quadrotors;
