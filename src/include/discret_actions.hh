@@ -7,6 +7,7 @@
 #pragma once
 
 #include <random>
+#include <tuple>
 #include <utility>
 
 class DiscretActions
