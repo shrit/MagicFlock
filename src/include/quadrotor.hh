@@ -61,7 +61,6 @@ public:
   double height();
   std::string port_number() const;
   std::string& port_number();
-  NodePtr node();
   void start_controller();
   ignition::math::Vector3d start_flocking(double sepGain,
                                           double cohGain,
@@ -157,7 +156,7 @@ public:
   /* Gazebo callbacks to recover the value of the signal strenght*/
   void RxMsgN1(const ConstWirelessNodesPtr& _msg);
   void RxMsgN2(const ConstWirelessNodesPtr& _msg);
-  void subRxTopic();
+  void subRxTopic(NodePtr& node);
 
   Quadrotor(const Quadrotor&){};
   Quadrotor& operator=(const Quadrotor& quad) { return *this; };
@@ -193,9 +192,8 @@ private:
   mutable std::mutex _rssi_from_neighbors_mutex{};
   std::vector<RSSI> _rssi_from_neighbors;
   std::vector<unsigned int> _nearest_neighbors;
-
-  std::shared_ptr<RTSamples> state_sampler_, neighbor_sampler_,
-    flocking_sampler_;
+  RTSamples state_sampler_;
+  std::shared_ptr<RTSamples> neighbor_sampler_, flocking_sampler_;
   unsigned int id_;  /* Quadrotor id */
   std::string name_; /* Quadrotor name */
   /* Quadrotor label (Given by the user, leader, follower, etc)*/
@@ -217,7 +215,6 @@ private:
   ignition::math::Quaternion<double> _orientation;
   mutable std::mutex _rx_1_mutex{};
   mutable std::mutex _rx_2_mutex{};
-  NodePtr node_;
   std::string port_number_;
   std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>> quads_;
 };

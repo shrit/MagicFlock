@@ -1,8 +1,7 @@
 #pragma once
 
 template<class QuadrotorType>
-Gazebo<QuadrotorType>::Gazebo(
-  std::vector<QuadrotorType>& quadrotors)
+Gazebo<QuadrotorType>::Gazebo(std::vector<QuadrotorType>& quadrotors)
   : node_(new gazebo::transport::Node())
   , quadrotors_(quadrotors)
 {}
@@ -37,7 +36,7 @@ void
 Gazebo<QuadrotorType>::subRxTopic()
 {
   for (auto&& it : quadrotors_) {
-    it.subRxTopic();
+    it.subRxTopic(node_);
   }
 }
 

@@ -13,11 +13,7 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::init(unsigned int id,
   id_ = id;
   name_ = name;
   label_ = label;
-  NodePtr node(new gazebo::transport::Node());
-  node_ = node;
   dataset_.init_dataset_directory();
-  node_->Init();
-  state_sampler_ = std::make_shared<RTSamples>();
   neighbor_sampler_ = std::make_shared<RTSamples>();
   flocking_sampler_ = std::make_shared<RTSamples>();
   port_number_ = std::to_string(1454) + std::to_string(id);
@@ -111,20 +107,24 @@ void
 Quadrotor<flight_controller_t, FilterType, ActionType>::start_sampling_rt_state(
   int interval)
 {
-  state_sampler_->start(interval, [this]() { sample_state(); });
+  logger::logger_->info("START STATE SAMPLING");
+  state_sampler_.start(interval, [this]() { sample_state(); });
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, ActionType>::stop_sampling_rt_state()
 {
-  state_sampler_->stop();
+  state_sampler_.stop();
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, ActionType>::sample_state()
 {
+  for (std::size_t i; i < rssi_from_neighbors().size(); ++i) {
+    std::cout << "rssi" << rssi_from_neighbors().at(i).antenna_1 << std::endl;
+  }
   State<FilterType, std::vector<RSSI>> state(id_, rssi_from_neighbors());
   current_state_ = state;
   all_states_.push_back(state);
@@ -321,9 +321,7 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::
 {
   // see if it is possible to make current action generic
   dataset_.save_csv_dataset_2_file(
-    name_,
-    vec_.to_std_vector(current_state().Data()),
-    current_action().Data());
+    name_, vec_.to_std_vector(current_state().Data()), current_action().Data());
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
@@ -557,7 +555,10 @@ std::string
 Quadrotor<flight_controller_t, FilterType, ActionType>::
   wireless_receiver_1_topic_name()
 {
-  return "/gazebo/default/" + name() + "/WR_1/Wireless Reveiver/transceiver";
+  std::string topic_name =
+    "/gazebo/default/" + name_ + "/WR_1/Wireless Receiver/transceiver";
+  std::cout << "name topic" << topic_name << std::endl;
+  return topic_name;
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
@@ -565,7 +566,10 @@ std::string
 Quadrotor<flight_controller_t, FilterType, ActionType>::
   wireless_receiver_2_topic_name()
 {
-  return "/gazebo/default/" + name() + "/WR_2/Wireless Reveiver/transceiver";
+  std::string topic_name =
+    "/gazebo/default/" + name_ + "/WR_2/Wireless Receiver/transceiver";
+  std::cout << "name topic  " << topic_name << std::endl;
+  return topic_name;
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
@@ -643,24 +647,18 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::RxMsgN2(
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
-gazebo::transport::NodePtr
-Quadrotor<flight_controller_t, FilterType, ActionType>::node()
-{
-  return node_;
-}
-
-template<class flight_controller_t, class FilterType, class ActionType>
 void
-Quadrotor<flight_controller_t, FilterType, ActionType>::subRxTopic()
+Quadrotor<flight_controller_t, FilterType, ActionType>::subRxTopic(
+  Quadrotor<flight_controller_t, FilterType, ActionType>::NodePtr& node)
 {
   std::string topic_WR_1 = wireless_receiver_1_topic_name();
-  subs_.push_back(node_->Subscribe(
+  subs_.push_back(node->Subscribe(
     topic_WR_1,
     &Quadrotor<flight_controller_t, FilterType, ActionType>::RxMsgN1,
     this));
 
   std::string topic_WR_2 = wireless_receiver_2_topic_name();
-  subs_.push_back(node_->Subscribe(
+  subs_.push_back(node->Subscribe(
     topic_WR_2,
     &Quadrotor<flight_controller_t, FilterType, ActionType>::RxMsgN2,
     this));
