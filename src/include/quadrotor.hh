@@ -98,7 +98,8 @@ public:
   ignition::math::Vector3d& wt_antenna_position();
   ignition::math::Quaternion<double> orientation() const;
   ignition::math::Quaternion<double>& orientation();
-  std::vector<ignition::math::Vector3d> position_of_neighbors() const;
+  std::vector<ignition::math::Vector3d>& neighbor_positions();
+  std::vector<ignition::math::Vector3d> neighbor_positions() const;
 
   /*  State related functions */
   void sample_state();
@@ -195,6 +196,8 @@ private:
   State<FilterType, std::vector<RSSI>> before_2_last_state_;
   std::vector<State<FilterType, std::vector<RSSI>>> all_states_;
 
+  mutable std::mutex _neighbor_positions_mutex{};
+  std::vector<ignition::math::Vector3d> _neighbor_positions;
   mutable std::mutex _rssi_from_neighbors_mutex{};
   std::vector<RSSI> _rssi_from_neighbors;
   std::vector<unsigned int> _nearest_neighbors;

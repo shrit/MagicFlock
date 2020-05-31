@@ -19,6 +19,8 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::init(
   dataset_.init_dataset_directory();
   port_number_ = std::to_string(1454) + std::to_string(id);
   rssi_from_neighbors().resize(number_of_quad); // Max number of quad created
+  neighbor_positions().resize(number_of_quad);
+
   std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>>& quad_ =
     quad;
   start_nearest_neighbor_detector(quad_);
@@ -41,8 +43,13 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::start_flocking(
   ignition::math::Vector3d destination)
 {
   flocking_sampler_.start(50, [&]() {
-    Flocking flock(
-      sepGain, cohGain, migGain, cutoffDist, position(), destination);
+    Flocking flock(sepGain,
+                   cohGain,
+                   migGain,
+                   cutoffDist,
+                   position(),
+                   neighbor_positions(),
+                   destination);
     flock.Velocity();
   });
 }
@@ -76,11 +83,9 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::
 {
 
   neighbor_sampler_.start(50, [&]() {
-    for (auto&& it : quads) {
-      std::cout << position() << std::endl;
+    for (std::size_t i = 0; i < quads.size(); ++i) {
+      neighbor_positions().at(i) = quads.at(i).position();
     }
-    // NearestNeighbors<RSSI> nn(_rssi_from_neighbors);
-    // _nearest_neighbors = nn.search();
   });
 }
 
@@ -441,6 +446,23 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::position()
 {
   std::lock_guard<std::mutex> lock(_position_mutex);
   return _position;
+}
+
+template<class flight_controller_t, class FilterType, class ActionType>
+std::vector<ignition::math::Vector3d>
+Quadrotor<flight_controller_t, FilterType, ActionType>::neighbor_positions()
+  const
+{
+  std::lock_guard<std::mutex> lock(_neighbor_positions_mutex);
+  return _neighbor_positions;
+}
+
+template<class flight_controller_t, class FilterType, class ActionType>
+std::vector<ignition::math::Vector3d>&
+Quadrotor<flight_controller_t, FilterType, ActionType>::neighbor_positions()
+{
+  std::lock_guard<std::mutex> lock(_neighbor_positions_mutex);
+  return _neighbor_positions;
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
