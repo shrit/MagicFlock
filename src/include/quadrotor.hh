@@ -68,14 +68,16 @@ public:
   ignition::math::Vector3d start_flocking(double sepGain,
                                           double cohGain,
                                           double migGain,
-                                          double cutoffDist);
+                                          double cutoffDist,
+                                          ignition::math::Vector3d destination);
   void stop_flocking();
 
   /* Neighbors related fuctions*/
   /* This function allows you to get a shared ptr to all quadrotors in the
    * simulator*/
   void make_reference_2_swarm(
-    std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>> quads);
+    const std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>>&
+      quads);
   std::vector<unsigned int> nearest_neighbors() const;
   void start_nearest_neighbor_detector();
   void stop_nearest_neighbor_detector();

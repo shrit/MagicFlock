@@ -23,13 +23,9 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::init(unsigned int id,
 template<class flight_controller_t, class FilterType, class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, ActionType>::make_reference_2_swarm(
-  std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>> quads)
+  const std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>>&
+    quads)
 {
-  for (int i = 0; i < quads.size(); ++i) {
-    if (quads.at(i)->id() == this->id()) {
-      quads.erase(quads.begin() + i); // needs verifications
-    }
-  }
   quads_ = quads;
 }
 
@@ -46,10 +42,12 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::start_flocking(
   double sepGain,
   double cohGain,
   double migGain,
-  double cutoffDist)
+  double cutoffDist,
+  ignition::math::Vector3d destination)
 {
   flocking_sampler_.start(50, [&]() {
-    Flocking flock(sepGain, cohGain, migGain, cutoffDist, position());
+    Flocking flock(
+      sepGain, cohGain, migGain, cutoffDist, position(), destination);
     flock.Velocity();
   });
 }
@@ -81,8 +79,11 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::
   start_nearest_neighbor_detector()
 {
   neighbor_sampler_.start(50, [this]() {
-    NearestNeighbors<RSSI> nn(_rssi_from_neighbors);
-    _nearest_neighbors = nn.search();
+    for (auto&& it : quads_) {
+      std::cout << it.position() << std::endl;
+    }
+    // NearestNeighbors<RSSI> nn(_rssi_from_neighbors);
+    // _nearest_neighbors = nn.search();
   });
 }
 
@@ -451,7 +452,7 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::wr_1_antenna_position()
   const
 {
   std::lock_guard<std::mutex> lock(_position_mutex);
-  return _position;
+  return _wr_1_position;
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
@@ -459,7 +460,7 @@ ignition::math::Vector3d&
 Quadrotor<flight_controller_t, FilterType, ActionType>::wr_1_antenna_position()
 {
   std::lock_guard<std::mutex> lock(_position_mutex);
-  return _position;
+  return _wr_1_position;
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
@@ -468,7 +469,7 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::wr_2_antenna_position()
   const
 {
   std::lock_guard<std::mutex> lock(_position_mutex);
-  return _position;
+  return _wr_2_position;
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
@@ -476,7 +477,7 @@ ignition::math::Vector3d&
 Quadrotor<flight_controller_t, FilterType, ActionType>::wr_2_antenna_position()
 {
   std::lock_guard<std::mutex> lock(_position_mutex);
-  return _position;
+  return _wr_2_position;
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
@@ -485,7 +486,7 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::wt_antenna_position()
   const
 {
   std::lock_guard<std::mutex> lock(_position_mutex);
-  return _position;
+  return _wt_position;
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
@@ -493,7 +494,7 @@ ignition::math::Vector3d&
 Quadrotor<flight_controller_t, FilterType, ActionType>::wt_antenna_position()
 {
   std::lock_guard<std::mutex> lock(_position_mutex);
-  return _position;
+  return _wt_position;
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
