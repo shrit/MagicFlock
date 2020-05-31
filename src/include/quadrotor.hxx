@@ -108,7 +108,6 @@ void
 Quadrotor<flight_controller_t, FilterType, ActionType>::start_sampling_rt_state(
   int interval)
 {
-  logger::logger_->info("START STATE SAMPLING");
   state_sampler_.start(interval, [this]() { sample_state(); });
 }
 
@@ -126,6 +125,7 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::sample_state()
   std::lock_guard<std::mutex> lock(_sample_state_mutex);
   State<FilterType, std::vector<RSSI>> state(id_, rssi_from_neighbors());
   current_state_ = state;
+  save_dataset_rssi_velocity(); // just a temporary solution, it might be a good one
   all_states_.push_back(state);
 }
 
