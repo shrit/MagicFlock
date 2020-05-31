@@ -14,8 +14,6 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::init(unsigned int id,
   name_ = name;
   label_ = label;
   dataset_.init_dataset_directory();
-  neighbor_sampler_ = std::make_shared<RTSamples>();
-  flocking_sampler_ = std::make_shared<RTSamples>();
   port_number_ = std::to_string(1454) + std::to_string(id);
   rssi_from_neighbors().resize(10); // this will passed later
 }
@@ -49,7 +47,7 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::start_flocking(
   double migGain,
   double cutoffDist)
 {
-  flocking_sampler_->start(50, [&]() {
+  flocking_sampler_.start(50, [&]() {
     Flocking flock(sepGain, cohGain, migGain, cutoffDist, position());
     flock.Velocity();
   });
@@ -59,7 +57,7 @@ template<class flight_controller_t, class FilterType, class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, ActionType>::stop_flocking()
 {
-  flocking_sampler_->stop();
+  flocking_sampler_.stop();
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
@@ -81,7 +79,7 @@ void
 Quadrotor<flight_controller_t, FilterType, ActionType>::
   start_nearest_neighbor_detector()
 {
-  neighbor_sampler_->start(50, [this]() {
+  neighbor_sampler_.start(50, [this]() {
     NearestNeighbors<RSSI> nn(_rssi_from_neighbors);
     _nearest_neighbors = nn.search();
   });
@@ -92,7 +90,7 @@ void
 Quadrotor<flight_controller_t, FilterType, ActionType>::
   stop_nearest_neighbor_detector()
 {
-  neighbor_sampler_->stop();
+  neighbor_sampler_.stop();
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
