@@ -53,7 +53,10 @@ public:
   using SubPtr = gazebo::transport::SubscriberPtr;
   using inner_flight_controller = flight_controller_t;
 
-  void init(unsigned int id, std::string name, std::string label);
+  void init(unsigned int id,
+            std::string name,
+            std::string label,
+            int number_of_quad);
   /* Quadrotor related functions*/
   unsigned int id() const;
   std::string name() const;
