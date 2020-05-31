@@ -53,10 +53,12 @@ public:
   using SubPtr = gazebo::transport::SubscriberPtr;
   using inner_flight_controller = flight_controller_t;
 
-  void init(unsigned int id,
-            std::string name,
-            std::string label,
-            int number_of_quad);
+  void init(
+    unsigned int id,
+    std::string name,
+    std::string label,
+    int number_of_quad,
+    std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>>& quads);
   /* Quadrotor related functions*/
   unsigned int id() const;
   std::string name() const;
@@ -75,11 +77,10 @@ public:
   /* Neighbors related fuctions*/
   /* This function allows you to get a shared ptr to all quadrotors in the
    * simulator*/
-  void make_reference_2_swarm(
-    const std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>>&
-      quads);
+
   std::vector<unsigned int> nearest_neighbors() const;
-  void start_nearest_neighbor_detector();
+  void start_nearest_neighbor_detector(
+    std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>>& quads);
   void stop_nearest_neighbor_detector();
   double distance_to(int id);
   std::vector<double> distances_to_neighbors();
@@ -221,7 +222,6 @@ private:
   mutable std::mutex _rx_1_mutex{};
   mutable std::mutex _rx_2_mutex{};
   std::string port_number_;
-  std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>> quads_;
 };
 
 #include "quadrotor.hxx"

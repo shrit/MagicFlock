@@ -6,10 +6,12 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::Quadrotor()
 
 template<class flight_controller_t, class FilterType, class ActionType>
 void
-Quadrotor<flight_controller_t, FilterType, ActionType>::init(unsigned int id,
-                                                             std::string name,
-                                                             std::string label,
-                                                             int number_of_quad)
+Quadrotor<flight_controller_t, FilterType, ActionType>::init(
+  unsigned int id,
+  std::string name,
+  std::string label,
+  int number_of_quad,
+  std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>>& quad)
 {
   id_ = id;
   name_ = name;
@@ -17,16 +19,9 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::init(unsigned int id,
   dataset_.init_dataset_directory();
   port_number_ = std::to_string(1454) + std::to_string(id);
   rssi_from_neighbors().resize(number_of_quad); // Max number of quad created
-}
-
-/* Check this function it is cases segfault*/
-template<class flight_controller_t, class FilterType, class ActionType>
-void
-Quadrotor<flight_controller_t, FilterType, ActionType>::make_reference_2_swarm(
-  const std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>>&
-    quads)
-{
-  quads_ = quads;
+  std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>>& quad_ =
+    quad;
+  start_nearest_neighbor_detector(quad_);
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
@@ -76,11 +71,13 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::name() const
 template<class flight_controller_t, class FilterType, class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, ActionType>::
-  start_nearest_neighbor_detector()
+  start_nearest_neighbor_detector(
+    std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>>& quads)
 {
-  neighbor_sampler_.start(50, [this]() {
-    for (auto&& it : quads_) {
-      std::cout << it.position() << std::endl;
+
+  neighbor_sampler_.start(50, [&]() {
+    for (auto&& it : quads) {
+      std::cout << position() << std::endl;
     }
     // NearestNeighbors<RSSI> nn(_rssi_from_neighbors);
     // _nearest_neighbors = nn.search();
