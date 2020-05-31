@@ -451,7 +451,7 @@ ignition::math::Vector3d
 Quadrotor<flight_controller_t, FilterType, ActionType>::wr_1_antenna_position()
   const
 {
-  std::lock_guard<std::mutex> lock(_position_mutex);
+  std::lock_guard<std::mutex> lock(_wr_1_position_mutex);
   return _wr_1_position;
 }
 
@@ -459,7 +459,7 @@ template<class flight_controller_t, class FilterType, class ActionType>
 ignition::math::Vector3d&
 Quadrotor<flight_controller_t, FilterType, ActionType>::wr_1_antenna_position()
 {
-  std::lock_guard<std::mutex> lock(_position_mutex);
+  std::lock_guard<std::mutex> lock(_wr_1_position_mutex);
   return _wr_1_position;
 }
 
@@ -468,7 +468,7 @@ ignition::math::Vector3d
 Quadrotor<flight_controller_t, FilterType, ActionType>::wr_2_antenna_position()
   const
 {
-  std::lock_guard<std::mutex> lock(_position_mutex);
+  std::lock_guard<std::mutex> lock(_wr_2_position_mutex);
   return _wr_2_position;
 }
 
@@ -476,7 +476,7 @@ template<class flight_controller_t, class FilterType, class ActionType>
 ignition::math::Vector3d&
 Quadrotor<flight_controller_t, FilterType, ActionType>::wr_2_antenna_position()
 {
-  std::lock_guard<std::mutex> lock(_position_mutex);
+  std::lock_guard<std::mutex> lock(_wr_2_position_mutex);
   return _wr_2_position;
 }
 
@@ -485,7 +485,7 @@ ignition::math::Vector3d
 Quadrotor<flight_controller_t, FilterType, ActionType>::wt_antenna_position()
   const
 {
-  std::lock_guard<std::mutex> lock(_position_mutex);
+  std::lock_guard<std::mutex> lock(_wt_position_mutex);
   return _wt_position;
 }
 
@@ -493,7 +493,7 @@ template<class flight_controller_t, class FilterType, class ActionType>
 ignition::math::Vector3d&
 Quadrotor<flight_controller_t, FilterType, ActionType>::wt_antenna_position()
 {
-  std::lock_guard<std::mutex> lock(_position_mutex);
+  std::lock_guard<std::mutex> lock(_wt_position_mutex);
   return _wt_position;
 }
 
