@@ -71,6 +71,7 @@ template<class QuadrotorType>
 void
 Gazebo<QuadrotorType>::PosMsg(ConstPosesStampedPtr& posesStamped)
 {
+  std::lock_guard<std::mutex> lock(_position_msg_mutex);
   for (int i = 0; i < posesStamped->pose_size(); ++i) {
     const ::gazebo::msgs::Pose& pose = posesStamped->pose(i);
     std::string name = pose.name();

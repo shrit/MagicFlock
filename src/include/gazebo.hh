@@ -67,6 +67,7 @@ public:
   Gazebo(Gazebo&&) = default;
 
 private:
+  mutable std::mutex _position_msg_mutex{};
   std::vector<SubPtr> subs_;
   std::vector<PubPtr> pubs_;
   NodePtr node_;
