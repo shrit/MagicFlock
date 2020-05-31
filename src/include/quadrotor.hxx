@@ -556,7 +556,6 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::
 {
   std::string topic_name =
     "/gazebo/default/" + name_ + "/WR_1/Wireless Receiver/transceiver";
-  std::cout << "name topic" << topic_name << std::endl;
   return topic_name;
 }
 
@@ -567,7 +566,6 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::
 {
   std::string topic_name =
     "/gazebo/default/" + name_ + "/WR_2/Wireless Receiver/transceiver";
-  std::cout << "name topic  " << topic_name << std::endl;
   return topic_name;
 }
 
