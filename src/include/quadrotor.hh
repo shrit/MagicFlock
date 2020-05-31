@@ -192,6 +192,7 @@ private:
   mutable std::mutex _rssi_from_neighbors_mutex{};
   std::vector<RSSI> _rssi_from_neighbors;
   std::vector<unsigned int> _nearest_neighbors;
+  mutable std::mutex _sample_state_mutex{};
   RTSamples state_sampler_;
   std::shared_ptr<RTSamples> neighbor_sampler_, flocking_sampler_;
   unsigned int id_;  /* Quadrotor id */

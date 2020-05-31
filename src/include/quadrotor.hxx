@@ -17,6 +17,7 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::init(unsigned int id,
   neighbor_sampler_ = std::make_shared<RTSamples>();
   flocking_sampler_ = std::make_shared<RTSamples>();
   port_number_ = std::to_string(1454) + std::to_string(id);
+  rssi_from_neighbors().resize(10); // this will passed later 
 }
 
 /* Check this function it is cases segfault*/
@@ -122,9 +123,14 @@ template<class flight_controller_t, class FilterType, class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, ActionType>::sample_state()
 {
-  for (std::size_t i; i < rssi_from_neighbors().size(); ++i) {
+  //  std::lock_guard<std::mutex> lock(_sample_state_mutex);
+  for (std::size_t i = 0; i < rssi_from_neighbors().size(); ++i) {
     std::cout << "rssi" << rssi_from_neighbors().at(i).antenna_1 << std::endl;
+    std::cout << "rssi" << rssi_from_neighbors().at(i).antenna_2 << std::endl;
+    std::cout << "values from:" << rssi_from_neighbors().at(i).name
+              << std::endl;
   }
+
   State<FilterType, std::vector<RSSI>> state(id_, rssi_from_neighbors());
   current_state_ = state;
   all_states_.push_back(state);
@@ -623,7 +629,6 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::RxMsgN1(
 {
   std::lock_guard<std::mutex> lock(_rx_1_mutex);
   int numRxNodes = _msg->node_size();
-  rssi_from_neighbors().resize(numRxNodes);
   for (int i = 0; i < numRxNodes; ++i) {
     gazebo::msgs::WirelessNode RxNode = _msg->node(i);
     rssi_from_neighbors().at(i).name = RxNode.essid();
@@ -638,7 +643,6 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::RxMsgN2(
 {
   std::lock_guard<std::mutex> lock(_rx_2_mutex);
   int numRxNodes = _msg->node_size();
-  rssi_from_neighbors().resize(numRxNodes);
   for (int i = 0; i < numRxNodes; ++i) {
     gazebo::msgs::WirelessNode RxNode = _msg->node(i);
     rssi_from_neighbors().at(i).name = RxNode.essid();
