@@ -62,7 +62,7 @@ main(int argc, char* argv[])
   }
 
   for (std::size_t i = 0; i < num_of_quads; ++i) {
-    quadrotors.at(i).init(i, "iris_" + std::to_string(i), "");
+    quadrotors.at(i).init(i, "iris_" + std::to_string(i), "", num_of_quads);
   }
 
   for (std::size_t i = 0; i < num_of_quads; ++i) {
