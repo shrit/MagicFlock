@@ -21,11 +21,11 @@ public:
   State(const arma::colvec& data);
 
   State(unsigned int id,
-        ContainerType nearest_neighbors,
+        const ContainerType& container,
         FilterType noise);
 
   State(unsigned int id,
-        ContainerType nearest_neighbors);
+        const ContainerType& container);
 
   arma::colvec Data() const;
 
