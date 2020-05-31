@@ -64,11 +64,6 @@ Generator<QuadrotorType>::run()
     for (auto&& it : quadrotors_) {
       it.save_dataset_rssi_velocity();
     }
-
-    //   // follower_1_->register_episodes(episode_);
-    //   logger_->flush();
-    // }
-
     // /*  Save a version of the time steps to create a histogram */
     // follower_1_->register_histogram(time_steps_.steps());
     // follower_2_->register_histogram(time_steps_.steps());
