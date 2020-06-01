@@ -44,7 +44,7 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::start_flocking(
                    position(),
                    neighbor_positions(),
                    destination);
-    std::cout << "flocking velocity: " << flock.Velocity() << std::endl;
+    std::cout << "Flocking velocity: " << flock.Velocity() << std::endl;
   });
 }
 

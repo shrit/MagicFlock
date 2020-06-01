@@ -41,7 +41,6 @@ Flocking::cohesionVelocity()
   std::cout << "cohesion total sum" << total_sum << " param: " << param
             << std::endl;
   cohesionVelocity = total_sum * param;
-  std::cout << "cohesionVelocity: " << cohesionVelocity << std::endl;
   return cohesionVelocity;
 }
 
@@ -52,7 +51,6 @@ Flocking::separationVelocity()
   double param = -(gains_.Y() / number_of_neighbors_);
   ignition::math::Vector3d total_sum{ 0, 0, 0 };
   ignition::math::Vector3d r_sep{ 0, 0, 0 }, r_sep_norm_2{ 0, 0, 0 };
-  std::cout << "separation_gain_" << gains_.Y() << std::endl;
 
   for (std::size_t i = 0; i < position_of_neighbors_.size(); ++i) {
     r_sep = (position_ - position_of_neighbors_.at(i));
@@ -68,7 +66,6 @@ Flocking::separationVelocity()
   std::cout << "Separation total sum: " << total_sum << " param: " << param
             << std::endl;
   separationVelocity = total_sum * param;
-  std::cout << "Separation velocity: " << separationVelocity << std::endl;
   return separationVelocity;
 }
 
@@ -80,7 +77,6 @@ Flocking::migrationVelocity()
   r_mig = position_ - destination_position_;
   r_mig.Normalize(); // This will do the entire operation of division
   migrationVelocity = r_mig * gains_.Z();
-  std::cout << "Migration Velocity: " << migrationVelocity << std::endl;
   return migrationVelocity;
 }
 
@@ -93,8 +89,14 @@ Flocking::reynoldsVelocity()
 ignition::math::Vector3d
 Flocking::Velocity()
 {
-  std::cout << "Final velocity:"
-            << cohesionVelocity() + separationVelocity() + migrationVelocity()
-            << std::endl;
-  return cohesionVelocity() + separationVelocity() + migrationVelocity();
+  ignition::math::Vector3d coh, sep, mig, total;
+  coh = cohesionVelocity();
+  sep = separationVelocity();
+  mig = migrationVelocity();
+  total = coh + sep + mig;
+  // std::cout << "Migration Velocity: " << mig << std::endl;
+  // std::cout << "Separation velocity: " << sep << std::endl;
+  // std::cout << "cohesionVelocity: " << coh << std::endl;
+  std::cout << "Final velocity:" << total << std::endl;
+  return total;
 }
