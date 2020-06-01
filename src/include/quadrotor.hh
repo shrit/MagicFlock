@@ -72,9 +72,6 @@ public:
   void stop_flocking();
 
   /* Neighbors related fuctions*/
-  /* This function allows you to get a shared ptr to all quadrotors in the
-   * simulator*/
-
   std::vector<unsigned int> nearest_neighbors() const;
   void start_nearest_neighbor_detector(
     std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>>& quads);
@@ -97,6 +94,9 @@ public:
   ignition::math::Quaternion<double>& orientation();
   std::vector<ignition::math::Vector3d>& neighbor_positions();
   std::vector<ignition::math::Vector3d> neighbor_positions() const;
+  void start_position_sampler(
+    std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>>& quads);
+  void stop_position_sampler();
 
   /*  State related functions */
   void sample_state();
@@ -193,13 +193,15 @@ private:
   State<FilterType, std::vector<RSSI>> before_2_last_state_;
   std::vector<State<FilterType, std::vector<RSSI>>> all_states_;
 
+  mutable std::mutex _position_sampler_mutex{};
   mutable std::mutex _neighbor_positions_mutex{};
   std::vector<ignition::math::Vector3d> _neighbor_positions;
   mutable std::mutex _rssi_from_neighbors_mutex{};
   std::vector<RSSI> _rssi_from_neighbors;
   std::vector<unsigned int> _nearest_neighbors;
   mutable std::mutex _sample_state_mutex{};
-  RTSamples state_sampler_, neighbor_sampler_, flocking_sampler_;
+  RTSamples state_sampler_, neighbor_sampler_, flocking_sampler_,
+    position_sampler_;
   unsigned int id_;  /* Quadrotor id */
   std::string name_; /* Quadrotor name */
   /* Quadrotor label (Given by the user, leader, follower, etc)*/

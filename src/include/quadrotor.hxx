@@ -19,11 +19,12 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::init(
   dataset_.init_dataset_directory();
   port_number_ = std::to_string(1454) + std::to_string(id);
   rssi_from_neighbors().resize(number_of_quad); // Max number of quad created
+  // Max number -1, dont count my position
   neighbor_positions().resize(number_of_quad);
 
   std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>>& quad_ =
     quad;
-  start_nearest_neighbor_detector(quad_);
+  start_position_sampler(quad_);
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
@@ -40,10 +41,7 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::start_flocking(
   ignition::math::Vector3d destination)
 {
   flocking_sampler_.start(50, [&]() {
-    Flocking flock(gains,
-                   position(),
-                   neighbor_positions(),
-                   destination);
+    Flocking flock(gains, position(), neighbor_positions(), destination);
     std::cout << "Flocking velocity: " << flock.Velocity() << std::endl;
   });
 }
@@ -71,24 +69,24 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::name() const
 
 template<class flight_controller_t, class FilterType, class ActionType>
 void
-Quadrotor<flight_controller_t, FilterType, ActionType>::
-  start_nearest_neighbor_detector(
-    std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>>& quads)
+Quadrotor<flight_controller_t, FilterType, ActionType>::start_position_sampler(
+  std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>>& quads)
 {
-
-  neighbor_sampler_.start(50, [&]() {
+  std::lock_guard<std::mutex> lock(_position_sampler_mutex);
+  position_sampler_.start(50, [&]() {
     for (std::size_t i = 0; i < quads.size(); ++i) {
-      neighbor_positions().at(i) = quads.at(i).position();
+      if (id_ != quads.at(i).id()) {
+        neighbor_positions().at(i) = quads.at(i).position();
+      }
     }
   });
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
 void
-Quadrotor<flight_controller_t, FilterType, ActionType>::
-  stop_nearest_neighbor_detector()
+Quadrotor<flight_controller_t, FilterType, ActionType>::stop_position_sampler()
 {
-  neighbor_sampler_.stop();
+  position_sampler_.stop();
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
