@@ -19,9 +19,9 @@ Generator<QuadrotorType>::go_to_destination()
   std::vector<std::thread> threads;
 
   /*  Threading Quadrotors */
-  for (auto it : quadrotors_) {
+  for (auto&& it : quadrotors_) {
     threads.push_back(std::thread([&]() {
-
+      swarm_.one_quad_execute_trajectory(it.id(), it.current_action());
     }));
   }
   /* Move the Examination the geomatrical shape inside the flocking model*/
@@ -61,15 +61,16 @@ Generator<QuadrotorType>::run()
 
     ignition::math::Vector3d destination{ -10, -10, 20 };
     ignition::math::Vector4d gains{ 1.0, 1.0, 10.0, 100 };
+
     for (auto&& it : quadrotors_) {
       it.start_flocking(gains, destination);
     }
 
-    std::this_thread::sleep_for(std::chrono::seconds(20));
-
-    // /*  Save a version of the time steps to create a histogram */
-    // follower_1_->register_histogram(time_steps_.steps());
-    // follower_2_->register_histogram(time_steps_.steps());
+    /* Let us see how these quadrotors are going to move */
+    for (std::size_t i = 0; i < 10000; ++i) {
+      go_to_destination();
+      std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
 
     for (auto&& it : quadrotors_) {
       it.stop_sampling_rt_state();
