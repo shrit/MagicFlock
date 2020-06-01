@@ -194,6 +194,7 @@ private:
   std::vector<State<FilterType, std::vector<RSSI>>> all_states_;
 
   mutable std::mutex _position_sampler_mutex{};
+  mutable std::mutex _flocking_mutex{};
   mutable std::mutex _neighbor_positions_mutex{};
   std::vector<ignition::math::Vector3d> _neighbor_positions;
   mutable std::mutex _rssi_from_neighbors_mutex{};
