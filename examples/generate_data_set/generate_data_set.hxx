@@ -58,18 +58,25 @@ Generator<QuadrotorType>::run()
       it.start_sampling_rt_state(50);
     }
     time_steps_.reset();
-    //   //go_to_destination();
+
+    ignition::math::Vector3d destination{ -10, -10, 20 };
+    ignition::math::Vector4d gains{ 1.0, 1.0, 10.0, 100 };
+    for (auto&& it : quadrotors_) {
+      it.start_flocking(gains, destination);
+    }
+
     std::this_thread::sleep_for(std::chrono::seconds(20));
 
-    for (auto&& it : quadrotors_) {
-      it.save_dataset_rssi_velocity();
-    }
     // /*  Save a version of the time steps to create a histogram */
     // follower_1_->register_histogram(time_steps_.steps());
     // follower_2_->register_histogram(time_steps_.steps());
 
     for (auto&& it : quadrotors_) {
       it.stop_sampling_rt_state();
+    }
+
+    for (auto&& it : quadrotors_) {
+      it.stop_flocking();
     }
 
     std::string flight_time = timer_.stop_and_get_time();
