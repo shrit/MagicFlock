@@ -36,21 +36,15 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::start_controller()
 template<class flight_controller_t, class FilterType, class ActionType>
 ignition::math::Vector3d
 Quadrotor<flight_controller_t, FilterType, ActionType>::start_flocking(
-  double sepGain,
-  double cohGain,
-  double migGain,
-  double cutoffDist,
+  ignition::math::Vector4d gains,
   ignition::math::Vector3d destination)
 {
   flocking_sampler_.start(50, [&]() {
-    Flocking flock(sepGain,
-                   cohGain,
-                   migGain,
-                   cutoffDist,
+    Flocking flock(gains,
                    position(),
                    neighbor_positions(),
                    destination);
-    flock.Velocity();
+    std::cout << "flocking velocity: " << flock.Velocity() << std::endl;
   });
 }
 

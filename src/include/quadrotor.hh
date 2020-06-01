@@ -67,10 +67,7 @@ public:
   std::string port_number() const;
   std::string& port_number();
   void start_controller();
-  ignition::math::Vector3d start_flocking(double sepGain,
-                                          double cohGain,
-                                          double migGain,
-                                          double cutoffDist,
+  ignition::math::Vector3d start_flocking(ignition::math::Vector4d gains,
                                           ignition::math::Vector3d destination);
   void stop_flocking();
 
