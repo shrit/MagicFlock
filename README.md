@@ -1,6 +1,9 @@
--> SPOQ <-
+<h2 align="center">
+  <br> SPOQ <br>
+</h2>
 
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
+
 SPOQ is an easy to use Simulation Platform fOr Quadrotors. SPOQ is a library that intended to make quadrotors simulator easy in Gazebo simulator.
 SPOQ has inituative and simple interface that allows researcher to test algorithms on several quadrotors by writing only several lines of code.
 In additions, the library has a set of simple exaples that can be use a tutorial in order to create and simulate you swarm.
