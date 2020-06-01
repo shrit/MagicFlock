@@ -65,10 +65,6 @@ main(int argc, char* argv[])
     quadrotors.at(i).init(i, "iris_" + std::to_string(i), "", num_of_quads, quadrotors);
   }
 
-  for (std::size_t i = 0; i < num_of_quads; ++i) {
-    logger->info(quadrotors.at(i).port_number());
-  }
-
   /*  Gazebo simulator */
   Gazebo<QuadrotorType> gz(quadrotors);
   gz.start_simulation(
