@@ -9,18 +9,6 @@ foreach(ITR ${GAZEBO_INCLUDE_DIRS})
   endif()
 endforeach()
 
-set(SwarmMsgs
-  msgs/spawn.proto
-  ${PROTOBUF_IMPORT_DIRS}/vector3d.proto
-  ${PROTOBUF_IMPORT_DIRS}/header.proto
-  ${PROTOBUF_IMPORT_DIRS}/time.proto
-)
-
-PROTOBUF_GENERATE_CPP(MSG_PROTO_SRCS MSG_PROTO_HDRS ${SwarmMsgs})
-
-add_library(swarm_plugin_msgs SHARED ${MSG_PROTO_SRCS})
-link_libraries(swarm_plugin_msgs)
-
 set(reset_model_msgs msgs/ResetModel.proto)
 PROTOBUF_GENERATE_CPP(RES_PROTO_SRCS RES_PROTO_HDRS ${reset_model_msgs})
 
