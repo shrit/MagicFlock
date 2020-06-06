@@ -35,3 +35,15 @@ list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
 add_library(ResetPlugin SHARED gazebo_model_reset_plugin.cc)
 target_link_libraries(ResetPlugin ${GAZEBO_LIBRARIES} reset_model_msgs)
 target_include_directories(ResetPlugin PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+
+install(TARGETS reset_model_msgs
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  )
+
+install(TARGETS ResetPlugin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  )
