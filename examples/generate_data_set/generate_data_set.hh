@@ -2,17 +2,18 @@
 
 /*  Standard C++ includes  */
 #include <chrono>
+#include <functional>
 #include <memory>
 #include <thread>
 #include <vector>
 
 /* ILMR includes  */
-#include <ILMR/action_generator.hh>
+#include <ILMR/gazebo.hh>
 #include <ILMR/logger.hh>
 #include <ILMR/quadrotor.hh>
 #include <ILMR/swarm_device.hh>
-#include <ILMR/time_steps.hh>
 #include <ILMR/time.hh>
+#include <ILMR/time_steps.hh>
 
 template<class QuadrotorType>
 class Generator
@@ -23,7 +24,7 @@ public:
             std::shared_ptr<spdlog::logger> logger);
 
   void go_to_destination();
-  void run();
+  void run(std::function<void(void)> func);
 
   Generator(Generator const&) = delete;
   Generator(Generator&&) = default;

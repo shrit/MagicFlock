@@ -35,7 +35,7 @@ Generator<QuadrotorType>::go_to_destination()
 
 template<class QuadrotorType>
 void
-Generator<QuadrotorType>::run()
+Generator<QuadrotorType>::run(std::function<void(void)> func)
 {
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
 
@@ -89,7 +89,7 @@ Generator<QuadrotorType>::run()
     swarm_.land();
 
     /* Resetting the entire swarm after the end of each episode*/
-    // leader_->reset_models();
+    func();
 
     logger_->info("All quadrotors have been reset...");
     std::this_thread::sleep_for(std::chrono::seconds(35));
@@ -111,8 +111,5 @@ Generator<QuadrotorType>::run()
      * resetting the quadcopters, that is going to helpe resetting the
      * accelerometer values without any problems!
      */
-
-    /*  I have quite tested a lot of different solution. Frankly, if I am
-     * going to find a better one, I will replace it directly. */
   }
 }

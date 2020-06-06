@@ -19,9 +19,7 @@
 #include <ILMR/continuous_actions.hh>
 #include <ILMR/gaussian_noise.hh>
 #include <ILMR/gazebo.hh>
-#include <ILMR/logger.hh>
 #include <ILMR/px4_device.hh>
-#include <ILMR/quadrotor.hh>
 
 /*  CLI11 library headers */
 #include <CLI/CLI.hpp>
@@ -62,7 +60,8 @@ main(int argc, char* argv[])
   }
 
   for (std::size_t i = 0; i < num_of_quads; ++i) {
-    quadrotors.at(i).init(i, "iris_" + std::to_string(i), "", num_of_quads, quadrotors);
+    quadrotors.at(i).init(
+      i, "iris_" + std::to_string(i), "", num_of_quads, quadrotors);
   }
 
   /*  Gazebo simulator */
@@ -90,6 +89,7 @@ main(int argc, char* argv[])
 
   /*  Generate a dataset  */
   Generator<QuadrotorType> generator(quadrotors, logger);
-  generator.run();
+  // Callback to be executed at the end of the episode
+  generator.run([&]() { gz.ResetModels(); });
   return 0;
 }
