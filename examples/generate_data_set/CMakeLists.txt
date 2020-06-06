@@ -18,6 +18,8 @@ include_directories(
   )
 
 set(ilmr "/usr/local/lib/libILMR.so")
+set(ResetPlugin "/usr/local/lib/libResetPlugin.so")
+set(reset_model_msgs "/usr/local/lib/libreset_model_msgs.so")
 set(mlpack "/usr/local/lib/libmlpack.so.3")
 
 add_executable(generate_data_set 
@@ -35,4 +37,6 @@ target_link_libraries(generate_data_set
   ${ARMADILLO_LIBRARIES}
   ${mlpack}
   ${ilmr}
+  ${ResetPlugin}
+  ${reset_model_msgs}
 )
