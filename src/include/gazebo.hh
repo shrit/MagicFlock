@@ -34,6 +34,9 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+/* ILMR include */
+#include <ILMR/logger.hh>
+
 /* Local message includes*/
 #include "ResetModel.pb.h"
 #include "time.hh"
