@@ -8,6 +8,7 @@
 
 function cleanup() {
 	pkill -x px4
+	pkill gzserver
 	pkill gzclient
 }
 
@@ -23,6 +24,7 @@ do
 	in
 		n) NUM_VEHICLES=${OPTARG};;
 		m) VEHICLE_MODEL=${OPTARG};;
+		w) WORLD=${OPTARG};;
 	esac
 done
 
@@ -67,7 +69,7 @@ while [ $n -lt $num_vehicles ]; do
 
 	python3 ${project_path}/xacro.py ${project_path}/rotors_description/urdf/${PX4_SIM_MODEL}_base.xacro \
 		rotors_description_dir:=${project_path}/rotors_description mavlink_udp_port:=$(($mavlink_udp_port+$n))\
-		mavlink_tcp_port:=$(($mavlink_tcp_port+$n)) enable_lockstep:=$((1))  -o ${project_path}/sdf/${PX4_SIM_MODEL}_${n}.urdf
+		mavlink_tcp_port:=$(($mavlink_tcp_port+$n)) enable_lockstep:=$((1)) send_odometry:=$((1)) -o ${project_path}/sdf/${PX4_SIM_MODEL}_${n}.urdf
 
 	gz sdf -p  ${project_path}/sdf/${PX4_SIM_MODEL}_${n}.urdf > ${project_path}/sdf/${PX4_SIM_MODEL}_${n}.sdf
 	sed -i "345 r ${project_path}/sdf/wireless.sdf" ${project_path}/sdf/${PX4_SIM_MODEL}_${n}.sdf
