@@ -45,7 +45,7 @@ void
 Gazebo<QuadrotorType>::pubModelReset()
 {
   for (auto&& it : quadrotors_) {
-    std::string topic = "/gazebo/default/" + it.name() + "/model_reset";
+    std::string topic = "/gazebo/default/" + it.name() + "/model_reset_plugin";
     pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(topic));
   }
 }
