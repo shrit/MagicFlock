@@ -44,25 +44,21 @@ template<class QuadrotorType>
 void
 Gazebo<QuadrotorType>::pubModelReset()
 {
-  for (auto&& it : quadrotors_) {
-    std::string topic = "/gazebo/default/" + it.name() + "/model_reset_plugin";
-    pubs_.push_back(node_->Advertise<gazebo::msgs::Vector2d>(topic));
-  }
+  std::string topic = "/gazebo/default/model_reset_plugin";
+  pubs_ = node_->Advertise<reset_model_msg::msg::ResetModel>(topic);
 }
 
 template<class QuadrotorType>
 void
 Gazebo<QuadrotorType>::ResetModels()
 {
-  for (auto it : pubs_) {
-    if (it->WaitForConnection(5)) {
-      reset_model_msg::msg::ResetModel msg;
-      msg.set_reset(true);
-      it->Publish(msg);
-    } else {
-      ILMR::logger::logger_->error(
-        "NO Connection from the subscriber to reset the model");
-    }
+  if (pubs_->WaitForConnection(5)) {
+    reset_model_msg::msg::ResetModel msg;
+    msg.set_reset(true);
+    pubs_->Publish(msg);
+  } else {
+    ILMR::logger::logger_->error(
+      "No connection from the subscriber to reset the model");
   }
 }
 

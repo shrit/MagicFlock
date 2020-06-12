@@ -72,7 +72,7 @@ public:
 private:
   mutable std::mutex _position_msg_mutex{};
   std::vector<SubPtr> subs_;
-  std::vector<PubPtr> pubs_;
+  PubPtr pubs_;
   NodePtr node_;
   int sitl_process = 0;
   std::vector<QuadrotorType>& quadrotors_;
