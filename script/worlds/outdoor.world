@@ -18,7 +18,7 @@
        <pose>-10 0 6 0 0.3 0</pose>
      </camera>
     </gui>
-    
+
     <spherical_coordinates>
       <surface_model>EARTH_WGS84</surface_model>
       <latitude_deg>0</latitude_deg>
@@ -56,6 +56,7 @@
       <uri>model://city_terrain</uri>
     </include>
 
+    <plugin name="ResetPlugin" filename="libResetPlugin.so"/>
     <!-- <!-\- Need a descent graphic card to run ocean -\-> -->
 
     <!-- <!-\- <include> -\-> -->
@@ -89,6 +90,6 @@
       <max_step_size>0.004</max_step_size>
       <real_time_factor>1</real_time_factor>
       <real_time_update_rate>250</real_time_update_rate>
-    </physics>    
+    </physics>
   </world>
 </sdf>
