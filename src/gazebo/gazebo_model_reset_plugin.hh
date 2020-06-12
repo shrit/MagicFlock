@@ -43,10 +43,9 @@ public:
   std::vector<ignition::math::Vector3d> RandomPoseGenerator(int quad_number);
 
 private:
-  physics::ModelPtr model;
   physics::WorldPtr world_;
-  transport::NodePtr node;
-  transport::SubscriberPtr sub;
+  transport::NodePtr node_;
+  transport::SubscriberPtr sub_;
 
   std::uniform_real_distribution<> distribution_real_;
   std::random_device random_dev;

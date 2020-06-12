@@ -1,8 +1,8 @@
 #include "gazebo_model_reset_plugin.hh"
 
 namespace gazebo {
-GZ_REGISTER_WORLD_PLUGIN(ResetPlugin)
 
+GZ_REGISTER_WORLD_PLUGIN(ResetPlugin);
 ResetPlugin::ResetPlugin()
   : WorldPlugin()
   , distribution_real_(-5, +5)
@@ -13,10 +13,10 @@ void
 ResetPlugin::Load(physics::WorldPtr _parent, sdf::ElementPtr)
 {
   world_ = _parent;
-  this->node = transport::NodePtr(new transport::Node());
-  this->node->Init(this->model->GetWorld()->Name());
-  std::string topicName = "~/" + this->model->GetName() + "/model_reset_plugin";
-  this->sub = this->node->Subscribe(topicName, &ResetPlugin::OnMsg, this);
+  node_ = transport::NodePtr(new transport::Node());
+  node_->Init();
+  std::string topicName = "/gazebo/default/model_reset_plugin";
+  sub_ = node_->Subscribe(topicName, &ResetPlugin::OnMsg, this);
 }
 
 void
