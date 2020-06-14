@@ -1,18 +1,20 @@
 #pragma once
 
 template<typename type>
-class ExoMovingAverage
+class ExpoMovingAverage
 {
 public:
-  ExoMovingAverage(const type& alpha, const type& initial_value = type());
+  ExpoMovingAverage();
+
+  ExpoMovingAverage(const type& alpha, const type& initial_value = type());
 
   type input(const type& new_value);
-  const type& output() const;
+  type output() const;
 
   void reset();
 
 private:
-  const type alpha_;         //< Smoothing coefficient.
+  const type alpha_ {0.9};         //< Smoothing coefficient.
   const type initial_value_; //< Initial value.
   type value_;               //< Stored value.
 };
