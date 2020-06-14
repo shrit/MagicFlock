@@ -17,7 +17,7 @@
 
 /* ILMR library include  */
 #include <ILMR/continuous_actions.hh>
-#include <ILMR/gaussian_noise.hh>
+#include <ILMR/exponential_moving_average.hh>
 #include <ILMR/gazebo.hh>
 #include <ILMR/px4_device.hh>
 
@@ -33,7 +33,6 @@ main(int argc, char* argv[])
   /*Start using the new loggin system*/
   auto logger = ILMR::logger::init();
   ILMR::logger::create_library_logger(logger);
-  spdlog::set_level(spdlog::level::debug);
 
   CLI::App app{
     "This example shows how to use the library to generate dataset. "
@@ -43,14 +42,20 @@ main(int argc, char* argv[])
   };
 
   std::size_t num_of_quads = 3;
-
+  bool verbose = false;
   app.add_option("-n, --number_of_quadrotors",
                  num_of_quads,
                  " Number of quadrotor to create inside the simulator.");
+  app.add_flag("-v, --verbose", verbose, " Make the output more verbose");
+
   CLI11_PARSE(app, argc, argv);
 
+  if (verbose) {
+    spdlog::set_level(spdlog::level::debug);
+  }
+
   using QuadrotorType =
-    Quadrotor<Px4Device, GaussianNoise<arma::vec>, ContinuousActions>;
+    Quadrotor<Px4Device, ExpoMovingAverage<double>, ContinuousActions>;
 
   /*  Create a vector of quadrotors, each one has an id + a label  */
   std::vector<QuadrotorType> quadrotors;
