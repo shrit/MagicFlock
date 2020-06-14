@@ -13,7 +13,12 @@ ExpoMovingAverage<type>::ExpoMovingAverage(const type& alpha,
   , initial_value_(initial_value)
   , value_(initial_value)
 {
-  assert(alpha > 0 and alpha <= 1);
+  if (alpha_ > 1 and alpha_ < 0) {
+    logger::logger_->error("Alpha has not been intilized correctly, it"
+                           "should be between 0 and 1",
+                           alpha_);
+    exit(0);
+  }
 }
 
 template<typename type>
@@ -24,7 +29,14 @@ ExpoMovingAverage<type>::input(const type& new_value)
 }
 
 template<typename type>
-type
+const type&
+ExpoMovingAverage<type>::alpha() const
+{
+  return alpha_;
+}
+
+template<typename type>
+const type&
 ExpoMovingAverage<type>::output() const
 {
   return value_;
