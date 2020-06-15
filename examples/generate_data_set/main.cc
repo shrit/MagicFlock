@@ -55,7 +55,7 @@ main(int argc, char* argv[])
   }
 
   using QuadrotorType =
-    Quadrotor<Px4Device, ExpoMovingAverage<double>, ContinuousActions>;
+    Quadrotor<Px4Device, ExpoMovingAverage<arma::colvec>, ContinuousActions>;
 
   /*  Create a vector of quadrotors, each one has an id + a label  */
   std::vector<QuadrotorType> quadrotors;
