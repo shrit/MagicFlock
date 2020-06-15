@@ -5,7 +5,7 @@ namespace gazebo {
 GZ_REGISTER_WORLD_PLUGIN(ResetPlugin);
 ResetPlugin::ResetPlugin()
   : WorldPlugin()
-  , distribution_real_(-3, +3)
+  , distribution_real_(-1.5, +1.5)
   , generator_(random_dev())
 {}
 
