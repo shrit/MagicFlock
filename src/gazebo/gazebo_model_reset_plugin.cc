@@ -5,7 +5,7 @@ namespace gazebo {
 GZ_REGISTER_WORLD_PLUGIN(ResetPlugin);
 ResetPlugin::ResetPlugin()
   : WorldPlugin()
-  , distribution_real_(-5, +5)
+  , distribution_real_(-3, +3)
   , generator_(random_dev())
 {}
 
@@ -26,20 +26,36 @@ ResetPlugin::OnMsg(ConstResetModelPtr& _msg)
 
   int i = 0;
   for (physics::ModelPtr m : world_->Models()) {
-    if (_msg->reset()) {
-      m->Reset();
-      m->ResetPhysicsStates();
+    std::string name = m->GetName();
+    if (!name.empty()) {
+      name.pop_back();
     }
-    i = i + 1;
+    if (name == "iris_") {
+      if (_msg->reset()) {
+        m->Reset();
+        m->ResetPhysicsStates();
+      }
+      i = i + 1;
+    }
   }
 
   std::vector<ignition::math::Vector3d> positions = RandomPoseGenerator(i);
+  //  std::cout << "All positions are generated" << std::endl;
+  int j = 0;
 
   for (physics::ModelPtr m : world_->Models()) {
-    m->SetRelativePose(ignition::math::Pose3d(
-      positions.at(i).X(), positions.at(i).Y(), 0, 0, 0, 0));
+    std::string name = m->GetName();
+    if (!name.empty()) {
+      name.pop_back();
+    }
+    if (name == "iris_") {
+      if (j < i) {
+        m->SetRelativePose(ignition::math::Pose3d(
+          positions.at(j).X(), positions.at(j).Y(), 0, 0, 0, 0));
+        j = j + 1;
+      }
+    }
   }
-
   world_->SetPaused(false);
 }
 
