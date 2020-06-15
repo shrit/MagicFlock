@@ -2,7 +2,9 @@
 
 template<class flight_controller_t, class FilterType, class ActionType>
 Quadrotor<flight_controller_t, FilterType, ActionType>::Quadrotor()
-{}
+{
+  // Nothing to do here
+}
 
 template<class flight_controller_t, class FilterType, class ActionType>
 void
@@ -21,7 +23,10 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::init(
   rssi_from_neighbors().resize(number_of_quad); // Max number of quad created
   // Max number -1, dont count my position
   neighbor_positions().resize(number_of_quad);
-
+  arma::colvec initial_value(number_of_quad * 2);
+  initial_value.fill(-50);
+  filter_.initial_value() = initial_value;
+  filter_.reset();
   std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>>& quad_ =
     quad;
   start_position_sampler(quad_);
@@ -121,7 +126,7 @@ void
 Quadrotor<flight_controller_t, FilterType, ActionType>::sample_state()
 {
   std::lock_guard<std::mutex> lock(_sample_state_mutex);
-  State<FilterType, std::vector<RSSI>> state(id_, rssi_from_neighbors());
+  State<FilterType, std::vector<RSSI>> state(id_, rssi_from_neighbors(), filter_);
   current_state_ = state;
   save_dataset_rssi_velocity(); // just a temporary solution, it might be a good
                                 // one

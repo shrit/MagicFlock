@@ -15,6 +15,7 @@
 #include "Vector.hh"
 #include "compute_distance.hh"
 #include "continuous_actions.hh"
+#include "exponential_moving_average.hh"
 #include "dataset.hh"
 #include "discret_actions.hh"
 #include "flocking.hh"
@@ -225,6 +226,7 @@ private:
   mutable std::mutex _rx_1_mutex{};
   mutable std::mutex _rx_2_mutex{};
   std::string port_number_;
+  FilterType filter_;
 };
 
 #include "quadrotor.hxx"
