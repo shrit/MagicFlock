@@ -29,7 +29,7 @@ State<FilterType, ContainerType>::State(unsigned int id,
     data.push_back(container.at(i).antenna_2);
   }
   data_ = arma.vec_to_arma(data);
-  data_ = filter.apply_filter(data_);
+  data_ = filter.input(data_);
 }
 
 template<class FilterType, class ContainerType>
