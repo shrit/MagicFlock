@@ -4,6 +4,10 @@
 #include <ignition/math6/ignition/math/Vector4.hh>
 #include <vector>
 
+#include "logger.hh"
+
+using namespace ILMR;
+
 class Flocking
 {
 

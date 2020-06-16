@@ -38,8 +38,8 @@ Flocking::cohesionVelocity()
   for (std::size_t i = 0; i < position_of_neighbors_.size(); ++i) {
     total_sum += (position_ - position_of_neighbors_.at(i));
   }
-  std::cout << "cohesion total sum" << total_sum << " param: " << param
-            << std::endl;
+  logger::logger_->debug(
+    "cohesion total sum: {}", total_sum, " param: {}\n", param);
   cohesionVelocity = total_sum * param;
   return cohesionVelocity;
 }
@@ -63,8 +63,8 @@ Flocking::separationVelocity()
 
     total_sum += r_sep_norm_2;
   }
-  std::cout << "Separation total sum: " << total_sum << " param: " << param
-            << std::endl;
+  logger::logger_->debug(
+    "Separation total sum: ", total_sum, " param: {}\n", param);
   separationVelocity = total_sum * param;
   return separationVelocity;
 }
@@ -94,9 +94,9 @@ Flocking::Velocity()
   sep = separationVelocity();
   mig = migrationVelocity();
   total = coh + sep + mig;
-  // std::cout << "Migration Velocity: " << mig << std::endl;
-  // std::cout << "Separation velocity: " << sep << std::endl;
-  // std::cout << "cohesionVelocity: " << coh << std::endl;
-  std::cout << "Final velocity:" << total << std::endl;
+  logger::logger_->info("Migration Velocity: {}\n", mig);
+  logger::logger_->info("Separation velocity: {}\n", sep);
+  logger::logger_->info("cohesionVelocity: {}\n", coh);
+  logger::logger_->info("Final velocity: {}\n", total);
   return total;
 }
