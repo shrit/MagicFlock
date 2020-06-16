@@ -13,6 +13,8 @@
 #include "logger.hh"
 #include "position_gps.hh"
 
+using namespace ILMR;
+
 template<class QuadrotorType>
 class SwarmDevice
 {
@@ -26,6 +28,9 @@ public:
                                    unsigned int milliseconds);
 
   void one_quad_execute_trajectory(unsigned int id, ContinuousActions action);
+  void one_quad_execute_trajectory(unsigned int id,
+                                   ContinuousActions action,
+                                   double max_speed);
 
   bool arm();
   void arm_async();
@@ -63,7 +68,7 @@ public:
 
   template<class status>
   bool check_landed_state(std::vector<status> results);
-  
+
   SwarmDevice(SwarmDevice const&) = delete;
   SwarmDevice(SwarmDevice&&) = default;
 

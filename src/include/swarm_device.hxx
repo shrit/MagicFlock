@@ -1,8 +1,7 @@
 #pragma once
 
 template<class QuadrotorType>
-SwarmDevice<QuadrotorType>::SwarmDevice(
-  std::vector<QuadrotorType>& quads)
+SwarmDevice<QuadrotorType>::SwarmDevice(std::vector<QuadrotorType>& quads)
   : quads_(quads)
 {
   // Nothing to do here
@@ -47,6 +46,33 @@ SwarmDevice<QuadrotorType>::one_quad_execute_trajectory(
 }
 
 template<class QuadrotorType>
+void
+SwarmDevice<QuadrotorType>::one_quad_execute_trajectory(
+  unsigned int id,
+  ContinuousActions action,
+  double max_speed)
+{
+  ignition::math::Vector3d vec = action.Data();
+  vec.Z(0);
+  if (vec.X() > max_speed) {
+    vec.X(max_speed);
+    logger::logger_->info("Executed Vec X: {}", vec);
+    quads_.at(id).controller_->set_velocity_vector(vec);
+  } else if (vec.Y() > max_speed) {
+    vec.Y(max_speed);
+    logger::logger_->info("Executed Vec Y: {}", vec);
+    quads_.at(id).controller_->set_velocity_vector(vec);
+  } else if (vec.Z() > max_speed) {
+    vec.Z(max_speed);
+    logger::logger_->info("Executed Vec Z: {}", vec);
+    quads_.at(id).controller_->set_velocity_vector(vec);
+  } else {
+    logger::logger_->info("Executed Vec : {}", vec);
+    quads_.at(id).controller_->set_velocity_vector(vec);
+  }
+}
+
+template<class QuadrotorType>
 bool
 SwarmDevice<QuadrotorType>::arm()
 {
@@ -77,7 +103,7 @@ SwarmDevice<QuadrotorType>::arm_async()
   for (auto&& it : quads_) {
     threads.emplace_back(std::thread([&]() {
       it.controller_->arm_async();
-      //arming_results_.emplace_back(it.controller_->arm_result());
+      // arming_results_.emplace_back(it.controller_->arm_result());
     }));
   }
 
@@ -149,7 +175,7 @@ SwarmDevice<QuadrotorType>::start_offboard_mode_async()
   for (auto&& it : quads_) {
     threads.emplace_back(std::thread([&]() {
       it.controller_->start_offboard_mode_async();
-      //offboard_mode_results_.emplace_back(it.controller_->start_offboard_result());
+      // offboard_mode_results_.emplace_back(it.controller_->start_offboard_result());
     }));
   }
 
@@ -164,9 +190,8 @@ SwarmDevice<QuadrotorType>::stop_offboard_mode_async()
 {
   std::vector<std::thread> threads;
   for (auto&& it : quads_) {
-    threads.emplace_back(std::thread([&]() {
-      it.controller_->stop_offboard_mode_async();
-    }));
+    threads.emplace_back(
+      std::thread([&]() { it.controller_->stop_offboard_mode_async(); }));
   }
 
   for (auto& thread : threads) {
@@ -216,7 +241,7 @@ SwarmDevice<QuadrotorType>::takeoff_async(float meters)
   for (auto&& it : quads_) {
     threads.emplace_back(std::thread([&]() {
       it.controller_->takeoff_async(meters);
-      //takeoff_results_.emplace_back(it.controller_->takeoff_result());
+      // takeoff_results_.emplace_back(it.controller_->takeoff_result());
     }));
   }
 
@@ -267,7 +292,7 @@ SwarmDevice<QuadrotorType>::land_async()
   for (auto&& it : quads_) {
     threads.emplace_back(std::thread([&]() {
       it.controller_->land_async();
-      //landed_results_.emplace_back(it.controller_->land_result());
+      // landed_results_.emplace_back(it.controller_->land_result());
     }));
   }
 
