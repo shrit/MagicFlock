@@ -126,7 +126,8 @@ void
 Quadrotor<flight_controller_t, FilterType, ActionType>::sample_state()
 {
   std::lock_guard<std::mutex> lock(_sample_state_mutex);
-  State<FilterType, std::vector<RSSI>> state(id_, rssi_from_neighbors(), filter_);
+  State<FilterType, std::vector<RSSI>> state(
+    id_, rssi_from_neighbors(), filter_);
   current_state_ = state;
   save_dataset_rssi_velocity(); // just a temporary solution, it might be a good
                                 // one
@@ -322,7 +323,9 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::
 {
   // see if it is possible to make current action generic
   dataset_.save_csv_dataset_2_file(
-    name_, vec_.to_std_vector(current_state().Data()), current_action().Data());
+    name_,
+    vec_.to_std_vector(current_state().Data()),
+    vec_.ignition_2_std_vector(current_action().Data()));
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>

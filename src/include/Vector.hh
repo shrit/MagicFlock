@@ -6,6 +6,8 @@
 #include <type_traits>
 #include <vector>
 
+#include <ignition/math/Vector3.hh>
+#include <ignition/math/Vector4.hh>
 #include <mlpack/prereqs.hpp>
 
 #include "logger.hh"
@@ -34,6 +36,9 @@ public:
 
   template<typename Arg>
   std::vector<double> to_std_vector(Arg arg);
+
+  template<typename Arg>
+  std::vector<double> ignition_2_std_vector(Arg arg);
 
   template<typename T1, typename T2>
   std::vector<T2> map_to_vector(std::map<T1, T2>);

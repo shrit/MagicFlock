@@ -57,6 +57,28 @@ VectorHelper::to_std_vector(Arg arg)
   return vec;
 }
 
+template<typename Arg>
+std::vector<double>
+VectorHelper::ignition_2_std_vector(Arg arg)
+{
+  std::vector<double> vec;
+
+  if (std::is_same<Arg, ignition::math::Vector3d>::value) {
+    vec.resize(3);
+    vec.at(0) = arg.X();
+    vec.at(1) = arg.Y();
+    vec.at(2) = arg.Z();
+  } /*else if (std::is_same<Arg, ignition::math::Vector4d>::value) {
+    vec.resize(4);
+    vec.at(0) = arg.X();
+    vec.at(1) = arg.Y();
+    vec.at(2) = arg.Z();
+    vec.at(3) = arg.W();
+  }*/
+  logger::logger_->debug("Converted to std vector: {}", vec);
+  return vec;
+}
+
 template<typename T1, typename T2>
 std::vector<T2>
 VectorHelper::map_to_vector(std::map<T1, T2> m)
@@ -189,8 +211,8 @@ operator>(const std::vector<T>& v, const std::vector<T>& v1)
 }
 
 template<typename T>
-const std::vector<T> operator*(const std::vector<T>& v,
-                               const std::vector<T>& v1)
+const std::vector<T>
+operator*(const std::vector<T>& v, const std::vector<T>& v1)
 {
   if (v.size() != v1.size()) {
     logger::logger_->error(
