@@ -17,11 +17,12 @@ void
 Generator<QuadrotorType>::go_to_destination()
 {
   std::vector<std::thread> threads;
-
+  double max_speed = 2; 
   /*  Threading Quadrotors */
   for (auto&& it : quadrotors_) {
     threads.push_back(std::thread([&]() {
-      swarm_.one_quad_execute_trajectory(it.id(), it.current_action());
+      swarm_.one_quad_execute_trajectory(
+        it.id(), it.current_action(), max_speed);
     }));
   }
   /* Move the Examination the geomatrical shape inside the flocking model*/
@@ -60,7 +61,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> func)
     time_steps_.reset();
 
     ignition::math::Vector3d destination{ -10, -10, 20 };
-    ignition::math::Vector4d gains{ 1.0, 1.0, 10.0, 100 };
+    ignition::math::Vector4d gains{ 0.1, 0.1, 0.1, 100 };
 
     for (auto&& it : quadrotors_) {
       it.start_flocking(gains, destination);
@@ -69,7 +70,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> func)
     /* Let us see how these quadrotors are going to move */
     for (std::size_t i = 0; i < 10000; ++i) {
       go_to_destination();
-      std::this_thread::sleep_for(std::chrono::milliseconds(50));
+      std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
 
     for (auto&& it : quadrotors_) {
