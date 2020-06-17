@@ -61,6 +61,9 @@ public:
   void in_air_async(float meters);
 
   bool examin_swarm_shape();
+  bool examin_swarm_shape(double lower_threshold,
+                          double upper_threshold);
+
   void reset_models();
 
   template<class status>

@@ -473,3 +473,14 @@ SwarmDevice<QuadrotorType>::examin_swarm_shape()
   bool shape = shape_.is_good_shape(quads_);
   return shape;
 }
+
+template<class QuadrotorType>
+bool
+SwarmDevice<QuadrotorType>::examin_swarm_shape(double lower_threshold,
+                                               double upper_threshold)
+{
+  shape_.lower_threshold() = lower_threshold;
+  shape_.upper_threshold() = upper_threshold;
+  bool shape = shape_.is_good_shape(quads_);
+  return shape;
+}

@@ -17,7 +17,7 @@ void
 Generator<QuadrotorType>::go_to_destination()
 {
   std::vector<std::thread> threads;
-  double max_speed = 2; 
+  double max_speed = 2;
   /*  Threading Quadrotors */
   for (auto&& it : quadrotors_) {
     threads.push_back(std::thread([&]() {
@@ -25,10 +25,7 @@ Generator<QuadrotorType>::go_to_destination()
         it.id(), it.current_action(), max_speed);
     }));
   }
-  /* Move the Examination the geomatrical shape inside the flocking model*/
-  // for (auto it : quadrotors_) {
-  //   shapes.push_back(it.examin_geometric_shape());
-  // }
+
   for (auto& thread : threads) {
     thread.join();
   }
@@ -36,25 +33,23 @@ Generator<QuadrotorType>::go_to_destination()
 
 template<class QuadrotorType>
 void
-Generator<QuadrotorType>::run(std::function<void(void)> func)
+Generator<QuadrotorType>::run(std::function<void(void)> reset)
 {
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
 
     logger_->info("Episode : {}", episode_);
     timer_.start();
-    // start_episode_ =
     swarm_.in_air_async(15);
 
     /* Collect dataset by creating a specific destination.
      * Each quadrotor use the flocking model to stay close to
-     * their neighbors. All quadrotors have the same destination.
+     * its neighbors. All quadrotors have the same destination.
      * An episode ends when a quadrotor reachs the destination,
      * or quadrotors are very dispersed.
      */
 
-    // if (start_episode_) {
-    //   /*  Verify that vectors are clear when starting new episode */
-    //   logger_->info("Taking off has finished. Start sampling dataset");
+    /*  Verify that vectors are clear when starting new episode */
+    logger_->info("Taking off has finished. Start sampling dataset");
     for (auto&& it : quadrotors_) {
       it.start_sampling_rt_state(50);
     }
@@ -68,9 +63,16 @@ Generator<QuadrotorType>::run(std::function<void(void)> func)
     }
 
     /* Let us see how these quadrotors are going to move */
-    for (std::size_t i = 0; i < 10000; ++i) {
+    while (true) {
       go_to_destination();
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+      bool shape = swarm_.examin_geometric_shape();
+
+      if (!shape) {
+        logger_->info("Quadrotors are far from each other, ending the episode");
+        break;
+      }
     }
 
     for (auto&& it : quadrotors_) {
@@ -90,7 +92,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> func)
     swarm_.land();
 
     /* Resetting the entire swarm after the end of each episode*/
-    func();
+    reset();
 
     logger_->info("All quadrotors have been reset...");
     std::this_thread::sleep_for(std::chrono::seconds(35));
