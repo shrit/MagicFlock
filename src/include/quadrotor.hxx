@@ -83,7 +83,7 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::start_position_sampler(
 {
   std::lock_guard<std::mutex> lock(_position_sampler_mutex);
   position_sampler_.start(50, [&]() {
-    std::size_t j =0;
+    std::size_t j = 0;
     for (std::size_t i = 0; i < quads.size(); ++i) {
       if (id_ != quads.at(i).id()) {
         neighbor_positions().at(j) = quads.at(i).position();
@@ -557,11 +557,10 @@ template<class flight_controller_t, class FilterType, class ActionType>
 std::vector<double>
 Quadrotor<flight_controller_t, FilterType, ActionType>::distances_to_neighbors()
 {
-  std::vector<double> distances;
-  // std::map<unsigned int, double> neigh_distances;
-  // neigh_distances =
-  //   dist_.distances_to_neighbors(id_, nearest_neighbors_, position());
-  // distances = vec_.map_to_vector(neigh_distances);
+  std::vector<double> distances(neighbor_positions().size());
+  for (std::size_t i = 0; i < neighbor_positions().size(); ++i) {
+    distances.at(i) = position().Distance(neighbor_positions().at(i));
+  }
   return distances;
 }
 
