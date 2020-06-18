@@ -36,7 +36,7 @@ Flocking::cohesionVelocity()
   ignition::math::Vector3d total_sum{ 0, 0, 0 };
 
   for (std::size_t i = 0; i < position_of_neighbors_.size(); ++i) {
-    total_sum += (position_ - position_of_neighbors_.at(i));
+    total_sum += (position_.Distance(position_of_neighbors_.at(i)));
   }
   logger::logger_->debug(
     "cohesion total sum: {}", total_sum, " param: {}\n", param);
@@ -53,7 +53,7 @@ Flocking::separationVelocity()
   ignition::math::Vector3d r_sep{ 0, 0, 0 }, r_sep_norm_2{ 0, 0, 0 };
 
   for (std::size_t i = 0; i < position_of_neighbors_.size(); ++i) {
-    r_sep = (position_ - position_of_neighbors_.at(i));
+    r_sep = (position_.Distance(position_of_neighbors_.at(i)));
     double d =
       r_sep.X() * r_sep.X() + r_sep.Y() * r_sep.Y() + r_sep.Z() * r_sep.Z();
 
@@ -94,9 +94,9 @@ Flocking::Velocity()
   sep = separationVelocity();
   mig = migrationVelocity();
   total = coh + sep + mig;
-  logger::logger_->info("Migration Velocity: {}\n", mig);
-  logger::logger_->info("Separation velocity: {}\n", sep);
-  logger::logger_->info("cohesionVelocity: {}\n", coh);
-  logger::logger_->info("Final velocity: {}\n", total);
+  logger::logger_->debug("Migration Velocity: {}\n", mig);
+  logger::logger_->debug("Separation velocity: {}\n", sep);
+  logger::logger_->debug("cohesionVelocity: {}\n", coh);
+  logger::logger_->debug("Final velocity: {}\n", total);
   return total;
 }
