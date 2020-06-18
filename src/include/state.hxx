@@ -29,7 +29,9 @@ State<FilterType, ContainerType>::State(unsigned int id,
     data.push_back(container.at(i).antenna_2);
   }
   data_ = arma.vec_to_arma(data);
+  ILMR::logger::logger_->debug("Data before filtering:  {}", data_);
   data_ = filter.input(data_);
+  ILMR::logger::logger_->debug("Data after filtering:  {}", data_);
 }
 
 template<class FilterType, class ContainerType>
@@ -45,7 +47,6 @@ State<FilterType, ContainerType>::State(unsigned int id,
     data.push_back(container.at(i).antenna_2);
   }
   data_ = arma.vec_to_arma(data);
-  //std::cout << data_ << "\n";
 }
 
 template<class FilterType, class ContainerType>
