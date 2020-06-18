@@ -23,13 +23,13 @@ public:
   double& upper_threshold();
   double upper_threshold() const;
 
-  bool is_good_shape(std::vector<QuadrotorType> quads);
+  bool is_good_shape(const std::vector<QuadrotorType>& quads);
 
 private:
   double lower_threshold_ =
     0; /*  0 meters minimum distance between quadrotors */
   double upper_threshold_ =
-    8; /*  8 meters maximum distance between quadrotors */
+    10; /*  10 meters maximum distance between quadrotors */
 
   VectorHelper vec_;
   ComputeDistance dist_;
