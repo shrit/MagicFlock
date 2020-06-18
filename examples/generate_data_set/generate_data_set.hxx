@@ -67,7 +67,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
       go_to_destination();
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
-      bool shape = swarm_.examin_geometric_shape();
+      bool shape = swarm_.examin_swarm_shape();
 
       if (!shape) {
         logger_->info("Quadrotors are far from each other, ending the episode");
