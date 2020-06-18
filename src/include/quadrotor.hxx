@@ -22,7 +22,7 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::init(
   port_number_ = std::to_string(1454) + std::to_string(id);
   rssi_from_neighbors().resize(number_of_quad); // Max number of quad created
   // Max number -1, dont count my position
-  neighbor_positions().resize(number_of_quad);
+  neighbor_positions().resize(number_of_quad - 1);
   arma::colvec initial_value(number_of_quad * 2);
   initial_value.fill(-50);
   filter_.initial_value() = initial_value;
@@ -83,9 +83,11 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::start_position_sampler(
 {
   std::lock_guard<std::mutex> lock(_position_sampler_mutex);
   position_sampler_.start(50, [&]() {
+    std::size_t j =0;
     for (std::size_t i = 0; i < quads.size(); ++i) {
       if (id_ != quads.at(i).id()) {
-        neighbor_positions().at(i) = quads.at(i).position();
+        neighbor_positions().at(j) = quads.at(i).position();
+        ++j;
       }
     }
   });
