@@ -16,7 +16,6 @@ struct Evaluation
   double total_count;
 };
 
-template
 class EvaluateModel
 {
 
