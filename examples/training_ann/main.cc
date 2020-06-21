@@ -19,7 +19,6 @@
 #include "training.hh"
 
 #include <ILMR/gazebo.hh>
-#include <ILMR/logger.hh>
 
 int
 main(int argc, char* argv[])
@@ -28,7 +27,7 @@ main(int argc, char* argv[])
   auto logger = ILMR::logger::init();
   ILMR::logger::create_library_logger(logger);
 
-  CLI::App app{ "Example of a neural network trainer using MLPack" };
+  CLI::App app{ "Example of a neural network trainer using mlpack" };
 
   std::string dataset_filename = "default";
   app
@@ -38,7 +37,13 @@ main(int argc, char* argv[])
     ->required()
     ->check(CLI::ExistingFile);
 
+  app.add_flag("-v, --verbose", verbose, " Make the output more verbose");
+
   CLI11_PARSE(app, argc, argv);
+
+  if (verbose) {
+    spdlog::set_level(spdlog::level::debug);
+  }
 
   logger->info("Start training...");
   Train<Gazebo> trainer(std::move(dataset_filename), logger);
