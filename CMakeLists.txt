@@ -30,6 +30,7 @@ add_subdirectory( src/gazebo )
 add_library(ILMR SHARED
   src/continuous_actions.cc
   src/discret_actions.cc
+  src/evaluate_model.cc
   src/flocking.cc
   src/keyboard.cc
   src/joystick.cc

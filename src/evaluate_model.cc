@@ -1,4 +1,4 @@
-#pragma once
+#include "evaluate_model.hh"
 
 EvaluateModel::EvaluateModel()
   : count_both_actions_(0)

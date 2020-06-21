@@ -42,4 +42,3 @@ private:
   DataSet dataset_;
 };
 
-#include "evaluate_model.hxx"
