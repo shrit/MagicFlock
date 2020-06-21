@@ -13,7 +13,7 @@
 #include <thread>
 #include <vector>
 
-#include <CLI/CLI.hpp>
+#include <ILMR/CLI11.hpp>
 
 /*  locale defined include */
 #include "training.hh"
