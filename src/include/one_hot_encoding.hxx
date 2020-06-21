@@ -10,7 +10,7 @@ OneHotEncoding::to_one_hot_encoding(Arg arg, Arg2 number_of_class)
   if (number_of_class > static_cast<int>(arg)) {
     one_hot.at(static_cast<int>(arg)) = 1;
   } else {
-    logger::logger_->error(
+    ILMR::logger::logger_->error(
       "Can not convert to one hot, please add more classes...");
   }
   return one_hot;
