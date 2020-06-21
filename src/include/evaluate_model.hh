@@ -16,7 +16,7 @@ struct Evaluation
   double total_count;
 };
 
-template<class simulator_t = Gazebo>
+template
 class EvaluateModel
 {
 
@@ -39,7 +39,7 @@ private:
   int count_both_bad_actions_;
   double global_count_;
   Evaluation evaluate_;
-  DataSet<simulator_t> dataset_;
+  DataSet dataset_;
 };
 
 #include "evaluate_model.hxx"

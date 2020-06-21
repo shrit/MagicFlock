@@ -1,7 +1,6 @@
 #pragma once
 
-template<class simulator_t>
-EvaluateModel<simulator_t>::EvaluateModel()
+EvaluateModel::EvaluateModel()
   : count_both_actions_(0)
   , count_follower_1_(0)
   , count_follower_2_(0)
@@ -13,11 +12,10 @@ EvaluateModel<simulator_t>::EvaluateModel()
   dataset_.init_dataset_directory();
 }
 
-template<class simulator_t>
 void
-EvaluateModel<simulator_t>::input(DiscretActions::Action leader_action,
-                                  DiscretActions::Action follower_1_action,
-                                  DiscretActions::Action follower_2_action)
+EvaluateModel::input(DiscretActions::Action leader_action,
+                     DiscretActions::Action follower_1_action,
+                     DiscretActions::Action follower_2_action)
 {
   global_count_++;
 
@@ -48,9 +46,8 @@ EvaluateModel<simulator_t>::input(DiscretActions::Action leader_action,
   }
 }
 
-template<class simulator_t>
 Evaluation
-EvaluateModel<simulator_t>::evaluate()
+EvaluateModel::evaluate()
 {
   if (global_count_ != 0) {
     evaluate_.percent_same_action = count_both_actions_ / global_count_;
@@ -64,17 +61,15 @@ EvaluateModel<simulator_t>::evaluate()
   return evaluate_;
 }
 
-template<class simulator_t>
 void
-EvaluateModel<simulator_t>::register_evaluation()
+EvaluateModel::register_evaluation()
 {
   evaluate();
   dataset_.save_evaluation(*this);
 }
 
-template<class simulator_t>
 std::ostream&
-operator<<(std::ostream& out, EvaluateModel<simulator_t>& m_evaluate)
+operator<<(std::ostream& out, EvaluateModel& m_evaluate)
 {
   out << "====================================================================="
          "================================"
