@@ -6,7 +6,6 @@
 #include <vector>
 
 /* local includes  */
-#include <ILMR/action_generator.hh>
 #include <ILMR/ann_enhanced_predictor.hh>
 #include <ILMR/evaluate_model.hh>
 #include <ILMR/logger.hh>
@@ -23,7 +22,7 @@ public:
                      std::shared_ptr<spdlog::logger> logger);
 
   void generate_trajectory_using_model();
-  void run();
+  void run(std::function<void(void)> func);
 
   Iterative_learning(Iterative_learning const&) = delete;
   Iterative_learning(Iterative_learning&&) = default;
@@ -39,12 +38,7 @@ private:
   SwarmDevice<QuadrotorType> swarm_;
   bool start_episode_;
   std::vector<QuadrotorType> quadrotors_;
-
-  std::shared_ptr<spdlog::logger> logger_;
-  typename std::vector<QuadrotorType>::iterator leader_;
-  typename std::vector<QuadrotorType>::iterator follower_1_;
-  typename std::vector<QuadrotorType>::iterator follower_2_;
-  typename std::vector<QuadrotorType>::iterator leader_2_;
+  std::shared_ptr<spdlog::logger> logger_; 
 };
 
 #include "iterative_learning.hxx"

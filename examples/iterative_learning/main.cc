@@ -20,14 +20,13 @@
 #include <ILMR/continuous_actions.hh>
 #include <ILMR/exponential_moving_average.hh>
 #include <ILMR/gazebo.hh>
-#include <ILMR/logger.hh>
 #include <ILMR/quadrotor.hh>
 
 /*  CLI11 library headers */
-#include <CLI/CLI.hpp>
+#include <ILMR/CLI11.hpp>
 
 /*
- *  Main file: Start generate dataset
+ *  Main file: Start iterative learning
  */
 int
 main(int argc, char* argv[])
