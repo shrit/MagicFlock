@@ -17,6 +17,8 @@
 #include "iterative_learning.hh"
 
 /* ILMR library include  */
+#include <ILMR/continuous_actions.hh>
+#include <ILMR/exponential_moving_average.hh>
 #include <ILMR/gazebo.hh>
 #include <ILMR/logger.hh>
 #include <ILMR/quadrotor.hh>
@@ -39,6 +41,14 @@ main(int argc, char* argv[])
     "Users need to generate dataset, then train it using the training example "
     "to aquire these model files."
   };
+  std::size_t num_of_quads = 3;
+  bool verbose = false;
+  app.add_option("-n, --number_of_quadrotors",
+                 num_of_quads,
+                 " Number of quadrotor to create inside the simulator.");
+  app.add_flag("-v, --verbose", verbose, " Make the output more verbose");
+
+  
   app.require_subcommand(1);
   auto model_files =
     app.add_subcommand("model_files",
@@ -56,41 +66,52 @@ main(int argc, char* argv[])
     }
   });
 
+  CLI11_PARSE(app, argc, argv);
+
+ if (verbose) {
+    spdlog::set_level(spdlog::level::debug);
+  }
+
+  using QuadrotorType =
+    Quadrotor<Px4Device, ExpoMovingAverage<arma::colvec>, ContinuousActions>;
+
+  /*  Create a vector of quadrotors, each one has an id + a label  */
+  std::vector<QuadrotorType> quadrotors;
+  for (std::size_t i = 0; i < num_of_quads; ++i) {
+    QuadrotorType quad;
+    quadrotors.push_back(quad);
+  }
+
+  for (std::size_t i = 0; i < num_of_quads; ++i) {
+    quadrotors.at(i).init(
+      i, "iris_" + std::to_string(i), "", num_of_quads, quadrotors);
+  }
+
   /*  Gazebo simulator */
-  std::shared_ptr<Gazebo> gz = std::make_shared<Gazebo>(argc, argv);
-  gz->subscribe_position_topic();
-  gz->publishe_model_reset();
+  Gazebo<QuadrotorType> gz(quadrotors);
+  gz.start_simulation(
+    "/meta/lemon/script/gazebo_sitl_multiple_run.sh", num_of_quads, "iris");
+
+  logger->info(
+    "Waiting for 30 seconds until gazebo start and spawining finish");
+  std::this_thread::sleep_for(std::chrono::seconds(30));
+  gz.Setup(argc, argv);
+  gz.subsPosTimeTopic();
+  gz.subRxTopic();
+  gz.pubModelReset();
 
   /* Wait for 10 seconds, Just to finish subscribe to
    * gazebo topics */
   std::this_thread::sleep_for(std::chrono::seconds(10));
 
-  /*  Create a vector of quadrotors, each one has an id + a name  */
-  using QuadrotorType = Quadrotor<Px4Device, GaussianNoise<arma::vec>>;
-  std::vector<QuadrotorType> quadrotors;
-  quadrotors.emplace_back("leader");     // Alice
-  quadrotors.emplace_back("follower_1"); // Charlie
-  quadrotors.emplace_back("follower_2"); // Bob
-  quadrotors.emplace_back("leader_2_");  // Delta
+  ILMR::logger::logger_->info("Communciation established with simulator");
 
-  /*  Add neighbors list  */
-  quadrotors.at(0).add_nearest_neighbor_id(1);
-  quadrotors.at(0).add_nearest_neighbor_id(2);
-  quadrotors.at(0).add_nearest_neighbor_id(3);
-
-  quadrotors.at(1).add_nearest_neighbor_id(0);
-  quadrotors.at(1).add_nearest_neighbor_id(2);
-  quadrotors.at(1).add_nearest_neighbor_id(3);
-
-  quadrotors.at(2).add_nearest_neighbor_id(0);
-  quadrotors.at(2).add_nearest_neighbor_id(1);
-  quadrotors.at(2).add_nearest_neighbor_id(3);
-
-  quadrotors.at(3).add_nearest_neighbor_id(0);
-  quadrotors.at(3).add_nearest_neighbor_id(1);
-  quadrotors.at(3).add_nearest_neighbor_id(2);
+  for (std::size_t i = 0; i < num_of_quads; ++i) {
+    quadrotors.at(i).start_controller();
+  }
 
   /*  Test the trained model and improve it  */
   Iterative_learning<QuadrotorType> ilearning(quadrotors, logger);
-  ilearning.run();
+  ilearning.run([&](){ gz.ResetModels(); });
+  return 0;
 }
