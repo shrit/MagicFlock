@@ -12,7 +12,7 @@
 #include <ILMR/quadrotor.hh>
 #include <ILMR/swarm_device.hh>
 #include <ILMR/time_steps.hh>
-#include <ILMR/timer.hh>
+#include <ILMR/time.hh>
 
 template<class QuadrotorType>
 class Iterative_learning
@@ -29,7 +29,6 @@ public:
 
 private:
   int episode_;
-  EvaluateModel<> evaluate_model_;
   std::vector<double> flight_errors_;
   int max_episode_;
   std::vector<double> step_errors_;

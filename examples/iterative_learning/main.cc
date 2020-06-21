@@ -21,6 +21,7 @@
 #include <ILMR/exponential_moving_average.hh>
 #include <ILMR/gazebo.hh>
 #include <ILMR/quadrotor.hh>
+#include <ILMR/px4_device.hh>
 
 /*  CLI11 library headers */
 #include <ILMR/CLI11.hpp>

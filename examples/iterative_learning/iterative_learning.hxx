@@ -20,7 +20,7 @@ Iterative_learning<QuadrotorType>::generate_trajectory_using_model()
   std::vector<std::thread> threads;
   double max_speed = 2;
 
-  for (auto&& i : quadrotors) {
+  for (auto&& i : quadrotors_) {
     AnnStatePredictor<QuadrotorType> predict(
       "/meta/lemon/examples/iterative_learning/build/model.txt", "model", i);
     ContinuousActions action = predict.best_predicted_action();
@@ -52,7 +52,6 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
     start_episode_ = swarm_.in_air(15);
 
     while (true) {
-      time_steps_.reset();
       generate_trajectory_using_model();
 
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -74,8 +73,6 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
     std::string flight_time = timer_.stop_and_get_time();
     logger_->info("Flight time: {}", flight_time);
 
-    /* Register the test realized by the model */
-    evaluate_model_.register_evaluation();
     /* Resetting the entire swarm after the end of each episode*/
     reset();
 
