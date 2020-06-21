@@ -53,6 +53,7 @@ public:
   using NodePtr = gazebo::transport::NodePtr;
   using SubPtr = gazebo::transport::SubscriberPtr;
   using inner_flight_controller = flight_controller_t;
+  using Action = ActionType;
 
   void init(
     unsigned int id,
