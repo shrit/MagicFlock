@@ -22,7 +22,7 @@
 #include <ILMR/px4_device.hh>
 
 /*  CLI11 library headers */
-#include <CLI/CLI.hpp>
+#include <ILMR/CLI11.hpp>
 
 /*
  *  Main file: Start generating dataset
