@@ -23,7 +23,8 @@ set(gomp "/usr/lib/libgomp.so")
 
 file(GLOB HEADER_LIST CONFIGURE_DEPENDS "src/include/*.hh")
 file(GLOB HEADER_LIST_XX CONFIGURE_DEPENDS "src/include/*.hxx")
-file(GLOB HEADER_LIST_XX CONFIGURE_DEPENDS "src/include/*.hpp")
+file(GLOB HEADER_LIST_PP CONFIGURE_DEPENDS "src/include/*.hpp")
+
 add_subdirectory( src/gazebo )
 
 add_library(ILMR SHARED
@@ -39,6 +40,7 @@ add_library(ILMR SHARED
   src/time_steps.cc
   ${HEADER_LIST}
   ${HEADER_LIST_XX}
+  ${HEADER_LIST_PP}
   )
 
 target_include_directories(ILMR PUBLIC
