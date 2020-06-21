@@ -34,7 +34,7 @@ public:
     typename std::vector<QuadrotorType>::iterator quad);
 
   arma::mat predict();
-  arma::colvec predict_specific_action_error(Actions::Action action);
+  arma::colvec predict_specific_action_error(typename QuadrotorType::Action action);
 
   double real_time_loss() const;
 

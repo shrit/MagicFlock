@@ -33,7 +33,7 @@ public:
 
   double real_time_loss();
 
-  Actions::Action best_predicted_action();
+  typename QuadrotorType::Action best_predicted_action();
 
   arma::vec best_predicted_state();
   arma::Col<arma::uword> all_predicted_actions() const;
@@ -42,7 +42,7 @@ public:
   AnnEnhancedPredictor(AnnEnhancedPredictor&&) = default;
 
 private:
-  Actions::Action best_action_follower_;
+  typename QuadrotorType::Action best_action_follower_;
   arma::uword best_action_index_;
   double real_time_loss_;
   arma::vec loss_vector_;

@@ -40,7 +40,7 @@ public:
   double compute_square_loss(const arma::mat& labels, arma::uword index);
 
 protected:
-  Actions action_;
+  typename QuadrotorType::Action action_;
   arma::colvec loss_vector_;
   typename std::vector<QuadrotorType>::iterator quad_;
 

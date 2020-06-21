@@ -62,7 +62,7 @@ AnnStatePredictor<QuadrotorType>::best_predicted_state()
 }
 
 template<class QuadrotorType>
-Actions::Action
+typename QuadrotorType::Action
 AnnStatePredictor<QuadrotorType>::best_predicted_action()
 {
   /* Predict the next state using the above data */

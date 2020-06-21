@@ -43,7 +43,7 @@ AnnErrorPredictor<QuadrotorType>::predict()
 template<class QuadrotorType>
 arma::colvec
 AnnErrorPredictor<QuadrotorType>::predict_specific_action_error(
-  Actions::Action action)
+  typename QuadrotorType::Action action)
 {
   arma::mat labels = predict();
   arma::uword label_index_of_best_estimation = this->action_.as_integer(action);

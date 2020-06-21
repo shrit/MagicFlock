@@ -53,7 +53,7 @@ AnnEnhancedPredictor<QuadrotorType>::best_predicted_state()
 }
 
 template<class QuadrotorType>
-Actions::Action
+typename QuadrotorType::Action
 AnnEnhancedPredictor<QuadrotorType>::best_predicted_action()
 {
   predict();

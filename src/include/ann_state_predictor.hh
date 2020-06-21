@@ -43,7 +43,7 @@ public:
   double real_time_loss();
 
   arma::vec loss_vector() const;
-  Actions::Action best_predicted_action();
+  typename QuadrotorType::Action best_predicted_action();
 
   AnnStatePredictor(AnnStatePredictor const&) = delete;
   AnnStatePredictor(AnnStatePredictor&&) = default;
@@ -55,7 +55,7 @@ private:
   double real_time_loss_;
   arma::vec loss_vector_;
   arma::uword best_action_index_;
-  Actions::Action best_action_follower_;
+  typename QuadrotorType::Action best_action_follower_;
   arma::Col<arma::uword> all_predicted_actions_;
 };
 
