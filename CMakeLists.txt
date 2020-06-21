@@ -23,7 +23,7 @@ set(gomp "/usr/lib/libgomp.so")
 
 file(GLOB HEADER_LIST CONFIGURE_DEPENDS "src/include/*.hh")
 file(GLOB HEADER_LIST_XX CONFIGURE_DEPENDS "src/include/*.hxx")
-
+file(GLOB HEADER_LIST_XX CONFIGURE_DEPENDS "src/include/*.hpp")
 add_subdirectory( src/gazebo )
 
 add_library(ILMR SHARED
