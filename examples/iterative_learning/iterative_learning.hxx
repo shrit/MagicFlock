@@ -20,13 +20,12 @@ Iterative_learning<QuadrotorType>::generate_trajectory_using_model()
   std::vector<std::thread> threads;
   double max_speed = 2;
 
-  AnnStatePredictor<QuadrotorType> predict_f1(
-    "/meta/lemon/examples/iterative_learning/build/f1/model.txt",
-    "model",
-    follower_1_);
-
-  Actions::Action follower_1_action_s = predict_f1.best_predicted_action();
-  follower_1_->current_action(follower_1_action_e);
+  for (auto&& i : quadrotors) {
+    AnnStatePredictor<QuadrotorType> predict(
+      "/meta/lemon/examples/iterative_learning/build/model.txt", "model", i);
+    ContinuousActions action = predict.best_predicted_action();
+    i.current_action(action);
+  }
 
   /*  Threading QuadCopter */
   for (auto&& it : quadrotors_) {
@@ -39,7 +38,7 @@ Iterative_learning<QuadrotorType>::generate_trajectory_using_model()
   /* We need to wait until the quadcopters finish their actions */
   for (auto& thread : threads) {
     thread.join();
-  } 
+  }
 }
 
 template<class QuadrotorType>
