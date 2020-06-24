@@ -2,7 +2,7 @@
 
 template<class QuadrotorType>
 ActionGenerator<QuadrotorType>::ActionGenerator(
-  typename std::vector<QuadrotorType>::iterator quad)
+  const QuadrotorType& quad)
   : quad_(quad)
 {
   // Nothing to do here

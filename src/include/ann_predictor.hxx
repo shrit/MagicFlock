@@ -1,8 +1,7 @@
 #pragma once
 
 template<class QuadrotorType>
-AnnPredictor<QuadrotorType>::AnnPredictor(
-  typename std::vector<QuadrotorType>::iterator quad)
+AnnPredictor<QuadrotorType>::AnnPredictor(const QuadrotorType& quad)
   : quad_(quad)
 {
   // Nothing to do here.
@@ -13,7 +12,8 @@ arma::mat
 AnnPredictor<QuadrotorType>::create_features_matrix()
 {
   arma::mat features;
-  std::vector<typename QuadrotorType::Action> actions = action_.all_possible_actions();
+  std::vector<typename QuadrotorType::Action> actions =
+    action_.all_possible_actions();
 
   for (int i = 0; i < 7; ++i) {
     arma::colvec col;

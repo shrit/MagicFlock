@@ -6,13 +6,13 @@ AnnEnhancedPredictor<QuadrotorType>::AnnEnhancedPredictor(
   std::string state_model_name,
   std::string full_path_to_error_model,
   std::string error_model_name,
-  typename std::vector<QuadrotorType>::iterator quad)
+  const QuadrotorType& quad)
   : AnnStatePredictor<QuadrotorType>(full_path_to_state_model,
-                                   state_model_name,
-                                   quad)
+                                     state_model_name,
+                                     quad)
   , AnnErrorPredictor<QuadrotorType>(full_path_to_error_model,
-                                   error_model_name,
-                                   quad)
+                                     error_model_name,
+                                     quad)
   , AnnPredictor<QuadrotorType>(quad)
 {
   // Nothing to do here.

@@ -27,7 +27,7 @@ public:
     std::string state_model_name,
     std::string full_path_to_error_model,
     std::string error_model_name,
-    typename std::vector<QuadrotorType>::iterator quad);
+    const QuadrotorType& quad);
 
   arma::mat predict();
 

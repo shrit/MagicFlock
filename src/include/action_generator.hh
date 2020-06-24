@@ -17,7 +17,7 @@ class ActionGenerator : public DiscretActions
 {
 
 public:
-  ActionGenerator(typename std::vector<QuadrotorType>::iterator quad);
+  ActionGenerator(const QuadrotorType& quad);
 
   Action generate_random_action();
 
@@ -30,7 +30,7 @@ public:
   Action generate_action_from_oracle();
 
 private:
-  typename std::vector<QuadrotorType>::iterator quad_;
+  const QuadrotorType& quad_;
 };
 
 #include "action_generator.hxx"

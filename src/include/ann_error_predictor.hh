@@ -11,11 +11,11 @@
 #include <vector>
 
 /*  MLPack includes */
+#include <ensmallen_bits/adam/adam_update.hpp>
 #include <mlpack/core.hpp>
 #include <mlpack/methods/ann/ffn.hpp>
 #include <mlpack/methods/ann/layer/layer.hpp>
 #include <mlpack/methods/ann/loss_functions/mean_squared_error.hpp>
-#include <ensmallen_bits/adam/adam_update.hpp>
 
 /* local includes  */
 #include "ann_predictor.hh"
@@ -28,13 +28,13 @@ template<class QuadrotorType>
 class AnnErrorPredictor : public virtual AnnPredictor<QuadrotorType>
 {
 public:
-  AnnErrorPredictor(
-    std::string full_path_to_model,
-    std::string model_name,
-    typename std::vector<QuadrotorType>::iterator quad);
+  AnnErrorPredictor(std::string full_path_to_model,
+                    std::string model_name,
+                    const QuadrotorType& quad);
 
   arma::mat predict();
-  arma::colvec predict_specific_action_error(typename QuadrotorType::Action action);
+  arma::colvec predict_specific_action_error(
+    typename QuadrotorType::Action action);
 
   double real_time_loss() const;
 

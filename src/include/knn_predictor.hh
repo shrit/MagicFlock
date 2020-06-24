@@ -10,9 +10,9 @@
 
 /* MLPack includes */
 #include <mlpack/core.hpp>
-#include <mlpack/methods/neighbor_search/neighbor_search.hpp>
 #include <mlpack/core/metrics/lmetric.hpp>
 #include <mlpack/core/util/prefixedoutstream.hpp>
+#include <mlpack/methods/neighbor_search/neighbor_search.hpp>
 
 /* local includes  */
 #include "dataset.hh"
@@ -24,14 +24,13 @@ template<class QuadrotorType>
 class KnnPredictor
 {
 public:
-  KnnPredictor(
-    std::string dataset_file,
-    typename std::vector<QuadrotorType>::iterator quad);
+  KnnPredictor(std::string dataset_file,
+               const QuadrotorType& quad);
 
   void predict(int knn_neighbors);
   Actions::Action get_predicted_action() const;
 
-  std::vector<double> estimate_action_from_distance(arma::mat& matrix);  
+  std::vector<double> estimate_action_from_distance(arma::mat& matrix);
   int index_of_best_state(arma::mat& matrix);
 
   KnnPredictor(KnnPredictor const&) = delete;
@@ -41,7 +40,6 @@ private:
   OneHotEncoding one_hot_;
   DataSet dataset_;
   DiscretActions::Action predicted_follower_action_;
-  typename std::vector<QuadrotorType>::iterator quad_;
 };
 
 #include "knn_predictor.hxx"

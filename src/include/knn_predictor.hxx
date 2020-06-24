@@ -3,7 +3,7 @@
 template<class QuadrotorType>
 KnnPredictor<QuadrotorType>::KnnPredictor(
   std::string dataset_file,
-  typename std::vector<QuadrotorType>::iterator quad)
+  const QuadrotorType& quad)
   : quad_(quad)
 {
   dataset_.parse_dataset_file(dataset_file);

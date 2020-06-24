@@ -28,7 +28,7 @@ template<class QuadrotorType>
 class AnnPredictor
 {
 public:
-  AnnPredictor(typename std::vector<QuadrotorType>::iterator quad);
+  AnnPredictor(const QuadrotorType& quad);
 
   arma::mat create_features_matrix();
 
@@ -42,7 +42,7 @@ public:
 protected:
   typename QuadrotorType::Action action_;
   arma::colvec loss_vector_;
-  typename std::vector<QuadrotorType>::iterator quad_;
+  const QuadrotorType& quad_;
 
 private:
   OneHotEncoding one_hot_;
