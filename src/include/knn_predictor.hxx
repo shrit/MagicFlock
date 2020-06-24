@@ -20,7 +20,7 @@ KnnPredictor<QuadrotorType>::predict(int knn_neighbors)
   arma::mat s_t_2 = dataset_.st_2_mat();
 
   arma::mat query = dataset_.conv_state_action_state_to_arma(
-    quad_->last_state(), quad_->current_action(), quad_->current_state());
+    quad_.last_state(), quad_.current_action(), quad_.current_state());
 
   mlpack::neighbor::NeighborSearch<mlpack::neighbor::NearestNeighborSort,
                                    mlpack::metric::EuclideanDistance>
@@ -44,7 +44,7 @@ KnnPredictor<QuadrotorType>::predict(int knn_neighbors)
   result_state = result_state.t();
 
   arma::mat original_state_matrix =
-    this->create_state_matrix(this->quad_->all_states().at(0), labels_.n_cols);
+    this->create_state_matrix(this->quad_.all_states().at(0), labels_.n_cols);
   Argmin<arma::mat, arma::uword> argmin(original_state_matrix, result_state, 1);
 
   arma::uword value = argmin.min_index();

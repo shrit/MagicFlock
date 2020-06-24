@@ -4,7 +4,7 @@ template<class QuadrotorType>
 AnnStatePredictor<QuadrotorType>::AnnStatePredictor(
   std::string full_path_to_model,
   std::string model_name,
-  const QuadrotorType& quad)
+  QuadrotorType& quad)
   : AnnPredictor<QuadrotorType>(quad)
   , real_time_loss_(0)
   , model_path_(full_path_to_model)
@@ -37,7 +37,7 @@ AnnStatePredictor<QuadrotorType>::predict()
   logger::logger_->info("State prediction matrix:\n {}", labels_.t());
 
   arma::mat original_state_matrix =
-    this->create_state_matrix(this->quad_->all_states().at(0), labels_.n_cols);
+    this->create_state_matrix(this->quad_.all_states().at(0), labels_.n_cols);
 
   Argmin<arma::mat, arma::uword> argmin(original_state_matrix, labels_, 1);
 
@@ -67,7 +67,7 @@ AnnStatePredictor<QuadrotorType>::best_predicted_action()
 {
   /* Predict the next state using the above data */
   predict();
-  this->quad_->current_predicted_state().Data() = best_predicted_state();
+  this->quad_.current_predicted_state().Data() = best_predicted_state();
   return best_action_follower_;
 }
 

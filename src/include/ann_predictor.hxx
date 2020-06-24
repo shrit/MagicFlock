@@ -17,10 +17,10 @@ AnnPredictor<QuadrotorType>::create_features_matrix()
 
   for (int i = 0; i < 7; ++i) {
     arma::colvec col;
-    col.insert_rows(col.n_rows, quad_->last_state().Data());
+    col.insert_rows(col.n_rows, quad_.last_state().Data());
     col.insert_rows(col.n_rows,
-                    one_hot_.to_one_hot_encoding(quad_->current_action(), 7));
-    col.insert_rows(col.n_rows, quad_->current_state().Data());
+                    one_hot_.to_one_hot_encoding(quad_.current_action(), 7));
+    col.insert_rows(col.n_rows, quad_.current_state().Data());
     col.insert_rows(col.n_rows, one_hot_.to_one_hot_encoding(actions.at(i), 7));
 
     /*  Create a matrix of several columns, each one is added to on the end */
@@ -50,9 +50,9 @@ AnnPredictor<QuadrotorType>::compute_real_loss(const arma::mat& labels,
                                                arma::uword index)
 {
   loss_vector_.clear();
-  loss_vector_ = this->quad_->current_state().Data() - labels.col(index);
+  loss_vector_ = this->quad_.current_state().Data() - labels.col(index);
 
-  this->quad_->current_loss(loss_vector_);
+  this->quad_.current_loss(loss_vector_);
   return arma::sum(loss_vector_);
 }
 
@@ -63,9 +63,9 @@ AnnPredictor<QuadrotorType>::compute_absolute_loss(const arma::mat& labels,
 {
   loss_vector_.clear();
   loss_vector_ =
-    arma::abs(this->quad_->current_state().Data() - labels.col(index));
+    arma::abs(this->quad_.current_state().Data() - labels.col(index));
 
-  this->quad_->current_loss(loss_vector_);
+  this->quad_.current_loss(loss_vector_);
   return arma::sum(loss_vector_);
 }
 
@@ -77,11 +77,11 @@ AnnPredictor<QuadrotorType>::compute_square_loss(const arma::mat& labels,
   loss_vector_.clear();
   mlpack::ann::MeanSquaredError<arma::rowvec, arma::rowvec> mse;
   double error =
-    mse.Forward(this->quad_->current_state().Data(), labels.col(index));
+    mse.Forward(this->quad_.current_state().Data(), labels.col(index));
 
   loss_vector_ =
-    arma::square(this->quad_->current_state().Data() - labels.col(index));
+    arma::square(this->quad_.current_state().Data() - labels.col(index));
 
-  this->quad_->current_loss(loss_vector_);
+  this->quad_.current_loss(loss_vector_);
   return error;
 }

@@ -32,7 +32,7 @@ public:
   AnnStatePredictor(
     std::string full_path_to_model,
     std::string model_name,
-    const std::vector<QuadrotorType>& quad);
+    QuadrotorType& quad);
 
   arma::vec best_predicted_state();
 

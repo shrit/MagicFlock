@@ -29,7 +29,7 @@ AnnEnhancedPredictor<QuadrotorType>::predict()
   enhanced_prediction_matrix_ = predicted_state + predicted_error;
 
   arma::mat original_state_matrix = this->create_state_matrix(
-    this->quad_->all_states().at(0), predicted_error.n_cols);
+    this->quad_.all_states().at(0), predicted_error.n_cols);
 
   Argmin<arma::mat, arma::uword> argmin(
     original_state_matrix, enhanced_prediction_matrix_, 1);
@@ -57,7 +57,7 @@ typename QuadrotorType::Action
 AnnEnhancedPredictor<QuadrotorType>::best_predicted_action()
 {
   predict();
-  this->quad_->current_predicted_enhanced_state().Data() =
+  this->quad_.current_predicted_enhanced_state().Data() =
     best_predicted_state();
   return best_action_follower_;
 }
