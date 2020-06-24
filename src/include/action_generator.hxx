@@ -26,15 +26,15 @@ ActionGenerator<QuadrotorType>::generate_persistant_action(int for_n_timestep,
 
   if (timesteps % for_n_timestep == 0) {
     action = random_action_generator_with_only_opposed_condition(
-      quad_->current_action());
+      quad_.current_action());
   } else {
-    action = quad_->current_action();
+    action = quad_.current_action();
   }
 
-  if (quad_->height() < 15) {
-    if (quad_->current_action() == DiscretActions::Action::down)
+  if (quad_.height() < 15) {
+    if (quad_.current_action() == DiscretActions::Action::down)
       action = random_action_generator_with_only_opposed_condition(
-        quad_->current_action());
+        quad_.current_action());
   }
   return action;
 }
@@ -147,64 +147,64 @@ ActionGenerator<QuadrotorType>::generate_action_from_oracle()
 {
   DiscretActions::Action action = DiscretActions::Action::Unknown;
 
-  if (quad_->id() == 1) {
-    if (quad_->current_state().distance_to(0) >
-          quad_->last_state().distance_to(0) and
-        quad_->current_state().distance_to(3) >
-          quad_->last_state().distance_to(3) and
-        quad_->height_difference() < 0.4) {
+  if (quad_.id() == 1) {
+    if (quad_.current_state().distance_to(0) >
+          quad_.last_state().distance_to(0) and
+        quad_.current_state().distance_to(3) >
+          quad_.last_state().distance_to(3) and
+        quad_.height_difference() < 0.4) {
       action = DiscretActions::Action::left;
 
-    } else if (quad_->current_state().distance_to(0) >
-                 quad_->last_state().distance_to(0) and
-               quad_->current_state().distance_to(3) <
-                 quad_->last_state().distance_to(3) and
-               quad_->height_difference() < 0.4) {
+    } else if (quad_.current_state().distance_to(0) >
+                 quad_.last_state().distance_to(0) and
+               quad_.current_state().distance_to(3) <
+                 quad_.last_state().distance_to(3) and
+               quad_.height_difference() < 0.4) {
       action = DiscretActions::Action::forward;
-    } else if (quad_->current_state().distance_to(0) <
-                 quad_->last_state().distance_to(0) and
-               quad_->current_state().distance_to(3) >
-                 quad_->last_state().distance_to(3) and
-               quad_->height_difference() < 0.4) {
+    } else if (quad_.current_state().distance_to(0) <
+                 quad_.last_state().distance_to(0) and
+               quad_.current_state().distance_to(3) >
+                 quad_.last_state().distance_to(3) and
+               quad_.height_difference() < 0.4) {
       action = DiscretActions::Action::backward;
-    } else if (quad_->current_state().distance_to(0) <
-                 quad_->last_state().distance_to(0) and
-               quad_->current_state().distance_to(3) <
-                 quad_->last_state().distance_to(3) and
-               quad_->height_difference() < 0.4) {
+    } else if (quad_.current_state().distance_to(0) <
+                 quad_.last_state().distance_to(0) and
+               quad_.current_state().distance_to(3) <
+                 quad_.last_state().distance_to(3) and
+               quad_.height_difference() < 0.4) {
       action = DiscretActions::Action::right;
-    } else if (quad_->height_difference() > 0.7) {
+    } else if (quad_.height_difference() > 0.7) {
       action = DiscretActions::Action::up;
     } else {
       action = DiscretActions::Action::down;
     }
-  } else if (quad_->id() == 2) {
-    if (quad_->current_state().distance_to(0) >
-          quad_->last_state().distance_to(0) and
-        quad_->current_state().distance_to(3) >
-          quad_->last_state().distance_to(3) and
-        quad_->height_difference() < 0.4) {
+  } else if (quad_.id() == 2) {
+    if (quad_.current_state().distance_to(0) >
+          quad_.last_state().distance_to(0) and
+        quad_.current_state().distance_to(3) >
+          quad_.last_state().distance_to(3) and
+        quad_.height_difference() < 0.4) {
       action = DiscretActions::Action::right;
 
-    } else if (quad_->current_state().distance_to(0) >
-                 quad_->last_state().distance_to(0) and
-               quad_->current_state().distance_to(3) <
-                 quad_->last_state().distance_to(3) and
-               quad_->height_difference() < 0.4) {
+    } else if (quad_.current_state().distance_to(0) >
+                 quad_.last_state().distance_to(0) and
+               quad_.current_state().distance_to(3) <
+                 quad_.last_state().distance_to(3) and
+               quad_.height_difference() < 0.4) {
       action = DiscretActions::Action::forward;
-    } else if (quad_->current_state().distance_to(0) <
-                 quad_->last_state().distance_to(0) and
-               quad_->current_state().distance_to(3) >
-                 quad_->last_state().distance_to(3) and
-               quad_->height_difference() < 0.4) {
+    } else if (quad_.current_state().distance_to(0) <
+                 quad_.last_state().distance_to(0) and
+               quad_.current_state().distance_to(3) >
+                 quad_.last_state().distance_to(3) and
+               quad_.height_difference() < 0.4) {
       action = DiscretActions::Action::backward;
-    } else if (quad_->current_state().distance_to(0) <
-                 quad_->last_state().distance_to(0) and
-               quad_->current_state().distance_to(3) >
-                 quad_->last_state().distance_to(3) and
-               quad_->height_difference() < 0.4) {
+    } else if (quad_.current_state().distance_to(0) <
+                 quad_.last_state().distance_to(0) and
+               quad_.current_state().distance_to(3) >
+                 quad_.last_state().distance_to(3) and
+               quad_.height_difference() < 0.4) {
       action = DiscretActions::Action::left;
-    } else if (quad_->height_difference() > 0.7) {
+    } else if (quad_.height_difference() > 0.7) {
       action = DiscretActions::Action::up;
     } else {
       action = DiscretActions::Action::down;
