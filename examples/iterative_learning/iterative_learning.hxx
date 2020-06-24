@@ -2,7 +2,7 @@
 
 template<class QuadrotorType>
 Iterative_learning<QuadrotorType>::Iterative_learning(
-  const std::vector<QuadrotorType>& quadrotors,
+  std::vector<QuadrotorType>& quadrotors,
   std::shared_ptr<spdlog::logger> logger)
   : episode_(0)
   , max_episode_(10000)
@@ -24,7 +24,7 @@ Iterative_learning<QuadrotorType>::generate_trajectory_using_model()
     AnnStatePredictor<QuadrotorType> predict(
       "/meta/lemon/examples/iterative_learning/build/model.txt", "model", i);
     ContinuousActions action = predict.best_predicted_action();
-    i.current_action(action);
+    i.current_action() = action;
   }
 
   /*  Threading QuadCopter */

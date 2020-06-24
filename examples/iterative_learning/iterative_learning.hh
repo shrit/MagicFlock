@@ -18,7 +18,7 @@ template<class QuadrotorType>
 class Iterative_learning
 {
 public:
-  Iterative_learning(const std::vector<QuadrotorType>& quadrotors,
+  Iterative_learning(std::vector<QuadrotorType>& quadrotors,
                      std::shared_ptr<spdlog::logger> logger);
 
   void generate_trajectory_using_model();
