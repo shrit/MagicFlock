@@ -35,7 +35,7 @@
 #include <unistd.h>
 
 /* ILMR include */
-#include <ILMR/logger.hh>
+#include "logger.hh"
 
 /* Local message includes*/
 #include "ResetModel.pb.h"

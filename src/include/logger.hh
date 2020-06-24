@@ -3,6 +3,7 @@
 # include <memory>
 # include <sstream>
 # include <thread>
+
 /*  Speed log include  */
 #include <spdlog/spdlog.h>
 #include <spdlog/logger.h>
