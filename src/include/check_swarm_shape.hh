@@ -29,7 +29,7 @@ private:
   double lower_threshold_ =
     0; /*  0 meters minimum distance between quadrotors */
   double upper_threshold_ =
-    10; /*  10 meters maximum distance between quadrotors */
+    15; /*  15 meters maximum distance between quadrotors */
 
   VectorHelper vec_;
   ComputeDistance dist_;
