@@ -225,6 +225,24 @@ operator*(const std::vector<T>& v, const std::vector<T>& v1)
   return result;
 }
 
+std::ostream&
+operator<<(std::ostream& out, std::vector<ignition::math::Vector3d> v)
+{
+  for (auto i : v) {
+    out << i << "\n";
+  }
+  return out;
+}
+
+std::ostream&
+operator<<(std::ostream& out, std::vector<ignition::math::Vector4d> v)
+{
+  for (auto i : v) {
+    out << i << "\n";
+  }
+  return out;
+}
+
 template<typename T>
 std::ostream&
 operator<<(std::ostream& out, const std::vector<std::vector<T>>& v)
