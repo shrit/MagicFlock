@@ -1,8 +1,9 @@
 #include "include/flocking.hh"
 
-Flocking::Flocking(ignition::math::Vector3d position,
-                   std::vector<ignition::math::Vector3d> position_of_neighbors,
-                   ignition::math::Vector3d destination_position)
+Flocking::Flocking(
+  const ignition::math::Vector3d& position,
+  const std::vector<ignition::math::Vector3d>& position_of_neighbors,
+  const ignition::math::Vector3d& destination_position)
   : position_(position)
   , position_of_neighbors_(position_of_neighbors)
   , destination_position_(destination_position)
@@ -13,10 +14,11 @@ Flocking::Flocking(ignition::math::Vector3d position,
   number_of_neighbors_ = position_of_neighbors.size();
 }
 
-Flocking::Flocking(ignition::math::Vector4d gains,
-                   ignition::math::Vector3d position,
-                   std::vector<ignition::math::Vector3d> position_of_neighbors,
-                   ignition::math::Vector3d destination_position)
+Flocking::Flocking(
+  const ignition::math::Vector4d& gains,
+  const ignition::math::Vector3d& position,
+  const std::vector<ignition::math::Vector3d>& position_of_neighbors,
+  const ignition::math::Vector3d& destination_position)
   : gains_(gains)
   , position_(position)
   , position_of_neighbors_(position_of_neighbors)
