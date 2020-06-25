@@ -26,6 +26,11 @@ Flocking::Flocking(ignition::math::Vector4d gains,
   // the size of neighbor should be total size-1.
   // We have reference to our self
   number_of_neighbors_ = position_of_neighbors.size();
+  logger::logger_->info("My postion: {}", position_);
+  for (auto i : position_of_neighbors_) {
+    std::cout << "neighbor " << i << std::endl;
+  }
+  // std::cout << "Neighbor postion's: " << position_of_neighbors_ << std::endl;
 }
 
 ignition::math::Vector3d
@@ -33,10 +38,12 @@ Flocking::cohesionVelocity()
 {
   ignition::math::Vector3d cohesionVelocity{ 0, 0, 0 };
   double param = gains_.X() / number_of_neighbors_;
-  ignition::math::Vector3d total_sum{ 0, 0, 0 };
+  ignition::math::Vector3d total_sum{ 0, 0, 0 }, r_cohs{ 0, 0, 0 };
 
   for (std::size_t i = 0; i < position_of_neighbors_.size(); ++i) {
-    total_sum += (position_.Distance(position_of_neighbors_.at(i)));
+    r_cohs = position_ - position_of_neighbors_.at(i);
+    r_cohs = r_cohs.Abs();
+    total_sum = total_sum + r_cohs;
   }
   logger::logger_->debug(
     "cohesion total sum: {}", total_sum, " param: {}\n", param);
@@ -47,15 +54,15 @@ Flocking::cohesionVelocity()
 ignition::math::Vector3d
 Flocking::separationVelocity()
 {
-  ignition::math::Vector3d separationVelocity;
+  ignition::math::Vector3d separationVelocity{ 0, 0, 0 };
   double param = -(gains_.Y() / number_of_neighbors_);
   ignition::math::Vector3d total_sum{ 0, 0, 0 };
   ignition::math::Vector3d r_sep{ 0, 0, 0 }, r_sep_norm_2{ 0, 0, 0 };
 
   for (std::size_t i = 0; i < position_of_neighbors_.size(); ++i) {
-    r_sep = (position_.Distance(position_of_neighbors_.at(i)));
-    double d =
-      r_sep.X() * r_sep.X() + r_sep.Y() * r_sep.Y() + r_sep.Z() * r_sep.Z();
+    r_sep = (position_ - position_of_neighbors_.at(i));
+    r_sep = r_sep.Abs();
+    double d = r_sep.SquaredLength();
 
     r_sep_norm_2.X() = r_sep.X() / d;
     r_sep_norm_2.Y() = r_sep.Y() / d;
@@ -72,10 +79,11 @@ Flocking::separationVelocity()
 ignition::math::Vector3d
 Flocking::migrationVelocity()
 {
-  ignition::math::Vector3d migrationVelocity;
+  ignition::math::Vector3d migrationVelocity{ 0, 0, 0 };
   ignition::math::Vector3d r_mig;
-  r_mig = position_.Distance(destination_position_);
-  r_mig.Normalize(); // This will do the entire operation of division
+  r_mig = position_ - destination_position_;
+  r_mig = r_mig.Abs();
+  r_mig = r_mig.Normalize(); // This will do the entire operation of division
   migrationVelocity = r_mig * gains_.Z();
   return migrationVelocity;
 }
@@ -94,9 +102,9 @@ Flocking::Velocity()
   sep = separationVelocity();
   mig = migrationVelocity();
   total = coh + sep + mig;
-  logger::logger_->debug("Migration Velocity: {}\n", mig);
-  logger::logger_->debug("Separation velocity: {}\n", sep);
-  logger::logger_->debug("cohesionVelocity: {}\n", coh);
-  logger::logger_->debug("Final velocity: {}\n", total);
+  logger::logger_->info("Migration Velocity: {}\n", mig);
+  logger::logger_->info("Separation velocity: {}\n", sep);
+  logger::logger_->info("cohesionVelocity: {}\n", coh);
+  logger::logger_->info("Final velocity: {}\n", total);
   return total;
 }
