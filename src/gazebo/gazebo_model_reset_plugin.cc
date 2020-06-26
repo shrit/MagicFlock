@@ -5,7 +5,7 @@ namespace gazebo {
 GZ_REGISTER_WORLD_PLUGIN(ResetPlugin);
 ResetPlugin::ResetPlugin()
   : WorldPlugin()
-  , distribution_real_(-1.5, +1.5)
+  , distribution_real_(-2, +2)
   , generator_(random_dev())
 {}
 
@@ -62,21 +62,37 @@ ResetPlugin::OnMsg(ConstResetModelPtr& _msg)
 std::vector<ignition::math::Vector3d>
 ResetPlugin::RandomPoseGenerator(int quad_number)
 {
+  /* This piece of code relay on circle packing algorithm
+   *  We consider the place occupied by a quadrotor as a circle
+   *  then the diameter should be 40 centimeters.
+   *  We do not want these quadrotors to overlap at any price
+   *  this is the reason for using circle packing
+   */
   std::vector<ignition::math::Vector3d> RandomPosition(quad_number);
-  for (std::size_t i = 0; i < RandomPosition.size(); ++i) {
-    RandomPosition.at(i).X() = distribution_real_(generator_);
-    RandomPosition.at(i).Y() = distribution_real_(generator_);
-    RandomPosition.at(i).Z() = 0;
+  double radius = 0.5;
 
-    for (std::size_t j = 0; j < i; ++j) {
-      if ((RandomPosition.at(i).X() - RandomPosition.at(j).X()) < 1) {
-        RandomPosition.at(i).X() = distribution_real_(generator_);
-      }
-      if ((RandomPosition.at(i).Y() - RandomPosition.at(j).Y()) < 1) {
-        RandomPosition.at(i).Y() = distribution_real_(generator_);
+  for (int i = 0; i < quad_number; ++i) {
+    ignition::math::Vector3d quadRegion;
+    quadRegion.X() = distribution_real_(generator_);
+    quadRegion.Y() = distribution_real_(generator_);
+    quadRegion.Z() = 0;
+    std::vector<bool> overlapping(quad_number, false);
+    for (int j = 0; j < i; ++j) {
+      double d = quadRegion.Distance(RandomPosition.at(j));
+      if (d < radius) {
+        overlapping.at(j) = true;
       }
     }
+    if (std::any_of(overlapping.begin(),
+                    overlapping.end(),
+                    [](const bool& overlap) { return overlap == false; }))
+      RandomPosition.at(i) = quadRegion;
   }
+
+  for (auto&& i : RandomPosition) {
+    std::cout << "RandomPosition" << i << std::endl;
+  }
+
   return RandomPosition;
 }
 }
