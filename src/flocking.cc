@@ -80,7 +80,7 @@ Flocking::migrationVelocity()
 {
   ignition::math::Vector3d migrationVelocity{ 0, 0, 0 };
   ignition::math::Vector3d r_mig;
-  r_mig = position_ - destination_position_;
+  r_mig = destination_position_ - position_;
   r_mig = r_mig.Normalize(); // This will do the entire operation of division
   migrationVelocity = r_mig * gains_.Z();
   return migrationVelocity;
