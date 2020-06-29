@@ -84,12 +84,13 @@ ResetPlugin::RandomPoseGenerator(int quad_number)
         overlapping.at(j) = true;
       }
     }
-    if (!std::any_of(
+    if (std::all_of(
           overlapping.begin(), overlapping.end(), [](const bool& overlap) {
-            logger::logger_->info("Overlapping: {}\n", overlap);
-            return overlap == true;
-          }))
+            std::cout << "Overlapping: " << overlap << std::endl;;
+            return overlap == false;
+          })){ std::cout << "Added Not overlapping" << std::endl;
       RandomPosition.at(i) = quadRegion;
+    }
   }
 
   for (int i = 0; i < quad_number; ++i) {
