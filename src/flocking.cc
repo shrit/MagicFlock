@@ -42,7 +42,7 @@ Flocking::cohesionVelocity()
   ignition::math::Vector3d total_sum{ 0, 0, 0 }, r_cohs{ 0, 0, 0 };
 
   for (std::size_t i = 0; i < position_of_neighbors_.size(); ++i) {
-    r_cohs = position_ - position_of_neighbors_.at(i);
+    r_cohs = position_of_neighbors_.at(i) - position_;
     total_sum = total_sum + r_cohs;
   }
   logger::logger_->debug(
@@ -60,7 +60,7 @@ Flocking::separationVelocity()
   ignition::math::Vector3d r_sep{ 0, 0, 0 }, r_sep_norm_2{ 0, 0, 0 };
 
   for (std::size_t i = 0; i < position_of_neighbors_.size(); ++i) {
-    r_sep = (position_ - position_of_neighbors_.at(i));
+    r_sep = position_of_neighbors_.at(i) - position_;
     double d = r_sep.SquaredLength();
 
     r_sep_norm_2.X() = r_sep.X() / d;
