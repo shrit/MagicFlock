@@ -32,7 +32,6 @@ Flocking::Flocking(
   for (auto i : position_of_neighbors_) {
     std::cout << "neighbor " << i << std::endl;
   }
-  // std::cout << "Neighbor postion's: " << position_of_neighbors_ << std::endl;
 }
 
 ignition::math::Vector3d
@@ -44,7 +43,6 @@ Flocking::cohesionVelocity()
 
   for (std::size_t i = 0; i < position_of_neighbors_.size(); ++i) {
     r_cohs = position_ - position_of_neighbors_.at(i);
-    r_cohs = r_cohs.Abs();
     total_sum = total_sum + r_cohs;
   }
   logger::logger_->debug(
@@ -63,7 +61,6 @@ Flocking::separationVelocity()
 
   for (std::size_t i = 0; i < position_of_neighbors_.size(); ++i) {
     r_sep = (position_ - position_of_neighbors_.at(i));
-    r_sep = r_sep.Abs();
     double d = r_sep.SquaredLength();
 
     r_sep_norm_2.X() = r_sep.X() / d;
@@ -84,7 +81,6 @@ Flocking::migrationVelocity()
   ignition::math::Vector3d migrationVelocity{ 0, 0, 0 };
   ignition::math::Vector3d r_mig;
   r_mig = position_ - destination_position_;
-  r_mig = r_mig.Abs();
   r_mig = r_mig.Normalize(); // This will do the entire operation of division
   migrationVelocity = r_mig * gains_.Z();
   return migrationVelocity;
