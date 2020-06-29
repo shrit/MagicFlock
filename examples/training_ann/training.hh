@@ -1,16 +1,16 @@
 #pragma once
 
+#include <mlpack/core.hpp>
 #include <ensmallen_bits/adam/adam_update.hpp>
 #include <ensmallen_bits/callbacks/callbacks.hpp>
-#include <mlpack/core.hpp>
 #include <mlpack/methods/ann/ffn.hpp>
 #include <mlpack/methods/ann/init_rules/glorot_init.hpp>
 #include <mlpack/methods/ann/layer/layer.hpp>
 #include <mlpack/methods/ann/loss_functions/mean_squared_error.hpp>
 
-#include <ILMR/data_set.hh>
+#include <ILMR/dataset.hh>
 #include <ILMR/logger.hh>
-#include <ILMR/timer.hh>
+#include <ILMR/time.hh>
 
 class Train
 {

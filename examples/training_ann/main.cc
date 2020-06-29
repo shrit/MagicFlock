@@ -18,8 +18,6 @@
 /*  locale defined include */
 #include "training.hh"
 
-#include <ILMR/gazebo.hh>
-
 int
 main(int argc, char* argv[])
 {
@@ -30,6 +28,7 @@ main(int argc, char* argv[])
   CLI::App app{ "Example of a neural network trainer using mlpack" };
 
   std::string dataset_filename = "default";
+  bool verbose = false;
   app
     .add_option("-f,--file",
                 dataset_filename,
@@ -46,7 +45,7 @@ main(int argc, char* argv[])
   }
 
   logger->info("Start training...");
-  Train<Gazebo> trainer(std::move(dataset_filename), logger);
+  Train trainer(std::move(dataset_filename), logger);
   trainer.run();
   logger->info("Finished training...");
 }

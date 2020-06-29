@@ -25,6 +25,7 @@ link_directories(${GAZEBO_LIBRARY_DIRS})
 
 add_executable(training
   main.cc
+  training.cc
   )
 
 target_link_libraries(training
