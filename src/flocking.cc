@@ -28,9 +28,9 @@ Flocking::Flocking(
   // the size of neighbor should be total size-1.
   // We have reference to our self
   number_of_neighbors_ = position_of_neighbors.size();
-  logger::logger_->info("My postion: {}", position_);
+  logger::logger_->debug("My postion: {}\n", position_);
   for (auto i : position_of_neighbors_) {
-    std::cout << "neighbor " << i << std::endl;
+    logger::logger_->debug("neighbor: {}\n", i);
   }
 }
 
@@ -43,7 +43,7 @@ Flocking::cohesionVelocity()
 
   for (std::size_t i = 0; i < position_of_neighbors_.size(); ++i) {
     r_cohs = position_of_neighbors_.at(i) - position_;
-    total_sum = total_sum + r_cohs;
+    total_sum += r_cohs;
   }
   logger::logger_->debug(
     "cohesion total sum: {}", total_sum, " param: {}\n", param);
@@ -100,9 +100,9 @@ Flocking::Velocity()
   sep = separationVelocity();
   mig = migrationVelocity();
   total = coh + sep + mig;
-  logger::logger_->info("Migration Velocity: {}\n", mig);
-  logger::logger_->info("Separation velocity: {}\n", sep);
-  logger::logger_->info("cohesionVelocity: {}\n", coh);
-  logger::logger_->info("Final velocity: {}\n", total);
+  logger::logger_->debug("Migration Velocity: {}\n", mig);
+  logger::logger_->debug("Separation velocity: {}\n", sep);
+  logger::logger_->debug("cohesionVelocity: {}\n", coh);
+  logger::logger_->debug("Final velocity: {}\n", total);
   return total;
 }
