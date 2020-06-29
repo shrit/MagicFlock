@@ -138,39 +138,3 @@ DataSet::save_actions(std::string file_name, Arg&& arg)
   file.close();
 }
 
-template<typename StateType>
-void
-DataSet::plot_distance_to_neighbor(int neighbor_id,
-                                   std::string title,
-                                   std::string xlabel,
-                                   std::string ylabel,
-                                   std::string file_name,
-                                   std::string type,
-                                   StateType states)
-{
-}
-
-template<typename HistoType>
-void
-DataSet::plot_histogram(int neighbor_id,
-                        std::string title,
-                        std::string xlabel,
-                        std::string ylabel,
-                        std::string file_name,
-                        std::string type,
-                        HistoType histogram)
-{
-}
-
-template<typename xType, typename yType>
-void
-DataSet::plot(std::string title,
-              std::string xlabel,
-              std::string ylabel,
-              std::string file_name,
-              std::string type,
-              xType x,
-              yType y)
-{}
-
-

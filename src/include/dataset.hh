@@ -65,34 +65,6 @@ public:
   void save_state(std::string file_name, Arg&& arg);
 
   void init_model_directory();
-
-  template<typename xType, typename yType>
-  void plot(std::string title,
-            std::string xlabel,
-            std::string ylabel,
-            std::string file_name,
-            std::string type,
-            xType x,
-            yType y);
-
-  template<typename StateType>
-  void plot_distance_to_neighbor(int neighbor_id,
-                                 std::string title,
-                                 std::string xlabel,
-                                 std::string ylabel,
-                                 std::string file_name,
-                                 std::string type,
-                                 StateType states);
-
-  template<typename HistoType>
-  void plot_histogram(int neighbor_id,
-                      std::string title,
-                      std::string xlabel,
-                      std::string ylabel,
-                      std::string file_name,
-                      std::string type,
-                      HistoType histogram);
-
   void init_dataset_directory();
 
   arma::mat submat_using_indices(arma::mat, arma::Mat<size_t>);
