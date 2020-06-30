@@ -40,11 +40,11 @@ Train::regression()
               optimizer,
               ens::PrintLoss(),
               ens::ProgressBar(),
-              ens::EarlyStopAtMinLoss<arma::mat, arma::mat>(
-                  [&](/*const arma::mat& param*/) {
+              ens::EarlyStopAtMinLoss<arma::mat>(
+                  [&](const arma::mat& /*param*/) {
                       return model.Evaluate(dataset_.test_features(), dataset_.test_labels());
                   },
-                  100));
+                  10));
 
   double elapsed_time = timer.stop();
   logger_->info("Training time: {}", elapsed_time, "seconds");
