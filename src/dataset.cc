@@ -213,7 +213,7 @@ DataSet::init_model_directory()
     "../model/" + date_stream.str() + "/" + time_stream.str());
 
   model_file_name_ = "../model/" + date_stream.str() + "/" + time_stream.str() +
-                     "/model" + time_stream.str();
+                     "/model" + time_stream.str() + ".bin";
 }
 
 arma::mat
