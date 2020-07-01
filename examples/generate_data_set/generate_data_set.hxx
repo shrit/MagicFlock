@@ -55,8 +55,8 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     }
     time_steps_.reset();
 
-    ignition::math::Vector3d destination{ -10, -10, 20 };
-    ignition::math::Vector4d gains{ 0.1, 0.1, 0.1, 100 };
+    ignition::math::Vector3d destination{ 163, 0, 20 };
+    ignition::math::Vector4d gains{ 1, 7, 1, 100 };
 
     for (auto&& it : quadrotors_) {
       it.start_flocking(gains, destination);
@@ -68,9 +68,14 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
       bool shape = swarm_.examin_swarm_shape();
+      bool has_arrived = swarm_.examin_destination(destination);
 
       if (!shape) {
         logger_->info("Quadrotors are far from each other, ending the episode");
+        break;
+      }
+      if(has_arrived) {
+        logger_->info("Quadrotors have arrived at specificed destination. ending the episode.");
         break;
       }
     }
@@ -90,7 +95,8 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     swarm_.stop_offboard_mode_async();
     std::this_thread::sleep_for(std::chrono::seconds(1));
     swarm_.land();
-
+    /* Wait to be sure that all of the quads have disarmed */
+    std::this_thread::sleep_for(std::chrono::seconds(3));
     /* Resetting the entire swarm after the end of each episode*/
     reset();
 
