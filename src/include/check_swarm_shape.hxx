@@ -37,7 +37,8 @@ CheckShape<QuadrotorType>::upper_threshold() const
 
 template<class QuadrotorType>
 bool
-CheckShape<QuadrotorType>::is_good_shape(const std::vector<QuadrotorType>& quads)
+CheckShape<QuadrotorType>::is_good_shape(
+  const std::vector<QuadrotorType>& quads)
 {
   bool good_shape = true;
   for (auto&& q : quads) {
