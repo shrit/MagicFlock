@@ -63,7 +63,7 @@ public:
 
   bool examin_swarm_shape();
   bool examin_swarm_shape(double lower_threshold, double upper_threshold);
-  bool examin_destination(ignition::math::Vector3d destination);
+  bool examin_destination(const ignition::math::Vector3d& destination);
 
   void reset_models();
 
