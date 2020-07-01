@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ignition/math/Vector3.hh>
+#include "logger.hh"
 
 using namespace ILMR;
 
@@ -11,7 +12,11 @@ public:
   CheckDestination()
   { /* Nothing to do here*/
   }
+
   CheckDestination(const ignition::math::Vector3d& destination);
+
+  ignition::math::Vector3d& destination();
+  ignition::math::Vector3d destination() const;
 
   bool has_arrived(const std::vector<QuadrotorType>& quads);
 

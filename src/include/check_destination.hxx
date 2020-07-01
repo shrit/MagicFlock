@@ -8,15 +8,31 @@ CheckDestination<QuadrotorType>::CheckDestination(
 }
 
 template<class QuadrotorType>
+ignition::math::Vector3d&
+CheckDestination<QuadrotorType>::destination()
+{
+  return destination_;
+}
+
+template<class QuadrotorType>
+ignition::math::Vector3d
+CheckDestination<QuadrotorType>::destination() const
+{
+  return destination_;
+}
+
+template<class QuadrotorType>
 bool
 CheckDestination<QuadrotorType>::has_arrived(
   const std::vector<QuadrotorType>& quads)
 {
   bool has_arrived = false;
+  ignition::math::Vector3d r_mig{ 0, 0, 0 };
 
   for (auto&& q : quads) {
-    double r_mig = q.position().Distance(destination_);
-    if (r_mig < 1) {
+    r_mig = destination_ - q.position();
+    ILMR::logger::logger_->info("Distance to destination: {}", r_mig);
+    if (r_mig.X() < 1) {
       has_arrived = true;
     }
   }
