@@ -484,3 +484,11 @@ SwarmDevice<QuadrotorType>::examin_swarm_shape(double lower_threshold,
   bool shape = shape_.is_good_shape(quads_);
   return shape;
 }
+
+template<class QuadrotorType>
+bool
+SwarmDevice<QuadrotorType>::examin_destination(ignition::math::Vector3d destination)
+{
+  bool dest = dest_.has_arrived(quads_);
+  return dest;
+}

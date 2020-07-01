@@ -8,6 +8,7 @@
 
 /*  Local includes */
 #include "check_swarm_shape.hh"
+#include "check_destination.hh"
 #include "continuous_actions.hh"
 #include "discret_actions.hh"
 #include "logger.hh"
@@ -61,8 +62,8 @@ public:
   void in_air_async(float meters);
 
   bool examin_swarm_shape();
-  bool examin_swarm_shape(double lower_threshold,
-                          double upper_threshold);
+  bool examin_swarm_shape(double lower_threshold, double upper_threshold);
+  bool examin_destination(ignition::math::Vector3d destination);
 
   void reset_models();
 
@@ -78,6 +79,7 @@ public:
 private:
   std::vector<QuadrotorType>& quads_;
   CheckShape<QuadrotorType> shape_;
+  CheckDestination<QuadrotorType> dest_;
   std::vector<typename QuadrotorType::inner_flight_controller::LandedState>
     landed_state_results_;
   std::vector<typename QuadrotorType::inner_flight_controller::OffboardResult>
