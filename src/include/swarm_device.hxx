@@ -41,7 +41,7 @@ SwarmDevice<QuadrotorType>::one_quad_execute_trajectory(
   unsigned int id,
   ContinuousActions action)
 {
-  ignition::math::Vector3d vec = action.Data();
+  ignition::math::Vector3d vec = action.action();
   quads_.at(id).controller_->set_velocity_vector(vec);
 }
 
@@ -52,7 +52,7 @@ SwarmDevice<QuadrotorType>::one_quad_execute_trajectory(
   ContinuousActions action,
   double max_speed)
 {
-  ignition::math::Vector3d vec = action.Data();
+  ignition::math::Vector3d vec = action.action();
   vec.Z(0);
   if (vec.X() > max_speed) {
     vec.X(max_speed);
