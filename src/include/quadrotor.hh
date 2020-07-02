@@ -21,7 +21,6 @@
 #include "flocking.hh"
 #include "histogram.hh"
 #include "nearest_neighbors.hh"
-#include "one_hot_encoding.hh"
 #include "real_time_samples.hh"
 #include "state.hh"
 
@@ -183,7 +182,6 @@ private:
   std::vector<SubPtr> subs_;
   ComputeDistance dist_;
   VectorHelper vec_;
-  OneHotEncoding encode_;
   Histogram histo_;
   DataSet dataset_;
   arma::vec loss_vector_;

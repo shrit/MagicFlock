@@ -336,9 +336,9 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::save_dataset_sasas()
   dataset_.save_csv_dataset_2_file(
     name_,
     vec_.to_std_vector(before_last_state().Data()),
-    vec_.to_std_vector(encode_.to_one_hot_encoding(last_action(), 7)),
+    vec_.to_std_vector(last_action().Data()),
     vec_.to_std_vector(last_state().Data()),
-    vec_.to_std_vector(encode_.to_one_hot_encoding(current_action(), 7)),
+    vec_.to_std_vector(current_action().Data()),
     vec_.to_std_vector(current_state().Data()));
 }
 
@@ -349,9 +349,9 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::save_dataset_sasasp()
   dataset_.save_csv_dataset_2_file(
     name_ + "_current_predictions",
     vec_.to_std_vector(before_last_state().Data()),
-    vec_.to_std_vector(encode_.to_one_hot_encoding(last_action(), 7)),
+    vec_.to_std_vector(last_action().Data()),
     vec_.to_std_vector(last_state().Data()),
-    vec_.to_std_vector(encode_.to_one_hot_encoding(current_action(), 7)),
+    vec_.to_std_vector(current_action().Data()),
     vec_.to_std_vector(current_predicted_state().Data()),
     vec_.to_std_vector(current_state().Data()));
 }
@@ -364,9 +364,9 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::
   dataset_.save_csv_dataset_2_file(
     name_ + "_enhanced_predictions",
     vec_.to_std_vector(before_last_state().Data()),
-    vec_.to_std_vector(encode_.to_one_hot_encoding(last_action(), 7)),
+    vec_.to_std_vector(last_action().Data()),
     vec_.to_std_vector(last_state().Data()),
-    vec_.to_std_vector(encode_.to_one_hot_encoding(current_action(), 7)),
+    vec_.to_std_vector(current_action().Data()),
     vec_.to_std_vector(current_predicted_enhanced_state().Data()),
     vec_.to_std_vector(current_state().Data()));
 }
@@ -378,9 +378,9 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::save_dataset_with_loss()
   dataset_.save_csv_dataset_2_file(
     name_ + "_loss",
     vec_.to_std_vector(before_last_state().Data()),
-    vec_.to_std_vector(encode_.to_one_hot_encoding(last_action(), 7)),
+    vec_.to_std_vector(last_action().Data()),
     vec_.to_std_vector(last_state().Data()),
-    vec_.to_std_vector(encode_.to_one_hot_encoding(current_action(), 7)),
+    vec_.to_std_vector(current_action().Data()),
     vec_.to_std_vector(current_loss()));
 }
 
