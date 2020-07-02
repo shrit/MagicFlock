@@ -1,5 +1,8 @@
 #pragma once
 
+#include <mlpack/prereqs.hpp>
+#include "logger.hh"
+
 class OneHotEncoding
 {
 public:
