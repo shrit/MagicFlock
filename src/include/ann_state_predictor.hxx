@@ -24,32 +24,39 @@ AnnStatePredictor<QuadrotorType>::predict()
   mlpack::data::Load(model_path_, model_name_, regression_model, true);
   arma::mat features = this->create_features_matrix();
 
-  /*  We need to predict the action for the follower using h(S)*/
-  /*  Extract state and push it into the model with several actions */
-  /*  Take the action index for the highest class
-      given back by the model */
-  labels_.clear();
-  regression_model.Predict(features, labels_);
+  if constexpr (std::is_same<typename QuadrotorType::Action,
+                             ContinuousActions>::value) {
 
-  logger::logger_->info("Size of State features matrix: {}",
-                        arma::size(features));
-  logger::logger_->info("State data matrix:\n {}", features.t());
-  logger::logger_->info("State prediction matrix:\n {}", labels_.t());
+  } else if constexpr (std::is_same<typename QuadrotorType::Action,
+                                    DiscretActions>::value) {
 
-  arma::mat original_state_matrix =
-    this->create_state_matrix(this->quad_.all_states().at(0), labels_.n_cols);
+    /*  We need to predict the action for the follower using h(S)*/
+    /*  Extract state and push it into the model with several actions */
+    /*  Take the action index for the highest class
+        given back by the model */
+    labels_.clear();
+    regression_model.Predict(features, labels_);
 
-  Argmin<arma::mat, arma::uword> argmin(original_state_matrix, labels_, 1);
+    logger::logger_->info("Size of State features matrix: {}",
+                          arma::size(features));
+    logger::logger_->info("State data matrix:\n {}", features.t());
+    logger::logger_->info("State prediction matrix:\n {}", labels_.t());
 
-  best_action_index_ = argmin.min_index();
-  logger::logger_->info("Index of best action: {}", best_action_index_);
+    arma::mat original_state_matrix =
+      this->create_state_matrix(this->quad_.all_states().at(0), labels_.n_cols);
 
-  /*  Get the follower action now !! and store it directly */
-  best_action_follower_ = this->action_.int_to_action(best_action_index_);
+    Argmin<arma::mat, arma::uword> argmin(original_state_matrix, labels_, 1);
 
-  arma::Col<arma::uword> temp;
-  temp << best_action_index_;
-  all_predicted_actions_.insert_rows(all_predicted_actions_.n_rows, temp);
+    best_action_index_ = argmin.min_index();
+    logger::logger_->info("Index of best action: {}", best_action_index_);
+
+    /*  Get the follower action now !! and store it directly */
+    best_action_follower_ = this->action_.int_to_action(best_action_index_);
+
+    arma::Col<arma::uword> temp;
+    temp << best_action_index_;
+    all_predicted_actions_.insert_rows(all_predicted_actions_.n_rows, temp);
+  }
 
   return labels_;
 }
