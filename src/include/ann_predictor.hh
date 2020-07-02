@@ -19,7 +19,6 @@
 
 /* local includes  */
 #include "logger.hh"
-#include "one_hot_encoding.hh"
 #include "quadrotor.hh"
 
 using namespace ILMR;
@@ -44,8 +43,6 @@ protected:
   arma::colvec loss_vector_;
   const QuadrotorType& quad_;
 
-private:
-  OneHotEncoding one_hot_;
 };
 
 #include "ann_predictor.hxx"

@@ -12,19 +12,28 @@ arma::mat
 AnnPredictor<QuadrotorType>::create_features_matrix()
 {
   arma::mat features;
-  std::vector<typename QuadrotorType::Action> actions =
-    action_.all_possible_actions();
 
-  for (int i = 0; i < 7; ++i) {
-    arma::colvec col;
-    col.insert_rows(col.n_rows, quad_.last_state().Data());
-    col.insert_rows(col.n_rows,
-                    one_hot_.to_one_hot_encoding(quad_.current_action(), 7));
-    col.insert_rows(col.n_rows, quad_.current_state().Data());
-    col.insert_rows(col.n_rows, one_hot_.to_one_hot_encoding(actions.at(i), 7));
+  if constexpr (std::is_same<typename QuadrotorType::Action,
+                             ContinuousActions>::value) {
+    features.insert_rows(features.n_rows, quad_.current_state().Data());
+    features.insert_rows(features.n_rows, quad_.current_action().Data());
 
-    /*  Create a matrix of several columns, each one is added to on the end */
-    features.insert_cols(features.n_cols, col);
+  } else if constexpr (std::is_same<typename QuadrotorType::Action,
+                                    DiscretActions>::value) {
+
+    std::vector<typename QuadrotorType::Action> actions =
+      action_.all_possible_actions();
+
+    for (int i = 0; i < 7; ++i) {
+      arma::colvec col;
+      col.insert_rows(col.n_rows, quad_.last_state().Data());
+      col.insert_rows(col.n_rows, quad_.current_action().Data());
+      col.insert_rows(col.n_rows, quad_.current_state().Data());
+      col.insert_rows(col.n_rows, actions.at(i).Data());
+
+      /*  Create a matrix of several columns, each one is added to on the end */
+      features.insert_cols(features.n_cols, col);
+    }
   }
   /*  The return features need to be used in the model in order to
       give back the best action with highest score */
