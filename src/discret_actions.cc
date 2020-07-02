@@ -6,14 +6,22 @@ DiscretActions::DiscretActions()
   , generator_(random_dev())
 {}
 
-DiscretActions::Action DiscretActions::Data() const
+DiscretActions::Action
+DiscretActions::action() const
 {
   return action_;
 }
 
-DiscretActions::Action& DiscretActions::Data()
+DiscretActions::Action&
+DiscretActions::action()
 {
   return action_;
+}
+
+arma::colvec
+DiscretActions::Data()
+{
+  return one_hot_.to_one_hot_encoding(action_, 7);
 }
 
 std::string
@@ -127,7 +135,8 @@ DiscretActions::random_action_generator_with_all_conditions(Action action)
     high noise on traveled distance. Also this is more logic, since
     allow more variability in the data set */
 DiscretActions::Action
-DiscretActions::random_action_generator_with_only_opposed_condition(Action action)
+DiscretActions::random_action_generator_with_only_opposed_condition(
+  Action action)
 {
   Action action_ = Action::Unknown;
 
@@ -202,10 +211,10 @@ DiscretActions::undo_action(DiscretActions::Action action)
 
 std::tuple<DiscretActions::Action, DiscretActions::Action>
 DiscretActions::generate_followers_action_using_distance(double distance_t_1_b,
-                                                  double distance_t_b,
-                                                  double distance_t_1_c,
-                                                  double distance_t_c,
-                                                  double alti_diff_t)
+                                                         double distance_t_b,
+                                                         double distance_t_1_c,
+                                                         double distance_t_c,
+                                                         double alti_diff_t)
 {
   DiscretActions::Action action_b = Action::NoMove;
   DiscretActions::Action action_c = Action::NoMove;
@@ -259,10 +268,10 @@ DiscretActions::generate_followers_action_using_distance(double distance_t_1_b,
 
 DiscretActions::Action
 DiscretActions::generate_follower_action_using_oracle(double distance_t_1_b,
-                                               double distance_t_b,
-                                               double distance_t_1_c,
-                                               double distance_t_c,
-                                               double alti_diff_t)
+                                                      double distance_t_b,
+                                                      double distance_t_1_c,
+                                                      double distance_t_c,
+                                                      double alti_diff_t)
 {
   DiscretActions::Action action = Action::Unknown;
   if (distance_t_b > distance_t_1_b and distance_t_c > distance_t_1_c and
@@ -291,9 +300,9 @@ DiscretActions::generate_follower_action_using_oracle(double distance_t_1_b,
 
 DiscretActions::Action
 DiscretActions::generate_leader_action(bool change_leader_action,
-                                bool stop_going_down,
-                                DiscretActions::Action last_action,
-                                DiscretActions::Action current_action)
+                                       bool stop_going_down,
+                                       DiscretActions::Action last_action,
+                                       DiscretActions::Action current_action)
 {
   DiscretActions::Action leader_action = DiscretActions::Action::Unknown;
 
@@ -316,10 +325,10 @@ DiscretActions::generate_leader_action(bool change_leader_action,
 
 DiscretActions::Action
 DiscretActions::validate_leader_action(double distance_to_b,
-                                double distance_to_b_1,
-                                double distance_to_c,
-                                double distance_to_c_1,
-                                DiscretActions::Action current_action)
+                                       double distance_to_b_1,
+                                       double distance_to_c,
+                                       double distance_to_c_1,
+                                       DiscretActions::Action current_action)
 {
   DiscretActions::Action leader_action = current_action;
   if (std::fabs(distance_to_b - distance_to_b_1) > 0.80 or
@@ -330,10 +339,11 @@ DiscretActions::validate_leader_action(double distance_to_b,
 }
 
 DiscretActions::Action
-DiscretActions::validate_followers_action(std::vector<double> current_distances,
-                                   std::vector<double> last_distances,
-                                   DiscretActions::Action before_2_last_action,
-                                   DiscretActions::Action current_action)
+DiscretActions::validate_followers_action(
+  std::vector<double> current_distances,
+  std::vector<double> last_distances,
+  DiscretActions::Action before_2_last_action,
+  DiscretActions::Action current_action)
 {
   DiscretActions::Action follower_action = current_action;
   if (before_2_last_action == DiscretActions::Action::Unknown) {

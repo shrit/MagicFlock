@@ -10,6 +10,9 @@
 #include <tuple>
 #include <utility>
 
+#include "one_hot_encoding.hh"
+#include <mlpack/prereqs.hpp>
+
 class DiscretActions
 {
 
@@ -29,8 +32,10 @@ public:
     Unknown,
   };
 
-  Action Data() const;
-  Action& Data();
+  Action action() const;
+  Action& action();
+
+  arma::colvec Data();
 
   template<typename Enumeration>
   auto as_integer(Enumeration const value) ->
@@ -59,7 +64,6 @@ public:
                                            double alti_diff_t);
 
   DiscretActions::Action undo_action(DiscretActions::Action action);
-
 
   Action generate_follower_action_using_oracle(double distances_t_1_b,
                                                double distances_t_b,
@@ -97,4 +101,5 @@ private:
                                             Action::NoMove };
 
   Action action_;
+  OneHotEncoding one_hot_;
 };
