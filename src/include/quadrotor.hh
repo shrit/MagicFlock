@@ -13,7 +13,6 @@
 
 /* IL4MRC library includes */
 #include "Vector.hh"
-#include "compute_distance.hh"
 #include "continuous_actions.hh"
 #include "exponential_moving_average.hh"
 #include "dataset.hh"
@@ -180,7 +179,6 @@ private:
   std::vector<ActionType> all_actions_;
   std::vector<ActionType> action_container_;
   std::vector<SubPtr> subs_;
-  ComputeDistance dist_;
   VectorHelper vec_;
   Histogram histo_;
   DataSet dataset_;

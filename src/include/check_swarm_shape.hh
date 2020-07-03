@@ -6,7 +6,6 @@
 #include <ignition/math6/ignition/math/Vector3.hh>
 
 #include "Vector.hh"
-#include "compute_distance.hh"
 
 using namespace ILMR;
 
@@ -32,7 +31,6 @@ private:
     20; /*  20 meters maximum distance between quadrotors */
 
   VectorHelper vec_;
-  ComputeDistance dist_;
 };
 
 #include "check_swarm_shape.hxx"
