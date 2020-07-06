@@ -1,7 +1,8 @@
 #include "include/continuous_actions.hh"
 
 ContinuousActions::ContinuousActions()
-  : data_(3)
+  : velocity_vector_(0 ,0, 0)
+  , data_(3)
 {}
 
 ignition::math::Vector3d
