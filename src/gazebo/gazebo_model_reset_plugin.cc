@@ -86,17 +86,19 @@ ResetPlugin::RandomPoseGenerator(int quad_number)
     }
     if (std::all_of(
           overlapping.begin(), overlapping.end(), [](const bool& overlap) {
-            std::cout << "Overlapping: " << overlap << std::endl;;
+            std::cout << "Overlapping: " << overlap << std::endl;
             return overlap == false;
-          })){ std::cout << "Added Not overlapping" << std::endl;
+          })) {
+      std::cout << "Added Not overlapping" << std::endl;
       RandomPosition.at(i) = quadRegion;
     }
   }
-
-  for (int i = 0; i < quad_number; ++i) {
-    std::cout << "Used final distance:  "
-              << RandomPosition.at(0).Distance(RandomPosition.at(i))
-              << std::endl;
+  for (int j = 0; j < quad_number; ++j) {
+    for (int i = 0; i < quad_number; ++i) {
+      std::cout << "Used final distance:  "
+                << RandomPosition.at(j).Distance(RandomPosition.at(i))
+                << std::endl;
+    }
   }
 
   return RandomPosition;
