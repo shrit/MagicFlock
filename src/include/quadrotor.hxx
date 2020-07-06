@@ -49,7 +49,7 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::start_flocking(
 
   flocking_sampler_.start(50, [&]() {
     Flocking flock(gains, position(), neighbor_positions(), destination);
-    current_action_.Data() = flock.Velocity();
+    current_action_.action() = flock.Velocity();
     all_actions_.push_back(current_action_);
   });
 }
@@ -326,7 +326,7 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::
   dataset_.save_csv_dataset_2_file(
     name_,
     vec_.to_std_vector(current_state().Data()),
-    vec_.ignition_2_std_vector(current_action().Data()));
+    vec_.to_std_vector(current_action().Data()));
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
