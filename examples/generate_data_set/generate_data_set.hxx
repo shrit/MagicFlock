@@ -39,6 +39,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
 
     logger_->info("Episode : {}", episode_);
     timer_.start();
+    time_steps_.reset();
     swarm_.in_air_async(15);
 
     /* Collect dataset by creating a specific destination.
@@ -49,17 +50,17 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
      */
 
     /*  Verify that vectors are clear when starting new episode */
-    logger_->info("Taking off has finished. Start sampling dataset");
-    for (auto&& it : quadrotors_) {
-      it.start_sampling_rt_state(50);
-    }
-    time_steps_.reset();
+    logger_->info("Taking off has finished. Start the flocking model");
 
     ignition::math::Vector3d destination{ 163, 0, 20 };
     ignition::math::Vector4d gains{ 1, 7, 1, 100 };
 
     for (auto&& it : quadrotors_) {
       it.start_flocking(gains, destination);
+    }
+
+    for (auto&& it : quadrotors_) {
+      it.start_sampling_rt_state(50);
     }
 
     /* Let us see how these quadrotors are going to move */
@@ -74,8 +75,9 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
         logger_->info("Quadrotors are far from each other, ending the episode");
         break;
       }
-      if(has_arrived) {
-        logger_->info("Quadrotors have arrived at specificed destination. ending the episode.");
+      if (has_arrived) {
+        logger_->info("Quadrotors have arrived at specificed destination. "
+                      "ending the episode.");
         break;
       }
     }
