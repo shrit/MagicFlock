@@ -41,16 +41,20 @@ Train::regression()
               ens::PrintLoss(),
               ens::ProgressBar(),
               ens::EarlyStopAtMinLoss<arma::mat>(
-                  [&](const arma::mat& /*param*/) {
-                      return model.Evaluate(dataset_.test_features(), dataset_.test_labels());
-                  },
-                  10));
+                [&](const arma::mat& /*param*/) {
+                  return model.Evaluate(dataset_.test_features(),
+                                        dataset_.test_labels());
+                },
+                10));
 
   double elapsed_time = timer.stop();
   logger_->info("Training time: {}", elapsed_time, "seconds");
 
   logger_->info("Training Finished...");
-  logger_->info("Test with Independent part...");
+
+  logger_->info(
+    "Training loss: {}",
+    model.Evaluate(dataset_.train_features(), dataset_.train_labels()));
   dataset_.save_model(model, "model");
 }
 
