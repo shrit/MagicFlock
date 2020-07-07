@@ -49,7 +49,14 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
 
     logger_->info("Episode : {}", episode_);
     timer_.start();
-    start_episode_ = swarm_.in_air(15);
+    time_steps_.reset();
+    swarm_.in_air_async(15);
+
+    ignition::math::Vector3d destination{ 163, 0, 20 };
+
+    for (auto&& it : quadrotors_) {
+      it.start_sampling_rt_state(50);
+    }
 
     while (true) {
       generate_trajectory_using_model();
@@ -57,9 +64,16 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
       /*  Check the geometrical shape */
       bool shape = swarm_.examin_swarm_shape();
+      bool has_arrived = swarm_.examin_destination(destination);
 
       if (!shape) {
         logger_->info("Quadrotors are far from each other, ending the episode");
+        break;
+      }
+
+      if (has_arrived) {
+        logger_->info("Quadrotors have arrived at specificed destination. "
+                      "ending the episode.");
         break;
       }
     }
@@ -68,7 +82,12 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
       it.stop_sampling_rt_state();
     }
 
+    /* Landing is blocking untill all quadrotors in the swarm touch the
+     * ground */
+    swarm_.stop_offboard_mode_async();
+    std::this_thread::sleep_for(std::chrono::seconds(1));
     swarm_.land();
+    std::this_thread::sleep_for(std::chrono::seconds(3));
 
     std::string flight_time = timer_.stop_and_get_time();
     logger_->info("Flight time: {}", flight_time);
