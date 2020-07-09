@@ -26,6 +26,8 @@ AnnStatePredictor<QuadrotorType>::predict()
 
   if constexpr (std::is_same<typename QuadrotorType::Action,
                              ContinuousActions>::value) {
+    labels_.clear();
+    regression_model.Predict(features, labels_);
 
   } else if constexpr (std::is_same<typename QuadrotorType::Action,
                                     DiscretActions>::value) {
@@ -74,7 +76,7 @@ AnnStatePredictor<QuadrotorType>::best_predicted_action()
 {
   /* Predict the next state using the above data */
   predict();
-  this->quad_.current_predicted_state().Data() = best_predicted_state();
+  //this->quad_.current_predicted_state().Data() = best_predicted_state();
   return best_action_follower_;
 }
 

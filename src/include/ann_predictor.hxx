@@ -16,7 +16,6 @@ AnnPredictor<QuadrotorType>::create_features_matrix()
   if constexpr (std::is_same<typename QuadrotorType::Action,
                              ContinuousActions>::value) {
     features.insert_rows(features.n_rows, quad_.current_state().Data());
-    features.insert_rows(features.n_rows, quad_.current_action().Data());
 
   } else if constexpr (std::is_same<typename QuadrotorType::Action,
                                     DiscretActions>::value) {
