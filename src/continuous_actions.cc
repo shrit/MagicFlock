@@ -17,6 +17,14 @@ ContinuousActions::action()
   return velocity_vector_;
 }
 
+void
+ContinuousActions::set_action(arma::colvec data)
+{ 
+  velocity_vector_.X() = data_.at(0);
+  velocity_vector_.Y() = data_.at(1);
+  velocity_vector_.Z() = data_.at(2);
+}
+
 arma::colvec
 ContinuousActions::Data()
 { 

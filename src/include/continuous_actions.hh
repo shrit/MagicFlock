@@ -16,7 +16,7 @@ public:
   ContinuousActions();
   ignition::math::Vector3d action() const;
   ignition::math::Vector3d& action();
-
+  void set_action(arma::colvec data);
   arma::colvec Data();
 
 private:
