@@ -41,7 +41,7 @@ typename QuadrotorType::Action
 AnnActionPredictor<QuadrotorType>::best_predicted_action()
 {
   /* Predict the action using the above data */
-  best_action_.action() = predict();
+  best_action_.set_action(predict());
   return best_action_;
 }
 
