@@ -21,7 +21,7 @@ Iterative_learning<QuadrotorType>::generate_trajectory_using_model()
   double max_speed = 2;
 
   for (auto&& i : quadrotors_) {
-    AnnStatePredictor<QuadrotorType> predict(
+    AnnActionPredictor<QuadrotorType> predict(
       "/meta/lemon/examples/iterative_learning/build/model.txt", "model", i);
     ContinuousActions action = predict.best_predicted_action();
     i.current_action() = action;

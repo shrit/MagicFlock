@@ -6,7 +6,7 @@
 #include <vector>
 
 /* local includes  */
-#include <ILMR/ann_enhanced_predictor.hh>
+#include <ILMR/ann_action_predictor.hh>
 #include <ILMR/evaluate_model.hh>
 #include <ILMR/logger.hh>
 #include <ILMR/quadrotor.hh>
