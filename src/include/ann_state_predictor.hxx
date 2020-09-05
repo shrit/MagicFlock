@@ -32,10 +32,16 @@ AnnStatePredictor<QuadrotorType>::predict()
   } else if constexpr (std::is_same<typename QuadrotorType::Action,
                                     DiscretActions>::value) {
 
-    /*  We need to predict the action for the follower using h(S)*/
-    /*  Extract state and push it into the model with several actions */
-    /*  Take the action index for the highest class
-        given back by the model */
+    /**
+     * In this function we predict all the possible next states using 
+     * regression model, each next state is related to a specific action.
+     * Finally, we do an argmin between the original state and all of the 
+     * next states observed here.
+     * The action which correspond to the best state is returned by argmin
+     * and returned finally by the best action function
+     * The objective of this function is to predict only next states
+     * This in only valid in the case of discret actions. 
+     */     
     labels_.clear();
     regression_model.Predict(features, labels_);
 
@@ -59,7 +65,6 @@ AnnStatePredictor<QuadrotorType>::predict()
     temp << best_action_index_;
     all_predicted_actions_.insert_rows(all_predicted_actions_.n_rows, temp);
   }
-
   return labels_;
 }
 
@@ -67,6 +72,7 @@ template<class QuadrotorType>
 arma::vec
 AnnStatePredictor<QuadrotorType>::best_predicted_state()
 {
+  /* Return the best state based on the best action discovered in predict*/
   return labels_.col(best_action_index_);
 }
 
@@ -74,7 +80,7 @@ template<class QuadrotorType>
 typename QuadrotorType::Action
 AnnStatePredictor<QuadrotorType>::best_predicted_action()
 {
-  /* Predict the next state using the above data */
+  /* Return the best action using the above predict function */
   predict();
   this->quad_.current_predicted_state().Data() = best_predicted_state();
   return best_action_follower_;
@@ -84,6 +90,7 @@ template<class QuadrotorType>
 arma::Col<arma::uword>
 AnnStatePredictor<QuadrotorType>::all_predicted_actions() const
 {
+  /* Return a vector of all best predicted actions in the past*/
   return all_predicted_actions_;
 }
 

@@ -24,8 +24,8 @@ AnnActionPredictor<QuadrotorType>::predict()
   arma::mat features = this->create_features_matrix();
 
   /*
-   * In this case, when we would like to predict only actions
-   * we support only continuous action case.
+   * In this case, we should predict only actions
+   * thus, we can only support continuous action case.
    */
   if constexpr (std::is_same<typename QuadrotorType::Action,
                              ContinuousActions>::value) {
