@@ -48,7 +48,13 @@ main(int argc, char* argv[])
                  " Number of quadrotor to create inside the simulator.");
   app.add_flag("-v, --verbose", verbose, " Make the output more verbose");
 
-  CLI11_PARSE(app, argc, argv);
+  //CLI11_PARSE(app, argc, argv);
+  try {
+    app.parse(argc, argv);
+  } catch (const CLI::ArgumentMismatch& e) {
+    std::cout << e.what() << std::endl;
+    return app.exit(e);
+  }
 
   if (verbose) {
     spdlog::set_level(spdlog::level::debug);
