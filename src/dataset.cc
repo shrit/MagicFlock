@@ -161,10 +161,6 @@ DataSet::init_dataset_directory()
   std::experimental::filesystem::create_directory(
     "../dataset/" + date_stream.str() + "/" + time_stream.str());
 
-  std::experimental::filesystem::create_directory(
-    "../dataset/" + date_stream.str() + "/" + time_stream.str() + "/" +
-    "images");
-
   dataset_file_name_ = "../dataset/" + date_stream.str() + "/" +
                        time_stream.str() + "/" + time_stream.str();
 
@@ -191,9 +187,6 @@ DataSet::init_dataset_directory()
 
   action_file_name_ = "../dataset/" + date_stream.str() + "/" +
                       time_stream.str() + "/action" + time_stream.str();
-
-  plot_file_name_ = "../dataset/" + date_stream.str() + "/" +
-                    time_stream.str() + "/images" + "/plot";
 }
 
 void
