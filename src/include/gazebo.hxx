@@ -53,7 +53,7 @@ void
 Gazebo<QuadrotorType>::ResetModels()
 {
   if (pubs_->WaitForConnection(5)) {
-    reset_model_msg::msg::ResetModel msg;
+    reset_model_msg::msg:ResetModel msg;
     msg.set_reset(true);
     pubs_->Publish(msg);
   } else {
@@ -62,7 +62,6 @@ Gazebo<QuadrotorType>::ResetModels()
   }
 }
 
-/*  Position messages received from gazebo topics */
 template<class QuadrotorType>
 void
 Gazebo<QuadrotorType>::PosMsg(ConstPosesStampedPtr& posesStamped)
@@ -124,13 +123,10 @@ Gazebo<QuadrotorType>::start_simulation(std::string path_script,
     strcpy(num, std::to_string(n).c_str());
 
     char* const argv[] = { bash, script, "-n", num, "-m", typ, NULL };
-
     execv(bash, argv);
-
     exit(0);
     return;
   }
-
   sitl_process = p;
 }
 
