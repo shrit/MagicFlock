@@ -95,7 +95,7 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
     /* Resetting the entire swarm after the end of each episode*/
     reset();
 
-    logger_->info("The quadcopters have been reset...");
+    logger_->info("The quadrotors have been reset...");
     std::this_thread::sleep_for(std::chrono::seconds(35));
     logger_->flush();
   }

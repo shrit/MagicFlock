@@ -7,9 +7,8 @@ Flocking::Flocking(
   : position_(position)
   , position_of_neighbors_(position_of_neighbors)
   , destination_position_(destination_position)
-
 {
-  // the size of neighbor should be total size-1.
+  // The maximum number of neighbor should be total (size - 1).
   // We have reference to our self
   number_of_neighbors_ = position_of_neighbors.size();
 }
@@ -23,9 +22,8 @@ Flocking::Flocking(
   , position_(position)
   , position_of_neighbors_(position_of_neighbors)
   , destination_position_(destination_position)
-
 {
-  // the size of neighbor should be total size-1.
+  // The maximum number of neighbor should be total (size - 1).
   // We have reference to our self
   number_of_neighbors_ = position_of_neighbors.size();
   logger::logger_->debug("My postion: {}\n", position_);

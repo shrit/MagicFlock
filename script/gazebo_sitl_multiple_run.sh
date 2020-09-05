@@ -5,6 +5,11 @@
 # The simulator is expected to send to TCP port 4560+i for i in [0, N-1]
 # For example gazebo can be run like this:
 #./Tools/gazebo_sitl_multiple_run.sh -n 10 -m iris
+#
+# This class creat a set of quadrotors and build entirely their xml files.
+# The file has a small patch inside which add to each quadrotor a set of
+# antenna.
+# Finally it starts gazebo client.
 
 function cleanup() {
 	pkill -x px4

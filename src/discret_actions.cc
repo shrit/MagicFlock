@@ -87,7 +87,7 @@ DiscretActions::generate_real_random()
 /*  The condition is to generate an action that is not the same to the
     parameter action and not opposed to this action. This is more
     comfortable since the opposed action apply high noise on traveled
-    distance. Also this is more logic, since allow more variability in
+    distance. Also this is more logical, since we allow more variability in
     the data set */
 DiscretActions::Action
 DiscretActions::random_action_generator_with_all_conditions(Action action)
@@ -132,8 +132,8 @@ DiscretActions::random_action_generator_with_all_conditions(Action action)
 
 /*  The condition is to generate an action that not opposed to this
     action. This is more comfortable since the opposed action apply
-    high noise on traveled distance. Also this is more logic, since
-    allow more variability in the data set */
+    high noise on traveled distance. Also this is more logical, since
+    we allow more variability in the data set */
 DiscretActions::Action
 DiscretActions::random_action_generator_with_only_opposed_condition(
   Action action)
