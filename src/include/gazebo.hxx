@@ -53,7 +53,7 @@ void
 Gazebo<QuadrotorType>::ResetModels()
 {
   if (pubs_->WaitForConnection(5)) {
-    reset_model_msg::msg:ResetModel msg;
+    reset_model_msg::msg::ResetModel msg;
     msg.set_reset(true);
     pubs_->Publish(msg);
   } else {
