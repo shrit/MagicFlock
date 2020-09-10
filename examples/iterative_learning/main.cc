@@ -43,28 +43,13 @@ main(int argc, char* argv[])
   };
   std::size_t num_of_quads = 3;
   bool verbose = false;
+  std::string model_file_name;
+
   app.add_option("-n, --number_of_quadrotors",
                  num_of_quads,
                  " Number of quadrotor to create inside the simulator.");
+  app.add_option("-m, --model_file", model_file_name, "Model files to add.");
   app.add_flag("-v, --verbose", verbose, " Make the output more verbose");
-
-  
-  app.require_subcommand(1);
-  auto model_files =
-    app.add_subcommand("model_files",
-                       "Add model files, the first one is for follower 1 and "
-                       "the second one is for follower 2. etc...");
-
-  std::vector<std::string> model_files_name;
-  model_files->add_option("files", model_files_name, "Model files to add");
-
-  model_files->callback([&]() {
-    std::cout << "Adding:";
-    if (model_files_name.empty()) {
-      std::cout << "No files have been added" << std::endl;
-      exit(0);
-    }
-  });
 
   CLI11_PARSE(app, argc, argv);
 
