@@ -20,7 +20,7 @@ include_directories(
   )
 
 set(ilmr "/usr/local/lib/libILMR.so")
-set(mlpack "/meta/mlpack/build/lib/libmlpack.so")
+set(mlpack "/usr/local/lib/libmlpack.so")
 set(gomp "/usr/lib/libgomp.so")
 set(boost_seria "/usr/lib/libboost_serialization.a")
 set(ResetPlugin "/usr/local/lib/libResetPlugin.so")
