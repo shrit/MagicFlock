@@ -36,7 +36,7 @@ private:
   Timer timer_;
   SwarmDevice<QuadrotorType> swarm_;
   bool start_episode_;
-  std::vector<QuadrotorType> quadrotors_;
+  std::vector<QuadrotorType>& quadrotors_;
   std::shared_ptr<spdlog::logger> logger_; 
 };
 
