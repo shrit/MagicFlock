@@ -15,4 +15,4 @@ public:
   arma::uword from_one_hot_encoding(arma::Col<Arg> col_vec);
 };
 
-#include "one_hot_encoding.hxx"
+#include "one_hot_encoding.hpp"

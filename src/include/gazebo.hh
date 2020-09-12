@@ -127,4 +127,4 @@ private:
   std::vector<QuadrotorType>& quadrotors_;
 };
 
-#include "gazebo.hxx"
+#include "gazebo.hpp"

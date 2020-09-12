@@ -51,4 +51,4 @@ private:
   arma::colvec toa_data_;
 };
 
-#include "state.hxx"
+#include "state.hpp"

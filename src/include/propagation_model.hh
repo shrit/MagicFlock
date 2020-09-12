@@ -44,4 +44,4 @@ private:
   std::shared_ptr<rssi_t> rssi_interface_;
 };
 
-#include "propagation_model.hxx"
+#include "propagation_model.hpp"

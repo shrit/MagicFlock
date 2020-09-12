@@ -26,4 +26,4 @@ public:
   arma::colvec vec_to_arma(std::vector<T> vec); 
 };
 
-#include "arma_helper.hxx"
+#include "arma_helper.hpp"

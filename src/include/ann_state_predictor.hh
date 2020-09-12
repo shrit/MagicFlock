@@ -59,4 +59,4 @@ private:
   arma::Col<arma::uword> all_predicted_actions_;
 };
 
-#include "ann_state_predictor.hxx"
+#include "ann_state_predictor.hpp"

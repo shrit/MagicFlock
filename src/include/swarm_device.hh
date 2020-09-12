@@ -94,4 +94,4 @@ private:
     arming_results_;
 };
 
-#include "swarm_device.hxx"
+#include "swarm_device.hpp"

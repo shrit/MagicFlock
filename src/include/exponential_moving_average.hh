@@ -26,4 +26,4 @@ private:
   type value_;               //! Stored value.
 };
 
-#include "exponential_moving_average.hxx"
+#include "exponential_moving_average.hpp"

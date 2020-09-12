@@ -17,4 +17,4 @@ private:
   OutputType min_index_ = 0;
 };
 
-#include "argmin.hxx"
+#include "argmin.hpp"

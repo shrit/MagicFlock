@@ -44,4 +44,4 @@ public:
   std::vector<T2> map_to_vector(std::map<T1, T2>);
 };
 
-#include "Vector.hxx"
+#include "Vector.hpp"

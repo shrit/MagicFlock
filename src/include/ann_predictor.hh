@@ -45,4 +45,4 @@ protected:
 
 };
 
-#include "ann_predictor.hxx"
+#include "ann_predictor.hpp"

@@ -119,4 +119,4 @@ private:
   VectorHelper vec_;
 };
 
-#include "dataset.hxx"
+#include "dataset.hpp"

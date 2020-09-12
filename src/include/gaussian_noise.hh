@@ -20,4 +20,4 @@ private:
 
 };
 
-#include "gaussian_noise.hxx"
+#include "gaussian_noise.hpp"

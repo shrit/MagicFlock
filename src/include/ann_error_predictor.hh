@@ -47,4 +47,4 @@ private:
   double real_time_loss_;
 };
 
-#include "ann_error_predictor.hxx"
+#include "ann_error_predictor.hpp"

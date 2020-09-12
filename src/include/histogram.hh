@@ -22,4 +22,4 @@ private:
   
 };
 
-#include "histogram.hxx"
+#include "histogram.hpp"
