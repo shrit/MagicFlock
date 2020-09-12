@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-#include "logger.hh"
+#include "logger.hpp"
 
 using namespace ILMR;
 

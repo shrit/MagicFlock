@@ -35,11 +35,11 @@
 #include <unistd.h>
 
 /* ILMR include */
-#include "logger.hh"
+#include "logger.hpp"
 
 /* Local message includes*/
 #include "ResetModel.pb.h"
-#include "time.hh"
+#include "time.hpp"
 
 template<class QuadrotorType>
 class Gazebo

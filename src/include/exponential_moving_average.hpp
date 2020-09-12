@@ -1,6 +1,6 @@
 #pragma once
 
-#include "logger.hh"
+#include "logger.hpp"
 
 template<typename type>
 class ExpoMovingAverage

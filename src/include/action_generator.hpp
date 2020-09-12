@@ -9,8 +9,8 @@
 #include <random>
 #include <utility>
 
-#include "discret_actions.hh"
-#include "quadrotor.hh"
+#include "discret_actions.hpp"
+#include "quadrotor.hpp"
 
 template<class QuadrotorType>
 class ActionGenerator : public DiscretActions

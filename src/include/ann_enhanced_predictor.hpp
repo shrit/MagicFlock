@@ -10,11 +10,11 @@
 #include <vector>
 
 /* local includes  */
-#include "ann_error_predictor.hh"
-#include "ann_state_predictor.hh"
-#include "argmin.hh"
-#include "logger.hh"
-#include "quadrotor.hh"
+#include "ann_error_predictor.hpp"
+#include "ann_state_predictor.hpp"
+#include "argmin.hpp"
+#include "logger.hpp"
+#include "quadrotor.hpp"
 
 template<class QuadrotorType>
 class AnnEnhancedPredictor

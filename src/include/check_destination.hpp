@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ignition/math/Vector3.hh>
-#include "logger.hh"
+#include "logger.hpp"
 
 using namespace ILMR;
 

@@ -2,7 +2,7 @@
 
 #include <mlpack/core.hpp>
 
-#include "logger.hh"
+#include "logger.hpp"
 
 template<class InputType = arma::mat, class OutputType = arma::uword>
 class Argmin

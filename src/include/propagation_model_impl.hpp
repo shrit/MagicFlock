@@ -1,6 +1,6 @@
 #pragma once
 
-#include "propagation_model.hh"
+#include "propagation_model.hpp"
 
 template<class rssi_t>
 Propagation_model<rssi_t>::Propagation_model(

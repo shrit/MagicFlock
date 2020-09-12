@@ -18,8 +18,8 @@
 #include <mlpack/methods/ann/loss_functions/mean_squared_error.hpp>
 
 /* local includes  */
-#include "logger.hh"
-#include "quadrotor.hh"
+#include "logger.hpp"
+#include "quadrotor.hpp"
 
 using namespace ILMR;
 

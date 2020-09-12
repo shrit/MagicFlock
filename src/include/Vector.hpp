@@ -10,7 +10,7 @@
 #include <ignition/math/Vector4.hh>
 #include <mlpack/prereqs.hpp>
 
-#include "logger.hh"
+#include "logger.hpp"
 
 using namespace ILMR;
 

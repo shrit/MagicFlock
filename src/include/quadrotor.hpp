@@ -12,16 +12,16 @@
 #include <vector>
 
 /* IL4MRC library includes */
-#include "Vector.hh"
-#include "continuous_actions.hh"
-#include "exponential_moving_average.hh"
-#include "dataset.hh"
-#include "discret_actions.hh"
-#include "flocking.hh"
-#include "histogram.hh"
-#include "nearest_neighbors.hh"
-#include "real_time_samples.hh"
-#include "state.hh"
+#include "Vector.hpp"
+#include "continuous_actions.hpp"
+#include "exponential_moving_average.hpp"
+#include "dataset.hpp"
+#include "discret_actions.hpp"
+#include "flocking.hpp"
+#include "histogram.hpp"
+#include "nearest_neighbors.hpp"
+#include "real_time_samples.hpp"
+#include "state.hpp"
 
 /* Ignition related headers */
 #include <ignition/math6/ignition/math/Quaternion.hh>

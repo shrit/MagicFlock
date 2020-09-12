@@ -9,7 +9,7 @@
 #include <memory>
 
 /*  Local includes */
-#include "arma_helper.hh"
+#include "arma_helper.hpp"
 
 template<class FilterType, class ContainerType>
 class State

@@ -5,7 +5,7 @@
 
 #include <ignition/math6/ignition/math/Vector3.hh>
 
-#include "Vector.hh"
+#include "Vector.hpp"
 
 using namespace ILMR;
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "time.hh"
+#include "time.hpp"
 
 class TimeSteps
 {

@@ -17,8 +17,8 @@
 #include <mlpack/core/data/split_data.hpp>
 
 /*  local defined include */
-#include "Vector.hh"
-#include "discret_actions.hh"
+#include "Vector.hpp"
+#include "discret_actions.hpp"
 
 class DataSet
 {

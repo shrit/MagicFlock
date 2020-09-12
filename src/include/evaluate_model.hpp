@@ -1,7 +1,7 @@
 #pragma once
 
-#include "discret_actions.hh"
-#include "dataset.hh"
+#include "discret_actions.hpp"
+#include "dataset.hpp"
 
 /* Standard library includes*/
 #include <vector>

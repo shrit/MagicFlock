@@ -1,6 +1,6 @@
 #pragma once
 /**
- * @file px4_device.hh
+ * @file px4_device.hpp
  * @brief An interface to MAVSDK, it allows users to handle quadcopters
  * @author: Omar Shrit <shrit@lri.fr>
  */
@@ -23,8 +23,8 @@
 #include <mavsdk/plugins/shell/shell.h>
 #include <mavsdk/plugins/telemetry/telemetry.h>
 
-#include "logger.hh"
-#include "position_gps.hh"
+#include "logger.hpp"
+#include "position_gps.hpp"
 
 using namespace mavsdk;
 using std::chrono::milliseconds;

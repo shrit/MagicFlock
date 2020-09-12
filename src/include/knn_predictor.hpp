@@ -15,8 +15,8 @@
 #include <mlpack/methods/neighbor_search/neighbor_search.hpp>
 
 /* local includes  */
-#include "dataset.hh"
-#include "one_hot_encoding.hh"
+#include "dataset.hpp"
+#include "one_hot_encoding.hpp"
 
 using namespace ILMR;
 

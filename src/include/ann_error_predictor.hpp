@@ -18,9 +18,9 @@
 #include <ensmallen_bits/adam/adam_update.hpp>
 
 /* local includes  */
-#include "ann_predictor.hh"
-#include "logger.hh"
-#include "quadrotor.hh"
+#include "ann_predictor.hpp"
+#include "logger.hpp"
+#include "quadrotor.hpp"
 
 using namespace ILMR;
 
