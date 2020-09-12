@@ -33,4 +33,4 @@ private:
   VectorHelper vec_;
 };
 
-#include "check_swarm_shape.hpp"
+#include "check_swarm_shape_impl.hpp"

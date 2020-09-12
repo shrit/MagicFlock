@@ -226,4 +226,4 @@ private:
   FilterType filter_;
 };
 
-#include "quadrotor.hpp"
+#include "quadrotor_impl.hpp"

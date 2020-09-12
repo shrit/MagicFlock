@@ -24,4 +24,4 @@ private:
   ignition::math::Vector3d destination_;
 };
 
-#include "check_destination.hpp"
+#include "check_destination_impl.hpp"

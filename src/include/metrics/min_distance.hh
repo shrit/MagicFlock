@@ -22,5 +22,5 @@ private:
   double min_distance_;
 };
 
-#include "min_distance.hxx"
+#include "min_distance_impl.hpp"
 

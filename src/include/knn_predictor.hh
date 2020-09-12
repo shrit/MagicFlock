@@ -42,4 +42,4 @@ private:
   DiscretActions::Action predicted_follower_action_;
 };
 
-#include "knn_predictor.hpp"
+#include "knn_predictor_impl.hpp"

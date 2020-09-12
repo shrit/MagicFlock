@@ -33,4 +33,4 @@ private:
   const QuadrotorType& quad_;
 };
 
-#include "action_generator.hpp"
+#include "action_generator_impl.hpp"

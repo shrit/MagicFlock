@@ -19,4 +19,4 @@ private:
   std::vector<NeighborType> neighbors_;
 };
 
-#include "nearest_neighbors.hpp"
+#include "nearest_neighbors_impl.hpp"

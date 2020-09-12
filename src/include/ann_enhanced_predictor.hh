@@ -50,4 +50,4 @@ private:
   arma::mat enhanced_prediction_matrix_;
 };
 
-#include "ann_enhanced_predictor.hpp"
+#include "ann_enhanced_predictor_impl.hpp"

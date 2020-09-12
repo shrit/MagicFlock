@@ -4,7 +4,7 @@ template<class QuadrotorType>
 AnnActionPredictor<QuadrotorType>::AnnActionPredictor(
   std::string full_path_to_model,
   std::string model_name,
-  QuadrotorType& quad)
+  const QuadrotorType& quad)
   : AnnPredictor<QuadrotorType>(quad)
   , model_path_(full_path_to_model)
   , model_name_(model_name)
