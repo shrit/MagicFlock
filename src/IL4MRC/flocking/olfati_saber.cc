@@ -1,4 +1,4 @@
-#include "include/olfati_saber.hh"
+#include "olfati_saber.hpp"
 
 OlfatiSaber::OlfatiSaber(
   const ignition::math::Vector3d& position,

@@ -1,4 +1,4 @@
-#include "include/real_time_samples.hh"
+#include "real_time_samples.hpp"
 
 RTSamples::RTSamples()
   : _execute(false)

@@ -1,4 +1,4 @@
-#include "include/px4_device.hh"
+#include "px4_device.hpp"
 
 Px4Device::Px4Device(std::string socket, std::string port)
 {

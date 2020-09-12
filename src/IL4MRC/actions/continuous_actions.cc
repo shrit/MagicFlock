@@ -1,4 +1,4 @@
-#include "include/continuous_actions.hh"
+#include "continuous_actions.hpp"
 
 ContinuousActions::ContinuousActions()
   : velocity_vector_(0 ,0, 0)

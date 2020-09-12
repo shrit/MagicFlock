@@ -1,4 +1,4 @@
-#include "include/flocking.hh"
+#include "flocking.hpp"
 
 Flocking::Flocking(
   const ignition::math::Vector3d& position,
