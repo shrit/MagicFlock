@@ -1,4 +1,4 @@
-#include "include/evaluate_model.hh"
+#include "evaluate_model.hpp"
 
 EvaluateModel::EvaluateModel()
   : count_both_actions_(0)

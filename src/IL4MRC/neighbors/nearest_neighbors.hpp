@@ -3,7 +3,7 @@
 #include <map>
 #include <vector>
 
-#include "real_time_samples.hpp"
+#include <IL4MRC/util/real_time_samples.hpp>
 
 /* This class parse the number of NearestNeighbor 
  *  by extracting their id from the a vector*/

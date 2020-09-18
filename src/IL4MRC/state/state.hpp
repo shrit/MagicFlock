@@ -9,7 +9,7 @@
 #include <memory>
 
 /*  Local includes */
-#include "arma_helper.hpp"
+#include <IL4MRC/util/arma_helper.hpp>
 
 template<class FilterType, class ContainerType>
 class State

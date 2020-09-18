@@ -7,12 +7,12 @@
 #include <vector>
 
 /*  Local includes */
-#include "check_swarm_shape.hpp"
-#include "check_destination.hpp"
-#include "continuous_actions.hpp"
-#include "discret_actions.hpp"
+#include <IL4MRC/actions/continuous_actions.hpp>
+#include <IL4MRC/actions/discret_actions.hpp>
+#include <IL4MRC/check/check_destination.hpp>
+#include <IL4MRC/check/check_swarm_shape.hpp>
 #include <IL4MRC/util/logger.hpp>
-#include "position_gps.hpp"
+#include <IL4MRC/util/position_gps.hpp>
 
 using namespace ILMR;
 
