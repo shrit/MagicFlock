@@ -12,7 +12,7 @@
 //
 // Copyright Drew Noakes 2013-2016
 
-#include "joystick.hh"
+#include "joystick.hpp"
 
 Joystick::Joystick()
 {

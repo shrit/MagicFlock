@@ -1,4 +1,4 @@
-#include "include/keyboard.hh"
+#include "keyboard.hpp"
 
 Keyboard::Keyboard(int fd)
 {
