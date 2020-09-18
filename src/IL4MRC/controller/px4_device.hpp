@@ -23,8 +23,8 @@
 #include <mavsdk/plugins/shell/shell.h>
 #include <mavsdk/plugins/telemetry/telemetry.h>
 
-#include "logger.hpp"
-#include "position_gps.hpp"
+#include <IL4MRC/util/logger.hpp>
+#include <IL4MRC/util/position_gps.hpp>
 
 using namespace mavsdk;
 using std::chrono::milliseconds;

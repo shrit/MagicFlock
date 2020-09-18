@@ -9,8 +9,9 @@
 #include <random>
 #include <utility>
 
+#include <IL4MRC/controller/quadrotor.hpp>
+
 #include "discret_actions.hpp"
-#include "quadrotor.hpp"
 
 template<class QuadrotorType>
 class ActionGenerator : public DiscretActions
