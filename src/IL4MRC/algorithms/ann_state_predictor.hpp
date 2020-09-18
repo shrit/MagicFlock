@@ -21,7 +21,7 @@
 #include "ann_predictor.hpp"
 #include "argmin.hpp"
 #include <IL4MRC/util/logger.hpp>
-#include "quadrotor.hpp"
+#include <IL4MRC/controller/quadrotor.hpp>
 
 using namespace ILMR;
 
