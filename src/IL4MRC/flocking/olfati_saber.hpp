@@ -15,7 +15,7 @@
 #include <ignition/math/Vector4.hh>
 #include <vector>
 
-#include "logger.hpp"
+#include <IL4MRC/util/logger.hpp>
 
 using namespace ILMR;
 

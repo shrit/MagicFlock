@@ -11,7 +11,7 @@
 #include "check_destination.hpp"
 #include "continuous_actions.hpp"
 #include "discret_actions.hpp"
-#include "logger.hpp"
+#include <IL4MRC/util/logger.hpp>
 #include "position_gps.hpp"
 
 using namespace ILMR;

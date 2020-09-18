@@ -1,7 +1,7 @@
 #pragma once
 
 #include <mlpack/prereqs.hpp>
-#include "logger.hpp"
+#include <IL4MRC/util/logger.hpp>
 
 class OneHotEncoding
 {

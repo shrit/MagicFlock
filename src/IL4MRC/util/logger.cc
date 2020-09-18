@@ -1,4 +1,4 @@
-#include "logger.hpp"
+#include <IL4MRC/util/logger.hpp>
 
 namespace ILMR {
 std::shared_ptr<spdlog::logger> logger::logger_;

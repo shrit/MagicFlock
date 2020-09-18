@@ -3,7 +3,7 @@
 #include <limits>
 
 #include <ignition/math/Vector3.hh>
-#include "logger.hpp"
+#include <IL4MRC/util/logger.hpp>
 
 using namespace ILMR;
 

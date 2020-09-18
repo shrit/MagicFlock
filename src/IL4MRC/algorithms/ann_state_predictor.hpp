@@ -20,7 +20,7 @@
 /* local includes */
 #include "ann_predictor.hpp"
 #include "argmin.hpp"
-#include "logger.hpp"
+#include <IL4MRC/util/logger.hpp>
 #include "quadrotor.hpp"
 
 using namespace ILMR;

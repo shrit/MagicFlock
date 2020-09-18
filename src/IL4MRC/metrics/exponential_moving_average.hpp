@@ -1,6 +1,6 @@
 #pragma once
 
-#include "logger.hpp"
+#include <IL4MRC/util/logger.hpp>
 
 template<typename type>
 class ExpoMovingAverage

@@ -13,7 +13,7 @@
 #include "ann_error_predictor.hpp"
 #include "ann_state_predictor.hpp"
 #include "argmin.hpp"
-#include "logger.hpp"
+#include <IL4MRC/util/logger.hpp>
 #include "quadrotor.hpp"
 
 template<class QuadrotorType>

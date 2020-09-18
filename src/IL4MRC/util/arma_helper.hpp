@@ -9,7 +9,7 @@
 #include <mlpack/core.hpp>
 
 /* local includes */
-#include "logger.hpp"
+#include <IL4MRC/util/logger.hpp>
 
 using namespace ILMR;
 
