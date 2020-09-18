@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.9.0)
-project(ILMR)
+project(IL4MRC)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

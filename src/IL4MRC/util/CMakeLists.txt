@@ -1,8 +1,8 @@
 set(SOURCES
   arma_helper.hpp
   arma_helper_impl.hpp
-  one_hot_encoding.hpp
-  one_hot_encoding_impl.hpp
+  logger.hpp
+  logger.cc
   position_gps.hpp
   propagation_model.hpp
   propagation_model_impl.hpp

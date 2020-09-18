@@ -1,7 +1,5 @@
-include_directories(${CMAKE_CURRENT_BINARY_DIR}/..)
-
 set(DIRS
-  action
+  actions
   algorithms
   check
   controller
@@ -9,9 +7,9 @@ set(DIRS
   dists
   flocking
   input
-  metric
-  neighbor
-  simulation
+  metrics
+  neighbors
+  simulator
   state
   third_party
   util
@@ -23,14 +21,14 @@ endforeach()
 
 add_library(IL4MRC ${IL4MRC_SRCS})
 
-file(GLOB_RECURSE IL4MRC_HEADER_LIST_H RELATIVE"${CMAKE_CURRENT_SOURCE_DIR}*.h")
-file(GLOB_RECURSE IL4MRC_HEADER_LIST_HPP RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}*.hpp")
-file(GLOB PROTO_HEADER_LIST CONFIGURE_DEPENDS 
-"${CMAKE_CURRENT_BINARY_DIR}/src/gazebo/*.h")
+file(GLOB_RECURSE IL4MRC_HEADER_LIST_H RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h)
+file(GLOB_RECURSE IL4MRC_HEADER_LIST_HPP RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp)
+# file(GLOB PROTO_HEADER_LIST CONFIGURE_DEPENDS 
+# "${CMAKE_CURRENT_BINARY_DIR}/src/gazebo/*.h")
 
 set(INCLUDE_FILES ${IL4MRC_HEADER_LIST_HPP})
 
-target_link_libraries(ILMR
+target_link_libraries(IL4MRC
   ${GAZEBO_LIBRARIES}
   ${ARMADILLO_LIBRARIES}
   ${BOOST_LIBRARIES}
@@ -47,9 +45,9 @@ target_link_libraries(ILMR
   MAVSDK::mavsdk
   )
 
-target_include_directories(ILMR PRIVATE 
-  ${CMAKE_CURRENT_BINARY_DIR}/src/gazebo
-)
+# target_include_directories(ILM4RC PRIVATE 
+#   ${CMAKE_CURRENT_BINARY_DIR}/src/gazebo
+# )
 
 set(INSTALL_TARGETS IL4MRC)
 
@@ -59,7 +57,7 @@ install(FILES
   ${PROTO_HEADER_LIST}
   ${THIRD_PARTY_LIST}
 
-  DESTINATION include/ILMR
+  DESTINATION include/IL4MRC
   )
 
 install(TARGETS ${INSTALL_TARGETS}
