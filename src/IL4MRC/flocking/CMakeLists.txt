@@ -1,8 +1,8 @@
 set(SOURCES
   flocking.hpp
   flocking.cc
-  olfati_saber.hpp
-  olfati_saber.cc 
+#  olfati_saber.hpp
+#  olfati_saber.cc 
 )
 
 
