@@ -21,6 +21,27 @@ endforeach()
 
 add_library(IL4MRC ${IL4MRC_SRCS})
 
+target_link_libraries(IL4MRC
+  ${IL4MRC}
+  ${mlpack}
+  ${gomp}
+  stdc++fs
+  pthread
+
+  MAVSDK::mavsdk_action
+  MAVSDK::mavsdk_calibration
+  MAVSDK::mavsdk_offboard
+  MAVSDK::mavsdk_telemetry
+  MAVSDK::mavsdk_shell
+  MAVSDK::mavsdk
+)
+
+cotire(IL4MRC)
+
+# target_include_directories(ILM4RC PRIVATE 
+#   ${CMAKE_CURRENT_BINARY_DIR}/src/gazebo
+# )
+
 file(GLOB_RECURSE IL4MRC_HEADER_LIST_H RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h)
 file(GLOB_RECURSE IL4MRC_HEADER_LIST_HPP RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp)
 # file(GLOB PROTO_HEADER_LIST CONFIGURE_DEPENDS 
@@ -42,27 +63,6 @@ foreach(incl_file ${INCLUDE_FILES})
            ${CMAKE_BINARY_DIR}/include/IL4MRC/${incl_file}
       BYPRODUCTS ${CMAKE_BINARY_DIR}/include/IL4MRC/${incl_file})
 endforeach()
-
-target_link_libraries(IL4MRC
-  ${GAZEBO_LIBRARIES}
-  ${ARMADILLO_LIBRARIES}
-  ${BOOST_LIBRARIES}
-  ${mlpack}
-  ${gomp}
-  stdc++fs
-  pthread
-
-  MAVSDK::mavsdk_action
-  MAVSDK::mavsdk_calibration
-  MAVSDK::mavsdk_offboard
-  MAVSDK::mavsdk_telemetry
-  MAVSDK::mavsdk_shell
-  MAVSDK::mavsdk
-)
-
-# target_include_directories(ILM4RC PRIVATE 
-#   ${CMAKE_CURRENT_BINARY_DIR}/src/gazebo
-# )
 
 install(DIRECTORY "${CMAKE_BINARY_DIR}/include/IL4MRC" DESTINATION
     "${CMAKE_INSTALL_INCLUDEDIR}")

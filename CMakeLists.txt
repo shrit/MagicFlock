@@ -35,6 +35,7 @@ set(IL4MRC_LIBRARIES ${IL4MRC_LIBRARIES} ${MLPACK_LIBRARIES} ${ARMADILLO_LIBRARI
 
 include_directories(
   /usr/local/include/mavsdk
+  /usr/include/ignition/math6
   include
 )
 
