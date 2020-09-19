@@ -41,6 +41,8 @@ include_directories(
 
 # set(mlpack "/usr/local/lib/libmlpack.so")
 # set(gomp "/usr/lib/libgomp.so")
+include_directories(BEFORE ${MLPACK_INCLUDE_DIRS})
+include_directories(BEFORE ${CMAKE_SOURCE_DIR}/src/)
 
 add_subdirectory(src/IL4MRC)
 

@@ -46,18 +46,19 @@ file(GLOB_RECURSE IL4MRC_HEADER_LIST_H RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h)
 file(GLOB_RECURSE IL4MRC_HEADER_LIST_HPP RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp)
 # file(GLOB PROTO_HEADER_LIST CONFIGURE_DEPENDS 
 # "${CMAKE_CURRENT_BINARY_DIR}/src/gazebo/*.h")
-set(INCLUDE_FILES ${IL4MRC_HEADER_LIST_HPP})
+set(INCLUDE_FILES ${IL4MRC_HEADER_LIST_H} ${IL4MRC_HEADER_LIST_HPP})
 
+message ("print cmake binary dir" "${CMAKE_BINARY_DIR}")
+message ("print cmake binary dir" "${CMAKE_CURRENT_BINARY_DIR}")
 add_custom_target(il4mrc_headers)
-add_custom_command(TARGET il4mrc_headers POST_BUILD
+add_custom_command(TARGET il4mrc_headers PRE_BUILD
   COMMENT "Moving header files to include/IL4MRC/"
   COMMAND ${CMAKE_COMMAND} ARGS -E
-    make_directory ${CMAKE_BINARY_DIR}/include/IL4MRC/
+    make_directory ${CMAKE_BINARY_DIR}/include/
 )
 
-# Then copy each of the header files over to that directory.
 foreach(incl_file ${INCLUDE_FILES})
-  add_custom_command(TARGET il4mrc_headers POST_BUILD
+  add_custom_command(TARGET il4mrc_headers PRE_BUILD
     COMMAND ${CMAKE_COMMAND} ARGS -E
       copy ${CMAKE_CURRENT_SOURCE_DIR}/${incl_file}
            ${CMAKE_BINARY_DIR}/include/IL4MRC/${incl_file}
@@ -74,3 +75,5 @@ install(TARGETS ${INSTALL_TARGETS}
   ARCHIVE DESTINATION ${IL4MRC_LIBS_DIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
+
+add_dependencies(IL4MRC il4mrc_headers)
