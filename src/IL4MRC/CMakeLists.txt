@@ -58,7 +58,7 @@ target_link_libraries(IL4MRC
   MAVSDK::mavsdk_telemetry
   MAVSDK::mavsdk_shell
   MAVSDK::mavsdk
-  )
+)
 
 # target_include_directories(ILM4RC PRIVATE 
 #   ${CMAKE_CURRENT_BINARY_DIR}/src/gazebo
@@ -73,4 +73,4 @@ install(TARGETS ${INSTALL_TARGETS}
   LIBRARY DESTINATION ${IL4MRC_LIBS_DIR}
   ARCHIVE DESTINATION ${IL4MRC_LIBS_DIR}
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  )
+)
