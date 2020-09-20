@@ -17,7 +17,7 @@ include_directories(
   /usr/local/include/mavsdk
   )
 
-set(ilmr "/usr/local/lib/libILMR.so")
+set(il4mrc "/usr/local/lib/libIL4MRC.so")
 set(ResetPlugin "/usr/local/lib/libResetPlugin.so")
 set(reset_model_msgs "/usr/local/lib/libreset_model_msgs.so")
 set(mlpack "/usr/local/lib/libmlpack.so.3")
@@ -36,7 +36,7 @@ target_link_libraries(generate_data_set
   ${GAZEBO_LIBRARIES}
   ${ARMADILLO_LIBRARIES}
   ${mlpack}
-  ${ilmr}
+  ${il4mrc}
   ${ResetPlugin}
   ${reset_model_msgs}
 )
