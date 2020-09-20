@@ -13,16 +13,16 @@
 #include <vector>
 
 /*  local defined include */
-#include "generate_data_set.hh"
+#include "generate_data_set.hpp"
 
 /* ILMR library include  */
-#include <ILMR/continuous_actions.hh>
-#include <ILMR/exponential_moving_average.hh>
-#include <ILMR/gazebo.hh>
-#include <ILMR/px4_device.hh>
+#include <IL4MRC/actions/continuous_actions.hpp>
+#include <IL4MRC/controller/px4_device.hpp>
+#include <IL4MRC/metrics/exponential_moving_average.hpp>
+#include <IL4MRC/simulator/gazebo.hpp>
 
 /*  CLI11 library headers */
-#include <ILMR/CLI11.hpp>
+#include <IL4MRC/third_party/CLI11.hpp>
 
 /*
  *  Main file: Start generating dataset

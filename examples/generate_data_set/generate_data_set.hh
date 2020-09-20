@@ -8,12 +8,12 @@
 #include <vector>
 
 /* ILMR includes  */
-#include <ILMR/gazebo.hh>
-#include <ILMR/logger.hh>
-#include <ILMR/quadrotor.hh>
-#include <ILMR/swarm_device.hh>
-#include <ILMR/time.hh>
-#include <ILMR/time_steps.hh>
+#include <IL4MRC/controller/quadrotor.hpp>
+#include <IL4MRC/controller/swarm_device.hpp>
+#include <IL4MRC/simulator/gazebo.hpp>
+#include <IL4MRC/util/logger.hpp>
+#include <IL4MRC/util/time.hpp>
+#include <IL4MRC/util/time_steps.hpp>
 
 template<class QuadrotorType>
 class Generator
