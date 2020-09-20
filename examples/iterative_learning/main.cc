@@ -14,7 +14,7 @@
 #include <vector>
 
 /*  local  defined include */
-#include "iterative_learning.hh"
+#include "iterative_learning.hpp"
 
 /* ILMR library include  */
 #include <I4LMRC/third_party/CLI11.hpp>
