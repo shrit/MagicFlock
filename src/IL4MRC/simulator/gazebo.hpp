@@ -35,11 +35,9 @@
 #include <unistd.h>
 
 /* ILMR include */
+#include <IL4MRC/simulator/gazebo/ResetModel.pb.h>
 #include <IL4MRC/util/logger.hpp>
-
-/* Local message includes*/
-#include "ResetModel.pb.h"
-#include "time.hpp"
+#include <IL4MRC/util/time.hpp>
 
 template<class QuadrotorType>
 class Gazebo
