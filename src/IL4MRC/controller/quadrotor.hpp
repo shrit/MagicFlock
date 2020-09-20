@@ -16,10 +16,10 @@
 #include <IL4MRC/actions/discret_actions.hpp>
 #include <IL4MRC/data/dataset.hpp>
 #include <IL4MRC/flocking/flocking.hpp>
+#include <IL4MRC/metrics/exponential_moving_average.hpp>
 #include <IL4MRC/neighbors/nearest_neighbors.hpp>
 #include <IL4MRC/state/state.hpp>
 #include <IL4MRC/util/Vector.hpp>
-#include <IL4MRC/util/exponential_moving_average.hpp>
 #include <IL4MRC/util/histogram.hpp>
 #include <IL4MRC/util/real_time_samples.hpp>
 
