@@ -19,7 +19,7 @@ foreach(dir ${DIRS})
   add_subdirectory(${dir})
 endforeach()
 
-add_library(IL4MRC ${IL4MRC_SRCS})
+add_library(IL4MRC SHARED ${IL4MRC_SRCS})
 
 target_link_libraries(IL4MRC
   ${IL4MRC}

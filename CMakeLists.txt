@@ -28,6 +28,7 @@ find_package(Armadillo REQUIRED)
 find_package(gazebo REQUIRED)
 find_package(MAVSDK REQUIRED)
 find_package(Boost COMPONENTS date_time REQUIRED)
+find_package(Protobuf REQUIRED)
 
 set(IL4MRC_INCLUDE_DIRS ${IL4MRC_INCLUDE_DIRS} ${MLPACK_INCLUDE_DIRS} 
   ${ARMADILLO_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS} ${MAVSDK_INCLUDE_DIRS})
