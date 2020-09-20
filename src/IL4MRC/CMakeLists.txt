@@ -38,15 +38,16 @@ target_link_libraries(IL4MRC
 
 cotire(IL4MRC)
 
-# target_include_directories(ILM4RC PRIVATE 
-#   ${CMAKE_CURRENT_BINARY_DIR}/src/gazebo
-# )
+include_directories(
+  ${CMAKE_CURRENT_BINARY_DIR}/src/IL4MRC/simulator/gazebo
+)
 
 file(GLOB_RECURSE IL4MRC_HEADER_LIST_H RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.h)
 file(GLOB_RECURSE IL4MRC_HEADER_LIST_HPP RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.hpp)
-# file(GLOB PROTO_HEADER_LIST CONFIGURE_DEPENDS 
-# "${CMAKE_CURRENT_BINARY_DIR}/src/gazebo/*.h")
-set(INCLUDE_FILES ${IL4MRC_HEADER_LIST_H} ${IL4MRC_HEADER_LIST_HPP})
+file(GLOB PROTO_HEADER_LIST CONFIGURE_DEPENDS 
+ "${CMAKE_CURRENT_BINARY_DIR}/src/IL4MRC/simulator/gazebo/*.h")
+
+set(INCLUDE_FILES ${IL4MRC_HEADER_LIST_H} ${IL4MRC_HEADER_LIST_HPP} ${PROTO_HEADER_LIST})
 
 message ("print cmake binary dir" "${CMAKE_BINARY_DIR}")
 message ("print cmake binary dir" "${CMAKE_CURRENT_BINARY_DIR}")
@@ -64,6 +65,13 @@ foreach(incl_file ${INCLUDE_FILES})
            ${CMAKE_BINARY_DIR}/include/IL4MRC/${incl_file}
       BYPRODUCTS ${CMAKE_BINARY_DIR}/include/IL4MRC/${incl_file})
 endforeach()
+
+add_custom_command(TARGET il4mrc_headers POST_BUILD
+  COMMENT "Moving header files to include/IL4MRC/"
+  COMMAND ${CMAKE_COMMAND} ARGS -E
+    copy ${CMAKE_BINARY_DIR}/src/IL4MRC/simulator/gazebo/ResetModel.pb.h
+         ${CMAKE_BINARY_DIR}/include/IL4MRC/simulator/gazebo/ResetModel.pb.h
+)
 
 install(DIRECTORY "${CMAKE_BINARY_DIR}/include/IL4MRC" DESTINATION
     "${CMAKE_INSTALL_INCLUDEDIR}")
