@@ -40,4 +40,4 @@ private:
   std::shared_ptr<spdlog::logger> logger_;
 };
 
-#include "generate_data_set.hxx"
+#include "generate_data_set_impl.hpp"
