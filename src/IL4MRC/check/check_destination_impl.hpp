@@ -32,7 +32,7 @@ CheckDestination<QuadrotorType>::has_arrived(
   for (auto&& q : quads) {
     r_mig = destination_ - q.position();
     ILMR::logger::logger_->info("Distance to destination: {}", r_mig);
-    if (r_mig.X() < 1) {
+    if (std::fabs(r_mig.X()) < 1 and std::fabs(r_mig.Y()) < 1) {
       has_arrived = true;
     }
   }

@@ -69,7 +69,7 @@ ResetPlugin::RandomPoseGenerator(int quad_number)
    *  this is the reason for using circle packing
    */
   std::vector<ignition::math::Vector3d> RandomPosition(quad_number);
-  double radius = 0.5;
+  double radius = 0.7;
 
   for (int i = 0; i < quad_number; ++i) {
     ignition::math::Vector3d quadRegion;
