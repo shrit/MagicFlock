@@ -70,8 +70,8 @@ ResetPlugin::RandomPoseGenerator(int quad_number)
    */
   std::vector<ignition::math::Vector3d> RandomPosition(quad_number);
   double radius = 0.7;
-
-  for (int i = 0; i < quad_number; ++i) {
+  int i = 0;
+  while (i < quad_number) {
     ignition::math::Vector3d quadRegion;
     quadRegion.X() = distribution_real_(generator_);
     quadRegion.Y() = distribution_real_(generator_);
@@ -91,6 +91,7 @@ ResetPlugin::RandomPoseGenerator(int quad_number)
           })) {
       std::cout << "Added Not overlapping" << std::endl;
       RandomPosition.at(i) = quadRegion;
+      i = i + 1;
     }
   }
   for (int j = 0; j < quad_number; ++j) {
