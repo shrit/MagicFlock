@@ -157,8 +157,8 @@
         <min_frequency>2412.0</min_frequency>
         <max_frequency>2484.0</max_frequency>
         <power>15</power>
-        <gain>4</gain>
-        <sensitivity>-90.0</sensitivity>
+        <gain>5</gain>
+        <sensitivity>-105.0</sensitivity>
       </transceiver>
     </sensor>
   </link>
