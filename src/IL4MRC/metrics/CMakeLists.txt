@@ -6,9 +6,7 @@ set(SOURCES
   histogram.hpp
   histogram_impl.hpp
   max_distance.hpp
-  max_distance_impl.hpp
   min_distance.hpp
-  min_distance_impl.hpp 
   one_hot_encoding.hpp
   one_hot_encoding_impl.hpp
 )
