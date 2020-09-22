@@ -320,6 +320,18 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::save_state()
 template<class flight_controller_t, class FilterType, class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, ActionType>::
+  save_position(std::string iteration)
+{
+  dataset_.save_csv_dataset_2_file(
+    name_ + "_position_" + iteration,
+    position().X(),
+    position().Y(),
+    position().Z());
+}
+
+template<class flight_controller_t, class FilterType, class ActionType>
+void
+Quadrotor<flight_controller_t, FilterType, ActionType>::
   save_dataset_rssi_velocity()
 {
   // see if it is possible to make current action generic

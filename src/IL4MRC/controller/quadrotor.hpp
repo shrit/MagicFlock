@@ -149,6 +149,8 @@ public:
   void save_actions_evaluation(DiscretActions::Action first_action,
                                DiscretActions::Action second_action);
 
+  void save_position(std::string iteration);
+
   /* Topic names related functions */
   std::string wireless_receiver_1_topic_name();
   std::string wireless_receiver_2_topic_name();
