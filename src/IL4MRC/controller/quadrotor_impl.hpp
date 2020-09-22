@@ -328,6 +328,17 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::
     position().Y(),
     position().Z());
 }
+template<class flight_controller_t, class FilterType, class ActionType>
+template<typename Arg, typename... Args>
+void
+Quadrotor<flight_controller_t, FilterType, ActionType>::
+  save_values(std::string name, Arg value, Args... values)
+{
+  dataset_.save_csv_dataset_2_file(
+    name_ + "_" + name,
+    value,
+    values...);
+}
 
 template<class flight_controller_t, class FilterType, class ActionType>
 void

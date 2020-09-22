@@ -148,7 +148,8 @@ public:
   void save_state();
   void save_actions_evaluation(DiscretActions::Action first_action,
                                DiscretActions::Action second_action);
-
+  template<typename Arg, typename... Args>
+  void save_values(std::string name, Arg value, Args... values);
   void save_position(std::string iteration);
 
   /* Topic names related functions */
@@ -167,8 +168,6 @@ public:
   Quadrotor(const Quadrotor&){};
   Quadrotor& operator=(const Quadrotor& quad) { return *this; };
 
-  // Quadrotor(Quadrotor&& quad) = default;
-  // Quadrotor& operator=(Quadrotor&& quad) = default;
   std::unique_ptr<flight_controller_t> controller_;
 
 private:
