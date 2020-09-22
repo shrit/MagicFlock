@@ -52,14 +52,14 @@ set(INCLUDE_FILES ${IL4MRC_HEADER_LIST_H} ${IL4MRC_HEADER_LIST_HPP} ${PROTO_HEAD
 message ("print cmake binary dir" "${CMAKE_BINARY_DIR}")
 message ("print cmake binary dir" "${CMAKE_CURRENT_BINARY_DIR}")
 add_custom_target(il4mrc_headers)
-add_custom_command(TARGET il4mrc_headers PRE_BUILD
+add_custom_command(TARGET il4mrc_headers POST_BUILD
   COMMENT "Moving header files to include/IL4MRC/"
   COMMAND ${CMAKE_COMMAND} ARGS -E
     make_directory ${CMAKE_BINARY_DIR}/include/
 )
 
 foreach(incl_file ${INCLUDE_FILES})
-  add_custom_command(TARGET il4mrc_headers PRE_BUILD
+  add_custom_command(TARGET il4mrc_headers POST_BUILD
     COMMAND ${CMAKE_COMMAND} ARGS -E
       copy ${CMAKE_CURRENT_SOURCE_DIR}/${incl_file}
            ${CMAKE_BINARY_DIR}/include/IL4MRC/${incl_file}
