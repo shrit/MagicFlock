@@ -84,10 +84,8 @@ private:
     landed_state_results_;
   std::vector<typename QuadrotorType::inner_flight_controller::OffboardResult>
     offboard_mode_results_;
-
   std::vector<typename QuadrotorType::inner_flight_controller::ActionResult>
     takeoff_results_;
-
   std::vector<typename QuadrotorType::inner_flight_controller::ActionResult>
     landed_results_;
   std::vector<typename QuadrotorType::inner_flight_controller::ActionResult>
