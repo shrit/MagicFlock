@@ -115,7 +115,7 @@ def plot_generic(generic_file_name):
 
 def plot_loss(espisdes_file_name, predic_dataset_file_name, enhanched_dataset_file_name, action):
   
-   # mat = genfromtxt(loss_file_name, delimiter=',')
+    # mat = genfromtxt(loss_file_name, delimiter=',')
     # state_mat = genfromtxt(dataset_file_name, delimiter=',')
     predic_state_mat = genfromtxt(predic_dataset_file_name, delimiter=',')
     en_predic_state_mat = genfromtxt(enhanched_dataset_file_name, delimiter=',')
