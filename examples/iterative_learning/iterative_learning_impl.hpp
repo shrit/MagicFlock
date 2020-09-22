@@ -22,7 +22,7 @@ Iterative_learning<QuadrotorType>::generate_trajectory_using_model()
 
   for (auto&& i : quadrotors_) {
     AnnActionPredictor<QuadrotorType> predict(
-      "/meta/lemon/examples/iterative_learning/build/model.txt", "model", i);
+      "/meta/lemon/examples/iterative_learning/build/model.bin", "model", i);
     ContinuousActions action = predict.best_predicted_action();
     i.current_action() = action;
   }
@@ -76,8 +76,18 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
                       "ending the episode.");
         break;
       }
-    }
 
+      /* Register results */
+      /* Save position of quadrotor each 200 ms*/
+      for (auto&& it : quadrotors_) {
+        it.save_position(std::to_string(episode_));
+      }
+      double maxD = max_distance_.check_distance(quadrotors_);
+      double minD = min_distance_.check_distance(quadrotors_);
+
+      quadrotors_.at(0).save_values("distance_metric", maxD, minD);
+    }
+      
     for (auto&& it : quadrotors_) {
       it.stop_sampling_rt_state();
     }

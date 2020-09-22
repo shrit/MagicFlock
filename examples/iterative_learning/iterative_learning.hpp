@@ -9,7 +9,8 @@
 #include <IL4MRC/algorithms/ann_action_predictor.hpp>
 #include <IL4MRC/controller/quadrotor.hpp>
 #include <IL4MRC/controller/swarm_device.hpp>
-#include <IL4MRC/metrics/evaluate_model.hpp>
+#include <IL4MRC/metrics/max_distance.hpp>
+#include <IL4MRC/metrics/min_distance.hpp>
 #include <IL4MRC/util/logger.hpp>
 #include <IL4MRC/util/time.hpp>
 #include <IL4MRC/util/time_steps.hpp>
@@ -30,6 +31,8 @@ public:
 private:
   int episode_;
   std::vector<double> flight_errors_;
+  MaxDistance<QuadrotorType> max_distance_;
+  MinDistance<QuadrotorType> min_distance_;
   int max_episode_;
   std::vector<double> step_errors_;
   TimeSteps time_steps_;
