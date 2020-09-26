@@ -25,8 +25,7 @@ class RandomModel
 
 public:
   RandomModel(ignition::math::Vector3d axis_speed);
-  ignition::math::Vector3d Velocity();
-
+  ignition::math::Vector3d Velocity() const;
   RandomModel(RandomModel const&) = delete;
   RandomModel(RandomModel&&) = default;
 
@@ -35,4 +34,5 @@ private:
   std::uniform_real_distribution<> distribution_real_;
   std::random_device random_dev;
   std::mt19937 generator_;
+  ignition::math::Vector3d velocity_;
 };
