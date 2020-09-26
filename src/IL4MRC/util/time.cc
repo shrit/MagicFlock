@@ -1,28 +1,26 @@
 #include "time.hpp"
 
+#include <iostream>
 #include <math.h>
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
-#include <iostream>
 
 /*
  * Part of this code is borrowed from tansa.
- * Major modification is still required to be adapted to this project 
+ * Major modification is still required to be adapted to this project
  */
- 
 
 using namespace std;
 
 static Clock defaultClock;
-/*
-        Gets the current time
-        - if since_epoch is set to true, then the current calendar time/time
-   since epoch will be used. this time is less precise
-        - otherwise, the best monotonic clock source will be used
-
-        Credit to https://gist.github.com/jbenet/1087739 for some of this
-   function
+/**
+ * Gets the current time
+ * if since_epoch is set to true, then the current calendar time/time
+ * since epoch will be used. this time is less precise
+ * otherwise, the best monotonic clock source will be used
+ * Credit to https://gist.github.com/jbenet/1087739 for some of this
+ * function
 */
 void
 current_time(struct timespec* ts, bool since_epoch = false)
@@ -214,7 +212,7 @@ Rate::sleep()
   lasttime = lasttime.add(dt);
 }
 
-Timer::Timer() 
+Timer::Timer()
 {
   // Nothing to do here
 }
