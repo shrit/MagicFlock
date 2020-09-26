@@ -24,7 +24,7 @@ class RandomModel
 {
 
 public:
-  RandomModel(int axis, double min_speed, double max_speed);
+  RandomModel(ignition::math::Vector3d axis_speed);
   ignition::math::Vector3d Velocity();
 
   RandomModel(RandomModel const&) = delete;

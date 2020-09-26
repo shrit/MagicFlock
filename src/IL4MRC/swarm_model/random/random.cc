@@ -1,8 +1,8 @@
 #include "random.hpp"
 
-RandomModel::RandomModel(int axis, double min_speed, double max_speed)
-  : axis_(axis)
-  , distribution_real_(min_speed, max_speed)
+RandomModel::RandomModel(ignition::math::Vector3d axis_speed)
+  : axis_(axis_speed.X())
+  , distribution_real_(axis_speed.Y(), axis_speed.Z())
   , generator_(random_dev())
 {
   // Nothing to do here
