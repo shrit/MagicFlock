@@ -5,7 +5,7 @@ set(DIRS
   controller
   data
   dists
-  flocking
+  swarm_model
   input
   metrics
   neighbors
