@@ -1,6 +1,6 @@
 #include "random.hpp"
 
-RandomModel::RandomModel(double max_speed, double min_speed, int axis)
+RandomModel::RandomModel(int axis, double min_speed, double max_speed)
   : axis_(axis)
   , distribution_real_(min_speed, max_speed)
   , generator_(random_dev())
@@ -18,12 +18,19 @@ RandomModel::Velocity()
     velocity.X() = distribution_real_(generator_);
 
   } else if (axis_ == 1) {
-    // generate actions on x,y axis
-
-    velocity.X() = distribution_real_(generator_);
+    // generate action on y axis
     velocity.Y() = distribution_real_(generator_);
 
   } else if (axis_ == 2) {
+    // generate action on z axis
+    velocity.Z() = distribution_real_(generator_);
+
+  } else if (axis_ == 3) {
+    // generate actions on x,y axis
+    velocity.X() = distribution_real_(generator_);
+    velocity.Y() = distribution_real_(generator_);
+
+  } else if (axis_ == 4) {
     // generate actions on x,y,z axis
     velocity.X() = distribution_real_(generator_);
     velocity.Y() = distribution_real_(generator_);

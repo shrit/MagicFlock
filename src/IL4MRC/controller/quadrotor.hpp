@@ -67,9 +67,12 @@ public:
   std::string port_number() const;
   std::string& port_number();
   void start_controller();
-  ignition::math::Vector3d start_flocking(ignition::math::Vector4d gains,
-                                          ignition::math::Vector3d destination);
+  void start_flocking_model(ignition::math::Vector4d gains,
+                            ignition::math::Vector3d destination);
+  void start_random_model(int duration, int axis, double min_speed, 
+      double max_speed);
   void stop_flocking();
+  void stop_random_model();
 
   /* Neighbors related fuctions*/
   std::vector<unsigned int> nearest_neighbors() const;
@@ -201,7 +204,7 @@ private:
   std::vector<unsigned int> _nearest_neighbors;
   mutable std::mutex _sample_state_mutex{};
   RTSamples state_sampler_, neighbor_sampler_, flocking_sampler_,
-    position_sampler_;
+    position_sampler_, random_sampler_;
   unsigned int id_;  /* Quadrotor id */
   std::string name_; /* Quadrotor name */
   /* Quadrotor label (Given by the user, leader, follower, etc)*/
