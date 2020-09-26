@@ -70,7 +70,7 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::start_random_model(
 
 template<class flight_controller_t, class FilterType, class ActionType>
 void
-Quadrotor<flight_controller_t, FilterType, ActionType>::stop_flocking()
+Quadrotor<flight_controller_t, FilterType, ActionType>::stop_flocking_model()
 {
   flocking_sampler_.stop();
 }

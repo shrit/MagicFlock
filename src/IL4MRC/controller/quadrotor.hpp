@@ -15,7 +15,8 @@
 #include <IL4MRC/actions/continuous_actions.hpp>
 #include <IL4MRC/actions/discret_actions.hpp>
 #include <IL4MRC/data/dataset.hpp>
-#include <IL4MRC/flocking/flocking.hpp>
+#include <IL4MRC/swarm_model/flocking/flocking.hpp>
+#include <IL4MRC/swarm_model/random/random.hpp>
 #include <IL4MRC/metrics/exponential_moving_average.hpp>
 #include <IL4MRC/metrics/histogram.hpp>
 #include <IL4MRC/neighbors/nearest_neighbors.hpp>
@@ -71,7 +72,7 @@ public:
                             ignition::math::Vector3d destination);
   void start_random_model(int duration, int axis, double min_speed, 
       double max_speed);
-  void stop_flocking();
+  void stop_flocking_model();
   void stop_random_model();
 
   /* Neighbors related fuctions*/
@@ -197,6 +198,7 @@ private:
 
   mutable std::mutex _position_sampler_mutex{};
   mutable std::mutex _flocking_mutex{};
+  mutable std::mutex _random_mutex{};
   mutable std::mutex _neighbor_positions_mutex{};
   std::vector<ignition::math::Vector3d> _neighbor_positions;
   mutable std::mutex _rssi_from_neighbors_mutex{};
