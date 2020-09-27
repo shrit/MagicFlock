@@ -72,7 +72,9 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
           logger_->info("Start the flocking model");
           it.start_flocking_model(gains, destination);
         }
-
+        for (auto&& it : quadrotors_) {
+          it.start_sampling_rt_state(50);
+        }
       } else {
         for (auto&& it : quadrotors_) {
           logger_->info("Start the random model");
@@ -81,31 +83,32 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
         }
       }
 
-      for (auto&& it : quadrotors_) {
-        it.start_sampling_rt_state(50);
-      }
-
       /* Let us see how these quadrotors are going to move */
       while (true) {
         go_to_destination();
+        // bool shape = swarm_.examin_swarm_shape();
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
         double passed_time = model_time.stop();
         logger_->info("Model time in seconds {}", passed_time);
-        if (passed_time > passed_time_ + 5) {
-          logger_->info("5 Seconds have passed change the model");
+        if (passed_time > passed_time_ + 4) {
+          logger_->info("4 Seconds have passed change the model");
           passed_time_ = passed_time;
           break;
         }
+        // if (!shape) {
+        //   logger_->info(
+        //     "Quadrotors are far from each other, ending the episode");
+        //   break;
+        // }
       }
 
       if (counter % 2 == 0) {
         for (auto&& it : quadrotors_) {
           it.stop_flocking_model();
         }
-      }
-
-      for (auto&& it : quadrotors_) {
-        it.stop_sampling_rt_state();
+        for (auto&& it : quadrotors_) {
+          it.stop_sampling_rt_state();
+        }
       }
 
       bool shape = swarm_.examin_swarm_shape();
