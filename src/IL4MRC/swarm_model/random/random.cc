@@ -10,7 +10,7 @@ RandomModel::RandomModel(ignition::math::Vector3d axis_speed)
 }
 
 ignition::math::Vector3d
-RandomModel::Velocity() const
+RandomModel::Velocity()
 {
   if (axis_ == 0) {
     // generate action on x axis
