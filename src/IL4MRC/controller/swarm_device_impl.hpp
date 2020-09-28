@@ -54,15 +54,15 @@ SwarmDevice<QuadrotorType>::one_quad_execute_trajectory(
 {
   ignition::math::Vector3d vec = action.action();
   vec.Z(0);
-  if (vec.X() > max_speed) {
+  if (std::fabs(vec.X()) > max_speed) {
     vec.X(max_speed);
     logger::logger_->info("Executed Vec X: {}", vec);
     quads_.at(id).controller_->set_velocity_vector(vec);
-  } else if (vec.Y() > max_speed) {
+  } else if (std::fabs(vec.Y()) > max_speed) {
     vec.Y(max_speed);
     logger::logger_->info("Executed Vec Y: {}", vec);
     quads_.at(id).controller_->set_velocity_vector(vec);
-  } else if (vec.Z() > max_speed) {
+  } else if (std::fabs(vec.Z()) > max_speed) {
     vec.Z(max_speed);
     logger::logger_->info("Executed Vec Z: {}", vec);
     quads_.at(id).controller_->set_velocity_vector(vec);
