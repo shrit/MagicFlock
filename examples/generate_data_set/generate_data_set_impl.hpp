@@ -14,15 +14,36 @@ Generator<QuadrotorType>::Generator(std::vector<QuadrotorType>& quadrotors,
 
 template<class QuadrotorType>
 void
-Generator<QuadrotorType>::go_to_destination()
+Generator<QuadrotorType>::go_to_destination(double max_speed)
 {
   std::vector<std::thread> threads;
-  double max_speed = 2;
   /*  Threading Quadrotors */
   for (auto&& it : quadrotors_) {
     threads.push_back(std::thread([&]() {
       swarm_.one_quad_execute_trajectory(
         it.id(), it.current_action(), max_speed);
+    }));
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+}
+
+/* This function should only be executed after a model of flocking that 
+ * have been executed other wise it will not do anything*/
+template<class QuadrotorType>
+void
+Generator<QuadrotorType>::go_to_reverse_destination(double max_speed)
+{
+  std::vector<std::thread> threads;
+  /*  Threading Quadrotors */
+  for (auto&& it : quadrotors_) {
+    threads.push_back(std::thread([&]() {
+      for (int i = 0; i < it.all_actions().size(); ++i) {
+      swarm_.one_quad_execute_trajectory(
+        it.id(), -it.all_actions().at(i), max_speed);
+      }
     }));
   }
 
@@ -78,28 +99,29 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
       } else {
         for (auto&& it : quadrotors_) {
           logger_->info("Start the random model");
-          ignition::math::Vector3d axis_speed{ 3, -0.9, 0.9 };
+          ignition::math::Vector3d axis_speed{ 4, -0.5, 0.5 };
           it.start_random_model(50, axis_speed);
         }
       }
 
       /* Let us see how these quadrotors are going to move */
       while (true) {
-        go_to_destination();
-        // bool shape = swarm_.examin_swarm_shape();
+        bool shape = swarm_.examin_swarm_shape();
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
         double passed_time = model_time.stop();
         logger_->info("Model time in seconds {}", passed_time);
-        if (passed_time > passed_time_ + 4) {
-          logger_->info("4 Seconds have passed change the model");
+        if (passed_time > passed_time_ + 3) {
+          logger_->info("Seconds have passed change the model");
           passed_time_ = passed_time;
           break;
         }
-        // if (!shape) {
-        //   logger_->info(
-        //     "Quadrotors are far from each other, ending the episode");
-        //   break;
-        // }
+        if (!shape) {
+          logger_->info(
+            "Quadrotors are too far or too close from each other, Stop destination");
+          go_to_destination(0); // improve this with real zeros
+        } else {
+          go_to_destination(2); // refactor this max speed in the flocking model
+        }
       }
 
       if (counter % 2 == 0) {
@@ -125,7 +147,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
       }
       logger_->info("Ending the first counter");
     }
-
+    passed_time_ = 0;
     std::string flight_time = timer_.stop_and_get_time();
     logger_->info("Flight time: {}", flight_time);
     /* Landing is blocking untill all quadrotors in the swarm touch the
