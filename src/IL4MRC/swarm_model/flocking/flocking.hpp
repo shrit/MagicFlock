@@ -33,12 +33,14 @@ class Flocking
 public:
   Flocking(const ignition::math::Vector3d& position,
            const std::vector<ignition::math::Vector3d>& position_of_neighbors,
-           const ignition::math::Vector3d& destination_position);
+           const ignition::math::Vector3d& destination_position,
+           const ignition::math::Vector3d& max_speed);
 
   Flocking(const ignition::math::Vector4d& gains,
            const ignition::math::Vector3d& position,
            const std::vector<ignition::math::Vector3d>& position_of_neighbors,
-           const ignition::math::Vector3d& destination_position);
+           const ignition::math::Vector3d& destination_position,
+           const ignition::math::Vector3d& max_speed);
 
   ignition::math::Vector3d cohesionVelocity();
   ignition::math::Vector3d separationVelocity();
@@ -64,4 +66,5 @@ private:
   ignition::math::Vector3d position_;
   std::vector<ignition::math::Vector3d> position_of_neighbors_;
   ignition::math::Vector3d destination_position_;
+  ignition::math::Vector3d max_speed_;
 };

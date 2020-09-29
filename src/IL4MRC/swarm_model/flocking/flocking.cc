@@ -3,10 +3,12 @@
 Flocking::Flocking(
   const ignition::math::Vector3d& position,
   const std::vector<ignition::math::Vector3d>& position_of_neighbors,
-  const ignition::math::Vector3d& destination_position)
+  const ignition::math::Vector3d& destination_position,
+  const ignition::math::Vector3d& max_speed)
   : position_(position)
   , position_of_neighbors_(position_of_neighbors)
   , destination_position_(destination_position)
+  , max_speed_(max_speed)
 {
   // The maximum number of neighbor should be total (size - 1).
   // We have reference to our self
@@ -17,11 +19,13 @@ Flocking::Flocking(
   const ignition::math::Vector4d& gains,
   const ignition::math::Vector3d& position,
   const std::vector<ignition::math::Vector3d>& position_of_neighbors,
-  const ignition::math::Vector3d& destination_position)
+  const ignition::math::Vector3d& destination_position,
+  const ignition::math::Vector3d& max_speed)
   : gains_(gains)
   , position_(position)
   , position_of_neighbors_(position_of_neighbors)
   , destination_position_(destination_position)
+  , max_speed_(max_speed)
 {
   // The maximum number of neighbor should be total (size - 1).
   // We have reference to our self
@@ -102,5 +106,26 @@ Flocking::Velocity()
   logger::logger_->debug("Separation velocity: {}\n", sep);
   logger::logger_->debug("cohesionVelocity: {}\n", coh);
   logger::logger_->debug("Final velocity: {}\n", total);
+
+  /* Setup the max speed on each axis instead of the generated speed */
+  if (std::fabs(total.X()) > max_speed_.X()) {
+    if (total.X() < 0){
+      total.X(-max_speed_.X());
+    } else {
+      total.X(max_speed_.X());
+    }
+  } else if (std::fabs(total.Y()) > max_speed_.Y()) {
+    if (total.Y() < 0){
+      total.Y(-max_speed_.Y());
+    } else {
+      total.Y(max_speed_.Y());
+    }
+  } else if (std::fabs(total.Z()) > max_speed_.Z()) {
+    if (total.Z() < 0){
+      total.Z(-max_speed_.Z());
+    } else {
+      total.Z(max_speed_.Z());
+    }
+  }
   return total;
 }

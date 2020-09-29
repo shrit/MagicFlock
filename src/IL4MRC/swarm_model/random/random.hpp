@@ -24,14 +24,16 @@ class RandomModel
 {
 
 public:
-  RandomModel(ignition::math::Vector3d axis_speed);
+  RandomModel(ignition::math::Vector4d axis_speed);
   ignition::math::Vector3d Velocity();
   RandomModel(RandomModel const&) = delete;
   RandomModel(RandomModel&&) = default;
 
 private:
   int axis_;
-  std::uniform_real_distribution<> distribution_real_;
+  std::uniform_real_distribution<> distribution_real_x_;
+  std::uniform_real_distribution<> distribution_real_y_;
+  std::uniform_real_distribution<> distribution_real_z_;
   std::random_device random_dev;
   std::mt19937 generator_;
   ignition::math::Vector3d velocity_;
