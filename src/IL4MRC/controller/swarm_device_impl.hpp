@@ -34,7 +34,6 @@ SwarmDevice<QuadrotorType>::one_quad_execute_trajectory(
     quads_.at(id).controller_->down(speed, milliseconds);
   }
 }
-
 template<class QuadrotorType>
 void
 SwarmDevice<QuadrotorType>::one_quad_execute_trajectory(
@@ -42,34 +41,8 @@ SwarmDevice<QuadrotorType>::one_quad_execute_trajectory(
   ContinuousActions action)
 {
   ignition::math::Vector3d vec = action.action();
+  logger::logger_->info("Executed Vec: {}", vec);
   quads_.at(id).controller_->set_velocity_vector(vec);
-}
-
-template<class QuadrotorType>
-void
-SwarmDevice<QuadrotorType>::one_quad_execute_trajectory(
-  unsigned int id,
-  ContinuousActions action,
-  double max_speed)
-{
-  ignition::math::Vector3d vec = action.action();
-  vec.Z(0);
-  if (std::fabs(vec.X()) > max_speed) {
-    vec.X(max_speed);
-    logger::logger_->info("Executed Vec X: {}", vec);
-    quads_.at(id).controller_->set_velocity_vector(vec);
-  } else if (std::fabs(vec.Y()) > max_speed) {
-    vec.Y(max_speed);
-    logger::logger_->info("Executed Vec Y: {}", vec);
-    quads_.at(id).controller_->set_velocity_vector(vec);
-  } else if (std::fabs(vec.Z()) > max_speed) {
-    vec.Z(max_speed);
-    logger::logger_->info("Executed Vec Z: {}", vec);
-    quads_.at(id).controller_->set_velocity_vector(vec);
-  } else {
-    logger::logger_->info("Executed Vec : {}", vec);
-    quads_.at(id).controller_->set_velocity_vector(vec);
-  }
 }
 
 template<class QuadrotorType>

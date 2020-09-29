@@ -29,9 +29,6 @@ public:
                                    unsigned int milliseconds);
 
   void one_quad_execute_trajectory(unsigned int id, ContinuousActions action);
-  void one_quad_execute_trajectory(unsigned int id,
-                                   ContinuousActions action,
-                                   double max_speed);
 
   bool arm();
   void arm_async();

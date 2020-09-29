@@ -69,8 +69,9 @@ public:
   std::string& port_number();
   void start_controller();
   void start_flocking_model(ignition::math::Vector4d gains,
-                            ignition::math::Vector3d destination);
-  void start_random_model(int duration, ignition::math::Vector3d axis_speed);
+                            ignition::math::Vector3d destination,
+                            ignition::math::Vector3d max_speed);
+  void start_random_model(int duration, ignition::math::Vector4d axis_speed);
   void stop_flocking_model();
   void stop_random_model();
 

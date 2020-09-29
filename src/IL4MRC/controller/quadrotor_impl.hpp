@@ -43,12 +43,13 @@ template<class flight_controller_t, class FilterType, class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, ActionType>::start_flocking_model(
   ignition::math::Vector4d gains,
-  ignition::math::Vector3d destination)
+  ignition::math::Vector3d destination,
+  ignition::math::Vector3d max_speed)
 {
   std::lock_guard<std::mutex> lock(_flocking_mutex);
 
   flocking_sampler_.start(50, [&]() {
-    Flocking flock(gains, position(), neighbor_positions(), destination);
+    Flocking flock(gains, position(), neighbor_positions(), destination, max_speed);
     current_action_.action() = flock.Velocity();
     all_actions_.push_back(current_action_);
   });
@@ -57,7 +58,7 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::start_flocking_model(
 template<class flight_controller_t, class FilterType, class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, ActionType>::start_random_model(
-  int duration, ignition::math::Vector3d axis_speed)
+  int duration, ignition::math::Vector4d axis_speed)
 {
   std::lock_guard<std::mutex> lock(_random_mutex);
   RandomModel random(axis_speed);
