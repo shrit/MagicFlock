@@ -97,7 +97,7 @@ main(int argc, char* argv[])
   }
 
   /*  Generate a dataset  */
-  SignalNoise<QuadrotorType> singal(quadrotors, logger);
+  SignalNoise<QuadrotorType> signal(quadrotors, logger);
   // Callback to be executed at the end of the episode
   signal.run([&]() { gz.ResetModels(); });
   return 0;

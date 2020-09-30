@@ -31,14 +31,10 @@ public:
 private:
   int episode_;
   int max_episode_;
-  bool start_episode_;
-  double passed_time_;
   SwarmDevice<QuadrotorType> swarm_;
   std::vector<QuadrotorType>& quadrotors_;
-  TimeSteps time_steps_;
-  Timer timer_;
   std::vector<arma::colvec> mean_all_quad_;
   std::shared_ptr<spdlog::logger> logger_;
 };
 
-#include "sinal_noise_impl.hpp"
+#include "signal_noise_impl.hpp"

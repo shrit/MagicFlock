@@ -3,8 +3,6 @@ SignalNoise<QuadrotorType>::SignalNoise(std::vector<QuadrotorType>& quadrotors,
                                         std::shared_ptr<spdlog::logger> logger)
   : episode_(0)
   , max_episode_(10000)
-  , start_episode_(false)
-  , passed_time_(0.0)
   , swarm_(quadrotors)
   , quadrotors_(quadrotors)
   , logger_(logger)
@@ -14,9 +12,13 @@ template<class QuadrotorType>
 void
 SignalNoise<QuadrotorType>::calculate_RSSI_mean_variance()
 {
+  arma::mat dataMat;
   for (auto&& it : quadrotors_) {
-     arma::mat dataMat = it.all_states().Data();
-     arma::colvec mean_vec = arma::mean(dataMat, 0);
+    for (size_t i = 0; i < it.all_states().size(); ++i) {
+      arma::colvec dataCol = it.all_states().at(i).Data();
+      dataMat.insert_cols(dataMat.n_cols, dataCol);
+    }
+     arma::colvec mean_vec = arma::mean(dataMat, 1);
      mean_all_quad_.push_back(mean_vec);
   }
 }
@@ -27,8 +29,6 @@ SignalNoise<QuadrotorType>::run(std::function<void(void)> reset)
 {
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
    logger_->info("Episode : {}", episode_);
-    timer_.start();
-    time_steps_.reset();
 
     for (auto&& it : quadrotors_) {
       it.start_sampling_rt_state(50);
