@@ -22,7 +22,7 @@ class SignalNoise
 public:
   SignalNoise(std::vector<QuadrotorType>& quadrotors,
               std::shared_ptr<spdlog::logger> logger);
-
+  void calculate_RSSI_mean_variance();
   void run(std::function<void(void)> func);
 
   SignalNoise(SignalNoise const&) = delete;
@@ -37,6 +37,7 @@ private:
   std::vector<QuadrotorType>& quadrotors_;
   TimeSteps time_steps_;
   Timer timer_;
+  std::vector<arma::colvec> mean_all_quad_;
   std::shared_ptr<spdlog::logger> logger_;
 };
 
