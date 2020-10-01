@@ -14,14 +14,13 @@ Generator<QuadrotorType>::Generator(std::vector<QuadrotorType>& quadrotors,
 
 template<class QuadrotorType>
 void
-Generator<QuadrotorType>::go_to_destination(double max_speed)
+Generator<QuadrotorType>::go_to_destination()
 {
   std::vector<std::thread> threads;
   /*  Threading Quadrotors */
   for (auto&& it : quadrotors_) {
     threads.push_back(std::thread([&]() {
-      swarm_.one_quad_execute_trajectory(
-        it.id(), it.current_action(), max_speed);
+      swarm_.one_quad_execute_trajectory(it.id(), it.current_action());
     }));
   }
 
@@ -30,19 +29,37 @@ Generator<QuadrotorType>::go_to_destination(double max_speed)
   }
 }
 
-/* This function should only be executed after a model of flocking that 
+template<class QuadrotorType>
+void
+Generator<QuadrotorType>::stop()
+{
+  std::vector<std::thread> threads;
+  ignition::math::Vector3d stop{ 0, 0, 0 };
+  /*  Threading Quadrotors */
+  for (auto&& it : quadrotors_) {
+    threads.push_back(std::thread([&]() {
+      it.current_action().action() = stop;
+      swarm_.one_quad_execute_trajectory(it.id(), it.current_action());
+    }));
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+}
+
+/* This function should only be executed after a model of flocking that
  * have been executed other wise it will not do anything*/
 template<class QuadrotorType>
 void
-Generator<QuadrotorType>::go_to_reverse_destination(double max_speed)
+Generator<QuadrotorType>::go_to_reverse_destination()
 {
   std::vector<std::thread> threads;
   /*  Threading Quadrotors */
   for (auto&& it : quadrotors_) {
     threads.push_back(std::thread([&]() {
       for (int i = 0; i < it.all_actions().size(); ++i) {
-      swarm_.one_quad_execute_trajectory(
-        it.id(), -it.all_actions().at(i), max_speed);
+        swarm_.one_quad_execute_trajectory(it.id(), -it.all_actions().at(i));
       }
     }));
   }
@@ -75,7 +92,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     ignition::math::Vector4d gains{ 1, 7, 1, 100 };
     // This destination goes forward
     ignition::math::Vector3d destination{ 163, 0, 20 };
-
+    ignition::math::Vector3d max_speed{ 2, 2, 0.2 };
     //! This destination goes backward
     // ignition::math::Vector3d destination{ -163, 0, 20 };
 
@@ -91,7 +108,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
       if (counter % 2 == 0) {
         for (auto&& it : quadrotors_) {
           logger_->info("Start the flocking model");
-          it.start_flocking_model(gains, destination);
+          it.start_flocking_model(gains, destination, max_speed);
         }
         for (auto&& it : quadrotors_) {
           it.start_sampling_rt_state(50);
@@ -99,14 +116,14 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
       } else {
         for (auto&& it : quadrotors_) {
           logger_->info("Start the random model");
-          ignition::math::Vector3d axis_speed{ 4, -0.5, 0.5 };
+          ignition::math::Vector4d axis_speed{ 0.5, 0.5, 0.1, 4 };
           it.start_random_model(50, axis_speed);
         }
       }
 
       /* Let us see how these quadrotors are going to move */
       while (true) {
-        bool shape = swarm_.examin_swarm_shape();
+        //        bool shape = swarm_.examin_swarm_shape();
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
         double passed_time = model_time.stop();
         logger_->info("Model time in seconds {}", passed_time);
@@ -115,13 +132,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
           passed_time_ = passed_time;
           break;
         }
-        if (!shape) {
-          logger_->info(
-            "Quadrotors are too far or too close from each other, Stop destination");
-          go_to_destination(0); // improve this with real zeros
-        } else {
-          go_to_destination(2); // refactor this max speed in the flocking model
-        }
+        go_to_destination(2);
       }
 
       if (counter % 2 == 0) {
