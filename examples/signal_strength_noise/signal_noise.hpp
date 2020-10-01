@@ -34,6 +34,8 @@ private:
   SwarmDevice<QuadrotorType> swarm_;
   std::vector<QuadrotorType>& quadrotors_;
   std::vector<arma::colvec> mean_all_quad_;
+  std::vector<arma::colvec> stddev_all_quad_;
+  std::vector<arma::colvec> var_all_quad_;
   std::shared_ptr<spdlog::logger> logger_;
 };
 

@@ -19,7 +19,11 @@ SignalNoise<QuadrotorType>::calculate_RSSI_mean_variance()
       dataMat.insert_cols(dataMat.n_cols, dataCol);
     }
      arma::colvec mean_vec = arma::mean(dataMat, 1);
+     arma::colvec stddev_vec = arma::stddev(dataMat, 1);
+     arma::colvec var_vec = arma::var(dataMat, 1);
      mean_all_quad_.push_back(mean_vec);
+     stddev_all_quad_.push_back(stddev_vec);
+     var_all_quad_.push_back(var_vec);
   }
 }
 
@@ -42,7 +46,9 @@ SignalNoise<QuadrotorType>::run(std::function<void(void)> reset)
 
     calculate_RSSI_mean_variance();
     for (size_t i = 0; i < mean_all_quad_.size(); ++i) {
-      logger_->info("Mean value for signal strength for quad {}", mean_all_quad_.at(i));
+      logger_->info("Mean values for signal strength for quad {}\n {}", i, mean_all_quad_.at(i));
+      logger_->info("Standard deviation values for signal strength for quad {}\n {}", i, stddev_all_quad_.at(i));
+      logger_->info("Variance values for signal strength for quad {}\n {}", i, var_all_quad_.at(i));
     }
   }
 }
