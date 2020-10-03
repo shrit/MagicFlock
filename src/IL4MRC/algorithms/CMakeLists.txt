@@ -13,6 +13,8 @@ set(SOURCES
   argmin_impl.hpp
   knn_predictor.hpp
   knn_predictor_impl.hpp
+  sac_predictor.hpp
+  sac_predictor_impl.hpp
 )
 
 set(DIR_SRCS)
