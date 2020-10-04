@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <functional>
 #include <numeric>
 #include <random>
 #include <thread>
@@ -29,7 +30,7 @@ template<typename EnvironmentType,
          typename NetworkType,
          typename UpdaterType,
          typename PolicyType,
-         typename ReplayType = RandomReplay<EnvironmentType>,
+         typename ReplayType = mlpack::rl::RandomReplay<EnvironmentType>,
          typename QuadrotorType
          >
 class SACPredictor
@@ -37,7 +38,9 @@ class SACPredictor
 public:
   SACPredictor(const QuadrotorType& quad);
   void SacNetwork();
-  void train();
+  void train(std::function<void(void)> execute_action,
+             std::function<double(void)> evaluate_reward,
+             std::function<double(void)> examine_environment);
 
   typename QuadrotorType::Action best_predicted_action();
 
@@ -46,7 +49,7 @@ public:
 
 private:
   double episodeReturn_;
-  TrainingConfig config_;
+  mlpack::rl::TrainingConfig config_;
   std::vector<double> returnList_;
 };
 
