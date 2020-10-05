@@ -3,6 +3,7 @@ set(SOURCES
   check_destination_impl.hpp
   check_swarm_shape.hpp
   check_swarm_shape_impl.hpp
+  reward.hpp
 )
 
 set(DIR_SRCS)
