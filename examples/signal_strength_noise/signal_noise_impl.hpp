@@ -14,8 +14,8 @@ template<class QuadrotorType>
 void
 SignalNoise<QuadrotorType>::calculate_RSSI_mean_variance()
 {
-  arma::mat dataMat;
   for (auto&& it : quadrotors_) {
+    arma::mat dataMat;
     for (size_t i = 0; i < it.all_states().size(); ++i) {
       arma::colvec dataCol = it.all_states().at(i).Data();
       dataMat.insert_cols(dataMat.n_cols, dataCol);
@@ -26,6 +26,7 @@ SignalNoise<QuadrotorType>::calculate_RSSI_mean_variance()
     range_all_quad_.push_back(range_vec);
 
     for (arma::uword i = 0; i < dataMat.n_rows; ++i) {
+      
       double stddev = arma::stddev(dataMat.row(i), 0);
       double var = arma::var(dataMat.row(i), 0);
 
@@ -57,7 +58,7 @@ SignalNoise<QuadrotorType>::run(std::function<void(void)> reset)
       logger_->info("Mean values for signal strength for quad {}\n {}",
                     i,
                     mean_all_quad_.at(i));
-      for (size_t j = 0; j < mean_all_quad_.size(); ++j) {
+      for (size_t j = 0; j < stddev_all_quad_.at(i).size(); ++j) {
         logger_->info(
           "Standard deviation values for signal strength for quad {}\n {}\n",
           i,
