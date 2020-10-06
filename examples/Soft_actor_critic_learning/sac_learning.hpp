@@ -6,11 +6,10 @@
 #include <vector>
 
 /* local includes  */
-#include <IL4MRC/algorithms/ann_action_predictor.hpp>
+#include <IL4MRC/algorithms/sac_predictor.hpp>
 #include <IL4MRC/controller/quadrotor.hpp>
 #include <IL4MRC/controller/swarm_device.hpp>
-#include <IL4MRC/metrics/max_distance.hpp>
-#include <IL4MRC/metrics/min_distance.hpp>
+#include <IL4MRC/check/reward.hpp>
 #include <IL4MRC/util/logger.hpp>
 #include <IL4MRC/util/time.hpp>
 #include <IL4MRC/util/time_steps.hpp>
@@ -30,17 +29,14 @@ public:
 
 private:
   int episode_;
-  std::vector<double> flight_errors_;
-  MaxDistance<QuadrotorType> max_distance_;
-  MinDistance<QuadrotorType> min_distance_;
   int max_episode_;
-  std::vector<double> step_errors_;
   TimeSteps time_steps_;
   Timer timer_;
   SwarmDevice<QuadrotorType> swarm_;
-  bool start_episode_;
   std::vector<QuadrotorType>& quadrotors_;
   std::shared_ptr<spdlog::logger> logger_;
+  Reward<QuadrotorType> reward_;
+  SACPredictor<> sac_;
 };
 
 #include "sac_learning_impl.hpp"

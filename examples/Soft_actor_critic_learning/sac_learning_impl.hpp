@@ -18,20 +18,12 @@ void
 SoftActorCritic<QuadrotorType>::generate_trajectory_using_model()
 {
   std::vector<std::thread> threads;
-  double max_speed = 2;
-
-  for (auto&& i : quadrotors_) {
-    AnnActionPredictor<QuadrotorType> predict(
-      "/meta/lemon/examples/iterative_learning/build/model.bin", "model", i);
-    ContinuousActions action = predict.best_predicted_action();
-    i.current_action() = action;
-  }
 
   /*  Threading QuadCopter */
   for (auto&& it : quadrotors_) {
-    threads.push_back(std::thread([&]() {
+   threads.push_back(std::thread([&]() {
       swarm_.one_quad_execute_trajectory(
-        it.id(), it.current_action(), max_speed);
+        it.id(), it.current_action());
     }));
   }
 
@@ -45,6 +37,9 @@ template<class QuadrotorType>
 void
 SoftActorCritic<QuadrotorType>::run(std::function<void(void)> reset)
 {
+  //! Set up actor and critic network to start training
+  sac_.SacNetwork();
+  
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
 
     logger_->info("Episode : {}", episode_);
@@ -53,41 +48,37 @@ SoftActorCritic<QuadrotorType>::run(std::function<void(void)> reset)
     swarm_.in_air_async(15);
 
     ignition::math::Vector3d destination{ 163, 0, 20 };
+    ignition::math::Vector3d max_speed{ 2, 2, 0.2 };
 
     for (auto&& it : quadrotors_) {
       it.start_sampling_rt_state(50);
     }
 
-    while (true) {
-      generate_trajectory_using_model();
-
-      std::this_thread::sleep_for(std::chrono::milliseconds(200));
-      /*  Check the geometrical shape */
-      bool shape = swarm_.examin_swarm_shape();
-      bool has_arrived = swarm_.examin_destination(destination);
-
-      if (!shape) {
-        logger_->info("Quadrotors are far from each other, ending the episode");
-        break;
-      }
-
-      if (has_arrived) {
-        logger_->info("Quadrotors have arrived at specificed destination. "
-                      "ending the episode.");
-        break;
-      }
-
-      /* Register results */
-      /* Save position of quadrotor each 200 ms*/
-      for (auto&& it : quadrotors_) {
-        it.save_position(std::to_string(episode_));
-      }
-      double maxD = max_distance_.check_distance(quadrotors_);
-      double minD = min_distance_.check_distance(quadrotors_);
-
-      quadrotors_.at(0).save_values("distance_metric", maxD, minD);
+    for (auto&& it : quadrotors_) {
+      logger_->info("Start the flocking model");
+      it.start_flocking_model(gains, destination, max_speed);
     }
-      
+
+    sac_.train(generate_trajectory_using_model(),
+          examin_swarm_shape(),
+          reward() // We need to pass destination
+    );
+
+    /*  Check the destination  */
+    bool has_arrived = swarm_.examin_destination(destination);
+
+    if (has_arrived) {
+      logger_->info("Quadrotors have arrived at specificed destination. "
+                    "ending the episode.");
+      break;
+    }
+
+    quadrotors_.at(0).save_values("distance_metric", maxD, minD);
+
+    for (auto&& it : quadrotors_) {
+      it.stop_flocking_model();
+    }
+
     for (auto&& it : quadrotors_) {
       it.stop_sampling_rt_state();
     }
