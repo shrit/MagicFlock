@@ -14,10 +14,10 @@
 /*  mlpack includes */
 #include <mlpack/core.hpp>
 #include <mlpack/methods/ann/ffn.hpp>
-#include <mlpack/methods/reinforcement_learning/sac.hpp>
-#include <mlpack/methods/ann/loss_functions/empty_loss.hpp>
 #include <mlpack/methods/ann/init_rules/gaussian_init.hpp>
+#include <mlpack/methods/ann/loss_functions/empty_loss.hpp>
 #include <mlpack/methods/reinforcement_learning/environment/env_type.hpp>
+#include <mlpack/methods/reinforcement_learning/sac.hpp>
 #include <mlpack/methods/reinforcement_learning/training_config.hpp>
 
 /* local includes */
@@ -31,18 +31,17 @@ template<typename EnvironmentType,
          typename UpdaterType,
          typename PolicyType,
          typename ReplayType = mlpack::rl::RandomReplay<EnvironmentType>,
-         typename QuadrotorType
-         >
+         typename QuadrotorType>
 class SACPredictor
 {
 public:
   SACPredictor(const QuadrotorType& quad);
   void SacNetwork();
-  void train(std::function<void(void)> execute_action,
+  void train(size_t& consecutiveEpisodes,
+             const size_t numSteps,
+             std::function<void(void)> execute_action,
              std::function<double(void)> evaluate_reward,
              std::function<double(void)> examine_environment);
-
-  typename QuadrotorType::Action best_predicted_action();
 
   SACPredictor(SACPredictor const&) = delete;
   SACPredictor(SACPredictor&&) = default;
@@ -51,6 +50,8 @@ private:
   double episodeReturn_;
   mlpack::rl::TrainingConfig config_;
   std::vector<double> returnList_;
+  mlpack::rl::RandomReplay<EnvironmentType> replayMethod_;
+  mlpack::rl::SAC<EnvironmentType, NetworkType, PolicyType, ReplayType> agent_;
 };
 
 #include "sac_predictor_impl.hpp"
