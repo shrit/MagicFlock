@@ -14,7 +14,7 @@ public:
     /* Nothing to do here */
   }
 
-  double Calculate_reward(const QuadrotorType& quad)
+  double calculate_reward(const QuadrotorType& quad)
   {
     double reward = 0.0;
     for (std::size_t i = 0; i < quad.neighbor_positions().size(); ++i) {
