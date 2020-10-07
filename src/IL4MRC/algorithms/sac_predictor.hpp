@@ -30,8 +30,8 @@ template<typename EnvironmentType,
          typename NetworkType,
          typename UpdaterType,
          typename PolicyType,
-         typename ReplayType = mlpack::rl::RandomReplay<EnvironmentType>,
-         typename QuadrotorType>
+         typename QuadrotorType,
+         typename ReplayType = mlpack::rl::RandomReplay<EnvironmentType>>
 class SACPredictor
 {
 public:
@@ -42,6 +42,7 @@ public:
              std::function<void(void)> execute_action,
              std::function<double(void)> evaluate_reward,
              std::function<double(void)> examine_environment);
+  void test();
 
   SACPredictor(SACPredictor const&) = delete;
   SACPredictor(SACPredictor&&) = default;
@@ -51,6 +52,7 @@ private:
   mlpack::rl::TrainingConfig config_;
   std::vector<double> returnList_;
   mlpack::rl::RandomReplay<EnvironmentType> replayMethod_;
+  QuadrotorType& quadrotor_;
   mlpack::rl::SAC<EnvironmentType, NetworkType, PolicyType, ReplayType> agent_;
 };
 
