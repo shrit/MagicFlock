@@ -39,9 +39,9 @@ public:
   void SacNetwork();
   void train(size_t& consecutiveEpisodes,
              const size_t numSteps,
-             std::function<void(void)> execute_action,
-             std::function<double(void)> evaluate_reward,
-             std::function<double(void)> examine_environment);
+             std::function<void()> execute_action,
+             std::function<double()> evaluate_reward,
+             std::function<bool()> examine_environment);
   void test();
 
   SACPredictor(SACPredictor const&) = delete;

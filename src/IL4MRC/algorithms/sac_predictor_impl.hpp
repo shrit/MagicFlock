@@ -79,9 +79,9 @@ SACPredictor<EnvironmentType,
              QuadrotorType,
              ReplayType>::train(size_t& consecutiveEpisodes,
                                 const size_t numSteps,
-                                std::function<void(void)> execute_action,
-                                std::function<double(void)> evaluate_reward,
-                                std::function<double(void)> examine_environment)
+                                std::function<void()> execute_action,
+                                std::function<double()> evaluate_reward,
+                                std::function<bool()> examine_environment)
 {
   logger::logger_->info("Training for: {}", numSteps, " steps.");
   while (agent_->TotalSteps() < numSteps) {
@@ -93,7 +93,7 @@ SACPredictor<EnvironmentType,
       // Here we need to execute action, swarm_.one..etc
       agent_->SelectAction();
       arma::mat action = { double(agent_->Action().action[0] * 2) };
-      quadrotor_.current_action() = action;
+      quadrotor_.current_action().set_action(action);
 
       execute_action();
       mlpack::rl::ContinuousActionEnv::State
