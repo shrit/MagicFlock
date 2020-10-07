@@ -9,6 +9,7 @@ SoftActorCritic<QuadrotorType>::SoftActorCritic(
   , swarm_(quadrotors)
   , quadrotors_(quadrotors)
   , logger_(logger)
+  , sac_(quadrotors.at(0))
 {
   // Nothing to do here
 }
@@ -49,6 +50,7 @@ SoftActorCritic<QuadrotorType>::run(std::function<void(void)> reset)
 
     ignition::math::Vector3d destination{ 163, 0, 20 };
     ignition::math::Vector3d max_speed{ 2, 2, 0.2 };
+    ignition::math::Vector4d gains{ 1, 7, 1, 100 };
 
     for (auto&& it : quadrotors_) {
       it.start_sampling_rt_state(50);
@@ -59,9 +61,9 @@ SoftActorCritic<QuadrotorType>::run(std::function<void(void)> reset)
       it.start_flocking_model(gains, destination, max_speed);
     }
 
-    sac_.train(generate_trajectory_using_model(),
-          examin_swarm_shape(),
-          reward() // We need to pass destination
+    sac_.train(generate_trajectory_using_model,
+          swarm_.examin_swarm_shape,
+          reward_.calculate_reward // We need to pass destination
     );
 
     /*  Check the destination  */
@@ -73,7 +75,7 @@ SoftActorCritic<QuadrotorType>::run(std::function<void(void)> reset)
       break;
     }
 
-    quadrotors_.at(0).save_values("distance_metric", maxD, minD);
+    // quadrotors_.at(0).save_values("distance_metric", maxD, minD);
 
     for (auto&& it : quadrotors_) {
       it.stop_flocking_model();
