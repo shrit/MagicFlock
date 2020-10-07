@@ -22,9 +22,8 @@ SoftActorCritic<QuadrotorType>::generate_trajectory_using_model()
 
   /*  Threading QuadCopter */
   for (auto&& it : quadrotors_) {
-   threads.push_back(std::thread([&]() {
-      swarm_.one_quad_execute_trajectory(
-        it.id(), it.current_action());
+    threads.push_back(std::thread([&]() {
+      swarm_.one_quad_execute_trajectory(it.id(), it.current_action());
     }));
   }
 
@@ -40,7 +39,7 @@ SoftActorCritic<QuadrotorType>::run(std::function<void(void)> reset)
 {
   //! Set up actor and critic network to start training
   sac_.SacNetwork();
-  
+
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
 
     logger_->info("Episode : {}", episode_);
@@ -60,10 +59,18 @@ SoftActorCritic<QuadrotorType>::run(std::function<void(void)> reset)
       logger_->info("Start the flocking model");
       it.start_flocking_model(gains, destination, max_speed);
     }
+    std::size_t consecutiveEpisode = 100;
+    std::size_t Steps = 1000;
 
-    sac_.train(generate_trajectory_using_model,
-          swarm_.examin_swarm_shape,
-          reward_.calculate_reward // We need to pass destination
+    std::function<void(void)> trajectory = [this]() { this->generate_trajectory_using_model(); };
+    std::function<double()> reward = [this]() { return reward_.calculate_reward(quadrotors_.at(0)); };
+    std::function<bool()> shape = [this]() {  return swarm_.examin_swarm_shape(); };
+
+    sac_.train(consecutiveEpisode,
+               Steps,
+               trajectory,
+               reward,
+               shape
     );
 
     /*  Check the destination  */
