@@ -11,7 +11,7 @@ SACPredictor<EnvironmentType,
              UpdaterType,
              PolicyType,
              QuadrotorType,
-             ReplayType>::SACPredictor(const QuadrotorType& quad)
+             ReplayType>::SACPredictor(QuadrotorType& quad)
   : replayMethod_(32, 10000)
   , quadrotor_(quad)
 {
@@ -59,8 +59,10 @@ SACPredictor<EnvironmentType,
   config_.TargetNetworkSyncInterval() = 1;
   config_.UpdateInterval() = 1;
 
-  //agent_(config_, qNetwork, policyNetwork, replayMethod_);
-  agent_.Deterministic() = false;
+  agent_ = std::make_shared<
+    mlpack::rl::SAC<EnvironmentType, NetworkType, UpdaterType, PolicyType>>(
+    config_, qNetwork, policyNetwork, replayMethod_);
+  agent_->Deterministic() = false;
 }
 
 template<typename EnvironmentType,
@@ -82,22 +84,22 @@ SACPredictor<EnvironmentType,
                                 std::function<double(void)> examine_environment)
 {
   logger::logger_->info("Training for: {}", numSteps, " steps.");
-  while (agent_.TotalSteps() < numSteps) {
+  while (agent_->TotalSteps() < numSteps) {
     episodeReturn_ = 0;
     bool isTerminal = false;
     do {
-      agent_.State().Data() = quadrotor_.current_state().Data();
+      agent_->State().Data() = quadrotor_.current_state().Data();
 
       // Here we need to execute action, swarm_.one..etc
-      agent_.SelectAction();
-      arma::mat action = { double(agent_.Action().action[0] * 2) };
+      agent_->SelectAction();
+      arma::mat action = { double(agent_->Action().action[0] * 2) };
       quadrotor_.current_action() = action;
 
       execute_action();
       mlpack::rl::ContinuousActionEnv::State
         nextState; // replace it with an arma matrix
       nextState.Data() = quadrotor_.current_state().Data();
-      // 1) we need to store the executed action in agent_.Action()
+      // 1) we need to store the executed action in agent_->Action()
       // Thus we need to execute a lamda function here in order to
       // recover the values of the function
       // 2) We need to create a reward function to store it
@@ -106,16 +108,16 @@ SACPredictor<EnvironmentType,
       double reward = evaluate_reward();
       isTerminal = examine_environment();
       replayMethod_.Store(
-        agent_.State(), agent_.Action(), reward, nextState, isTerminal, 0.99);
+        agent_->State(), agent_->Action(), reward, nextState, isTerminal, 0.99);
       episodeReturn_ += reward;
-      agent_.TotalSteps()++;
+      agent_->TotalSteps()++;
 
-      if (agent_.Deterministic() ||
-          agent_.TotalSteps() < config_.ExplorationSteps())
+      if (agent_->Deterministic() ||
+          agent_->TotalSteps() < config_.ExplorationSteps())
         continue;
 
       for (size_t i = 0; i < config_.UpdateInterval(); i++)
-        agent_.Update();
+        agent_->Update();
     }
 
     while (!isTerminal);
@@ -131,7 +133,7 @@ SACPredictor<EnvironmentType,
     //   std::cout << "Avg return in last " << returnList_.size()
     //             << " episodes: " << averageReturn
     //             << "\\t Episode return: " << episodeReturn_
-    //             << "\\t Total steps: " << agent_.TotalSteps() << std::endl;
+    //             << "\\t Total steps: " << agent_->TotalSteps() << std::endl;
     // }
     if (isTerminal)
       break;

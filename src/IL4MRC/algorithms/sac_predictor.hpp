@@ -35,7 +35,7 @@ template<typename EnvironmentType,
 class SACPredictor
 {
 public:
-  SACPredictor(const QuadrotorType& quad);
+  SACPredictor(QuadrotorType& quad);
   void SacNetwork();
   void train(size_t& consecutiveEpisodes,
              const size_t numSteps,
@@ -53,7 +53,9 @@ private:
   std::vector<double> returnList_;
   mlpack::rl::RandomReplay<EnvironmentType> replayMethod_;
   QuadrotorType& quadrotor_;
-  mlpack::rl::SAC<EnvironmentType, NetworkType, PolicyType, ReplayType> agent_;
+  std::shared_ptr<
+    mlpack::rl::SAC<EnvironmentType, NetworkType, UpdaterType, PolicyType>>
+    agent_;
 };
 
 #include "sac_predictor_impl.hpp"
