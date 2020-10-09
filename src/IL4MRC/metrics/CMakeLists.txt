@@ -1,4 +1,6 @@
 set(SOURCES
+  empty_filter.hpp
+  empty_filter_impl.hpp
   evaluate_model.hpp
   evaluate_model.cc
   exponential_moving_average.hpp
