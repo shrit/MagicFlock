@@ -1,4 +1,6 @@
 set(SOURCES
+  empty_noise.hpp
+  empty_noise_impl.hpp
   gaussian_noise.hpp
   gaussian_noise_impl.hpp
 )
