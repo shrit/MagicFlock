@@ -37,11 +37,12 @@ class SACPredictor
 public:
   SACPredictor(QuadrotorType& quad);
   void SacNetwork();
-  void train(size_t& consecutiveEpisodes,
-             const size_t numSteps,
-             std::function<void()> execute_action,
-             std::function<double()> evaluate_reward,
-             std::function<bool()> examine_environment);
+  void train(
+    size_t& consecutiveEpisodes,
+    const size_t numSteps,
+    std::function<void()> execute_action,
+    std::function<double()> evaluate_reward,
+    std::function<bool()> examine_environment);
   void test();
 
   SACPredictor(SACPredictor const&) = delete;
@@ -53,9 +54,11 @@ private:
   std::vector<double> returnList_;
   mlpack::rl::RandomReplay<EnvironmentType> replayMethod_;
   QuadrotorType& quadrotor_;
-  std::shared_ptr<
+  std::unique_ptr<
     mlpack::rl::SAC<EnvironmentType, NetworkType, UpdaterType, PolicyType>>
     agent_;
+   mlpack::ann::FFN<mlpack::ann::EmptyLoss<>,
+                   mlpack::ann::GaussianInitialization> policyNetwork_, qNetwork_;
 };
 
 #include "sac_predictor_impl.hpp"
