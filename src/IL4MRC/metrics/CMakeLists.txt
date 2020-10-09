@@ -9,6 +9,7 @@ set(SOURCES
   min_distance.hpp
   one_hot_encoding.hpp
   one_hot_encoding_impl.hpp
+  reward.hpp
 )
 
 set(DIR_SRCS)
