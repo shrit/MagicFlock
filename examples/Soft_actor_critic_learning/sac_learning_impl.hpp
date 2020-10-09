@@ -62,16 +62,17 @@ SoftActorCritic<QuadrotorType>::run(std::function<void(void)> reset)
     std::size_t consecutiveEpisode = 100;
     std::size_t Steps = 1000;
 
-    std::function<void(void)> trajectory = [this]() { this->generate_trajectory_using_model(); };
-    std::function<double()> reward = [this]() { return reward_.calculate_reward(quadrotors_.at(0)); };
-    std::function<bool()> shape = [this]() {  return swarm_.examin_swarm_shape(); };
+    std::function<void(void)> trajectory = [this]() {
+      this->generate_trajectory_using_model();
+    };
+    std::function<double()> reward = [this]() {
+      return reward_.calculate_reward(quadrotors_.at(0));
+    };
+    std::function<bool()> shape = [this]() {
+      return swarm_.examin_swarm_shape();
+    };
 
-    sac_.train(consecutiveEpisode,
-               Steps,
-               trajectory,
-               reward,
-               shape
-    );
+    sac_.train(consecutiveEpisode, Steps, trajectory, reward, shape);
 
     /*  Check the destination  */
     bool has_arrived = swarm_.examin_destination(destination);
