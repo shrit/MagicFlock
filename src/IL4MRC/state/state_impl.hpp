@@ -16,37 +16,31 @@ State<FilterType, ContainerType>::State(const arma::colvec& data)
 
 template<class FilterType, class ContainerType>
 State<FilterType, ContainerType>::State(unsigned int id,
+                                        int num_neighbors,
                                         const ContainerType& container,
                                         FilterType filter)
   : id_(id)
-  , data_(container.size(), arma::fill::zeros)
+  , num_neighbors_(num_neighbors)
+  , data_(num_neighbors_ * 2, arma::fill::zeros)
 {
-  data_.resize(2 * container.size());
-  std::vector<double> data;
+  int antenna_size = num_neighbors_ * 2;
+  std::vector<double> data(antenna_size);
+  int i = 0;
+  for (std::size_t j = 0; j < num_neighbors_; ++j) {
 
-  for (std::size_t i = 0; i < container.size(); ++i) {
-    data.push_back(container.at(i).antenna_1);
-    data.push_back(container.at(i).antenna_2);
+    if (container.at(j).id != id_) {
+      data.at(i) = container.at(j).antenna_1;
+      data.at(++i) = container.at(j).antenna_2;
+      i = i + 1;
+    }
   }
+
   data_ = arma.vec_to_arma(data);
-  ILMR::logger::logger_->debug("Data before filtering:  {}", data_);
+  data_.replace(0, -110);
+
+  ILMR::logger::logger_->info("Data before filtering:  {}", data_);
   data_ = filter.input(data_);
-  ILMR::logger::logger_->debug("Data after filtering:  {}", data_);
-}
-
-template<class FilterType, class ContainerType>
-State<FilterType, ContainerType>::State(unsigned int id,
-                                        const ContainerType& container)
-  : id_(id)
-  , data_(container.size(), arma::fill::zeros)
-{
-  data_.resize(2 * container.size());
-  std::vector<double> data;
-  for (std::size_t i = 0; i < container.size(); ++i) {
-    data.push_back(container.at(i).antenna_1);
-    data.push_back(container.at(i).antenna_2);
-  }
-  data_ = arma.vec_to_arma(data);
+  ILMR::logger::logger_->info("Data after filtering:  {}", data_);
 }
 
 template<class FilterType, class ContainerType>

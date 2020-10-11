@@ -21,6 +21,7 @@ public:
   State(const arma::colvec& data);
 
   State(unsigned int id,
+        int num_neighbors,
         const ContainerType& container,
         FilterType noise);
 
@@ -44,7 +45,8 @@ public:
   static constexpr size_t dimension = 3;
 
 private:
-  int id_;
+  unsigned int id_;
+  int num_neighbors_;
   ArmaHelper arma;
   arma::colvec data_;
   arma::colvec rssi_data_;  
