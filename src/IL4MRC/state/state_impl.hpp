@@ -38,9 +38,9 @@ State<FilterType, ContainerType>::State(unsigned int id,
   data_ = arma.vec_to_arma(data);
   data_.replace(0, -110);
 
-  ILMR::logger::logger_->info("Data before filtering:  {}", data_);
+  ILMR::logger::logger_->debug("Data before filtering:  {}", data_);
   data_ = filter.input(data_);
-  ILMR::logger::logger_->info("Data after filtering:  {}", data_);
+  ILMR::logger::logger_->debug("Data after filtering:  {}", data_);
 }
 
 template<class FilterType, class ContainerType>
