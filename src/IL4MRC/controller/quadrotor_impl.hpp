@@ -18,12 +18,13 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::init(
   id_ = id;
   name_ = name;
   label_ = label;
+  num_neighbors_ = number_of_quad - 1;
   dataset_.init_dataset_directory();
   port_number_ = std::to_string(1454) + std::to_string(id);
-  rssi_from_neighbors().resize(number_of_quad); // Max number of quad created
+  rssi_from_neighbors().resize(number_of_quad); // Max number of quad -1
   // Max number -1, dont count my position
-  neighbor_positions().resize(number_of_quad - 1);
-  arma::colvec initial_value(number_of_quad * 2);
+  neighbor_positions().resize(num_neighbors_);
+  arma::colvec initial_value(neighbor_positions().size() * 2);
   initial_value.fill(-50);
   filter_.initial_value() = initial_value;
   filter_.reset();
@@ -49,7 +50,8 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::start_flocking_model(
   std::lock_guard<std::mutex> lock(_flocking_mutex);
 
   flocking_sampler_.start(50, [&]() {
-    Flocking flock(gains, position(), neighbor_positions(), destination, max_speed);
+    Flocking flock(
+      gains, position(), neighbor_positions(), destination, max_speed);
     current_action_.action() = flock.Velocity();
     all_actions_.push_back(current_action_);
   });
@@ -58,7 +60,8 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::start_flocking_model(
 template<class flight_controller_t, class FilterType, class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, ActionType>::start_random_model(
-  int duration, ignition::math::Vector4d axis_speed)
+  int duration,
+  ignition::math::Vector4d axis_speed)
 {
   std::lock_guard<std::mutex> lock(_random_mutex);
   RandomModel random(axis_speed);
@@ -140,7 +143,7 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::sample_state()
 {
   std::lock_guard<std::mutex> lock(_sample_state_mutex);
   State<FilterType, std::vector<RSSI>> state(
-    id_, rssi_from_neighbors(), filter_);
+    id_, num_neighbors_, rssi_from_neighbors(), filter_);
   current_state_ = state;
   save_dataset_rssi_velocity(); // just a temporary solution, it might be a good
                                 // one
@@ -331,25 +334,23 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::save_state()
 
 template<class flight_controller_t, class FilterType, class ActionType>
 void
-Quadrotor<flight_controller_t, FilterType, ActionType>::
-  save_position(std::string iteration)
+Quadrotor<flight_controller_t, FilterType, ActionType>::save_position(
+  std::string iteration)
 {
-  dataset_.save_csv_dataset_2_file(
-    name_ + "_position_" + iteration,
-    position().X(),
-    position().Y(),
-    position().Z());
+  dataset_.save_csv_dataset_2_file(name_ + "_position_" + iteration,
+                                   position().X(),
+                                   position().Y(),
+                                   position().Z());
 }
 template<class flight_controller_t, class FilterType, class ActionType>
 template<typename Arg, typename... Args>
 void
-Quadrotor<flight_controller_t, FilterType, ActionType>::
-  save_values(std::string name, Arg value, Args... values)
+Quadrotor<flight_controller_t, FilterType, ActionType>::save_values(
+  std::string name,
+  Arg value,
+  Args... values)
 {
-  dataset_.save_csv_dataset_2_file(
-    name_ + "_" + name,
-    value,
-    values...);
+  dataset_.save_csv_dataset_2_file(name_ + "_" + name, value, values...);
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
@@ -358,10 +359,9 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::
   save_dataset_rssi_velocity()
 {
   // see if it is possible to make current action generic
-  dataset_.save_csv_dataset_2_file(
-    name_,
-    vec_.to_std_vector(current_state().Data()),
-    vec_.to_std_vector(current_action().Data()));
+  dataset_.save_csv_dataset_2_file(name_,
+                                   vec_.to_std_vector(current_state().Data()),
+                                   vec_.to_std_vector(current_action().Data()));
 }
 
 template<class flight_controller_t, class FilterType, class ActionType>
@@ -679,6 +679,9 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::RxMsgN1(
   int numRxNodes = _msg->node_size();
   for (int i = 0; i < numRxNodes; ++i) {
     gazebo::msgs::WirelessNode RxNode = _msg->node(i);
+    const char essid = RxNode.essid().back();
+    int id = (int(essid) - 48);
+    rssi_from_neighbors().at(i).id = id;
     rssi_from_neighbors().at(i).name = RxNode.essid();
     rssi_from_neighbors().at(i).antenna_1 = RxNode.signal_level();
   }
@@ -693,6 +696,9 @@ Quadrotor<flight_controller_t, FilterType, ActionType>::RxMsgN2(
   int numRxNodes = _msg->node_size();
   for (int i = 0; i < numRxNodes; ++i) {
     gazebo::msgs::WirelessNode RxNode = _msg->node(i);
+    const char essid = RxNode.essid().back();
+    int id = (int(essid) - 48);
+    rssi_from_neighbors().at(i).id = id;
     rssi_from_neighbors().at(i).name = RxNode.essid();
     rssi_from_neighbors().at(i).antenna_2 = RxNode.signal_level();
   }

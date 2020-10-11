@@ -6,8 +6,7 @@
  */
 #pragma once
 /* C++ Standard library includes */
-#include <queue>
-#include <stack>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -34,7 +33,8 @@
 #include <gazebo/transport/transport.hh>
 
 struct RSSI
-{
+{ 
+  unsigned int id;
   double antenna_1; /* Value measured on antenna 1*/
   double antenna_2; /* Value measured on antenna 2*/
   std::string name; /* Name of the transmitter quadrotor */
@@ -209,6 +209,7 @@ private:
     position_sampler_, random_sampler_;
   unsigned int id_;  /* Quadrotor id */
   std::string name_; /* Quadrotor name */
+  int num_neighbors_; /* Number of neighbors*/
   /* Quadrotor label (Given by the user, leader, follower, etc)*/
   std::string label_;
 
