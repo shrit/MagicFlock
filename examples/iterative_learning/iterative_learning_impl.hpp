@@ -18,7 +18,6 @@ void
 Iterative_learning<QuadrotorType>::generate_trajectory_using_model()
 {
   std::vector<std::thread> threads;
-  double max_speed = 2;
 
   for (auto&& i : quadrotors_) {
     AnnActionPredictor<QuadrotorType> predict(
@@ -31,7 +30,7 @@ Iterative_learning<QuadrotorType>::generate_trajectory_using_model()
   for (auto&& it : quadrotors_) {
     threads.push_back(std::thread([&]() {
       swarm_.one_quad_execute_trajectory(
-        it.id(), it.current_action(), max_speed);
+        it.id(), it.current_action());
     }));
   }
 
@@ -82,8 +81,8 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
       for (auto&& it : quadrotors_) {
         it.save_position(std::to_string(episode_));
       }
-      double maxD = max_distance_.check_distance(quadrotors_);
-      double minD = min_distance_.check_distance(quadrotors_);
+      double maxD = max_distance_.check_global_distance(quadrotors_);
+      double minD = min_distance_.check_global_distance(quadrotors_);
 
       quadrotors_.at(0).save_values("distance_metric", maxD, minD);
     }

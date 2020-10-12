@@ -20,6 +20,7 @@
 #include <IL4MRC/actions/continuous_actions.hpp>
 #include <IL4MRC/controller/px4_device.hpp>
 #include <IL4MRC/controller/quadrotor.hpp>
+#include <IL4MRC/dists/gaussian_noise.hpp>
 #include <IL4MRC/metrics/exponential_moving_average.hpp>
 #include <IL4MRC/simulator/gazebo.hpp>
 #include <IL4MRC/third_party/CLI11.hpp>
@@ -51,12 +52,14 @@ main(int argc, char* argv[])
 
   CLI11_PARSE(app, argc, argv);
 
- if (verbose) {
+  if (verbose) {
     spdlog::set_level(spdlog::level::debug);
   }
 
-  using QuadrotorType =
-    Quadrotor<Px4Device, ExpoMovingAverage<arma::colvec>, ContinuousActions>;
+  using QuadrotorType = Quadrotor<Px4Device,
+                                  ExpoMovingAverage<arma::colvec>,
+                                  GaussianNoise<arma::colvec>,
+                                  ContinuousActions>;
 
   /*  Create a vector of quadrotors, each one has an id + a label  */
   std::vector<QuadrotorType> quadrotors;
@@ -95,6 +98,6 @@ main(int argc, char* argv[])
 
   /*  Test the trained model and improve it  */
   Iterative_learning<QuadrotorType> ilearning(quadrotors, logger);
-  ilearning.run([&](){ gz.ResetModels(); });
+  ilearning.run([&]() { gz.ResetModels(); });
   return 0;
 }
