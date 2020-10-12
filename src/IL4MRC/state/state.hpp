@@ -11,7 +11,7 @@
 /*  Local includes */
 #include <IL4MRC/util/arma_helper.hpp>
 
-template<class FilterType, class ContainerType>
+template<class FilterType, class NoiseType, class ContainerType>
 class State
 {
 
@@ -23,10 +23,7 @@ public:
   State(unsigned int id,
         int num_neighbors,
         const ContainerType& container,
-        FilterType noise);
-
-  State(unsigned int id,
-        const ContainerType& container);
+        FilterType filter);
 
   arma::colvec Data() const;
 
@@ -37,7 +34,7 @@ public:
   arma::colvec& RSSI();
 
   arma::colvec TOAs() const;
-  
+
   arma::colvec& TOAs();
 
   const arma::colvec& Encode() const;
@@ -49,7 +46,7 @@ private:
   int num_neighbors_;
   ArmaHelper arma;
   arma::colvec data_;
-  arma::colvec rssi_data_;  
+  arma::colvec rssi_data_;
   arma::colvec toa_data_;
 };
 

@@ -1,24 +1,25 @@
 #pragma once
 
-template<class FilterType, class ContainerType>
-State<FilterType, ContainerType>::State()
+template<class FilterType, class NoiseType, class ContainerType>
+State<FilterType, NoiseType, ContainerType>::State()
   : data_(dimension, arma::fill::zeros)
 {
   /* Nothing to do here. */
 }
 
-template<class FilterType, class ContainerType>
-State<FilterType, ContainerType>::State(const arma::colvec& data)
+template<class FilterType, class NoiseType, class ContainerType>
+State<FilterType, NoiseType, ContainerType>::State(const arma::colvec& data)
   : data_(data)
 {
   /* Nothing to do here. */
 }
 
-template<class FilterType, class ContainerType>
-State<FilterType, ContainerType>::State(unsigned int id,
-                                        int num_neighbors,
-                                        const ContainerType& container,
-                                        FilterType filter)
+template<class FilterType, class NoiseType, class ContainerType>
+State<FilterType, NoiseType, ContainerType>::State(
+  unsigned int id,
+  int num_neighbors,
+  const ContainerType& container,
+  FilterType filter)
   : id_(id)
   , num_neighbors_(num_neighbors)
   , data_(num_neighbors_ * 2, arma::fill::zeros)
@@ -37,65 +38,69 @@ State<FilterType, ContainerType>::State(unsigned int id,
 
   data_ = arma.vec_to_arma(data);
   data_.replace(0, -110);
-
+  NoiseType noise;
+  noise.mean() = 0;
+  noise.standard_deviation() = 6;
   ILMR::logger::logger_->debug("Data before filtering:  {}", data_);
   data_ = filter.input(data_);
+  data_ = noise.apply_noise(data_);
   ILMR::logger::logger_->debug("Data after filtering:  {}", data_);
 }
 
-template<class FilterType, class ContainerType>
+template<class FilterType, class NoiseType, class ContainerType>
 arma::colvec
-State<FilterType, ContainerType>::Data() const
+State<FilterType, NoiseType, ContainerType>::Data() const
 {
   Encode();
   return data_;
 }
 
-template<class FilterType, class ContainerType>
+template<class FilterType, class NoiseType, class ContainerType>
 arma::colvec&
-State<FilterType, ContainerType>::Data()
+State<FilterType, NoiseType, ContainerType>::Data()
 {
   return data_;
 }
 
-template<class FilterType, class ContainerType>
+template<class FilterType, class NoiseType, class ContainerType>
 arma::colvec
-State<FilterType, ContainerType>::RSSI() const
+State<FilterType, NoiseType, ContainerType>::RSSI() const
 {
   return rssi_data_;
 }
 
-template<class FilterType, class ContainerType>
+template<class FilterType, class NoiseType, class ContainerType>
 arma::colvec&
-State<FilterType, ContainerType>::RSSI()
+State<FilterType, NoiseType, ContainerType>::RSSI()
 {
   return rssi_data_;
 }
 
-template<class FilterType, class ContainerType>
+template<class FilterType, class NoiseType, class ContainerType>
 arma::colvec
-State<FilterType, ContainerType>::TOAs() const
+State<FilterType, NoiseType, ContainerType>::TOAs() const
 {
   return toa_data_;
 }
 
-template<class FilterType, class ContainerType>
+template<class FilterType, class NoiseType, class ContainerType>
 arma::colvec&
-State<FilterType, ContainerType>::TOAs()
+State<FilterType, NoiseType, ContainerType>::TOAs()
 {
   return toa_data_;
 }
 
-template<class FilterType, class ContainerType>
+template<class FilterType, class NoiseType, class ContainerType>
 const arma::colvec&
-State<FilterType, ContainerType>::Encode() const
+State<FilterType, NoiseType, ContainerType>::Encode() const
 {
   data_ = arma::join_cols(rssi_data_, toa_data_);
 }
 
-template<class FilterType, class ContainerType>
+template<class FilterType, class NoiseType, class ContainerType>
 inline std::ostream&
-operator<<(std::ostream& out, const State<FilterType, ContainerType>& s)
+operator<<(std::ostream& out,
+           const State<FilterType, NoiseType, ContainerType>& s)
 {
   out << s.RSSI() << "," << s.TOAs();
   return out;
