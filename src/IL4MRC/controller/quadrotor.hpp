@@ -14,12 +14,12 @@
 #include <IL4MRC/actions/continuous_actions.hpp>
 #include <IL4MRC/actions/discret_actions.hpp>
 #include <IL4MRC/data/dataset.hpp>
-#include <IL4MRC/swarm_model/flocking/flocking.hpp>
-#include <IL4MRC/swarm_model/random/random.hpp>
 #include <IL4MRC/metrics/exponential_moving_average.hpp>
 #include <IL4MRC/metrics/histogram.hpp>
 #include <IL4MRC/neighbors/nearest_neighbors.hpp>
 #include <IL4MRC/state/state.hpp>
+#include <IL4MRC/swarm_model/flocking/flocking.hpp>
+#include <IL4MRC/swarm_model/random/random.hpp>
 #include <IL4MRC/util/Vector.hpp>
 #include <IL4MRC/util/real_time_samples.hpp>
 
@@ -33,17 +33,20 @@
 #include <gazebo/transport/transport.hh>
 
 struct RSSI
-{ 
+{
   unsigned int id;
   double antenna_1; /* Value measured on antenna 1*/
   double antenna_2; /* Value measured on antenna 2*/
   std::string name; /* Name of the transmitter quadrotor */
 };
 
-template<class flight_controller_t, class FilterType, class ActionType>
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class ActionType>
 class Quadrotor
   : public std::enable_shared_from_this<
-      Quadrotor<flight_controller_t, FilterType, ActionType>>
+      Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>>
 {
 
 public:
@@ -59,7 +62,9 @@ public:
     std::string name,
     std::string label,
     int number_of_quad,
-    std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>>& quads);
+    std::vector<
+      Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>>&
+      quads);
   /* Quadrotor related functions*/
   unsigned int id() const;
   std::string name() const;
@@ -78,7 +83,9 @@ public:
   /* Neighbors related fuctions*/
   std::vector<unsigned int> nearest_neighbors() const;
   void start_nearest_neighbor_detector(
-    std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>>& quads);
+    std::vector<
+      Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>>&
+      quads);
   void stop_nearest_neighbor_detector();
   double distance_to(int id);
   std::vector<double> distances_to_neighbors();
@@ -99,20 +106,26 @@ public:
   std::vector<ignition::math::Vector3d>& neighbor_positions();
   std::vector<ignition::math::Vector3d> neighbor_positions() const;
   void start_position_sampler(
-    std::vector<Quadrotor<flight_controller_t, FilterType, ActionType>>& quads);
+    std::vector<
+      Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>>&
+      quads);
   void stop_position_sampler();
 
   /*  State related functions */
   void sample_state();
-  State<FilterType, std::vector<RSSI>> current_state() const;
-  State<FilterType, std::vector<RSSI>>& current_predicted_state();
-  State<FilterType, std::vector<RSSI>> current_predicted_state() const;
-  State<FilterType, std::vector<RSSI>>& current_predicted_enhanced_state();
-  State<FilterType, std::vector<RSSI>> current_predicted_enhanced_state() const;
-  State<FilterType, std::vector<RSSI>> last_state();
-  State<FilterType, std::vector<RSSI>> before_last_state();
-  State<FilterType, std::vector<RSSI>> before_2_last_state();
-  std::vector<State<FilterType, std::vector<RSSI>>> all_states() const;
+  State<FilterType, NoiseType, std::vector<RSSI>> current_state() const;
+  State<FilterType, NoiseType, std::vector<RSSI>>& current_predicted_state();
+  State<FilterType, NoiseType, std::vector<RSSI>> current_predicted_state()
+    const;
+  State<FilterType, NoiseType, std::vector<RSSI>>&
+  current_predicted_enhanced_state();
+  State<FilterType, NoiseType, std::vector<RSSI>>
+  current_predicted_enhanced_state() const;
+  State<FilterType, NoiseType, std::vector<RSSI>> last_state();
+  State<FilterType, NoiseType, std::vector<RSSI>> before_last_state();
+  State<FilterType, NoiseType, std::vector<RSSI>> before_2_last_state();
+  std::vector<State<FilterType, NoiseType, std::vector<RSSI>>> all_states()
+    const;
   void reset_all_states();
   void start_sampling_rt_state(int interval);
   void stop_sampling_rt_state();
@@ -188,13 +201,14 @@ private:
   Histogram histo_;
   DataSet dataset_;
   arma::vec loss_vector_;
-  State<FilterType, std::vector<RSSI>> current_predicted_state_;
-  State<FilterType, std::vector<RSSI>> current_predicted_enhanced_state_;
-  State<FilterType, std::vector<RSSI>> current_state_;
-  State<FilterType, std::vector<RSSI>> last_state_;
-  State<FilterType, std::vector<RSSI>> before_last_state_;
-  State<FilterType, std::vector<RSSI>> before_2_last_state_;
-  std::vector<State<FilterType, std::vector<RSSI>>> all_states_;
+  State<FilterType, NoiseType, std::vector<RSSI>> current_predicted_state_;
+  State<FilterType, NoiseType, std::vector<RSSI>>
+    current_predicted_enhanced_state_;
+  State<FilterType, NoiseType, std::vector<RSSI>> current_state_;
+  State<FilterType, NoiseType, std::vector<RSSI>> last_state_;
+  State<FilterType, NoiseType, std::vector<RSSI>> before_last_state_;
+  State<FilterType, NoiseType, std::vector<RSSI>> before_2_last_state_;
+  std::vector<State<FilterType, NoiseType, std::vector<RSSI>>> all_states_;
 
   mutable std::mutex _position_sampler_mutex{};
   mutable std::mutex _flocking_mutex{};
@@ -207,8 +221,8 @@ private:
   mutable std::mutex _sample_state_mutex{};
   RTSamples state_sampler_, neighbor_sampler_, flocking_sampler_,
     position_sampler_, random_sampler_;
-  unsigned int id_;  /* Quadrotor id */
-  std::string name_; /* Quadrotor name */
+  unsigned int id_;   /* Quadrotor id */
+  std::string name_;  /* Quadrotor name */
   int num_neighbors_; /* Number of neighbors*/
   /* Quadrotor label (Given by the user, leader, follower, etc)*/
   std::string label_;
