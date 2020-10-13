@@ -16,6 +16,8 @@
 #include <IL4MRC/data/dataset.hpp>
 #include <IL4MRC/metrics/exponential_moving_average.hpp>
 #include <IL4MRC/metrics/histogram.hpp>
+#include <IL4MRC/metrics/max_distance.hpp>
+#include <IL4MRC/metrics/min_distance.hpp>
 #include <IL4MRC/neighbors/nearest_neighbors.hpp>
 #include <IL4MRC/state/state.hpp>
 #include <IL4MRC/swarm_model/flocking/flocking.hpp>
@@ -209,6 +211,11 @@ private:
   State<FilterType, NoiseType, std::vector<RSSI>> before_last_state_;
   State<FilterType, NoiseType, std::vector<RSSI>> before_2_last_state_;
   std::vector<State<FilterType, NoiseType, std::vector<RSSI>>> all_states_;
+
+  MaxDistance<Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>>
+    max_distance_;
+  MinDistance<Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>>
+    min_distance_;
 
   mutable std::mutex _position_sampler_mutex{};
   mutable std::mutex _flocking_mutex{};

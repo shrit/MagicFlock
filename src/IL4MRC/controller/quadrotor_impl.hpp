@@ -195,6 +195,8 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
   State<FilterType, NoiseType, std::vector<RSSI>> state(
     id_, num_neighbors_, rssi_from_neighbors(), filter_);
   current_state_ = state;
+  max_dist_ = max_distance_.check_local_distance(this);
+  min_dist_ = min_distance_.check_local_distance(this);
   save_dataset_rssi_velocity(); // just a temporary solution, it might be a good
                                 // one
   all_states_.push_back(state);
@@ -496,7 +498,9 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
   // see if it is possible to make current action generic
   dataset_.save_csv_dataset_2_file(name_,
                                    vec_.to_std_vector(current_state().Data()),
-                                   vec_.to_std_vector(current_action().Data()));
+                                   vec_.to_std_vector(current_action().Data()),
+                                   min_distance_,
+                                   max_distance_);
 }
 
 template<class flight_controller_t,
