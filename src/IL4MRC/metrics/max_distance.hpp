@@ -26,7 +26,7 @@ public:
       for (std::size_t i = 0; i < q.neighbor_positions().size(); ++i) {
         max_global_distance =
           q.position().Distance(q.neighbor_positions().at(i));
-        if (max_global_distance < max_global_distance_) {
+        if (max_global_distance > max_global_distance_) {
           max_global_distance_ = max_global_distance;
         }
       }
@@ -39,7 +39,7 @@ public:
     double max_local_distance;
     for (std::size_t i = 0; i < q.neighbor_positions().size(); ++i) {
       max_local_distance = q.position().Distance(q.neighbor_positions().at(i));
-      if (max_local_distance < max_local_distance_) {
+      if (max_local_distance > max_local_distance_) {
         max_local_distance_ = max_local_distance;
       }
     }
