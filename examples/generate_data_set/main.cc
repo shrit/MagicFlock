@@ -18,6 +18,7 @@
 /* ILMR library include  */
 #include <IL4MRC/actions/continuous_actions.hpp>
 #include <IL4MRC/controller/px4_device.hpp>
+#include <IL4MRC/dists/empty_noise.hpp>
 #include <IL4MRC/metrics/exponential_moving_average.hpp>
 #include <IL4MRC/simulator/gazebo.hpp>
 
@@ -61,7 +62,7 @@ main(int argc, char* argv[])
   }
 
   using QuadrotorType =
-    Quadrotor<Px4Device, ExpoMovingAverage<arma::colvec>, ContinuousActions>;
+    Quadrotor<Px4Device, ExpoMovingAverage<arma::colvec>, EmptyNoise<arma::colvec>, ContinuousActions>;
 
   /*  Create a vector of quadrotors, each one has an id + a label  */
   std::vector<QuadrotorType> quadrotors;

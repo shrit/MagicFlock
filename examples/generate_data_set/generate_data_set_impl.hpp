@@ -132,7 +132,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
           passed_time_ = passed_time;
           break;
         }
-        go_to_destination(2);
+        go_to_destination();
       }
 
       if (counter % 2 == 0) {
