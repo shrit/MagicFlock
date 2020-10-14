@@ -4,7 +4,6 @@
 #include <vector>
 
 #include <ignition/math6/ignition/math/Vector3.hh>
-
 #include <IL4MRC/util/Vector.hpp>
 
 using namespace ILMR;
@@ -26,9 +25,9 @@ public:
 
 private:
   double lower_threshold_ =
-    0.5; /*  0.5 meters minimum distance between quadrotors */
+    0.2; /*  0.5 meters minimum distance between quadrotors */
   double upper_threshold_ =
-    10; /*  10 meters maximum distance between quadrotors */
+    20; /*  20 meters maximum distance between quadrotors */
 
   VectorHelper vec_;
 };
