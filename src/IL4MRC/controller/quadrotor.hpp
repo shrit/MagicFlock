@@ -217,6 +217,8 @@ private:
   MinDistance<Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>>
     min_distance_;
 
+  double max_dist_, min_dist_;
+
   mutable std::mutex _position_sampler_mutex{};
   mutable std::mutex _flocking_mutex{};
   mutable std::mutex _random_mutex{};
