@@ -21,7 +21,8 @@ public:
 
   double check_global_distance(const std::vector<QuadrotorType>& quads)
   {
-    double max_global_distance;
+    double max_global_distance = std::numeric_limits<double>::min();
+    max_global_distance_ = std::numeric_limits<double>::min();
     for (auto&& q : quads) {
       for (std::size_t i = 0; i < q.neighbor_positions().size(); ++i) {
         max_global_distance =
@@ -36,7 +37,8 @@ public:
 
   double check_local_distance(const QuadrotorType& q)
   {
-    double max_local_distance;
+    double max_local_distance = std::numeric_limits<double>::min();
+    max_local_distance_ = std::numeric_limits<double>::min();
     for (std::size_t i = 0; i < q.neighbor_positions().size(); ++i) {
       max_local_distance = q.position().Distance(q.neighbor_positions().at(i));
       if (max_local_distance > max_local_distance_) {
