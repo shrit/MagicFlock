@@ -5,8 +5,7 @@ RandomModel::RandomModel(ignition::math::Vector4d axis_speed)
   , distribution_real_x_(-axis_speed.X(), axis_speed.X())
   , distribution_real_y_(-axis_speed.Y(), axis_speed.Y())
   , distribution_real_z_(-axis_speed.Z(), axis_speed.Z())
-
-, generator_(random_dev())
+  , generator_(random_dev())
   , velocity_(0, 0, 0)
 {
   // Nothing to do here
@@ -38,5 +37,5 @@ RandomModel::Velocity()
     velocity_.Y() = distribution_real_y_(generator_);
     velocity_.Z() = distribution_real_z_(generator_);
   }
-  return velocity_;  
+  return velocity_;
 }

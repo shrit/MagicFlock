@@ -1,4 +1,5 @@
 set(DIRS
+  collision_detector
   flocking
   random
 )

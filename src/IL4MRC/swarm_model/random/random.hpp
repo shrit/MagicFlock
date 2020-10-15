@@ -4,7 +4,6 @@
  * The velocity vector is fixed since the start of the
  * generation and then it changes next time you start this model
  *
- *
  * author: Omar Shrit <omar@shrit.me>
  *
  */
