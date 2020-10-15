@@ -78,7 +78,24 @@ template<class flight_controller_t,
          class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
-  start_random_model(int duration, ignition::math::Vector4d axis_speed)
+  start_collision_detector(int duration)
+{
+  std::lock_guard<std::mutex> lock(_collision_mutex);
+
+  collision_detector_sampler_.start(duration, [&]() {
+    CollisionDetector cd(position(), neighbor_positions(), current_action_);
+    current_action_.action() = cd.Velocity();
+    all_actions_.push_back(current_action_);
+  });
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class ActionType>
+void
+Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
+  start_random_model(ignition::math::Vector4d axis_speed)
 {
   std::lock_guard<std::mutex> lock(_random_mutex);
   RandomModel random(axis_speed);
@@ -95,6 +112,17 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
   stop_flocking_model()
 {
   flocking_sampler_.stop();
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class ActionType>
+void
+Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
+  stop_collision_detector()
+{
+  collision_detector_sampler_.stop();
 }
 
 template<class flight_controller_t,

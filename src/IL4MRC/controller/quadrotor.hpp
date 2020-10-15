@@ -22,6 +22,7 @@
 #include <IL4MRC/state/state.hpp>
 #include <IL4MRC/swarm_model/flocking/flocking.hpp>
 #include <IL4MRC/swarm_model/random/random.hpp>
+#include <IL4MRC/swarm_model/collision_detector/collision_detector.hpp>
 #include <IL4MRC/util/Vector.hpp>
 #include <IL4MRC/util/real_time_samples.hpp>
 
@@ -78,9 +79,11 @@ public:
   void start_flocking_model(ignition::math::Vector4d gains,
                             ignition::math::Vector3d destination,
                             ignition::math::Vector3d max_speed);
-  void start_random_model(int duration, ignition::math::Vector4d axis_speed);
+  void start_random_model(ignition::math::Vector4d axis_speed);
+  void start_collision_detector(int duration);
   void stop_flocking_model();
   void stop_random_model();
+  void stop_collision_detector();
 
   /* Neighbors related fuctions*/
   std::vector<unsigned int> nearest_neighbors() const;
@@ -222,6 +225,7 @@ private:
   mutable std::mutex _position_sampler_mutex{};
   mutable std::mutex _flocking_mutex{};
   mutable std::mutex _random_mutex{};
+  mutable std::mutex _collision_mutex{};
   mutable std::mutex _neighbor_positions_mutex{};
   std::vector<ignition::math::Vector3d> _neighbor_positions;
   mutable std::mutex _rssi_from_neighbors_mutex{};
@@ -229,7 +233,7 @@ private:
   std::vector<unsigned int> _nearest_neighbors;
   mutable std::mutex _sample_state_mutex{};
   RTSamples state_sampler_, neighbor_sampler_, flocking_sampler_,
-    position_sampler_, random_sampler_;
+    position_sampler_, collision_detector_sampler_;
   unsigned int id_;   /* Quadrotor id */
   std::string name_;  /* Quadrotor name */
   int num_neighbors_; /* Number of neighbors*/
