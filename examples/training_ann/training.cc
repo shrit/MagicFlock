@@ -33,6 +33,7 @@ Train::regression()
 
   Timer timer;
   logger_->info("Starting.....");
+  ens::StoreBestCoordinates<arma::mat> bestCoordinates;
 
   timer.start();
   model.Train(dataset_.train_features(),
@@ -45,7 +46,8 @@ Train::regression()
                   return model.Evaluate(dataset_.test_features(),
                                         dataset_.test_labels());
                 },
-                10));
+                10),
+              bestCoordinates);
 
   double elapsed_time = timer.stop();
   logger_->info("Training time: {}", elapsed_time, "seconds");
@@ -55,6 +57,8 @@ Train::regression()
   logger_->info(
     "Training loss: {}",
     model.Evaluate(dataset_.train_features(), dataset_.train_labels()));
+
+  model.Parameters() = bestCoordinates.BestCoordinates();
   dataset_.save_model(model, "model");
 }
 

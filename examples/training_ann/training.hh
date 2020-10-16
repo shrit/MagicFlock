@@ -8,9 +8,9 @@
 #include <mlpack/methods/ann/layer/layer.hpp>
 #include <mlpack/methods/ann/loss_functions/mean_squared_error.hpp>
 
-#include <ILMR/dataset.hh>
-#include <ILMR/logger.hh>
-#include <ILMR/time.hh>
+#include <IL4MRC/data/dataset.hpp>
+#include <IL4MRC/util/logger.hpp>
+#include <IL4MRC/util/time.hpp>
 
 class Train
 {
