@@ -48,9 +48,10 @@ CheckShape<QuadrotorType>::is_good_shape(
       ILMR::logger::logger_->debug("Distance to neigh: {}", distance);
       if ((distance < lower_threshold_) or (distance > upper_threshold_)) {
         good_shape = false;
-        break;
+        goto final;
       }
     }
   }
+final:
   return good_shape;
 }
