@@ -83,9 +83,9 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
   std::lock_guard<std::mutex> lock(_collision_mutex);
 
   collision_detector_sampler_.start(duration, [&]() {
-    CollisionDetector cd(position(), neighbor_positions(), current_action_);
-    current_action_.action() = cd.Velocity();
-    all_actions_.push_back(current_action_);
+    CollisionDetector cd(position(), neighbor_positions(), last_action());
+    if (min_dist_ < 0.5)
+      current_action_.action() = cd.Velocity();
   });
 }
 
@@ -225,8 +225,10 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
   current_state_ = state;
   max_dist_ = max_distance_.check_local_distance(*this);
   min_dist_ = min_distance_.check_local_distance(*this);
-  save_dataset_rssi_velocity(); // just a temporary solution, it might be a good
-                                // one
+  arma::colvec check_double = current_state_.Data() - last_state().Data();
+  if (!check_double.is_zero())
+    save_dataset_rssi_velocity(); // just a temporary solution, it might be a
+                                  // good one
   all_states_.push_back(state);
 }
 
