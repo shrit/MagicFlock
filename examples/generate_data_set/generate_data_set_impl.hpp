@@ -92,7 +92,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     ignition::math::Vector4d gains{ 1, 7, 1, 100 };
     // This destination goes forward
     ignition::math::Vector3d destination{ 163, 0, 20 };
-    ignition::math::Vector3d max_speed{ 2, 2, 0.2 };
+    ignition::math::Vector3d max_speed{ 2, 2, 0.09 };
     //! This destination goes backward
     // ignition::math::Vector3d destination{ -163, 0, 20 };
 
@@ -111,17 +111,17 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
           it.start_flocking_model(gains, destination, max_speed);
         }
         for (auto&& it : quadrotors_) {
-          logger_->info("Start the collision detector");
-          it.start_collision_detector(50);
-        }
-        for (auto&& it : quadrotors_) {
           it.start_sampling_rt_state(50);
         }
       } else {
         for (auto&& it : quadrotors_) {
           logger_->info("Start the random model");
-          ignition::math::Vector4d axis_speed{ 0.5, 0.5, 0.1, 4 };
+          ignition::math::Vector4d axis_speed{ 0.35, 0.35, 0.15, 4 };
           it.start_random_model(axis_speed);
+        }
+        for (auto&& it : quadrotors_) {
+          logger_->info("Start the collision detector");
+          it.start_collision_detector(100);
         }
       }
 
@@ -145,12 +145,13 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
         for (auto&& it : quadrotors_) {
           it.stop_sampling_rt_state();
         }
-      }
-      for (auto&& it : quadrotors_) {
-        it.stop_collision_detector();
+      } else {
+        for (auto&& it : quadrotors_) {
+          it.stop_collision_detector();
+        }
       }
 
-      bool shape = swarm_.examin_swarm_shape();
+      bool shape = swarm_.examin_swarm_shape(0.5, 10);
       bool has_arrived = swarm_.examin_destination(destination);
 
       if (!shape) {
