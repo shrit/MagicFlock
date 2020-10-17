@@ -41,7 +41,7 @@ Train::regression()
               optimizer,
               ens::PrintLoss(),
               ens::ProgressBar(),
-              ens::EarlyStopAtMinLoss<arma::mat>(
+              ens::EarlyStopAtMinLoss(
                 [&](const arma::mat& /*param*/) {
                   return model.Evaluate(dataset_.test_features(),
                                         dataset_.test_labels());
