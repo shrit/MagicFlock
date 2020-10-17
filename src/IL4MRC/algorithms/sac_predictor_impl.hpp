@@ -12,7 +12,7 @@ SACPredictor<EnvironmentType,
              PolicyType,
              QuadrotorType,
              ReplayType>::SACPredictor(QuadrotorType& quad)
-  : replayMethod_(32, 10000)
+  : replayMethod_(32, 10000, 1, 12)
   , quadrotor_(quad)
   , policyNetwork_(mlpack::ann::EmptyLoss<>(),
                    mlpack::ann::GaussianInitialization(0, 0.1))
@@ -37,8 +37,10 @@ SACPredictor<EnvironmentType,
              ReplayType>::SacNetwork()
 {
   // Set up the actor and critic networks.
+  mlpack::rl::ContinuousActionEnv::State::dimension = 12;
+  mlpack::rl::ContinuousActionEnv::Action::size = 3;
 
-  policyNetwork_.Add<mlpack::ann::Linear<>>(14, 200);
+  policyNetwork_.Add<mlpack::ann::Linear<>>(12, 200);
   policyNetwork_.Add<mlpack::ann::ReLULayer<>>();
   policyNetwork_.Add<mlpack::ann::Linear<>>(200, 200);
   policyNetwork_.Add<mlpack::ann::ReLULayer<>>();
@@ -50,7 +52,7 @@ SACPredictor<EnvironmentType,
   policyNetwork_.Add<mlpack::ann::TanHLayer<>>();
   policyNetwork_.ResetParameters();
 
-  qNetwork_.Add<mlpack::ann::Linear<>>(14 + 3, 200);
+  qNetwork_.Add<mlpack::ann::Linear<>>(12 + 3, 200);
   qNetwork_.Add<mlpack::ann::ReLULayer<>>();
   qNetwork_.Add<mlpack::ann::Linear<>>(200, 200);
   qNetwork_.Add<mlpack::ann::ReLULayer<>>();
@@ -91,7 +93,7 @@ SACPredictor<EnvironmentType,
         std::function<bool()> examine_environment)
 {
   // Set up the state and action space.
-  mlpack::rl::ContinuousActionEnv::State::dimension = 14;
+  mlpack::rl::ContinuousActionEnv::State::dimension = 12;
   mlpack::rl::ContinuousActionEnv::Action::size = 3;
   logger::logger_->info("Training for: {}", numSteps, " steps.");
   while (agent_->TotalSteps() < numSteps) {
@@ -117,6 +119,7 @@ SACPredictor<EnvironmentType,
       double reward = evaluate_reward();
       logger::logger_->info("Print reward value", reward);
       isTerminal = examine_environment();
+
       replayMethod_.Store(
         agent_->State(), agent_->Action(), reward, nextState, isTerminal, 0.99);
       episodeReturn_ += reward;
