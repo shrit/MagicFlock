@@ -75,7 +75,7 @@ ResetPlugin::RandomPoseGenerator(int quad_number)
     ignition::math::Vector3d quadRegion;
     quadRegion.X() = distribution_real_(generator_);
     quadRegion.Y() = distribution_real_(generator_);
-    quadRegion.Z() = 0;
+    quadRegion.Z() = 5;
     std::vector<bool> overlapping(quad_number, false);
     for (int j = 0; j < i; ++j) {
       double d = quadRegion.Distance(RandomPosition.at(j));
