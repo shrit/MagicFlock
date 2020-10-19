@@ -1,6 +1,7 @@
 set(SOURCES
   state.hpp
   state_impl.hpp
+  state_types.hpp
 )
 
 set(DIR_SRCS)

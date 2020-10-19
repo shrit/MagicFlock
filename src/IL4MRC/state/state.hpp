@@ -7,11 +7,14 @@
  */
 
 #include <memory>
+#include <type_traits>
 
 /*  Local includes */
 #include <IL4MRC/util/arma_helper.hpp>
 
-template<class FilterType, class NoiseType, class ContainerType>
+#include "state_types.hpp"
+
+template<class FilterType, class NoiseType, class StateType, class ContainerType>
 class State
 {
 
@@ -39,7 +42,7 @@ public:
 
   const arma::colvec& Encode() const;
 
-  static constexpr size_t dimension = 3;
+  static constexpr size_t dimension =12;
 
 private:
   unsigned int id_;
