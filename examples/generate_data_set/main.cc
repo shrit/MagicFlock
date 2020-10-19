@@ -49,7 +49,6 @@ main(int argc, char* argv[])
                  " Number of quadrotor to create inside the simulator.");
   app.add_flag("-v, --verbose", verbose, " Make the output more verbose");
 
-  //CLI11_PARSE(app, argc, argv);
   try {
     app.parse(argc, argv);
   } catch (const CLI::ArgumentMismatch& e) {
@@ -61,8 +60,11 @@ main(int argc, char* argv[])
     spdlog::set_level(spdlog::level::debug);
   }
 
-  using QuadrotorType =
-    Quadrotor<Px4Device, ExpoMovingAverage<arma::colvec>, EmptyNoise<arma::colvec>, ContinuousActions>;
+  using QuadrotorType = Quadrotor<Px4Device,
+                                  ExpoMovingAverage<arma::colvec>,
+                                  EmptyNoise<arma::colvec>,
+                                  AntennaDists,
+                                  ContinuousActions>;
 
   /*  Create a vector of quadrotors, each one has an id + a label  */
   std::vector<QuadrotorType> quadrotors;
