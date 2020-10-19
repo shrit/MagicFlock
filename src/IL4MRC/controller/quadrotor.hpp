@@ -20,9 +20,9 @@
 #include <IL4MRC/metrics/min_distance.hpp>
 #include <IL4MRC/neighbors/nearest_neighbors.hpp>
 #include <IL4MRC/state/state.hpp>
+#include <IL4MRC/swarm_model/collision_detector/collision_detector.hpp>
 #include <IL4MRC/swarm_model/flocking/flocking.hpp>
 #include <IL4MRC/swarm_model/random/random.hpp>
-#include <IL4MRC/swarm_model/collision_detector/collision_detector.hpp>
 #include <IL4MRC/util/Vector.hpp>
 #include <IL4MRC/util/real_time_samples.hpp>
 
@@ -41,6 +41,12 @@ struct RSSI
   double antenna_1; /* Value measured on antenna 1*/
   double antenna_2; /* Value measured on antenna 2*/
   std::string name; /* Name of the transmitter quadrotor */
+};
+
+struct AntennaDists
+{
+  double dist_antenna_1;
+  double dist_antenna_2;
 };
 
 template<class flight_controller_t,
@@ -68,6 +74,7 @@ public:
     std::vector<
       Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>>&
       quads);
+
   /* Quadrotor related functions*/
   unsigned int id() const;
   std::string name() const;
@@ -85,17 +92,14 @@ public:
   void stop_random_model();
   void stop_collision_detector();
 
-  /* Neighbors related fuctions*/
-  std::vector<unsigned int> nearest_neighbors() const;
-  void start_nearest_neighbor_detector(
-    std::vector<
-      Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>>&
-      quads);
-  void stop_nearest_neighbor_detector();
+  /* distance to neighbors related fuctions*/
   double distance_to(int id);
   std::vector<double> distances_to_neighbors();
+  void calculate_distances_to_neighbors_antenna();
   std::vector<RSSI> rssi_from_neighbors() const;
   std::vector<RSSI>& rssi_from_neighbors();
+  std::vector<AntennaDists> neigh_antenna_dists_container() const;
+  std::vector<AntennaDists>& neigh_antenna_dists_container();
 
   /* Position related functions */
   ignition::math::Vector3d position() const;
@@ -110,6 +114,8 @@ public:
   ignition::math::Quaternion<double>& orientation();
   std::vector<ignition::math::Vector3d>& neighbor_positions();
   std::vector<ignition::math::Vector3d> neighbor_positions() const;
+  std::vector<ignition::math::Vector3d>& neighbor_antenna_positions();
+  std::vector<ignition::math::Vector3d> neighbor_antenna_positions() const;
   void start_position_sampler(
     std::vector<
       Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>>&
@@ -162,14 +168,10 @@ public:
   void save_dataset_with_current_enhanced_predictions();
   /* Save dataset as state action (s_t-1,a_t-1,s_t,a_t,s_t+1) */
   void save_dataset_with_loss();
-  /* Save episode number */
-  void save_episodes(int n_episode);
+
   void save_histogram(int count);
-  template<typename Arg, typename... Args>
-  void save_loss(Arg arg, Args... args);
   void save_state();
-  void save_actions_evaluation(DiscretActions::Action first_action,
-                               DiscretActions::Action second_action);
+
   template<typename Arg, typename... Args>
   void save_values(std::string name, Arg value, Args... values);
   void save_position(std::string iteration);
@@ -198,14 +200,16 @@ private:
   ActionType last_action_;
   ActionType before_last_action_;
   ActionType before_2_last_action_;
-
   std::vector<ActionType> all_actions_;
   std::vector<ActionType> action_container_;
+
   std::vector<SubPtr> subs_;
   VectorHelper vec_;
   Histogram histo_;
   DataSet dataset_;
   arma::vec loss_vector_;
+
+  /* State related data member*/
   State<FilterType, NoiseType, std::vector<RSSI>> current_predicted_state_;
   State<FilterType, NoiseType, std::vector<RSSI>>
     current_predicted_enhanced_state_;
@@ -215,48 +219,53 @@ private:
   State<FilterType, NoiseType, std::vector<RSSI>> before_2_last_state_;
   std::vector<State<FilterType, NoiseType, std::vector<RSSI>>> all_states_;
 
+  /* Metrics related data members*/
   MaxDistance<Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>>
     max_distance_;
   MinDistance<Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>>
     min_distance_;
-
   double max_dist_, min_dist_;
 
+  /* Mutex related data member*/
   mutable std::mutex _position_sampler_mutex{};
   mutable std::mutex _flocking_mutex{};
   mutable std::mutex _random_mutex{};
   mutable std::mutex _collision_mutex{};
   mutable std::mutex _neighbor_positions_mutex{};
-  std::vector<ignition::math::Vector3d> _neighbor_positions;
+  mutable std::mutex _neighbor_antenna_positions_mutex{};
+  mutable std::mutex _neigh_antenna_dists_container_mutex{};
   mutable std::mutex _rssi_from_neighbors_mutex{};
-  std::vector<RSSI> _rssi_from_neighbors;
-  std::vector<unsigned int> _nearest_neighbors;
   mutable std::mutex _sample_state_mutex{};
-  RTSamples state_sampler_, neighbor_sampler_, flocking_sampler_,
-    position_sampler_, collision_detector_sampler_;
+  mutable std::mutex _wr_1_position_mutex{};
+  mutable std::mutex _wr_2_position_mutex{};
+  mutable std::mutex _wt_position_mutex{};
+  mutable std::mutex _orientation_mutex{};
+  mutable std::mutex _position_mutex{};
+  mutable std::mutex _rx_1_mutex{};
+  mutable std::mutex _rx_2_mutex{};
+
+  /* Sampler related data member*/
+  RTSamples state_sampler_, flocking_sampler_, position_sampler_,
+    collision_detector_sampler_;
+
   unsigned int id_;   /* Quadrotor id */
   std::string name_;  /* Quadrotor name */
   int num_neighbors_; /* Number of neighbors*/
   /* Quadrotor label (Given by the user, leader, follower, etc)*/
   std::string label_;
-
-  mutable std::mutex _position_mutex{};
-  ignition::math::Vector3d _position;
-
-  mutable std::mutex _wr_1_position_mutex{};
-  ignition::math::Vector3d _wr_1_position;
-
-  mutable std::mutex _wr_2_position_mutex{};
-  ignition::math::Vector3d _wr_2_position;
-
-  mutable std::mutex _wt_position_mutex{};
-  ignition::math::Vector3d _wt_position;
-
-  mutable std::mutex _orientation_mutex{};
-  ignition::math::Quaternion<double> _orientation;
-  mutable std::mutex _rx_1_mutex{};
-  mutable std::mutex _rx_2_mutex{};
   std::string port_number_;
+
+  /* Position related data member */
+  std::vector<ignition::math::Vector3d> _neighbor_positions;
+  std::vector<ignition::math::Vector3d> _neighbor_antenna_positions;
+  std::vector<AntennaDists> _neigh_antenna_dists_container;
+  std::vector<RSSI> _rssi_from_neighbors;
+  ignition::math::Vector3d _position;
+  ignition::math::Vector3d _wr_1_position;
+  ignition::math::Vector3d _wr_2_position;
+  ignition::math::Vector3d _wt_position;
+  ignition::math::Quaternion<double> _orientation;
+
   FilterType filter_;
 };
 

@@ -31,6 +31,7 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::init(
   rssi_from_neighbors().resize(number_of_quad); // Max number of quad -1
   // Max number -1, dont count my position
   neighbor_positions().resize(num_neighbors_);
+  neighbor_antenna_positions().resize(num_neighbors_);
   arma::colvec initial_value(neighbor_positions().size() * 2);
   initial_value.fill(-50);
   filter_.initial_value() = initial_value;
@@ -39,6 +40,57 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::init(
     Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>>& quad_ =
     quad;
   start_position_sampler(quad_);
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class ActionType>
+unsigned int
+Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::id() const
+{
+  return id_;
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class ActionType>
+std::string
+Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::name() const
+{
+  return name_;
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class ActionType>
+double
+Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::height()
+{
+  return position().Z();
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class ActionType>
+std::string
+Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::port_number()
+  const
+{
+  return port_number_;
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class ActionType>
+std::string&
+Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::port_number()
+{
+  return port_number_;
 }
 
 template<class flight_controller_t,
@@ -129,26 +181,6 @@ template<class flight_controller_t,
          class FilterType,
          class NoiseType,
          class ActionType>
-unsigned int
-Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::id() const
-{
-  return id_;
-}
-
-template<class flight_controller_t,
-         class FilterType,
-         class NoiseType,
-         class ActionType>
-std::string
-Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::name() const
-{
-  return name_;
-}
-
-template<class flight_controller_t,
-         class FilterType,
-         class NoiseType,
-         class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
   start_position_sampler(
@@ -161,6 +193,10 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
     for (std::size_t i = 0; i < quads.size(); ++i) {
       if (id_ != quads.at(i).id()) {
         neighbor_positions().at(j) = quads.at(i).position();
+        neighbor_antenna_positions().at(i) =
+          quads.at(i).wr_1_antenna_position();
+        // Add two antennas here positions
+        // We need to sample the distance not only positions
         ++j;
       }
     }
@@ -176,17 +212,6 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
   stop_position_sampler()
 {
   position_sampler_.stop();
-}
-
-template<class flight_controller_t,
-         class FilterType,
-         class NoiseType,
-         class ActionType>
-std::vector<unsigned int>
-Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
-  nearest_neighbors() const
-{
-  return _nearest_neighbors;
 }
 
 template<class flight_controller_t,
@@ -226,6 +251,9 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
   max_dist_ = max_distance_.check_local_distance(*this);
   min_dist_ = min_distance_.check_local_distance(*this);
   arma::colvec check_double = current_state_.Data() - last_state().Data();
+  arma::colvec crapy_dataset = { -120, -120, -120, -120, -120, -120,
+                                 -120, -120, -120, -120, -120, -120 };
+  current_state_ = crapy_dataset;
   if (!check_double.is_zero())
     save_dataset_rssi_velocity(); // just a temporary solution, it might be a
                                   // good one
@@ -503,6 +531,7 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
                                    position().Y(),
                                    position().Z());
 }
+
 template<class flight_controller_t,
          class FilterType,
          class NoiseType,
@@ -607,19 +636,6 @@ template<class flight_controller_t,
          class FilterType,
          class NoiseType,
          class ActionType>
-template<typename Arg, typename... Args>
-void
-Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::save_loss(
-  Arg arg,
-  Args... args)
-{
-  dataset_.save_error_file(name_, arg, args...);
-}
-
-template<class flight_controller_t,
-         class FilterType,
-         class NoiseType,
-         class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
   save_histogram(int count)
@@ -631,43 +647,6 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
   dataset_.save_controller_count(count);
   histo_.histogram(count);
   dataset_.save_histogram(histo_.get_histogram<int>());
-}
-
-template<class flight_controller_t,
-         class FilterType,
-         class NoiseType,
-         class ActionType>
-void
-Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
-  save_actions_evaluation(DiscretActions::Action first_action,
-                          DiscretActions::Action second_action)
-{
-  if (first_action == second_action) {
-    dataset_.save_actions(name_, 1);
-  } else {
-    dataset_.save_actions(name_, -1);
-  }
-}
-
-template<class flight_controller_t,
-         class FilterType,
-         class NoiseType,
-         class ActionType>
-void
-Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
-  save_episodes(int n_episodes)
-{
-  dataset_.save_episodes(n_episodes);
-}
-
-template<class flight_controller_t,
-         class FilterType,
-         class NoiseType,
-         class ActionType>
-double
-Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::height()
-{
-  return position().Z();
 }
 
 template<class flight_controller_t,
@@ -715,6 +694,30 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
 {
   std::lock_guard<std::mutex> lock(_neighbor_positions_mutex);
   return _neighbor_positions;
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class ActionType>
+std::vector<ignition::math::Vector3d>
+Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
+  neighbor_antenna_positions() const
+{
+  std::lock_guard<std::mutex> lock(_neighbor_antenna_positions_mutex);
+  return _neighbor_antenna_positions;
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class ActionType>
+std::vector<ignition::math::Vector3d>&
+Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
+  neighbor_antenna_positions()
+{
+  std::lock_guard<std::mutex> lock(_neighbor_antenna_positions_mutex);
+  return _neighbor_antenna_positions;
 }
 
 template<class flight_controller_t,
@@ -840,6 +843,30 @@ template<class flight_controller_t,
          class FilterType,
          class NoiseType,
          class ActionType>
+std::vector<AntennaDists>
+Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
+  neigh_antenna_dists_container() const
+{
+  std::lock_guard<std::mutex> lock(_neigh_antenna_dists_container_mutex);
+  return _neigh_antenna_dists_container;
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class ActionType>
+std::vector<AntennaDists>&
+Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
+  neigh_antenna_dists_container()
+{
+  std::lock_guard<std::mutex> lock(_neigh_antenna_dists_container_mutex);
+  return _neigh_antenna_dists_container;
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class ActionType>
 std::vector<double>
 Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
   distances_to_neighbors()
@@ -849,6 +876,23 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
     distances.at(i) = position().Distance(neighbor_positions().at(i));
   }
   return distances;
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class ActionType>
+void
+Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
+  calculate_distances_to_neighbors_antenna()
+{
+  neigh_antenna_dists_container(neighbor_antenna_positions().size());
+  for (std::size_t i = 0; i < neighbor_antenna_positions().size(); ++i) {
+    neigh_antenna_dists_container().at(i).dist_antenna_1 =
+      wr_1_antenna_position().Distance(neighbor_antenna_positions().at(i));
+    neigh_antenna_dists_container().at(i).dist_antenna_2 =
+      wr_2_antenna_position().Distance(neighbor_antenna_positions().at(i));
+  }
 }
 
 template<class flight_controller_t,
@@ -898,27 +942,6 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::
   wireless_transmitter_topic_name()
 {
   return "/gazebo/default/" + name() + "/WT/Wireless Transmitter/transceiver";
-}
-
-template<class flight_controller_t,
-         class FilterType,
-         class NoiseType,
-         class ActionType>
-std::string
-Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::port_number()
-  const
-{
-  return port_number_;
-}
-
-template<class flight_controller_t,
-         class FilterType,
-         class NoiseType,
-         class ActionType>
-std::string&
-Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>::port_number()
-{
-  return port_number_;
 }
 
 template<class flight_controller_t,
