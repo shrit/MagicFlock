@@ -35,27 +35,17 @@
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/transport/transport.hh>
 
-struct RSSI
-{
-  unsigned int id;
-  double antenna_1; /* Value measured on antenna 1*/
-  double antenna_2; /* Value measured on antenna 2*/
-  std::string name; /* Name of the transmitter quadrotor */
-};
-
-struct AntennaDists
-{
-  double dist_antenna_1;
-  double dist_antenna_2;
-};
-
 template<class flight_controller_t,
          class FilterType,
          class NoiseType,
+         class StateType,
          class ActionType>
 class Quadrotor
-  : public std::enable_shared_from_this<
-      Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>>
+  : public std::enable_shared_from_this<Quadrotor<flight_controller_t,
+                                                  FilterType,
+                                                  NoiseType,
+                                                  StateType,
+                                                  ActionType>>
 {
 
 public:
@@ -66,14 +56,15 @@ public:
   using inner_flight_controller = flight_controller_t;
   using Action = ActionType;
 
-  void init(
-    unsigned int id,
-    std::string name,
-    std::string label,
-    int number_of_quad,
-    std::vector<
-      Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>>&
-      quads);
+  void init(unsigned int id,
+            std::string name,
+            std::string label,
+            int number_of_quad,
+            std::vector<Quadrotor<flight_controller_t,
+                                  FilterType,
+                                  NoiseType,
+                                  StateType,
+                                  ActionType>>& quads);
 
   /* Quadrotor related functions*/
   unsigned int id() const;
@@ -96,8 +87,8 @@ public:
   double distance_to(int id);
   std::vector<double> distances_to_neighbors();
   void calculate_distances_to_neighbors_antenna();
-  std::vector<RSSI> rssi_from_neighbors() const;
-  std::vector<RSSI>& rssi_from_neighbors();
+  std::vector<StateType> rssi_from_neighbors() const;
+  std::vector<StateType>& rssi_from_neighbors();
   std::vector<AntennaDists> neigh_antenna_dists_container() const;
   std::vector<AntennaDists>& neigh_antenna_dists_container();
 
@@ -116,27 +107,32 @@ public:
   std::vector<ignition::math::Vector3d> neighbor_positions() const;
   std::vector<ignition::math::Vector3d>& neighbor_antenna_positions();
   std::vector<ignition::math::Vector3d> neighbor_antenna_positions() const;
-  void start_position_sampler(
-    std::vector<
-      Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>>&
-      quads);
+  void start_position_sampler(std::vector<Quadrotor<flight_controller_t,
+                                                    FilterType,
+                                                    NoiseType,
+                                                    StateType,
+                                                    ActionType>>& quads);
   void stop_position_sampler();
 
   /*  State related functions */
   void sample_state();
-  State<FilterType, NoiseType, std::vector<RSSI>> current_state() const;
-  State<FilterType, NoiseType, std::vector<RSSI>>& current_predicted_state();
-  State<FilterType, NoiseType, std::vector<RSSI>> current_predicted_state()
+  State<FilterType, NoiseType, StateType, std::vector<StateType>> current_state()
     const;
-  State<FilterType, NoiseType, std::vector<RSSI>>&
+  State<FilterType, NoiseType, StateType, std::vector<StateType>>&
+  current_predicted_state();
+  State<FilterType, NoiseType, StateType, std::vector<StateType>>
+  current_predicted_state() const;
+  State<FilterType, NoiseType, StateType, std::vector<StateType>>&
   current_predicted_enhanced_state();
-  State<FilterType, NoiseType, std::vector<RSSI>>
+  State<FilterType, NoiseType, StateType, std::vector<StateType>>
   current_predicted_enhanced_state() const;
-  State<FilterType, NoiseType, std::vector<RSSI>> last_state();
-  State<FilterType, NoiseType, std::vector<RSSI>> before_last_state();
-  State<FilterType, NoiseType, std::vector<RSSI>> before_2_last_state();
-  std::vector<State<FilterType, NoiseType, std::vector<RSSI>>> all_states()
-    const;
+  State<FilterType, NoiseType, StateType, std::vector<StateType>> last_state();
+  State<FilterType, NoiseType, StateType, std::vector<StateType>>
+  before_last_state();
+  State<FilterType, NoiseType, StateType, std::vector<StateType>>
+  before_2_last_state();
+  std::vector<State<FilterType, NoiseType, StateType, std::vector<StateType>>>
+  all_states() const;
   void reset_all_states();
   void start_sampling_rt_state(int interval);
   void stop_sampling_rt_state();
@@ -210,19 +206,30 @@ private:
   arma::vec loss_vector_;
 
   /* State related data member*/
-  State<FilterType, NoiseType, std::vector<RSSI>> current_predicted_state_;
-  State<FilterType, NoiseType, std::vector<RSSI>>
+  State<FilterType, NoiseType, StateType, std::vector<StateType>>
+    current_predicted_state_;
+  State<FilterType, NoiseType, StateType, std::vector<StateType>>
     current_predicted_enhanced_state_;
-  State<FilterType, NoiseType, std::vector<RSSI>> current_state_;
-  State<FilterType, NoiseType, std::vector<RSSI>> last_state_;
-  State<FilterType, NoiseType, std::vector<RSSI>> before_last_state_;
-  State<FilterType, NoiseType, std::vector<RSSI>> before_2_last_state_;
-  std::vector<State<FilterType, NoiseType, std::vector<RSSI>>> all_states_;
+  State<FilterType, NoiseType, StateType, std::vector<StateType>> current_state_;
+  State<FilterType, NoiseType, StateType, std::vector<StateType>> last_state_;
+  State<FilterType, NoiseType, StateType, std::vector<StateType>> before_last_state_;
+  State<FilterType, NoiseType, StateType, std::vector<StateType>>
+    before_2_last_state_;
+  std::vector<State<FilterType, NoiseType, StateType, std::vector<StateType>>>
+    all_states_;
 
   /* Metrics related data members*/
-  MaxDistance<Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>>
+  MaxDistance<Quadrotor<flight_controller_t,
+                        FilterType,
+                        NoiseType,
+                        StateType,
+                        ActionType>>
     max_distance_;
-  MinDistance<Quadrotor<flight_controller_t, FilterType, NoiseType, ActionType>>
+  MinDistance<Quadrotor<flight_controller_t,
+                        FilterType,
+                        NoiseType,
+                        StateType,
+                        ActionType>>
     min_distance_;
   double max_dist_, min_dist_;
 
@@ -259,7 +266,7 @@ private:
   std::vector<ignition::math::Vector3d> _neighbor_positions;
   std::vector<ignition::math::Vector3d> _neighbor_antenna_positions;
   std::vector<AntennaDists> _neigh_antenna_dists_container;
-  std::vector<RSSI> _rssi_from_neighbors;
+  std::vector<StateType> _rssi_from_neighbors;
   ignition::math::Vector3d _position;
   ignition::math::Vector3d _wr_1_position;
   ignition::math::Vector3d _wr_2_position;
