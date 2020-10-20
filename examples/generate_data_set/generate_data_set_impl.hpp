@@ -124,7 +124,11 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
           it.start_collision_detector(100);
         }
       }
-
+      bool shape = swarm_.examin_swarm_shape(0.5, 10);
+      if (!shape) {
+        logger_->info("Quadrotors are far from each other, ending the episode");
+        break;
+      }
       /* Let us see how these quadrotors are going to move */
       while (true) {
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -151,7 +155,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
         }
       }
 
-      bool shape = swarm_.examin_swarm_shape(0.5, 10);
+      shape = swarm_.examin_swarm_shape(0.5, 10);
       bool has_arrived = swarm_.examin_destination(destination);
 
       if (!shape) {
