@@ -1,5 +1,5 @@
    <joint name="WT_joint" type="revolute">
-      <pose relative_to='base_link'>0 0 0.02 0 0 -0 0 </pose>
+      <pose relative_to='base_link'>0.01 0.01 0.02 0 0 -0 0 </pose>
       <child>WT</child>
       <parent>base_link</parent>
       <axis>
@@ -11,7 +11,7 @@
      </axis>
     </joint>
     <link name="WT">
-    <pose relative_to='WT_joint'>0 0 -0.020 0 -0 0</pose>
+    <pose relative_to='WT_joint'>0 0 0 0 -0 0</pose>
     <inertial>
      <mass>0.01</mass>
         <inertia>
@@ -53,7 +53,7 @@
    </sensor>
    </link>
    <joint name="WR_1_joint" type="revolute">
-      <pose relative_to='base_link'>-0.135 -0.17 0 0 0 -0 0 </pose>
+      <pose relative_to='base_link'>-0.135 -0.17 0.02 0 0 -0 0 </pose>
       <child>WR_1</child>
       <parent>base_link</parent>
        <axis>
@@ -102,13 +102,13 @@
         <min_frequency>2412.0</min_frequency>
         <max_frequency>2484.0</max_frequency>
         <power>15</power>
-        <gain>4</gain>
-        <sensitivity>-90.0</sensitivity>
+        <gain>5</gain>
+        <sensitivity>-105.0</sensitivity>
       </transceiver>
     </sensor>
   </link>
    <joint name="WR_2_joint" type="revolute">
-      <pose relative_to='base_link'>0.115 0.17 0 0 0 -0 0 </pose>
+      <pose relative_to='base_link'>0.115 0.17 0.02 0 0 -0 0 </pose>
       <child>WR_2</child>
       <parent>base_link</parent>
      <axis>
