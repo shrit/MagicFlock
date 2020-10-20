@@ -38,6 +38,7 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   // Max number -1, dont count my position
   neighbor_positions().resize(num_neighbors_);
   neighbor_antenna_positions().resize(num_neighbors_);
+  neigh_antenna_dists_container().resize(num_neighbors_);
   arma::colvec initial_value(neighbor_positions().size() * 2);
   initial_value.fill(-50);
   filter_.initial_value() = initial_value;
@@ -219,8 +220,7 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
     for (std::size_t i = 0; i < quads.size(); ++i) {
       if (id_ != quads.at(i).id()) {
         neighbor_positions().at(j) = quads.at(i).position();
-        neighbor_antenna_positions().at(i) =
-          quads.at(i).wr_1_antenna_position();
+        neighbor_antenna_positions().at(j) = quads.at(i).wt_antenna_position();
         // Add two antennas here positions
         // We need to sample the distance not only positions
         ++j;
@@ -281,6 +281,7 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
       id_, num_neighbors_, rssi_from_neighbors(), filter_);
     current_state_ = state;
   } else if constexpr (std::is_same<StateType, AntennaDists>::value) {
+    calculate_distances_to_neighbors_antenna();
     State<FilterType, NoiseType, StateType, std::vector<AntennaDists>> state(
       id_, num_neighbors_, neigh_antenna_dists_container(), filter_);
     current_state_ = state;
@@ -975,7 +976,6 @@ void
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   calculate_distances_to_neighbors_antenna()
 {
-  neigh_antenna_dists_container(neighbor_antenna_positions().size());
   for (std::size_t i = 0; i < neighbor_antenna_positions().size(); ++i) {
     neigh_antenna_dists_container().at(i).dist_antenna_1 =
       wr_1_antenna_position().Distance(neighbor_antenna_positions().at(i));
@@ -1046,7 +1046,7 @@ std::string
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   wt_name()
 {
-  return name() + "::wireless_transmitter::link";
+  return name() + "::WT";
 }
 
 template<class flight_controller_t,
@@ -1058,7 +1058,7 @@ std::string
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   wr_1_name()
 {
-  return name() + "::wireless_receiver_1::link";
+  return name() + "::WR_1";
 }
 
 template<class flight_controller_t,
@@ -1070,7 +1070,7 @@ std::string
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   wr_2_name()
 {
-  return name() + "::wireless_receiver_2::link";
+  return name() + "::WR_2";
 }
 
 /*  Parsing the ReceivedSignal send by Gazebo */
