@@ -77,7 +77,7 @@ while [ $n -lt $num_vehicles ]; do
 		mavlink_tcp_port:=$(($mavlink_tcp_port+$n)) enable_lockstep:=$((1)) send_odometry:=$((1)) -o ${project_path}/sdf/${PX4_SIM_MODEL}_${n}.urdf
 
 	gz sdf -p  ${project_path}/sdf/${PX4_SIM_MODEL}_${n}.urdf > ${project_path}/sdf/${PX4_SIM_MODEL}_${n}.sdf
-	sed -i "345 r ${project_path}/sdf/wireless.sdf" ${project_path}/sdf/${PX4_SIM_MODEL}_${n}.sdf
+	sed -i "345 r ${project_path}/sdf/wireless_obs_avoid.sdf" ${project_path}/sdf/${PX4_SIM_MODEL}_${n}.sdf
 	sed -i -e "s/osrf/${PX4_SIM_MODEL}_${n}/g"  ${project_path}/sdf/${PX4_SIM_MODEL}_${n}.sdf
 
 	echo "Spawning ${PX4_SIM_MODEL}_${n}"
