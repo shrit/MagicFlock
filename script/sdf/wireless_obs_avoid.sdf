@@ -1,0 +1,183 @@
+   <joint name="WT_joint" type="revolute">
+      <pose relative_to='base_link'>0.01 0.01 0.02 0 0 -0 0 </pose>
+      <child>WT</child>
+      <parent>base_link</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+        </limit>
+     </axis>
+    </joint>
+    <link name="WT">
+    <pose relative_to='WT_joint'>0 0 0 0 -0 0</pose>
+    <inertial>
+     <mass>0.01</mass>
+        <inertia>
+          <ixx>0.963796e-6</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.963796e-6</iyy>
+          <iyz>0</iyz>
+          <izz>2e-8</izz>
+        </inertia> 
+     </inertial>
+   <visual name="antenna">
+     <pose>0 0 .04 0 0 0</pose>
+     <geometry>
+       <cylinder>
+         <radius>.002</radius>
+         <length>.04</length>
+       </cylinder>
+     </geometry>
+   <collision name="base_collision">
+      <geometry>
+        <cylinder>
+          <radius>.002</radius>
+          <length>.04</length>
+        </cylinder>
+      </geometry>
+    </collision>
+   </visual>
+   <sensor name="Wireless Transmitter" type="wireless_transmitter">
+     <always_on>1</always_on>
+     <update_rate>20</update_rate>
+     <visualize>true</visualize>
+     <transceiver>
+       <essid>osrf</essid>
+       <frequency>2442.0</frequency>
+       <power>15</power>
+       <gain>4</gain>
+     </transceiver>
+   </sensor>
+   </link>
+   <joint name="WR_1_joint" type="revolute">
+      <pose relative_to='base_link'>-0.135 -0.17 0.02 0 0 -0 0 </pose>
+      <child>WR_1</child>
+      <parent>base_link</parent>
+       <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+        </limit>
+       </axis>
+     </joint>
+    <link name="WR_1">
+      <pose relative_to='WR_1_joint'>0 0 0 0 -0 0</pose>
+     <inertial>
+      <mass>0.01</mass>
+        <inertia>
+         <ixx>0.963796e-6</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.963796e-6</iyy>
+          <iyz>0</iyz>
+          <izz>2e-8</izz>
+        </inertia>
+     </inertial>
+    <visual name="antenna">
+    <pose>0 0 -0.020 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>.002</radius>
+          <length>.04</length>
+        </cylinder>
+      </geometry>
+    <collision name="base_collision">
+      <geometry>
+        <cylinder>
+          <radius>.002</radius>
+          <length>.04</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    </visual>
+    <sensor name="Wireless Receiver" type="wireless_receiver">
+      <always_on>1</always_on>
+      <update_rate>20</update_rate>
+      <visualize>true</visualize>
+      <transceiver>
+        <min_frequency>2412.0</min_frequency>
+        <max_frequency>2484.0</max_frequency>
+        <power>15</power>
+        <gain>5</gain>
+        <sensitivity>-105.0</sensitivity>
+      </transceiver>
+    </sensor>
+  </link>
+   <joint name="WR_2_joint" type="revolute">
+      <pose relative_to='base_link'>0.115 0.17 0.02 0 0 -0 0 </pose>
+      <child>WR_2</child>
+      <parent>base_link</parent>
+     <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+        </limit>
+     </axis>
+    </joint>
+    <link name="WR_2">
+      <pose relative_to='WR_2_joint'>0 0 0 0 -0 0</pose>
+     <inertial>
+      <mass>0.01</mass>
+        <inertia>
+         <ixx>0.963796e-6</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.963796e-6</iyy>
+          <iyz>0</iyz>
+          <izz>2e-8</izz>
+        </inertia>
+      </inertial>
+    <visual name="antenna">
+    <pose>0 0 -0.020 0 -0 0</pose>
+      <geometry>
+        <cylinder>
+          <radius>.002</radius>
+          <length>.04</length>
+        </cylinder>
+      </geometry>
+    <collision name="base_collision">
+      <geometry>
+        <cylinder>
+          <radius>.002</radius>
+          <length>.04</length>
+        </cylinder>
+      </geometry>
+    </collision>
+    </visual>
+    <sensor name="Wireless Receiver" type="wireless_receiver">
+      <always_on>1</always_on>
+      <update_rate>20</update_rate>
+      <visualize>true</visualize>
+      <transceiver>
+        <min_frequency>2412.0</min_frequency>
+        <max_frequency>2484.0</max_frequency>
+        <power>15</power>
+        <gain>5</gain>
+        <sensitivity>-105.0</sensitivity>
+      </transceiver>
+    </sensor>
+  </link>
+
+    <!--forward-facing Mylidar-->
+    <include>
+      <uri>model://Mylidar</uri>
+      <pose>0.15 0 0 0 -1.57079633 0</pose>
+      <name>Mylidar1</name>
+    </include>
+
+    <joint name="Mylidar1_joint" type="revolute">
+      <parent>base_link</parent>
+      <child>Mylidar1::link</child>
+     <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+        </limit>
+     </axis>
+    </joint>
