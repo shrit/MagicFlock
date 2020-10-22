@@ -24,6 +24,7 @@ Iterative_learning<QuadrotorType>::generate_trajectory_using_model()
       "/meta/lemon/examples/iterative_learning/build/model.bin", "model", i);
     ContinuousActions action = predict.best_predicted_action();
     i.current_action() = action;
+    i.current_action().action().Z() = 0;
   }
 
   /*  Threading QuadCopter */

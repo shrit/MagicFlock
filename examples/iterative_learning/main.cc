@@ -21,7 +21,8 @@
 #include <IL4MRC/controller/px4_device.hpp>
 #include <IL4MRC/controller/quadrotor.hpp>
 #include <IL4MRC/dists/gaussian_noise.hpp>
-#include <IL4MRC/metrics/exponential_moving_average.hpp>
+#include <IL4MRC/dists/empty_noise.hpp>
+#include <IL4MRC/metrics/empty_filter.hpp>
 #include <IL4MRC/simulator/gazebo.hpp>
 #include <IL4MRC/third_party/CLI11.hpp>
 
@@ -57,8 +58,9 @@ main(int argc, char* argv[])
   }
 
   using QuadrotorType = Quadrotor<Px4Device,
-                                  ExpoMovingAverage<arma::colvec>,
-                                  GaussianNoise<arma::colvec>,
+                                  EmptyFilter<arma::colvec>,
+                                  EmptyNoise<arma::colvec>,
+                                  AntennaDists,
                                   ContinuousActions>;
 
   /*  Create a vector of quadrotors, each one has an id + a label  */
