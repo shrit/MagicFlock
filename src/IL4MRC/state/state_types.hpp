@@ -1,5 +1,5 @@
 /**
- * This file contains state types that can be used 
+ * This file contains state types that can be used
  * as state for these cases.
  */
 
@@ -19,7 +19,24 @@ public:
   double dist_antenna_2;
 };
 
-class CrapyData
+class LaserScan
 {
-  
+public:
+  std::string frame;
+  Pose world_pose;
+  double angle_min;
+  double angle_max;
+  double angle_step;
+  double range_min;
+  double range_max;
+  std::uint32 count;
+  double vertical_angle_min;
+  double vertical_angle_max;
+  double vertical_angle_step;
+  std::uint32 vertical_count;
+  std::vector<double> ranges;
+  std::vector<double> intensities;
 };
+
+class CrapyData
+{};
