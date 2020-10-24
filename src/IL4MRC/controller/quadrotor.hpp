@@ -257,6 +257,7 @@ private:
   mutable std::mutex _rx_1_mutex{};
   mutable std::mutex _rx_2_mutex{};
   mutable std::mutex _laser_mutex{};
+  mutable std::mutex _laser_scan_mutex{};
 
   /* Sampler related data member*/
   RTSamples state_sampler_, flocking_sampler_, position_sampler_,
@@ -280,7 +281,7 @@ private:
   ignition::math::Vector3d _wt_position;
   ignition::math::Quaternion<double> _orientation;
 
-  LaserScan laser_scan_;
+  LaserScan _laser_scan;
 
   FilterType filter_;
 };

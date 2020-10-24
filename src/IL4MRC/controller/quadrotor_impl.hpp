@@ -917,6 +917,32 @@ template<class flight_controller_t,
          class NoiseType,
          class StateType,
          class ActionType>
+LaserScan&
+Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
+  laser_scan()
+{
+  std::lock_guard<std::mutex> lock(_laser_scan_mutex);
+  return _laser_scan;
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class StateType,
+         class ActionType>
+LaserScan
+Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
+  laser_scan() const
+{
+  std::lock_guard<std::mutex> lock(_laser_scan_mutex);
+  return _laser_scan;
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class StateType,
+         class ActionType>
 std::vector<StateType>&
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   rssi_from_neighbors()
@@ -924,7 +950,6 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   std::lock_guard<std::mutex> lock(_rssi_from_neighbors_mutex);
   return _rssi_from_neighbors;
 }
-
 template<class flight_controller_t,
          class FilterType,
          class NoiseType,
@@ -1035,7 +1060,7 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   laser_scaner_topic_name()
 {
   std::string topic_name =
-    "/gazebo/default/" + name_ + "/";
+    "/gazebo/default/" + name() + "/LaserScan/scan";
   return topic_name;
 }
 
@@ -1177,6 +1202,10 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
 {
   std::lock_guard<std::mutex> lock(_laser_mutex);
   gazebo::msgs::LaserScan msg = _msg->scan();
+  laser_scan().ranges.resize(msg->range_size());
+  laser_scan().intensities.resize(msg->intensities_size());
+  logger::logger_->info("Range size {}", msg->range_size());
+  logger::logger_->info("Intensities size {}", msg->intensities_size());
   for (int i = 0; i < msg->range_size(); ++i) {
     laser_scan().ranges.at(i) = ranges(i);
   }
