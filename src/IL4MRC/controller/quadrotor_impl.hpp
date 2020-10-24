@@ -1032,6 +1032,20 @@ template<class flight_controller_t,
          class ActionType>
 std::string
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
+  laser_scaner_topic_name()
+{
+  std::string topic_name =
+    "/gazebo/default/" + name_ + "/";
+  return topic_name;
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class StateType,
+         class ActionType>
+std::string
+Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   wireless_transmitter_topic_name()
 {
   return "/gazebo/default/" + name() + "/WT/Wireless Transmitter/transceiver";
@@ -1149,5 +1163,47 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
                                              NoiseType,
                                              StateType,
                                              ActionType>::RxMsgN2,
+                                  this));
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class StateType,
+         class ActionType>
+void
+Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
+  LaserScanMsg(const ConstLaserScanStampedPtr& _msg)
+{
+  std::lock_guard<std::mutex> lock(_laser_mutex);
+  gazebo::msgs::LaserScan msg = _msg->scan();
+  for (int i = 0; i < msg->range_size(); ++i) {
+    laser_scan().ranges.at(i) = ranges(i);
+  }
+  for (int i = 0; i < intensities_size(); ++i) {
+    laser_scan().intensities.at(i) = msg->intensities(i);
+  } 
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class StateType,
+         class ActionType>
+void
+Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
+  LaserScanTopic(Quadrotor<flight_controller_t,
+                       FilterType,
+                       NoiseType,
+                       StateType,
+                       ActionType>::NodePtr& node)
+{
+  std::string topic_laser = laser_scaner_topic_name();
+  subs_.push_back(node->Subscribe(topic_laser,
+                                  &Quadrotor<flight_controller_t,
+                                             FilterType,
+                                             NoiseType,
+                                             StateType,
+                                             ActionType>::LaserScanMsg,
                                   this));
 }

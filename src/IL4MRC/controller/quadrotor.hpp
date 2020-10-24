@@ -91,6 +91,8 @@ public:
   std::vector<StateType>& rssi_from_neighbors();
   std::vector<AntennaDists> neigh_antenna_dists_container() const;
   std::vector<AntennaDists>& neigh_antenna_dists_container();
+  LaserScan laser_scan() const;
+  LaserScan& laser_scan();
 
   /* Position related functions */
   ignition::math::Vector3d position() const;
@@ -116,8 +118,8 @@ public:
 
   /*  State related functions */
   void sample_state();
-  State<FilterType, NoiseType, StateType, std::vector<StateType>> current_state()
-    const;
+  State<FilterType, NoiseType, StateType, std::vector<StateType>>
+  current_state() const;
   State<FilterType, NoiseType, StateType, std::vector<StateType>>&
   current_predicted_state();
   State<FilterType, NoiseType, StateType, std::vector<StateType>>
@@ -176,6 +178,7 @@ public:
   std::string wireless_receiver_1_topic_name();
   std::string wireless_receiver_2_topic_name();
   std::string wireless_transmitter_topic_name();
+  std::string laser_scaner_topic_name();
   std::string wr_1_name(); /* Wireless antenna name */
   std::string wr_2_name();
   std::string wt_name();
@@ -183,8 +186,9 @@ public:
   /* Gazebo callbacks to recover the value of the signal strenght*/
   void RxMsgN1(const ConstWirelessNodesPtr& _msg);
   void RxMsgN2(const ConstWirelessNodesPtr& _msg);
+  void LaserScanMsg(const ConstLaserScanStampedPtr& _msg);
   void subRxTopic(NodePtr& node);
-
+  void LaserScanTopic(NodePtr& node);
   Quadrotor(const Quadrotor&){};
   Quadrotor& operator=(const Quadrotor& quad) { return *this; };
 
@@ -210,9 +214,11 @@ private:
     current_predicted_state_;
   State<FilterType, NoiseType, StateType, std::vector<StateType>>
     current_predicted_enhanced_state_;
-  State<FilterType, NoiseType, StateType, std::vector<StateType>> current_state_;
+  State<FilterType, NoiseType, StateType, std::vector<StateType>>
+    current_state_;
   State<FilterType, NoiseType, StateType, std::vector<StateType>> last_state_;
-  State<FilterType, NoiseType, StateType, std::vector<StateType>> before_last_state_;
+  State<FilterType, NoiseType, StateType, std::vector<StateType>>
+    before_last_state_;
   State<FilterType, NoiseType, StateType, std::vector<StateType>>
     before_2_last_state_;
   std::vector<State<FilterType, NoiseType, StateType, std::vector<StateType>>>
@@ -250,6 +256,7 @@ private:
   mutable std::mutex _position_mutex{};
   mutable std::mutex _rx_1_mutex{};
   mutable std::mutex _rx_2_mutex{};
+  mutable std::mutex _laser_mutex{};
 
   /* Sampler related data member*/
   RTSamples state_sampler_, flocking_sampler_, position_sampler_,
@@ -272,6 +279,8 @@ private:
   ignition::math::Vector3d _wr_2_position;
   ignition::math::Vector3d _wt_position;
   ignition::math::Quaternion<double> _orientation;
+
+  LaserScan laser_scan_;
 
   FilterType filter_;
 };
