@@ -1202,15 +1202,15 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
 {
   std::lock_guard<std::mutex> lock(_laser_mutex);
   gazebo::msgs::LaserScan msg = _msg->scan();
-  laser_scan().ranges.resize(msg->range_size());
-  laser_scan().intensities.resize(msg->intensities_size());
-  logger::logger_->info("Range size {}", msg->range_size());
-  logger::logger_->info("Intensities size {}", msg->intensities_size());
-  for (int i = 0; i < msg->range_size(); ++i) {
-    laser_scan().ranges.at(i) = ranges(i);
+  laser_scan().ranges.resize(msg.ranges_size());
+  laser_scan().intensities.resize(msg.intensities_size());
+  logger::logger_->info("Range size {}", msg.ranges_size());
+  logger::logger_->info("Intensities size {}", msg.intensities_size());
+  for (int i = 0; i < msg.ranges_size(); ++i) {
+    laser_scan().ranges.at(i) = msg.ranges(i);
   }
-  for (int i = 0; i < intensities_size(); ++i) {
-    laser_scan().intensities.at(i) = msg->intensities(i);
+  for (int i = 0; i < msg.intensities_size(); ++i) {
+    laser_scan().intensities.at(i) = msg.intensities(i);
   } 
 }
 

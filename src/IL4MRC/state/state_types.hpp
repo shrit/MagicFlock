@@ -22,18 +22,17 @@ public:
 class LaserScan
 {
 public:
-  std::string frame;
-  Pose world_pose;
-  double angle_min;
-  double angle_max;
-  double angle_step;
-  double range_min;
-  double range_max;
-  std::uint32 count;
-  double vertical_angle_min;
-  double vertical_angle_max;
-  double vertical_angle_step;
-  std::uint32 vertical_count;
+  // std::string frame;
+  // double angle_min;
+  // double angle_max;
+  // double angle_step;
+  // double range_min;
+  // double range_max;
+  // std::uint32 count;
+  // double vertical_angle_min;
+  // double vertical_angle_max;
+  // double vertical_angle_step;
+  // std::uint32 vertical_count;
   std::vector<double> ranges;
   std::vector<double> intensities;
 };
