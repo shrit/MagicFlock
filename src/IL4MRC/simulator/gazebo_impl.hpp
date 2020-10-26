@@ -42,6 +42,15 @@ Gazebo<QuadrotorType>::subRxTopic()
 
 template<class QuadrotorType>
 void
+Gazebo<QuadrotorType>::subLaserTopic()
+{
+  for (auto&& it : quadrotors_) {
+    it.LaserScanTopic(node_);
+  }
+}
+
+template<class QuadrotorType>
+void
 Gazebo<QuadrotorType>::pubModelReset()
 {
   std::string topic = "/gazebo/default/model_reset_plugin";

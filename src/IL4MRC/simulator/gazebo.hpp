@@ -73,6 +73,13 @@ public:
   void subRxTopic();
 
   /**
+   * This function subscribe to the Lidar values received by each quadrotor.
+   * The function will loop into all the quadrotors and subscribe each
+   * quadrotors to its own topic.
+   */
+  void subLaserTopic();
+
+ /**
    * This function publish (advertise permenantly) the mode reset topic
    * that we need to use in order to reset the quadrotors to their initial 
    * positions.
