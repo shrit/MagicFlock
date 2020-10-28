@@ -21,7 +21,7 @@
    <joint name="WT_joint" type="revolute">
       <pose relative_to='link'>0.01 0.01 45 0 0 -0 0 </pose>
       <child>WT</child>
-      <parent>base_link</parent>
+      <parent>link</parent>
       <axis>
         <xyz>0 0 1</xyz>
         <limit>
@@ -66,9 +66,9 @@
      <visualize>true</visualize>
      <transceiver>
        <essid>Tower</essid>
-       <frequency>2442.0</frequency>
-       <power>100</power>
-       <gain>10</gain>
+       <frequency>1500.0</frequency>
+       <power>150</power>
+       <gain>50</gain>
      </transceiver>
    </sensor>
    </link>
