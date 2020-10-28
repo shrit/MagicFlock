@@ -22,6 +22,7 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
        std::string name,
        std::string label,
        int number_of_quad,
+       int num_of_antenna_src,
        std::vector<Quadrotor<flight_controller_t,
                              FilterType,
                              NoiseType,
@@ -32,9 +33,10 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   name_ = name;
   label_ = label;
   num_neighbors_ = number_of_quad - 1;
+  num_of_antenna_src_ = num_of_antenna_src;
   dataset_.init_dataset_directory();
   port_number_ = std::to_string(1454) + std::to_string(id);
-  rssi_from_neighbors().resize(number_of_quad); // Max number of quad -1
+  rssi_from_neighbors().resize(number_of_quad + num_of_antenna_src_); // Max number of quad -1
   // Max number -1, dont count my position
   neighbor_positions().resize(num_neighbors_);
   neighbor_antenna_positions().resize(num_neighbors_);

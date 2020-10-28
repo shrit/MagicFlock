@@ -60,6 +60,7 @@ public:
             std::string name,
             std::string label,
             int number_of_quad,
+            int num_of_antenna_src,
             std::vector<Quadrotor<flight_controller_t,
                                   FilterType,
                                   NoiseType,
@@ -266,6 +267,7 @@ private:
   unsigned int id_;   /* Quadrotor id */
   std::string name_;  /* Quadrotor name */
   int num_neighbors_; /* Number of neighbors*/
+  int num_of_antenna_src_; /* Number of external antenna sources*/
   /* Quadrotor label (Given by the user, leader, follower, etc)*/
   std::string label_;
   std::string port_number_;

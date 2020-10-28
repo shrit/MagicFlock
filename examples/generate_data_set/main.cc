@@ -19,6 +19,7 @@
 #include <IL4MRC/actions/continuous_actions.hpp>
 #include <IL4MRC/controller/px4_device.hpp>
 #include <IL4MRC/dists/empty_noise.hpp>
+#include <IL4MRC/metrics/cumulative_moving_average.hpp>
 #include <IL4MRC/metrics/empty_filter.hpp>
 #include <IL4MRC/metrics/exponential_moving_average.hpp>
 #include <IL4MRC/simulator/gazebo.hpp>
@@ -44,10 +45,17 @@ main(int argc, char* argv[])
   };
 
   std::size_t num_of_quads = 3;
+  std::size_t num_of_external_radio_src = 0;
+
   bool verbose = false;
   app.add_option("-n, --number_of_quadrotors",
                  num_of_quads,
                  " Number of quadrotor to create inside the simulator.");
+  app.add_option(
+    "-a, --number_of_radio",
+    num_of_external_radio_src,
+    " Number of external radio source inside the simulator."
+    "If you added external antenna source specify the number here.");
   app.add_flag("-v, --verbose", verbose, " Make the output more verbose");
 
   try {
@@ -62,9 +70,9 @@ main(int argc, char* argv[])
   }
 
   using QuadrotorType = Quadrotor<Px4Device,
-                                  EmptyFilter<arma::colvec>,
+                                  CumulativeMovingAverage<arma::colvec>,
                                   EmptyNoise<arma::colvec>,
-                                  AntennaDists,
+                                  ReceivedSignal,
                                   ContinuousActions>;
 
   /*  Create a vector of quadrotors, each one has an id + a label  */
@@ -75,8 +83,12 @@ main(int argc, char* argv[])
   }
 
   for (std::size_t i = 0; i < num_of_quads; ++i) {
-    quadrotors.at(i).init(
-      i, "iris_" + std::to_string(i), "", num_of_quads, quadrotors);
+    quadrotors.at(i).init(i,
+                          "iris_" + std::to_string(i),
+                          "",
+                          num_of_quads,
+                          num_of_external_radio_src,
+                          quadrotors);
   }
 
   /*  Gazebo simulator */
