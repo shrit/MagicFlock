@@ -9,7 +9,7 @@ CumulativeMovingAverage<type>::CumulativeMovingAverage()
 template<typename type>
 CumulativeMovingAverage<type>::CumulativeMovingAverage(
   const type& initial_value)
-   , value_(initial_value)
+  : value_(initial_value)
 {
   // Nothing to do here
 }
@@ -19,7 +19,7 @@ type
 CumulativeMovingAverage<type>::input(const type& new_value)
 {
   count_ = count_ + 1;
-  return value_ = value_ + ((new_value - value) / (count_ + 1));
+  return value_ = value_ + ((new_value - value_) / (count_ + 1));
 }
 
 template<typename type>
@@ -47,6 +47,6 @@ template<typename type>
 void
 CumulativeMovingAverage<type>::reset()
 {
-  count = 0;
+  count_ = 0;
   value_ = initial_value_;
 }
