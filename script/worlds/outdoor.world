@@ -56,6 +56,11 @@
       <uri>model://city_terrain</uri>
     </include>
 
+    <include>
+      <uri>model://improved_radio_tower</uri>
+      <pose> 163 0 0 0 0 0 </pose>
+    </include>
+
     <plugin name="ResetPlugin" filename="libResetPlugin.so"/>
     <!-- <!-\- Need a descent graphic card to run ocean -\-> -->
 
