@@ -28,18 +28,20 @@ template<class FilterType,
 State<FilterType, NoiseType, StateType, ContainerType>::State(
   unsigned int id,
   int num_neighbors,
+  int num_of_antenna_src,
   const ContainerType& container,
   FilterType filter)
   : id_(id)
   , num_neighbors_(num_neighbors)
   , data_(num_neighbors_ * 2, arma::fill::zeros)
 {
-  int antenna_size = num_neighbors_ * 2;
+  int antenna_size = (num_neighbors_ + num_of_antenna_src) * 2;
+  int num_of_transmitter = num_neighbors_ + num_of_antenna_src;
   std::vector<double> data(antenna_size);
   int i = 0;
   if constexpr (std::is_same<StateType, ReceivedSignal>()) {
 
-    for (std::size_t j = 0; j < num_neighbors_; ++j) {
+    for (std::size_t j = 0; j < num_of_transmitter; ++j) {
 
       if (container.at(j).id != id_) {
         data.at(i) = container.at(j).antenna_1;
@@ -54,7 +56,7 @@ State<FilterType, NoiseType, StateType, ContainerType>::State(
 
   } else if constexpr (std::is_same<StateType, AntennaDists>::value) {
 
-    for (std::size_t j = 0; j < num_neighbors_; ++j) {
+    for (std::size_t j = 0; j < num_of_transmitter; ++j) {
       data.at(i) = container.at(j).dist_antenna_1;
       data.at(++i) = container.at(j).dist_antenna_2;
       i = i + 1;

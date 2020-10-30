@@ -14,7 +14,10 @@
 
 #include "state_types.hpp"
 
-template<class FilterType, class NoiseType, class StateType, class ContainerType>
+template<class FilterType,
+         class NoiseType,
+         class StateType,
+         class ContainerType>
 class State
 {
 
@@ -25,6 +28,7 @@ public:
 
   State(unsigned int id,
         int num_neighbors,
+        int num_of_antenna_src,
         const ContainerType& container,
         FilterType filter);
 
@@ -42,7 +46,8 @@ public:
 
   const arma::colvec& Encode() const;
 
-  static constexpr size_t dimension =12;
+  // Need to find a solution for this one
+  static constexpr size_t dimension = 14;
 
 private:
   unsigned int id_;
