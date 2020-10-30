@@ -58,7 +58,11 @@
 
     <include>
       <uri>model://improved_radio_tower</uri>
-      <pose> 163 0 0 0 0 0 </pose>
+      <pose> 10 -90 0 0 0 0 </pose>
+    </include>
+    <include>
+      <uri>model://improved_radio_tower_2</uri>
+      <pose> 100 0 0 0 0 0 </pose>
     </include>
 
     <plugin name="ResetPlugin" filename="libResetPlugin.so"/>
