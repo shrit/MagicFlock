@@ -1,0 +1,76 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="radio_tower_y">
+    <static>true</static>
+    <link name="link">
+      <collision name="collision">
+        <geometry>
+          <mesh>
+            <uri>model://radio_tower/meshes/radio_tower.dae</uri>
+          </mesh>
+        </geometry>
+      </collision>
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <uri>model://radio_tower/meshes/radio_tower.dae</uri>
+          </mesh>
+        </geometry>
+      </visual>
+    </link>
+   <joint name="WT_joint" type="revolute">
+      <pose relative_to='link'>0.01 0.01 45 0 0 -0 0 </pose>
+      <child>WT</child>
+      <parent>link</parent>
+      <axis>
+        <xyz>0 0 1</xyz>
+        <limit>
+          <lower>0</lower>
+          <upper>0</upper>
+        </limit>
+     </axis>
+    </joint>
+    <link name="WT">
+    <pose relative_to='WT_joint'>0 0 0 0 -0 0</pose>
+    <inertial>
+     <mass>0.01</mass>
+        <inertia>
+          <ixx>0.963796e-6</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>0.963796e-6</iyy>
+          <iyz>0</iyz>
+          <izz>2e-8</izz>
+        </inertia> 
+     </inertial>
+    <visual name="antenna">
+     <pose>0 0 .04 0 0 0</pose>
+     <geometry>
+       <cylinder>
+         <radius>0.03</radius>
+         <length>5</length>
+       </cylinder>
+     </geometry>
+    <collision name="base_collision">
+      <geometry>
+        <cylinder>
+          <radius>.03</radius>
+          <length>5</length>
+        </cylinder>
+      </geometry>
+     </collision>
+    </visual>
+   <sensor name="Wireless Transmitter" type="wireless_transmitter">
+     <always_on>1</always_on>
+     <update_rate>20</update_rate>
+     <visualize>true</visualize>
+     <transceiver>
+       <essid>Tower</essid>
+       <frequency>1500.0</frequency>
+       <power>150</power>
+       <gain>50</gain>
+     </transceiver>
+   </sensor>
+   </link>
+   </model>
+</sdf>
