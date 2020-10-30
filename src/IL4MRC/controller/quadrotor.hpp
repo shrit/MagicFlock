@@ -61,6 +61,7 @@ public:
             std::string label,
             int number_of_quad,
             int num_of_antenna_src,
+            std::vector<ignition::math::Vector3d> fix_antenna_positions,
             std::vector<Quadrotor<flight_controller_t,
                                   FilterType,
                                   NoiseType,
@@ -110,6 +111,8 @@ public:
   std::vector<ignition::math::Vector3d> neighbor_positions() const;
   std::vector<ignition::math::Vector3d>& neighbor_antenna_positions();
   std::vector<ignition::math::Vector3d> neighbor_antenna_positions() const;
+  std::vector<ignition::math::Vector3d>& fix_antenna_positions();
+  std::vector<ignition::math::Vector3d> fix_antenna_positions() const;
   void start_position_sampler(std::vector<Quadrotor<flight_controller_t,
                                                     FilterType,
                                                     NoiseType,
@@ -247,6 +250,7 @@ private:
   mutable std::mutex _collision_mutex{};
   mutable std::mutex _neighbor_positions_mutex{};
   mutable std::mutex _neighbor_antenna_positions_mutex{};
+  mutable std::mutex _fix_antenna_positions_mutex{};
   mutable std::mutex _neigh_antenna_dists_container_mutex{};
   mutable std::mutex _rssi_from_neighbors_mutex{};
   mutable std::mutex _sample_state_mutex{};
@@ -275,6 +279,7 @@ private:
   /* Position related data member */
   std::vector<ignition::math::Vector3d> _neighbor_positions;
   std::vector<ignition::math::Vector3d> _neighbor_antenna_positions;
+  std::vector<ignition::math::Vector3d> _fix_antenna_positions;
   std::vector<AntennaDists> _neigh_antenna_dists_container;
   std::vector<StateType> _rssi_from_neighbors;
   ignition::math::Vector3d _position;

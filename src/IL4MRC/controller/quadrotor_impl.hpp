@@ -23,6 +23,7 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
        std::string label,
        int number_of_quad,
        int num_of_antenna_src,
+       std::vector<ignition::math::Vector3d> fix_antenna_positions,
        std::vector<Quadrotor<flight_controller_t,
                              FilterType,
                              NoiseType,
@@ -36,13 +37,16 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   num_of_antenna_src_ = num_of_antenna_src;
   dataset_.init_dataset_directory();
   port_number_ = std::to_string(1454) + std::to_string(id);
-  rssi_from_neighbors().resize(number_of_quad + num_of_antenna_src_); // Max number of quad -1
+  rssi_from_neighbors().resize(number_of_quad +
+                               num_of_antenna_src_); // Max number of quad
   // Max number -1, dont count my position
   neighbor_positions().resize(num_neighbors_);
   neighbor_antenna_positions().resize(num_neighbors_);
-  neigh_antenna_dists_container().resize(num_neighbors_);
-  arma::colvec initial_value(neighbor_positions().size() * 2);
-  initial_value.fill(-50);
+  _fix_antenna_positions = fix_antenna_positions;
+  neigh_antenna_dists_container().resize(num_neighbors_ + num_of_antenna_src_);
+  int num_of_antenna_transmitter = (num_neighbors_ + num_of_antenna_src_) * 2;
+  arma::colvec initial_value(num_of_antenna_transmitter);
+  initial_value.fill(-55);
   filter_.initial_value() = initial_value;
   filter_.reset();
   std::vector<Quadrotor<flight_controller_t,
@@ -280,12 +284,12 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
 
   if constexpr (std::is_same<StateType, ReceivedSignal>::value) {
     State<FilterType, NoiseType, StateType, std::vector<StateType>> state(
-      id_, num_neighbors_, rssi_from_neighbors(), filter_);
+      id_, num_neighbors_, num_of_antenna_src_, rssi_from_neighbors(), filter_);
     current_state_ = state;
   } else if constexpr (std::is_same<StateType, AntennaDists>::value) {
     calculate_distances_to_neighbors_antenna();
     State<FilterType, NoiseType, StateType, std::vector<AntennaDists>> state(
-      id_, num_neighbors_, neigh_antenna_dists_container(), filter_);
+      id_, num_neighbors_, num_of_antenna_src_, neigh_antenna_dists_container(), filter_);
     current_state_ = state;
   }
 
@@ -802,6 +806,32 @@ template<class flight_controller_t,
          class NoiseType,
          class StateType,
          class ActionType>
+std::vector<ignition::math::Vector3d>
+Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
+  fix_antenna_positions() const
+{
+  std::lock_guard<std::mutex> lock(_fix_antenna_positions_mutex);
+  return _fix_antenna_positions;
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class StateType,
+         class ActionType>
+std::vector<ignition::math::Vector3d>&
+Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
+  fix_antenna_positions()
+{
+  std::lock_guard<std::mutex> lock(_fix_antenna_positions_mutex);
+  return _fix_antenna_positions;
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class StateType,
+         class ActionType>
 ignition::math::Vector3d
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   wr_1_antenna_position() const
@@ -1009,6 +1039,14 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
     neigh_antenna_dists_container().at(i).dist_antenna_2 =
       wr_2_antenna_position().Distance(neighbor_antenna_positions().at(i));
   }
+  int j = neighbor_antenna_positions().size();
+  for (std::size_t i = 0; i < fix_antenna_positions().size(); ++i) {
+    neigh_antenna_dists_container().at(j).dist_antenna_1 =
+      wr_1_antenna_position().Distance(fix_antenna_positions().at(i));
+    neigh_antenna_dists_container().at(j).dist_antenna_2 =
+      wr_2_antenna_position().Distance(fix_antenna_positions().at(i));
+    j++;
+  }
 }
 
 template<class flight_controller_t,
@@ -1061,8 +1099,7 @@ std::string
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   laser_scaner_topic_name()
 {
-  std::string topic_name =
-    "/gazebo/default/" + name() + "/LaserScan/scan";
+  std::string topic_name = "/gazebo/default/" + name() + "/LaserScan/scan";
   return topic_name;
 }
 
@@ -1213,7 +1250,7 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   }
   for (int i = 0; i < msg.intensities_size(); ++i) {
     laser_scan().intensities.at(i) = msg.intensities(i);
-  } 
+  }
 }
 
 template<class flight_controller_t,
@@ -1224,10 +1261,10 @@ template<class flight_controller_t,
 void
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   LaserScanTopic(Quadrotor<flight_controller_t,
-                       FilterType,
-                       NoiseType,
-                       StateType,
-                       ActionType>::NodePtr& node)
+                           FilterType,
+                           NoiseType,
+                           StateType,
+                           ActionType>::NodePtr& node)
 {
   std::string topic_laser = laser_scaner_topic_name();
   subs_.push_back(node->Subscribe(topic_laser,
