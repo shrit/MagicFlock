@@ -2,7 +2,7 @@
 
 ContinuousActions::ContinuousActions()
   : velocity_vector_(0 ,0, 0)
-  , data_(3)
+  , data_(3, arma::fill::zeros)
 {}
 
 ignition::math::Vector3d
