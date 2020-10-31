@@ -70,9 +70,9 @@ main(int argc, char* argv[])
   }
 
   using QuadrotorType = Quadrotor<Px4Device,
-                                  CumulativeMovingAverage<arma::colvec>,
+                                  EmptyFilter<arma::colvec>,
                                   EmptyNoise<arma::colvec>,
-                                  ReceivedSignal,
+                                  AntennaDists,
                                   ContinuousActions>;
 
   /*  Create a vector of quadrotors, each one has an id + a label  */
@@ -81,6 +81,11 @@ main(int argc, char* argv[])
     QuadrotorType quad;
     quadrotors.push_back(quad);
   }
+  ignition::math::Vector3d right_antenna{10, -90, 45};
+  ignition::math::Vector3d front_antenna{100, 0, 45};
+  std::vector<ignition::math::Vector3d> fix_antennas(2);
+  fix_antennas.at(0) = right_antenna;
+  fix_antennas.at(1) = front_antenna;
 
   for (std::size_t i = 0; i < num_of_quads; ++i) {
     quadrotors.at(i).init(i,
@@ -88,6 +93,7 @@ main(int argc, char* argv[])
                           "",
                           num_of_quads,
                           num_of_external_radio_src,
+                          fix_antennas,
                           quadrotors);
   }
 

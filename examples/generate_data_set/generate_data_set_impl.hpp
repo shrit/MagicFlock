@@ -18,10 +18,22 @@ Generator<QuadrotorType>::go_to_destination()
 {
   std::vector<std::thread> threads;
   /*  Threading Quadrotors */
-  for (auto&& it : quadrotors_) {
+  ignition::math::Vector3d forward{ 0.4, 0, 0 };
+
+  threads.push_back(std::thread([&]() {
+    quadrotors_.at(0).current_action().action() = forward;
+    swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
+                                       quadrotors_.at(0).current_action());
+  }));
+  std::size_t it = 1;
+  while (true) {
     threads.push_back(std::thread([&]() {
-      swarm_.one_quad_execute_trajectory(it.id(), it.current_action());
+      swarm_.one_quad_execute_trajectory(quadrotors_.at(it).id(),
+                                         quadrotors_.at(it).current_action());
     }));
+    it++;
+    if (it == quadrotors_.size() - 1)
+      break;
   }
 
   for (auto& thread : threads) {
@@ -80,7 +92,8 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     time_steps_.reset();
     swarm_.in_air_async(15);
 
-    /* Collect dataset by creating a specific destination.
+    /**
+     * Collect dataset by creating a specific destination.
      * Each quadrotor use the flocking model to stay close to
      * its neighbors. All quadrotors have the same destination.
      * An episode ends when a quadrotor reachs the destination,
@@ -114,7 +127,8 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
       if (counter % 2 == 0) {
         for (auto&& it : quadrotors_) {
           logger_->info("Start the flocking model");
-          it.start_flocking_model(gains, destination, max_speed);
+          it.start_flocking_model(
+            gains, quadrotors_.at(0).position(), max_speed);
         }
         for (auto&& it : quadrotors_) {
           it.start_sampling_rt_state(50);
