@@ -146,6 +146,7 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
     Flocking flock(
       gains, position(), neighbor_positions(), destination, max_speed);
     current_action_.action() = flock.Velocity();
+    current_action_.one_hot_action() = flock.OneHotEncodingVelocity();
     all_actions_.push_back(current_action_);
   });
 }
@@ -289,7 +290,11 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   } else if constexpr (std::is_same<StateType, AntennaDists>::value) {
     calculate_distances_to_neighbors_antenna();
     State<FilterType, NoiseType, StateType, std::vector<AntennaDists>> state(
-      id_, num_neighbors_, num_of_antenna_src_, neigh_antenna_dists_container(), filter_);
+      id_,
+      num_neighbors_,
+      num_of_antenna_src_,
+      neigh_antenna_dists_container(),
+      filter_);
     current_state_ = state;
   }
 
@@ -299,8 +304,8 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   // Check for Gazebo freez and double line. Remove them if necessary
   arma::colvec check_double = current_state_.Data() - last_state().Data();
   if (!check_double.is_zero())
-    save_dataset_rssi_velocity(); // just a temporary solution, it might be a
-                                  // good one
+    save_dataset_sasas(); // just a temporary solution, it might be a
+                          // good one
   all_states_.push_back(current_state_);
 }
 
@@ -626,9 +631,7 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   // see if it is possible to make current action generic
   dataset_.save_csv_dataset_2_file(name_,
                                    vec_.to_std_vector(current_state().Data()),
-                                   vec_.to_std_vector(current_action().Data()),
-                                   min_dist_,
-                                   max_dist_);
+                                   current_action().one_hot_action());
 }
 
 template<class flight_controller_t,
@@ -643,9 +646,9 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   dataset_.save_csv_dataset_2_file(
     name_,
     vec_.to_std_vector(before_last_state().Data()),
-    vec_.to_std_vector(last_action().Data()),
+    last_action().one_hot_action(),
     vec_.to_std_vector(last_state().Data()),
-    vec_.to_std_vector(current_action().Data()),
+    current_action().one_hot_action(),
     vec_.to_std_vector(current_state().Data()));
 }
 
