@@ -5,8 +5,8 @@ SignalNoise<QuadrotorType>::SignalNoise(std::vector<QuadrotorType>& quadrotors,
   , max_episode_(10000)
   , swarm_(quadrotors)
   , quadrotors_(quadrotors)
-  , stddev_all_quad_(14)
-  , var_all_quad_(14)
+  , stddev_all_quad_(12)
+  , var_all_quad_(12)
   , logger_(logger)
 {}
 
