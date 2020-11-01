@@ -1,15 +1,13 @@
 /*
  * This file implment a modified version of Reynolds flocking model
  * This implementation is described in the following article
- * 
- * For more details please see the following paper: 
- * 
+ *
+ * For more details please see the following paper:
+ *
  *  @ARTICLE{8798720,
- *    author={F. {Schilling} and J. {Lecoeur} and F. {Schiano} and D. {Floreano}},
- *    journal={IEEE Robotics and Automation Letters}, 
- *    title={Learning Vision-Based Flight in Drone Swarms by Imitation}, 
- *    year={2019},
- *    volume={4},
+ *    author={F. {Schilling} and J. {Lecoeur} and F. {Schiano} and D.
+ * {Floreano}}, journal={IEEE Robotics and Automation Letters}, title={Learning
+ * Vision-Based Flight in Drone Swarms by Imitation}, year={2019}, volume={4},
  *    number={4},
  *    pages={4523-4530},}
  *
@@ -47,7 +45,7 @@ public:
   ignition::math::Vector3d migrationVelocity();
   ignition::math::Vector3d reynoldsVelocity();
   ignition::math::Vector3d Velocity();
-
+  std::vector<int> OneHotEncodingVelocity();
   Flocking(Flocking const&) = delete;
   Flocking(Flocking&&) = default;
 
@@ -56,12 +54,12 @@ private:
 
   /* These default values are reported in this paper:
    * https://ieeexplore.ieee.org/document/8675652
-   * The vector values are the following: 
-     * X = 1  -> cohesion gain
-     * Y = 10 -> separation gain
-     * Z = 1  -> migration gain
-     * W = 100 -> max neighbor distance
-   */ 
+   * The vector values are the following:
+   * X = 1  -> cohesion gain
+   * Y = 10 -> separation gain
+   * Z = 1  -> migration gain
+   * W = 100 -> max neighbor distance
+   */
   ignition::math::Vector4d gains_{ 1, 10, 1, 100 };
   ignition::math::Vector3d position_;
   std::vector<ignition::math::Vector3d> position_of_neighbors_;

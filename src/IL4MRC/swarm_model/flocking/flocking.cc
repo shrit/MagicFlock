@@ -102,30 +102,93 @@ Flocking::Velocity()
   sep = separationVelocity();
   mig = migrationVelocity();
   total = coh + sep + mig;
-  logger::logger_->debug("Migration Velocity: {}\n", mig);
-  logger::logger_->debug("Separation velocity: {}\n", sep);
-  logger::logger_->debug("cohesionVelocity: {}\n", coh);
-  logger::logger_->debug("Final velocity: {}\n", total);
+  logger::logger_->info("Migration Velocity: {}\n", mig);
+  logger::logger_->info("Separation velocity: {}\n", sep);
+  logger::logger_->info("cohesionVelocity: {}\n", coh);
+  logger::logger_->info("Final velocity: {}\n", total);
 
   /* Setup the max speed on each axis instead of the generated speed */
   if (std::fabs(total.X()) > max_speed_.X()) {
-    if (total.X() < 0){
+    if (total.X() < 0) {
       total.X(-max_speed_.X());
     } else {
       total.X(max_speed_.X());
     }
   } else if (std::fabs(total.Y()) > max_speed_.Y()) {
-    if (total.Y() < 0){
+    if (total.Y() < 0) {
       total.Y(-max_speed_.Y());
     } else {
       total.Y(max_speed_.Y());
     }
   } else if (std::fabs(total.Z()) > max_speed_.Z()) {
-    if (total.Z() < 0){
+    if (total.Z() < 0) {
       total.Z(-max_speed_.Z());
     } else {
       total.Z(max_speed_.Z());
     }
   }
   return total;
+}
+
+std::vector<int>
+Flocking::OneHotEncodingVelocity()
+{
+  std::vector<int> one_hot{
+    0, // mig +x
+    0, // mig -x
+    0, // mig +y
+    0, // mig -y
+    0, // mig +z
+    0, // mig -z
+    0, // rule +x
+    0, // rule -x
+    0, // rule +y
+    0, // rule -y
+    0, // rule +z
+    0  // rule -z
+  };
+  ignition::math::Vector3d coh, sep, mig, rule, abs_mig, abs_rule;
+  coh = cohesionVelocity();
+  sep = separationVelocity();
+  mig = migrationVelocity();
+
+  rule = coh + sep;
+  abs_rule = rule.Abs();
+  abs_mig = mig.Abs();
+  double max_rule = abs_rule.Max();
+  double max_mig = abs_mig.Max();
+  if (max_rule < max_mig) {
+    if (mig.Max() > std::fabs(mig.Min())) {
+      if (mig.Max() == mig.X())
+        one_hot.at(0) = 1;
+      else if (mig.Max() == mig.Y())
+        one_hot.at(2) = 1;
+      else if (mig.Max() == mig.Z())
+        one_hot.at(4) = 1;
+    } else if (mig.Max() < std::fabs(mig.Min())) {
+      if (mig.Min() == mig.X())
+        one_hot.at(1) = 1;
+      else if (mig.Min() == mig.Y())
+        one_hot.at(3) = 1;
+      else if (mig.Min() == mig.Z())
+        one_hot.at(5) = 1;
+    }
+  } else {
+    if (rule.Max() > std::fabs(rule.Min())) {
+      if (rule.Max() == rule.X())
+        one_hot.at(6) = 1;
+      else if (rule.Max() == rule.Y())
+        one_hot.at(8) = 1;
+      else if (rule.Max() == rule.Z())
+        one_hot.at(10) = 1;
+    } else if (rule.Max() < std::fabs(rule.Min())) {
+      if (rule.Min() == rule.X())
+        one_hot.at(7) = 1;
+      else if (rule.Min() == rule.Y())
+        one_hot.at(9) = 1;
+      else if (rule.Min() == rule.Z())
+        one_hot.at(11) = 1;
+    }
+  }
+  return one_hot;
 }
