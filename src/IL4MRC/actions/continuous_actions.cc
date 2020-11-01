@@ -1,7 +1,7 @@
 #include "continuous_actions.hpp"
 
 ContinuousActions::ContinuousActions()
-  : velocity_vector_(0 ,0, 0)
+  : velocity_vector_(0, 0, 0)
   , data_(3, arma::fill::zeros)
 {}
 
@@ -16,10 +16,20 @@ ContinuousActions::action()
 {
   return velocity_vector_;
 }
+std::vector<int>
+ContinuousActions::one_hot_action() const
+{
+  return one_hot_encoding_action_;
+}
+std::vector<int>&
+ContinuousActions::one_hot_action()
+{
+  return one_hot_encoding_action_;
+}
 
 void
 ContinuousActions::set_action(arma::colvec data)
-{ 
+{
   velocity_vector_.X() = data.at(0);
   velocity_vector_.Y() = data.at(1);
   velocity_vector_.Z() = data.at(2);
@@ -27,9 +37,9 @@ ContinuousActions::set_action(arma::colvec data)
 
 arma::colvec
 ContinuousActions::Data()
-{ 
+{
   data_.at(0) = velocity_vector_.X();
   data_.at(1) = velocity_vector_.Y();
-  data_.at(2) = velocity_vector_.Z();  
+  data_.at(2) = velocity_vector_.Z();
   return data_;
 }

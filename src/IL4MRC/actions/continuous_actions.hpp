@@ -10,6 +10,7 @@
  *
  */
 #pragma once
+#include <vector>
 
 #include <ignition/math6/ignition/math/Vector3.hh>
 #include <mlpack/prereqs.hpp>
@@ -20,10 +21,13 @@ public:
   ContinuousActions();
   ignition::math::Vector3d action() const;
   ignition::math::Vector3d& action();
+  std::vector<int> one_hot_action() const;
+  std::vector<int>& one_hot_action();
   void set_action(arma::colvec data);
   arma::colvec Data();
 
 private:
   ignition::math::Vector3d velocity_vector_;
+  std::vector<int> one_hot_encoding_action_;
   arma::colvec data_;
 };

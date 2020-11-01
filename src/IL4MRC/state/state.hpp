@@ -36,9 +36,9 @@ public:
 
   arma::colvec& Data();
 
-  arma::colvec RSSI() const;
+  arma::colvec ReducedData() const;
 
-  arma::colvec& RSSI();
+  arma::colvec& ReducedData();
 
   arma::colvec TOAs() const;
 
@@ -47,15 +47,15 @@ public:
   const arma::colvec& Encode() const;
 
   // Need to find a solution for this one
-  static constexpr size_t dimension = 14;
+  static constexpr size_t dimension = 16;
 
 private:
   unsigned int id_;
   int num_neighbors_;
   ArmaHelper arma;
   arma::colvec data_;
-  arma::colvec rssi_data_;
   arma::colvec toa_data_;
+  arma::colvec reduced_data_;
 };
 
 #include "state_impl.hpp"

@@ -104,9 +104,9 @@ template<class FilterType,
          class StateType,
          class ContainerType>
 arma::colvec
-State<FilterType, NoiseType, StateType, ContainerType>::RSSI() const
+State<FilterType, NoiseType, StateType, ContainerType>::ReducedData() const
 {
-  return rssi_data_;
+  return reduced_data_;
 }
 
 template<class FilterType,
@@ -114,9 +114,9 @@ template<class FilterType,
          class StateType,
          class ContainerType>
 arma::colvec&
-State<FilterType, NoiseType, StateType, ContainerType>::RSSI()
+State<FilterType, NoiseType, StateType, ContainerType>::ReducedData()
 {
-  return rssi_data_;
+  return reduced_data_;
 }
 
 template<class FilterType,
@@ -146,7 +146,7 @@ template<class FilterType,
 const arma::colvec&
 State<FilterType, NoiseType, StateType, ContainerType>::Encode() const
 {
-  data_ = arma::join_cols(rssi_data_, toa_data_);
+  data_ = arma::join_cols(reduced_data_, toa_data_);
 }
 
 template<class FilterType,
