@@ -21,10 +21,32 @@ ContinuousActions::one_hot_action() const
 {
   return one_hot_encoding_action_;
 }
+
 std::vector<int>&
 ContinuousActions::one_hot_action()
 {
   return one_hot_encoding_action_;
+}
+
+arma::mat
+ContinuousActions::all_possible_actions()
+{
+  arma::mat all_possible_actions 
+  {{1,0,0,0,0,0,0,0,0,0,0,0,0},
+   {0,1,0,0,0,0,0,0,0,0,0,0,0},
+   {0,0,1,0,0,0,0,0,0,0,0,0,0},
+   {0,0,0,1,0,0,0,0,0,0,0,0,0},
+   {0,0,0,0,1,0,0,0,0,0,0,0,0},
+   {0,0,0,0,0,1,0,0,0,0,0,0,0},
+   {0,0,0,0,0,0,1,0,0,0,0,0,0},
+   {0,0,0,0,0,0,0,1,0,0,0,0,0},
+   {0,0,0,0,0,0,0,0,1,0,0,0,0},
+   {0,0,0,0,0,0,0,0,0,1,0,0,0},
+   {0,0,0,0,0,0,0,0,0,0,1,0,0},
+   {0,0,0,0,0,0,0,0,0,0,0,1,0},
+   {0,0,0,0,0,0,0,0,0,0,0,0,1},};
+ 
+  return all_possible_actions;
 }
 
 void

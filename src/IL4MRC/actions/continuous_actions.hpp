@@ -25,6 +25,7 @@ public:
   std::vector<int>& one_hot_action();
   void set_action(arma::colvec data);
   arma::colvec Data();
+  arma::mat all_possible_actions();
 
 private:
   ignition::math::Vector3d velocity_vector_;
