@@ -18,7 +18,7 @@ arma::mat
 AnnStatePredictor<QuadrotorType>::predict()
 {
   mlpack::ann::FFN<mlpack::ann::MeanSquaredError<>,
-                   mlpack::ann::RandomInitialization>
+                   mlpack::ann::GlorotInitialization>
     regression_model;
 
   mlpack::data::Load(model_path_, model_name_, regression_model, true);
@@ -28,6 +28,13 @@ AnnStatePredictor<QuadrotorType>::predict()
                              ContinuousActions>::value) {
     labels_.clear();
     regression_model.Predict(features, labels_);
+    logger::logger_->info("Size of State features matrix: {}",
+                          arma::size(features));
+    logger::logger_->info("State data matrix:\n {}", features.t());
+    logger::logger_->info("State prediction matrix:\n {}", labels_.t());
+
+    arma::mat original_state_matrix =
+      this->create_state_matrix(this->quad_.current_state(), labels_.n_cols);
 
   } else if constexpr (std::is_same<typename QuadrotorType::Action,
                                     DiscretActions>::value) {
