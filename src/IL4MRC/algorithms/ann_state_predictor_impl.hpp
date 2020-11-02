@@ -40,15 +40,15 @@ AnnStatePredictor<QuadrotorType>::predict()
                                     DiscretActions>::value) {
 
     /**
-     * In this function we predict all the possible next states using 
+     * In this function we predict all the possible next states using
      * regression model, each next state is related to a specific action.
-     * Finally, we do an argmin between the original state and all of the 
+     * Finally, we do an argmin between the original state and all of the
      * next states observed here.
      * The action which correspond to the best state is returned by argmin
      * and returned finally by the best action function
      * The objective of this function is to predict only next states
-     * This in only valid in the case of discret actions. 
-     */     
+     * This in only valid in the case of discret actions.
+     */
     labels_.clear();
     regression_model.Predict(features, labels_);
 
