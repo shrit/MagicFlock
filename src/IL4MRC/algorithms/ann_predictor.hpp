@@ -18,6 +18,7 @@
 #include <mlpack/methods/ann/loss_functions/mean_squared_error.hpp>
 
 /* local includes  */
+#include <IL4MRC/util/arma_helper.hpp>
 #include <IL4MRC/util/logger.hpp>
 #include <IL4MRC/controller/quadrotor.hpp>
 
@@ -42,6 +43,7 @@ protected:
   typename QuadrotorType::Action action_;
   arma::colvec loss_vector_;
   QuadrotorType& quad_;
+  ArmaHelper arm_;
 
 };
 

@@ -27,14 +27,23 @@ AnnStatePredictor<QuadrotorType>::predict()
   if constexpr (std::is_same<typename QuadrotorType::Action,
                              ContinuousActions>::value) {
     labels_.clear();
-    regression_model.Predict(features, labels_);
+
     logger::logger_->info("Size of State features matrix: {}",
                           arma::size(features));
     logger::logger_->info("State data matrix:\n {}", features.t());
+    regression_model.Predict(features, labels_);
+
     logger::logger_->info("State prediction matrix:\n {}", labels_.t());
 
     arma::mat original_state_matrix =
       this->create_state_matrix(this->quad_.current_state(), labels_.n_cols);
+    Argmin<arma::mat, arma::uword> argmin(original_state_matrix, labels_, 1);
+
+    best_action_index_ = argmin.min_index();
+    logger::logger_->info("Index of best action: {}", best_action_index_);
+
+    /*  Get the follower action now !! and store it directly */
+    best_action_follower_ = this->action_.int_to_action(best_action_index_);
 
   } else if constexpr (std::is_same<typename QuadrotorType::Action,
                                     DiscretActions>::value) {
@@ -79,7 +88,7 @@ template<class QuadrotorType>
 arma::vec
 AnnStatePredictor<QuadrotorType>::best_predicted_state()
 {
-  /* Return the best state based on the best action discovered in predict*/
+  /* Return the best state based on the best action discovered in predict */
   return labels_.col(best_action_index_);
 }
 
@@ -97,7 +106,7 @@ template<class QuadrotorType>
 arma::Col<arma::uword>
 AnnStatePredictor<QuadrotorType>::all_predicted_actions() const
 {
-  /* Return a vector of all best predicted actions in the past*/
+  /* Return a vector of all best predicted actions in the past */
   return all_predicted_actions_;
 }
 
