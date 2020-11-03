@@ -34,7 +34,7 @@ State<FilterType, NoiseType, StateType, ContainerType>::State(
   : id_(id)
   , num_neighbors_(num_neighbors)
   , data_(num_neighbors_ * 2, arma::fill::zeros)
-  , reduced_data_(10, arma::fil::zeros)
+  , reduced_data_(10, arma::fill::zeros)
 {
   int antenna_size = (num_neighbors_ + num_of_antenna_src) * 2;
   int num_of_transmitter = num_neighbors_ + num_of_antenna_src;
@@ -60,13 +60,13 @@ State<FilterType, NoiseType, StateType, ContainerType>::State(
     for (std::size_t j = 0; j < num_of_transmitter; ++j) {
       data.at(i) = container.at(j).dist_antenna_1;
       data.at(++i) = container.at(j).dist_antenna_2;
-      if (container.at(j).id == 0) {
-        reduced_data_.at(0) = container.at(j).dist_antenna_1;
-        reduced_data_.at(1) = container.at(j).dist_antenna_2;
-      } else {
-        sorted_data.at(i) = container.at(j).dist_antenna_1;
-        sorted_data.at(++i) = container.at(j).dist_antenna_2;
-      }
+      // if (container.at(j).id == 0) {
+      //   reduced_data_.at(0) = container.at(j).dist_antenna_1;
+      //   reduced_data_.at(1) = container.at(j).dist_antenna_2;
+      // } else {
+      //   sorted_data.at(i) = container.at(j).dist_antenna_1;
+      //   sorted_data.at(++i) = container.at(j).dist_antenna_2;
+      // }
       i = i + 1;
     }
     arma::sort(sorted_data);

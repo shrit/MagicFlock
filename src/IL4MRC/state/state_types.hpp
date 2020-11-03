@@ -15,6 +15,7 @@ public:
 class AntennaDists
 {
 public:
+  unsigned int id;
   double dist_antenna_1;
   double dist_antenna_2;
 };
