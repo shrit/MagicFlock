@@ -27,7 +27,7 @@ template<class QuadrotorType>
 class AnnPredictor
 {
 public:
-  AnnPredictor(const QuadrotorType& quad);
+  AnnPredictor(QuadrotorType& quad);
 
   arma::mat create_features_matrix();
 
@@ -41,7 +41,7 @@ public:
 protected:
   typename QuadrotorType::Action action_;
   arma::colvec loss_vector_;
-  const QuadrotorType& quad_;
+  QuadrotorType& quad_;
 
 };
 

@@ -1,7 +1,7 @@
 #pragma once
 
 template<class QuadrotorType>
-AnnPredictor<QuadrotorType>::AnnPredictor(const QuadrotorType& quad)
+AnnPredictor<QuadrotorType>::AnnPredictor(QuadrotorType& quad)
   : quad_(quad)
 {
   // Nothing to do here.
@@ -24,7 +24,7 @@ AnnPredictor<QuadrotorType>::create_features_matrix()
       col.insert_rows(col.n_rows, quad_.last_state().Data());
       col.insert_rows(col.n_rows, quad_.current_action().Data());
       col.insert_rows(col.n_rows, quad_.current_state().Data());
-      col.insert_rows(col.n_rows, actions.col(i);
+      col.insert_rows(col.n_rows, actions.col(i));
 
       /*  Create a matrix of several columns, each one is added to on the end */
       features.insert_cols(features.n_cols, col);
