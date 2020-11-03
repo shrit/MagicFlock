@@ -84,6 +84,7 @@ DiscretActions::generate_real_random()
   double random_double = distribution_real_(generator_);
   return random_double;
 }
+
 /*  The condition is to generate an action that is not the same to the
     parameter action and not opposed to this action. This is more
     comfortable since the opposed action apply high noise on traveled

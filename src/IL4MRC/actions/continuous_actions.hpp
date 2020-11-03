@@ -23,12 +23,13 @@ public:
   ignition::math::Vector3d& action();
   std::vector<int> one_hot_action() const;
   std::vector<int>& one_hot_action();
+  ContinuousActions int_to_action(arma::uword index);
   void set_action(arma::colvec data);
   arma::colvec Data();
   arma::mat all_possible_actions();
 
 private:
   ignition::math::Vector3d velocity_vector_;
-  std::vector<int> one_hot_encoding_action_;
+  std::vector<int> one_hot_encoding_action_{1,0,0,0,0,0,0,0,0,0,0,0};
   arma::colvec data_;
 };
