@@ -20,8 +20,8 @@
 #include <IL4MRC/actions/continuous_actions.hpp>
 #include <IL4MRC/controller/px4_device.hpp>
 #include <IL4MRC/controller/quadrotor.hpp>
-#include <IL4MRC/dists/gaussian_noise.hpp>
 #include <IL4MRC/dists/empty_noise.hpp>
+#include <IL4MRC/dists/gaussian_noise.hpp>
 #include <IL4MRC/metrics/empty_filter.hpp>
 #include <IL4MRC/simulator/gazebo.hpp>
 #include <IL4MRC/third_party/CLI11.hpp>
@@ -42,12 +42,18 @@ main(int argc, char* argv[])
     "to aquire these model files."
   };
   std::size_t num_of_quads = 3;
+  std::size_t num_of_external_radio_src = 0;
   bool verbose = false;
   std::string model_file_name;
 
   app.add_option("-n, --number_of_quadrotors",
                  num_of_quads,
                  " Number of quadrotor to create inside the simulator.");
+  app.add_option(
+    "-a, --number_of_radio",
+    num_of_external_radio_src,
+    " Number of external radio source inside the simulator."
+    "If you added external antenna source specify the number here.");
   app.add_option("-m, --model_file", model_file_name, "Model files to add.");
   app.add_flag("-v, --verbose", verbose, " Make the output more verbose");
 
@@ -70,9 +76,20 @@ main(int argc, char* argv[])
     quadrotors.push_back(quad);
   }
 
+  ignition::math::Vector3d right_antenna{ 10, -90, 45 };
+  ignition::math::Vector3d front_antenna{ 100, 0, 45 };
+  std::vector<ignition::math::Vector3d> fix_antennas(2);
+  fix_antennas.at(0) = right_antenna;
+  fix_antennas.at(1) = front_antenna;
+
   for (std::size_t i = 0; i < num_of_quads; ++i) {
-    quadrotors.at(i).init(
-      i, "iris_" + std::to_string(i), "", num_of_quads, quadrotors);
+    quadrotors.at(i).init(i,
+                          "iris_" + std::to_string(i),
+                          "",
+                          num_of_quads,
+                          num_of_external_radio_src,
+                          fix_antennas,
+                          quadrotors);
   }
 
   /*  Gazebo simulator */

@@ -20,7 +20,7 @@ Iterative_learning<QuadrotorType>::generate_trajectory_using_model()
   std::vector<std::thread> threads;
 
   for (auto&& i : quadrotors_) {
-    AnnActionPredictor<QuadrotorType> predict(
+    AnnStatePredictor<QuadrotorType> predict(
       "/meta/lemon/examples/iterative_learning/build/model.bin", "model", i);
     ContinuousActions action = predict.best_predicted_action();
     i.current_action() = action;
