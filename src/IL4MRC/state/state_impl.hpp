@@ -73,12 +73,13 @@ State<FilterType, NoiseType, StateType, ContainerType>::State(
     reduced_data_.at(2) = sorted_data.at(0);
     reduced_data_.at(3) = sorted_data.at(1);
     reduced_data_.at(4) = sorted_data.at(2);
-    reduced_data_.at(5) = sorted_data.at(3);    
+    reduced_data_.at(5) = sorted_data.at(3);
     data_ = arma.vec_to_arma(data);
 
   } else if constexpr (std::is_same<StateType, CrapyData>::value) {
     arma::colvec crapy_dataset = { -120, -120, -120, -120, -120, -120,
-                                   -120, -120, -120, -120, -120, -120 };
+                                   -120, -120, -120, -120, -120, -120,
+                                   -120, -120, -120, -120 };
     data_ = crapy_dataset;
   }
 
