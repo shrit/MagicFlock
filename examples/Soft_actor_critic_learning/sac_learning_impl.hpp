@@ -51,48 +51,58 @@ SoftActorCritic<QuadrotorType>::run(std::function<void(void)> reset)
     ignition::math::Vector3d max_speed{ 2, 2, 0.2 };
     ignition::math::Vector4d gains{ 1, 7, 1, 100 };
 
-    for (auto&& it : quadrotors_) {
-      it.start_sampling_rt_state(50);
+    // Examin if the takeoff has been well worked
+    bool takeoff_shape = swarm_.examin_swarm_shape(0.5, 10);
+    if (takeoff_shape) {
+      logger_->info("Quadrotors are far from each other, ending the episode");
+
+      for (auto&& it : quadrotors_) {
+        it.start_sampling_rt_state(50);
+      }
+
+      for (auto&& it : quadrotors_) {
+        logger_->info("Start the flocking model");
+        it.start_flocking_model(gains, destination, max_speed);
+      }
+      std::size_t consecutiveEpisode = 100;
+      std::size_t Steps = 1000;
+
+      std::function<void(void)> trajectory = [this]() {
+        this->generate_trajectory_using_model();
+      };
+
+      std::function<double()> reward = [this]() {
+        return reward_.calculate_reward(quadrotors_.at(0));
+      };
+
+      std::function<bool()> shape = [&]() {
+        bool isTerminal = false;
+        bool temp = swarm_.examin_swarm_shape(0.5, 30);
+        bool temp2 = swarm_.examin_destination(destination);
+        if (temp) {
+          isTerminal = temp;
+          logger_->info(
+            "Quadrotors are far from each other, ending the episode");
+        } else if (temp2) {
+          logger_->info("Quadrotors have arrived at specificed destination. "
+                        "ending the episode.");
+          isTerminal = temp2;
+        }
+        return isTerminal;
+      };
+
+      sac_.train(consecutiveEpisode, Steps, trajectory, reward, shape);
+
+      // quadrotors_.at(0).save_values("distance_metric", maxD, minD);
+
+      for (auto&& it : quadrotors_) {
+        it.stop_flocking_model();
+      }
+
+      for (auto&& it : quadrotors_) {
+        it.stop_sampling_rt_state();
+      }
     }
-
-    for (auto&& it : quadrotors_) {
-      logger_->info("Start the flocking model");
-      it.start_flocking_model(gains, destination, max_speed);
-    }
-    std::size_t consecutiveEpisode = 100;
-    std::size_t Steps = 1000;
-
-    std::function<void(void)> trajectory = [this]() {
-      this->generate_trajectory_using_model();
-    };
-    std::function<double()> reward = [this]() {
-      return reward_.calculate_reward(quadrotors_.at(0));
-    };
-    std::function<bool()> shape = [this]() {
-      return swarm_.examin_swarm_shape();
-    };
-
-    sac_.train(consecutiveEpisode, Steps, trajectory, reward, shape);
-
-    /*  Check the destination  */
-    bool has_arrived = swarm_.examin_destination(destination);
-
-    if (has_arrived) {
-      logger_->info("Quadrotors have arrived at specificed destination. "
-                    "ending the episode.");
-      break;
-    }
-
-    // quadrotors_.at(0).save_values("distance_metric", maxD, minD);
-
-    for (auto&& it : quadrotors_) {
-      it.stop_flocking_model();
-    }
-
-    for (auto&& it : quadrotors_) {
-      it.stop_sampling_rt_state();
-    }
-
     /* Landing is blocking untill all quadrotors in the swarm touch the
      * ground */
     swarm_.stop_offboard_mode_async();
