@@ -6,6 +6,7 @@ template<class FilterType,
          class ContainerType>
 State<FilterType, NoiseType, StateType, ContainerType>::State()
   : data_(dimension, arma::fill::zeros)
+  , reduced_data_(6, arma::fill::zeros)
 {
   /* Nothing to do here. */
 }
@@ -17,6 +18,7 @@ template<class FilterType,
 State<FilterType, NoiseType, StateType, ContainerType>::State(
   const arma::colvec& data)
   : data_(data)
+  , reduced_data_(6, arma::fill::zeros)
 {
   /* Nothing to do here. */
 }
@@ -56,16 +58,14 @@ State<FilterType, NoiseType, StateType, ContainerType>::State(
     data_.replace(0, -110);
 
   } else if constexpr (std::is_same<StateType, AntennaDists>::value) {
-    arma::colvec sorted_data(num_of_transmitter - 1, arma::fill::zeros);
+    arma::colvec sorted_data(antenna_size, arma::fill::zeros);
     for (std::size_t j = 0; j < num_of_transmitter; ++j) {
       data.at(i) = container.at(j).dist_antenna_1;
       data.at(++i) = container.at(j).dist_antenna_2;
 
-      sorted_data.at(i) = container.at(j).dist_antenna_1;
-      sorted_data.at(++i) = container.at(j).dist_antenna_2;
-      
       i = i + 1;
     }
+    sorted_data = data;
     arma::sort(sorted_data);
     reduced_data_.at(0) = sorted_data.at(0);
     reduced_data_.at(1) = sorted_data.at(1);
