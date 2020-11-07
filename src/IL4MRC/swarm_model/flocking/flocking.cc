@@ -102,10 +102,10 @@ Flocking::Velocity()
   sep = separationVelocity();
   mig = migrationVelocity();
   total = coh + sep + mig;
-  logger::logger_->info("Migration Velocity: {}\n", mig);
-  logger::logger_->info("Separation velocity: {}\n", sep);
-  logger::logger_->info("cohesionVelocity: {}\n", coh);
-  logger::logger_->info("Final velocity: {}\n", total);
+  logger::logger_->debug("Migration Velocity: {}\n", mig);
+  logger::logger_->debug("Separation velocity: {}\n", sep);
+  logger::logger_->debug("cohesionVelocity: {}\n", coh);
+  logger::logger_->debug("Final velocity: {}\n", total);
 
   /* Setup the max speed on each axis instead of the generated speed */
   if (std::fabs(total.X()) > max_speed_.X()) {
