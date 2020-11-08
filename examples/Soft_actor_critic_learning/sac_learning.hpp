@@ -21,7 +21,7 @@ public:
   SoftActorCritic(std::vector<QuadrotorType>& quadrotors,
                   std::shared_ptr<spdlog::logger> logger);
 
-  void generate_trajectory_using_model();
+  void go_to_destination();
   void run(std::function<void(void)> func);
 
   SoftActorCritic(SoftActorCritic const&) = delete;

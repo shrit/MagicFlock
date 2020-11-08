@@ -9,14 +9,14 @@ SoftActorCritic<QuadrotorType>::SoftActorCritic(
   , swarm_(quadrotors)
   , quadrotors_(quadrotors)
   , logger_(logger)
-  , sac_(quadrotors.at(0))
+  , sac_(quadrotors)
 {
   // Nothing to do here
 }
 
 template<class QuadrotorType>
 void
-SoftActorCritic<QuadrotorType>::generate_trajectory_using_model()
+SoftActorCritic<QuadrotorType>::go_to_destination()
 {
   std::vector<std::thread> threads;
 
@@ -57,18 +57,18 @@ SoftActorCritic<QuadrotorType>::run(std::function<void(void)> reset)
       logger_->info("Quadrotors are far from each other, ending the episode");
 
       for (auto&& it : quadrotors_) {
-        it.start_sampling_rt_state(50);
-      }
-
-      for (auto&& it : quadrotors_) {
         logger_->info("Start the flocking model");
         it.start_flocking_model(gains, destination, max_speed);
       }
+      for (auto&& it : quadrotors_) {
+        it.start_sampling_rt_state(50);
+      }
+
       std::size_t consecutiveEpisode = 100;
-      std::size_t Steps = 1000;
+      std::size_t Steps = 10000;
 
       std::function<void(void)> trajectory = [this]() {
-        this->generate_trajectory_using_model();
+        this->go_to_destination();
       };
 
       std::function<double()> reward = [this]() {
@@ -90,7 +90,7 @@ SoftActorCritic<QuadrotorType>::run(std::function<void(void)> reset)
         }
         return isTerminal;
       };
-
+     
       sac_.train(consecutiveEpisode, Steps, trajectory, reward, shape);
 
       // quadrotors_.at(0).save_values("distance_metric", maxD, minD);
