@@ -35,6 +35,25 @@ SoftActorCritic<QuadrotorType>::go_to_destination()
 
 template<class QuadrotorType>
 void
+SoftActorCritic<QuadrotorType>::stop()
+{
+  std::vector<std::thread> threads;
+  ignition::math::Vector3d stop{ 0, 0, 0 };
+  /*  Threading Quadrotors */
+  for (auto&& it : quadrotors_) {
+    threads.push_back(std::thread([&]() {
+      it.current_action().action() = stop;
+      swarm_.one_quad_execute_trajectory(it.id(), it.current_action());
+    }));
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+}
+
+template<class QuadrotorType>
+void
 SoftActorCritic<QuadrotorType>::run(std::function<void(void)> reset)
 {
   //! Set up actor and critic network to start training
@@ -71,6 +90,8 @@ SoftActorCritic<QuadrotorType>::run(std::function<void(void)> reset)
         this->go_to_destination();
       };
 
+      std::function<void(void)> stop_trajectory = [this]() { this->stop(); };
+
       std::function<double()> reward = [this]() {
         return reward_.calculate_reward(quadrotors_.at(0));
       };
@@ -90,8 +111,9 @@ SoftActorCritic<QuadrotorType>::run(std::function<void(void)> reset)
         }
         return isTerminal;
       };
-     
-      sac_.train(consecutiveEpisode, Steps, trajectory, reward, shape);
+
+      sac_.train(
+        consecutiveEpisode, Steps, trajectory, stop_trajectory, reward, shape);
 
       // quadrotors_.at(0).save_values("distance_metric", maxD, minD);
 
