@@ -48,7 +48,8 @@ Flocking::cohesionVelocity()
     total_sum += r_cohs;
   }
   logger::logger_->debug(
-    "cohesion total sum: {}", total_sum, " param: {}\n", param);
+    "cohesion total sum: {}\n", total_sum);
+  logger::logger_->debug("param cohesion: {}\n", param);
   cohesionVelocity = total_sum * param;
   return cohesionVelocity;
 }
@@ -71,9 +72,10 @@ Flocking::separationVelocity()
 
     total_sum += r_sep_norm_2;
   }
-  logger::logger_->debug(
-    "Separation total sum: ", total_sum, " param: {}\n", param);
+  logger::logger_->debug("Separation total sum: {}", total_sum);
+  logger::logger_->debug("param: {}\n", param);
   separationVelocity = total_sum * param;
+  logger::logger_->debug("SeparationVelocity: {}\n", separationVelocity);
   return separationVelocity;
 }
 
@@ -85,6 +87,8 @@ Flocking::migrationVelocity()
   r_mig = destination_position_ - position_;
   r_mig = r_mig.Normalize(); // This will do the entire operation of division
   migrationVelocity = r_mig * gains_.Z();
+  logger::logger_->debug("Gains Z: {}", gains_.Z());
+  logger::logger_->debug("migration {}", migrationVelocity);
   return migrationVelocity;
 }
 
@@ -104,7 +108,7 @@ Flocking::Velocity()
   total = coh + sep + mig;
   logger::logger_->debug("Migration Velocity: {}\n", mig);
   logger::logger_->debug("Separation velocity: {}\n", sep);
-  logger::logger_->debug("cohesionVelocity: {}\n", coh);
+  logger::logger_->debug("Cohesion Velocity: {}\n", coh);
   logger::logger_->debug("Final velocity: {}\n", total);
 
   /* Setup the max speed on each axis instead of the generated speed */
