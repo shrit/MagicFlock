@@ -11,9 +11,9 @@ SACPredictor<EnvironmentType,
              UpdaterType,
              PolicyType,
              QuadrotorType,
-             ReplayType>::SACPredictor(QuadrotorType& quad)
+             ReplayType>::SACPredictor(std::vector<QuadrotorType>& quad)
   : replayMethod_(32, 10000, 1, 14)
-  , quadrotor_(quad)
+  , quadrotors_(quad)
   , policyNetwork_(mlpack::ann::EmptyLoss<>(),
                    mlpack::ann::GaussianInitialization(0, 0.1))
   , qNetwork_(mlpack::ann::EmptyLoss<>(),
@@ -62,6 +62,14 @@ SACPredictor<EnvironmentType,
   config_.TargetNetworkSyncInterval() = 1;
   config_.UpdateInterval() = 1;
 
+  if (std::experimental::filesystem::exists("qNetwork.bin")) {
+    arma::mat temp;
+    // mlpack::data::Load("qNetwork.bin", temp);
+    // qNetwork_.Parameters() = temp.t();
+    // mlpack::data::Load("policyNetwork.bin", temp);
+    // policyNetwork_.Parameters() = temp.t();
+  }
+
   agent_ = std::make_unique<
     mlpack::rl::SAC<EnvironmentType, NetworkType, UpdaterType, PolicyType>>(
     config_, qNetwork_, policyNetwork_, replayMethod_);
@@ -94,10 +102,10 @@ SACPredictor<EnvironmentType,
   while (agent_->TotalSteps() < numSteps) {
     episodeReturn_ = 0;
     bool isTerminal = false;
-    do {
-      agent_->State().Data() = quadrotor_.current_state().Data();
+    do { // This the step counter
+      agent_->State().Data() = quadrotors_.at(0).current_state().Data();
       logger::logger_->info("Quadrotor State {}",
-                            quadrotor_.current_state().Data());
+                            quadrotors_.at(0).current_state().Data());
       logger::logger_->info("Agent State {}", agent_->State().Data());
 
       // Here we need to execute action, swarm_.one..etc
@@ -105,37 +113,36 @@ SACPredictor<EnvironmentType,
       arma::colvec action =
         arma::conv_to<arma::colvec>::from(agent_->Action().action);
       logger::logger_->info("The created action {}", action);
-      quadrotor_.current_action().set_action(action);
+      quadrotors_.at(0).current_action().set_action(action);
 
-      execute_action();
       mlpack::rl::ContinuousActionEnv::State
         nextState; // replace it with an arma matrix
-      nextState.Data() = quadrotor_.current_state().Data();
+      nextState.Data() = quadrotors_.at(0).current_state().Data();
       logger::logger_->info("Agent NextState {}", nextState.Data());
-      
+
       double reward = evaluate_reward();
       logger::logger_->info("Print reward value {}", reward);
       isTerminal = examine_environment();
 
       arma::colvec stop_action = { 0, 0, 0 };
-      quadrotor_.current_action().set_action(stop_action);
+      quadrotors_.at(0).current_action().set_action(stop_action);
 
       replayMethod_.Store(
-        agent_->State(), agent_->Action(), reward, nextState, isTerminal, 0.99);
+        agent_->State(), agent_->Action(), reward, nextState, false, 0.99);
       logger::logger_->info(
         "States, action, reward stored successfully, Terminal State: {}",
         isTerminal);
       episodeReturn_ += reward;
       agent_->TotalSteps()++;
 
-      if (agent_->Deterministic() ||
-          agent_->TotalSteps() < config_.ExplorationSteps()) {
-        continue;
-      }
+      // if (agent_->Deterministic() ||
+      //     agent_->TotalSteps() < config_.ExplorationSteps()) {
+      //   continue;
+      // }
 
       logger::logger_->info("Updating the agent to learn");
-      for (size_t i = 0; i < config_.UpdateInterval(); i++)
-        agent_->Update();
+      // for (size_t i = 0; i < config_.UpdateInterval(); i++)
+      //  agent_->Update();
     }
 
     while (!isTerminal);
@@ -147,14 +154,19 @@ SACPredictor<EnvironmentType,
     double averageReturn =
       std::accumulate(returnList_.begin(), returnList_.end(), 0.0) /
       returnList_.size();
+    logger::logger_->info("Save the network");
+    mlpack::data::Save("qNetwork.bin", "qNetwork", qNetwork_);
+    mlpack::data::Save("policyNetwork.bin", "policyNetwork", policyNetwork_);
+
     // if (episodes % 4 == 0) {
     //   std::cout << "Avg return in last " << returnList_.size()
     //             << " episodes: " << averageReturn
     //             << "\\t Episode return: " << episodeReturn_
     //             << "\\t Total steps: " << agent_->TotalSteps() << std::endl;
     // }
-    if (isTerminal)
-      break;
+
+    // if (isTerminal)
+    //   break;
   }
 }
 

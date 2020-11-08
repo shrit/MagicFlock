@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <experimental/filesystem>
 #include <functional>
 #include <numeric>
 #include <random>
@@ -35,7 +36,7 @@ template<typename EnvironmentType,
 class SACPredictor
 {
 public:
-  SACPredictor(QuadrotorType& quad);
+  SACPredictor(std::vector<QuadrotorType>& quad);
   void SacNetwork();
   void train(
     size_t& consecutiveEpisodes,
@@ -53,7 +54,7 @@ private:
   mlpack::rl::TrainingConfig config_;
   std::vector<double> returnList_;
   mlpack::rl::RandomReplay<EnvironmentType> replayMethod_;
-  QuadrotorType& quadrotor_;
+  std::vector<QuadrotorType>& quadrotors_;
   std::unique_ptr<
     mlpack::rl::SAC<EnvironmentType, NetworkType, UpdaterType, PolicyType>>
     agent_;
