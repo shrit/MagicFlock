@@ -136,15 +136,16 @@ template<class flight_controller_t,
          class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
-  start_flocking_model(ignition::math::Vector4d gains,
-                       ignition::math::Vector3d destination,
-                       ignition::math::Vector3d max_speed)
+  start_flocking_model(const ignition::math::Vector4d& gains,
+                       const ignition::math::Vector3d& destination,
+                       const ignition::math::Vector3d& max_speed)
 {
   std::lock_guard<std::mutex> lock(_flocking_mutex);
 
   flocking_sampler_.start(50, [&]() {
     Flocking flock(
       gains, position(), neighbor_positions(), destination, max_speed);
+    logger::logger_->info("Flocking Velocity {}", flock.Velocity());
     current_action_.action() = flock.Velocity();
     current_action_.one_hot_action() = flock.OneHotEncodingVelocity();
     all_actions_.push_back(current_action_);
