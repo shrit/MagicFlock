@@ -45,6 +45,8 @@ template<class QuadrotorType>
 void
 Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
 {
+  reset();
+  std::this_thread::sleep_for(std::chrono::seconds(20));
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
 
     logger_->info("Episode : {}", episode_);

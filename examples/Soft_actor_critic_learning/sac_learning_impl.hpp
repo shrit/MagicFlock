@@ -98,7 +98,7 @@ SoftActorCritic<QuadrotorType>::run(std::function<void(void)> reset)
 
       std::function<bool()> shape = [&]() {
         bool isTerminal = false;
-        bool temp = swarm_.examin_swarm_shape(0.5, 30);
+        bool temp = swarm_.examin_swarm_shape(0.1, 30);
         bool temp2 = swarm_.examin_destination(destination);
         if (temp) {
           isTerminal = temp;

@@ -20,20 +20,26 @@ Generator<QuadrotorType>::go_to_destination()
   /*  Threading Quadrotors */
   ignition::math::Vector3d forward{ 0.4, 0, 0 };
 
-  threads.push_back(std::thread([&]() {
-    quadrotors_.at(0).current_action().action() = forward;
-    swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
-                                       quadrotors_.at(0).current_action());
-  }));
-  std::size_t it = 1;
-  while (true) {
+  // threads.push_back(std::thread([&]() {
+  //   quadrotors_.at(0).current_action().action() = forward;
+  //   swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
+  //                                      quadrotors_.at(0).current_action());
+  // }));
+  // std::size_t it = 1;
+  // while (true) {
+  //   threads.push_back(std::thread([&]() {
+  //     swarm_.one_quad_execute_trajectory(quadrotors_.at(it).id(),
+  //                                        quadrotors_.at(it).current_action());
+  //   }));
+  //   it++;
+  //   if (it == quadrotors_.size() - 1)
+  //     break;
+  // }
+
+  for (auto&& it : quadrotors_) {
     threads.push_back(std::thread([&]() {
-      swarm_.one_quad_execute_trajectory(quadrotors_.at(it).id(),
-                                         quadrotors_.at(it).current_action());
+      swarm_.one_quad_execute_trajectory(it.id(), it.current_action());
     }));
-    it++;
-    if (it == quadrotors_.size() - 1)
-      break;
   }
 
   for (auto& thread : threads) {
@@ -128,7 +134,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
         for (auto&& it : quadrotors_) {
           logger_->info("Start the flocking model");
           it.start_flocking_model(
-            gains, quadrotors_.at(0).position(), max_speed);
+            gains, destination, max_speed);
         }
         for (auto&& it : quadrotors_) {
           it.start_sampling_rt_state(50);
