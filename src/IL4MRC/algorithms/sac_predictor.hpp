@@ -42,6 +42,7 @@ public:
     size_t& consecutiveEpisodes,
     const size_t numSteps,
     std::function<void()> execute_action,
+    std::function<void()> stop_action,
     std::function<double()> evaluate_reward,
     std::function<bool()> examine_environment);
   void test();

@@ -92,6 +92,7 @@ SACPredictor<EnvironmentType,
              ReplayType>::train(size_t& consecutiveEpisodes,
                                 const size_t numSteps,
                                 std::function<void()> execute_action,
+                                std::function<void()> stop_action,
                                 std::function<double()> evaluate_reward,
                                 std::function<bool()> examine_environment)
 {
@@ -115,20 +116,20 @@ SACPredictor<EnvironmentType,
       logger::logger_->info("The created action {}", action);
       quadrotors_.at(0).current_action().set_action(action);
 
+      execute_action();
+
       mlpack::rl::ContinuousActionEnv::State
         nextState; // replace it with an arma matrix
       nextState.Data() = quadrotors_.at(0).current_state().Data();
       logger::logger_->info("Agent NextState {}", nextState.Data());
+      stop_action();
 
       double reward = evaluate_reward();
       logger::logger_->info("Print reward value {}", reward);
       isTerminal = examine_environment();
 
-      arma::colvec stop_action = { 0, 0, 0 };
-      quadrotors_.at(0).current_action().set_action(stop_action);
-
       replayMethod_.Store(
-        agent_->State(), agent_->Action(), reward, nextState, false, 0.99);
+        agent_->State(), agent_->Action(), reward, nextState, isTerminal, 0.99);
       logger::logger_->info(
         "States, action, reward stored successfully, Terminal State: {}",
         isTerminal);
@@ -142,7 +143,7 @@ SACPredictor<EnvironmentType,
 
       logger::logger_->info("Updating the agent to learn");
       // for (size_t i = 0; i < config_.UpdateInterval(); i++)
-      //  agent_->Update();
+      agent_->Update();
     }
 
     while (!isTerminal);
@@ -165,8 +166,8 @@ SACPredictor<EnvironmentType,
     //             << "\\t Total steps: " << agent_->TotalSteps() << std::endl;
     // }
 
-    // if (isTerminal)
-    //   break;
+    if (isTerminal)
+      break;
   }
 }
 
