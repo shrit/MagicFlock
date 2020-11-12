@@ -66,27 +66,6 @@ Generator<QuadrotorType>::stop()
   }
 }
 
-/* This function should only be executed after a model of flocking that
- * have been executed other wise it will not do anything*/
-template<class QuadrotorType>
-void
-Generator<QuadrotorType>::go_to_reverse_destination()
-{
-  std::vector<std::thread> threads;
-  /*  Threading Quadrotors */
-  for (auto&& it : quadrotors_) {
-    threads.push_back(std::thread([&]() {
-      for (int i = 0; i < it.all_actions().size(); ++i) {
-        swarm_.one_quad_execute_trajectory(it.id(), -it.all_actions().at(i));
-      }
-    }));
-  }
-
-  for (auto& thread : threads) {
-    thread.join();
-  }
-}
-
 template<class QuadrotorType>
 void
 Generator<QuadrotorType>::run(std::function<void(void)> reset)
@@ -105,13 +84,15 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
      * An episode ends when a quadrotor reachs the destination,
      * or quadrotors are very dispersed.
      */
-
     /*  Verify that vectors are clear when starting new episode */
     logger_->info("Taking off has finished. Start the flocking model");
     ignition::math::Vector4d gains{ 1, 7, 1, 100 };
     // This destination goes forward
     ignition::math::Vector3d destination{ 163, 0, 20 };
     ignition::math::Vector3d max_speed{ 2, 2, 0.09 };
+
+    ignition::math::Vector4d axis_speed{ 0.35, 0.35, 0.15, 4 };
+
     //! This destination goes backward
     // ignition::math::Vector3d destination{ -163, 0, 20 };
 
@@ -122,59 +103,47 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     // ignition::math::Vector3d destination{ 0, -163, 20 };
     Timer model_time;
     model_time.start();
-    for (int counter = 0; counter < 10000; counter++) {
+    // Check the shape of the swarm, if one is missing then land.
+    bool shape = swarm_.examin_swarm_shape(0.5, 10);
+    if (!shape) {
+      logger_->info("Quadrotors are far from each other, ending the episode");
+      break;
+    }
+    std::function<void(void)> action_model =
+      [&]() {
+        for (auto&& it : quadrotors_) {
+          it.flocking_model(gains, destination, max_speed);
+        }
+        for (auto&& it : quadrotors_) {
+          it.random_model(axis_speed);
+        }
+      };
 
-      // Check the shape of the swarm, if one is missing then land.
-      bool shape = swarm_.examin_swarm_shape(0.5, 10);
-      if (!shape) {
-        logger_->info("Quadrotors are far from each other, ending the episode");
-        break;
-      }
-      if (counter % 2 == 0) {
-        for (auto&& it : quadrotors_) {
-          logger_->info("Start the flocking model");
-          it.start_flocking_model(
-            gains, destination, max_speed);
-        }
-        for (auto&& it : quadrotors_) {
-          it.start_sampling_rt_state(50);
-        }
-      } else {
-        for (auto&& it : quadrotors_) {
-          logger_->info("Start the random model");
-          ignition::math::Vector4d axis_speed{ 0.35, 0.35, 0.15, 4 };
-          it.start_random_model(axis_speed);
-        }
-        for (auto&& it : quadrotors_) {
-          logger_->info("Start the collision detector");
-          it.start_collision_detector(100);
-        }
-      }
+    std::function<void(void)>
+      trajectory = [this]() { this->go_to_destination(); };
 
-      /* Let us see how these quadrotors are going to move */
-      while (true) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
-        double passed_time = model_time.stop();
-        logger_->info("Model time in seconds {}", passed_time);
-        if (passed_time > passed_time_ + 3) {
-          logger_->info("Seconds have passed change the model");
-          passed_time_ = passed_time;
-          break;
-        }
-        go_to_destination();
+    /* Let us see how these quadrotors are going to move */
+    while (true)
+    {
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      double passed_time = model_time.stop();
+      logger_->info("Model time in seconds {}", passed_time);
+      if (passed_time > passed_time_ + 3) {
+        logger_->info("Seconds have passed change the model");
+        passed_time_ = passed_time;
+//        change_to_random = true;
       }
 
-      if (counter % 2 == 0) {
-        for (auto&& it : quadrotors_) {
-          it.stop_flocking_model();
-        }
-        for (auto&& it : quadrotors_) {
-          it.stop_sampling_rt_state();
-        }
-      } else {
-        for (auto&& it : quadrotors_) {
-          it.stop_collision_detector();
-        }
+      for (auto&& it : quadrotors_) {
+        it.sample_state_action_state(action_model, trajectory);
+      }
+
+      for (auto&& it : quadrotors_) {
+        // Let us see if these are still necessary
+        // arma::colvec check_double =
+        //   current_state_.Data() - last_state().Data();
+        // if (!check_double.is_zero())
+        it.save_dataset_sasas();
       }
 
       shape = swarm_.examin_swarm_shape(0.5, 10);

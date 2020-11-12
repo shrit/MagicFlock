@@ -24,7 +24,6 @@ public:
             std::shared_ptr<spdlog::logger> logger);
 
   void go_to_destination();
-  void go_to_reverse_destination();
   void stop();
   void run(std::function<void(void)> func);
 
