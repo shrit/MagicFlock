@@ -103,35 +103,38 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     // ignition::math::Vector3d destination{ 0, -163, 20 };
     Timer model_time;
     model_time.start();
+    int count = 0;
     // Check the shape of the swarm, if one is missing then land.
     bool shape = swarm_.examin_swarm_shape(0.5, 10);
     if (!shape) {
       logger_->info("Quadrotors are far from each other, ending the episode");
       break;
     }
-    std::function<void(void)> action_model =
-      [&]() {
+    std::function<void(void)> action_model = [&]() {
+      if (count % 2 == 0) {
         for (auto&& it : quadrotors_) {
           it.flocking_model(gains, destination, max_speed);
         }
+      } else {
         for (auto&& it : quadrotors_) {
           it.random_model(axis_speed);
         }
-      };
+      }
+    };
 
-    std::function<void(void)>
-      trajectory = [this]() { this->go_to_destination(); };
+    std::function<void(void)> trajectory = [this]() {
+      this->go_to_destination();
+    };
 
     /* Let us see how these quadrotors are going to move */
-    while (true)
-    {
+    while (true) {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       double passed_time = model_time.stop();
       logger_->info("Model time in seconds {}", passed_time);
       if (passed_time > passed_time_ + 3) {
         logger_->info("Seconds have passed change the model");
         passed_time_ = passed_time;
-//        change_to_random = true;
+        count++;
       }
 
       for (auto&& it : quadrotors_) {
