@@ -142,14 +142,27 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
 {
   std::lock_guard<std::mutex> lock(_flocking_mutex);
 
-  flocking_sampler_.start(50, [&]() {
-    Flocking flock(
-      gains, position(), neighbor_positions(), destination, max_speed);
-    logger::logger_->info("Flocking Velocity {}", flock.Velocity());
-    current_action_.action() = flock.Velocity();
-    current_action_.one_hot_action() = flock.OneHotEncodingVelocity();
-    all_actions_.push_back(current_action_);
-  });
+  flocking_sampler_.start(
+    50, [&]() { flocking_model(gains, destination, max_speed); });
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class StateType,
+         class ActionType>
+void
+Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
+  flocking_model(const ignition::math::Vector4d& gains,
+                 const ignition::math::Vector3d& destination,
+                 const ignition::math::Vector3d& max_speed)
+{
+  Flocking flock(
+    gains, position(), neighbor_positions(), destination, max_speed);
+  logger::logger_->info("Flocking Velocity {}", flock.Velocity());
+  current_action_.action() = flock.Velocity();
+  current_action_.one_hot_action() = flock.OneHotEncodingVelocity();
+  all_actions_.push_back(current_action_);
 }
 
 template<class flight_controller_t,
@@ -177,7 +190,7 @@ template<class flight_controller_t,
          class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
-  start_random_model(ignition::math::Vector4d axis_speed)
+  random_model(ignition::math::Vector4d axis_speed)
 {
   std::lock_guard<std::mutex> lock(_random_mutex);
   RandomModel random(axis_speed);
@@ -298,16 +311,37 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
       filter_);
     current_state_ = state;
   }
-
-  max_dist_ = max_distance_.check_local_distance(*this);
-  min_dist_ = min_distance_.check_local_distance(*this);
-
-  // Check for Gazebo freez and double line. Remove them if necessary
-  arma::colvec check_double = current_state_.Data() - last_state().Data();
-  if (!check_double.is_zero())
-    save_dataset_sasas(); // just a temporary solution, it might be a
-                          // good one
   all_states_.push_back(current_state_);
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class StateType,
+         class ActionType>
+void
+Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
+  sample_action(std::function<void()> execute_action)
+{
+  execute_action();
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class StateType,
+         class ActionType>
+void
+Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
+  sample_state_action_state(std::function<void(void)> action_to_execute,
+                            std::function<void(void)> trajectory)
+{
+  sample_state();  // s t-1
+  sample_action(action_to_execute); // a t-1
+  trajectory(); // Execute the a t-1
+  sample_state(); //s t
+  sample_action(action_to_execute); // a t
+  trajectory(); // Execute the a t
 }
 
 template<class flight_controller_t,
@@ -647,9 +681,9 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   dataset_.save_csv_dataset_2_file(
     name_,
     vec_.to_std_vector(before_last_state().Data()),
-    last_action().one_hot_action(),
+    last_action().Data(),
     vec_.to_std_vector(last_state().Data()),
-    current_action().one_hot_action(),
+    current_action().Data(),
     vec_.to_std_vector(current_state().Data()));
 }
 

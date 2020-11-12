@@ -79,12 +79,14 @@ public:
   void start_flocking_model(const ignition::math::Vector4d& gains,
                             const ignition::math::Vector3d& destination,
                             const ignition::math::Vector3d& max_speed);
-  void start_random_model(ignition::math::Vector4d axis_speed);
   void start_collision_detector(int duration);
   void stop_flocking_model();
-  void stop_random_model();
   void stop_collision_detector();
-
+  
+  void random_model(ignition::math::Vector4d axis_speed);
+  void flocking_model(const ignition::math::Vector4d& gains,
+                      const ignition::math::Vector3d& destination,
+                      const ignition::math::Vector3d& max_speed);
   /* distance to neighbors related fuctions*/
   double distance_to(int id);
   std::vector<double> distances_to_neighbors();
@@ -120,8 +122,16 @@ public:
                                                     ActionType>>& quads);
   void stop_position_sampler();
 
-  /*  State related functions */
+  /* Sampling action function */
+  /* These functions can be used in the case of there is no
+   * need for simplers
+   */
   void sample_state();
+  void sample_state_action_state(std::function<void(void)> action_to_execute,
+                                 std::function<void(void)> trajectory);
+  void sample_action(std::function<void()> execute_action);
+
+  /*  State related functions */
   State<FilterType, NoiseType, StateType, std::vector<StateType>>
   current_state() const;
   State<FilterType, NoiseType, StateType, std::vector<StateType>>&
@@ -268,9 +278,9 @@ private:
   RTSamples state_sampler_, flocking_sampler_, position_sampler_,
     collision_detector_sampler_;
 
-  unsigned int id_;   /* Quadrotor id */
-  std::string name_;  /* Quadrotor name */
-  int num_neighbors_; /* Number of neighbors*/
+  unsigned int id_;        /* Quadrotor id */
+  std::string name_;       /* Quadrotor name */
+  int num_neighbors_;      /* Number of neighbors*/
   int num_of_antenna_src_; /* Number of external antenna sources*/
   /* Quadrotor label (Given by the user, leader, follower, etc)*/
   std::string label_;
