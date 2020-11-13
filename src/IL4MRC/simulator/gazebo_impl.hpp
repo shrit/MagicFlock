@@ -88,19 +88,17 @@ Gazebo<QuadrotorType>::PosMsg(ConstPosesStampedPtr& posesStamped)
           ::gazebo::msgs::ConvertIgn(orientation);
 
       } else if (name == std::string(quadrotors_.at(j).wt_name())) {
-        const ::gazebo::msgs::Vector3d& position = pose.position();
-        quadrotors_.at(j).wt_antenna_position() =
-          ::gazebo::msgs::ConvertIgn(position) + quadrotors_.at(j).position();
+        quadrotors_.at(j).wt_antenna_position() = quadrotors_.at(j).position();
 
       } else if (name == std::string(quadrotors_.at(j).wr_1_name())) {
-        const ::gazebo::msgs::Vector3d& position = pose.position();
+        const ignition::math::Vector3d& position{ -0.13, -0.17, 0.02 };
         quadrotors_.at(j).wr_1_antenna_position() =
-          ::gazebo::msgs::ConvertIgn(position) + quadrotors_.at(j).position();
+          quadrotors_.at(j).position();
 
       } else if (name == std::string(quadrotors_.at(j).wr_2_name())) {
-        const ::gazebo::msgs::Vector3d& position = pose.position();
+        const ignition::math::Vector3d& position{ +0.115, +0.17, 0.02 };
         quadrotors_.at(j).wr_2_antenna_position() =
-          ::gazebo::msgs::ConvertIgn(position) + quadrotors_.at(j).position();
+          quadrotors_.at(j).position();
       }
     }
   }
