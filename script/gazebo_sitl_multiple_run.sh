@@ -38,12 +38,12 @@ function spawn_model() {
 	../bin/px4 -i $N -d "$build_path/etc" -w sitl_${MODEL}_${N} -s etc/init.d-posix/rcS >out.log 2>err.log &
 	python3 ${src_path}/Tools/sitl_gazebo/scripts/jinja_gen.py ${src_path}/Tools/sitl_gazebo/models/${MODEL}/${MODEL}.sdf.jinja ${src_path}/Tools/sitl_gazebo --mavlink_tcp_port $((4560+${N})) --mavlink_udp_port $((14560+${N})) --output-file /tmp/${MODEL}_${N}.sdf
 
-	sed -i "347 r ${project_path}/sdf/wireless.sdf" ${project_path}/sdf/${MODEL}_${n}.sdf
-	sed -i -e "s/osrf/${MODEL}_${n}/g"  ${project_path}/sdf/${MODEL}_${n}.sdf
+	sed -i "347 r ${project_path}/sdf/wireless.sdf" /tmp/${MODEL}_${n}.sdf
+	sed -i -e "s/osrf/${MODEL}_${n}/g"  /tmp/${MODEL}_${n}.sdf
 
 	echo "Spawning ${MODEL}_${N}"
 
-	gz model --spawn-file=/tmp/${MODEL}_${N}.sdf --model-name=${MODEL}_${N} -x 0.0 -y $((3*${N})) -z 0.0
+	gz model --spawn-file=/tmp/${MODEL}_${N}.sdf --model-name=${MODEL}_${N} -x 0.0 -y $((1*${N})) -z 0.0
 
 	popd &>/dev/null
 
@@ -91,7 +91,7 @@ sleep 1
 source ${src_path}/Tools/setup_gazebo.bash ${src_path} ${src_path}/build/${target}
 
 echo "Starting gazebo"
-gzserver ${project_path}/worlds/${world}.world --verbose &
+gzserver ${project_path}/worlds/outdoor.world --verbose &
 sleep 5
 
 n=0
