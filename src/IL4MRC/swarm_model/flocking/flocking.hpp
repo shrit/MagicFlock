@@ -38,7 +38,8 @@ public:
            const ignition::math::Vector3d& position,
            const std::vector<ignition::math::Vector3d>& position_of_neighbors,
            const ignition::math::Vector3d& destination_position,
-           const ignition::math::Vector3d& max_speed);
+           const ignition::math::Vector3d& max_speed,
+           const bool& leader);
 
   ignition::math::Vector3d cohesionVelocity();
   ignition::math::Vector3d separationVelocity();

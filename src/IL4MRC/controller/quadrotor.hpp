@@ -78,7 +78,8 @@ public:
   void start_controller();
   void start_flocking_model(const ignition::math::Vector4d& gains,
                             const ignition::math::Vector3d& destination,
-                            const ignition::math::Vector3d& max_speed);
+                            const ignition::math::Vector3d& max_speed,
+                            const bool& leader);
   void start_collision_detector(int duration);
   void stop_flocking_model();
   void stop_collision_detector();
@@ -86,7 +87,8 @@ public:
   void random_model(const ignition::math::Vector4d& axis_speed, const double& passed_time);
   void flocking_model(const ignition::math::Vector4d& gains,
                       const ignition::math::Vector3d& destination,
-                      const ignition::math::Vector3d& max_speed);
+                      const ignition::math::Vector3d& max_speed,
+                      const bool& leader);
   /* distance to neighbors related fuctions*/
   double distance_to(int id);
   std::vector<double> distances_to_neighbors();
