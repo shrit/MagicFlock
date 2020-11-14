@@ -190,11 +190,10 @@ template<class flight_controller_t,
          class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
-  random_model(ignition::math::Vector4d axis_speed)
+  random_model(const ignition::math::Vector4d& axis_speed, const double& passed_time)
 {
   std::lock_guard<std::mutex> lock(_random_mutex);
-  RandomModel random(axis_speed);
-  current_action_.action() = random.Velocity();
+  current_action_.action() = random.Velocity(axis_speed, passed_time);
   all_actions_.push_back(current_action_);
 }
 
@@ -336,12 +335,12 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   sample_state_action_state(std::function<void(void)> action_to_execute,
                             std::function<void(void)> trajectory)
 {
-  sample_state();  // s t-1
+  sample_state();                   // s t-1
   sample_action(action_to_execute); // a t-1
-  trajectory(); // Execute the a t-1
-  sample_state(); //s t
+  trajectory();                     // Execute the a t-1
+  sample_state();                   // s t
   sample_action(action_to_execute); // a t
-  trajectory(); // Execute the a t
+  trajectory();                     // Execute the a t
 }
 
 template<class flight_controller_t,
@@ -681,9 +680,9 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   dataset_.save_csv_dataset_2_file(
     name_,
     vec_.to_std_vector(before_last_state().Data()),
-    last_action().Data(),
+    vec_.to_std_vector(last_action().Data()),
     vec_.to_std_vector(last_state().Data()),
-    current_action().Data(),
+    vec_.to_std_vector(current_action().Data()),
     vec_.to_std_vector(current_state().Data()));
 }
 

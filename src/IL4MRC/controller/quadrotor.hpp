@@ -83,7 +83,7 @@ public:
   void stop_flocking_model();
   void stop_collision_detector();
   
-  void random_model(ignition::math::Vector4d axis_speed);
+  void random_model(const ignition::math::Vector4d& axis_speed, const double& passed_time);
   void flocking_model(const ignition::math::Vector4d& gains,
                       const ignition::math::Vector3d& destination,
                       const ignition::math::Vector3d& max_speed);
@@ -301,6 +301,7 @@ private:
   LaserScan _laser_scan;
 
   FilterType filter_;
+  RandomModel random;
 };
 
 #include "quadrotor_impl.hpp"
