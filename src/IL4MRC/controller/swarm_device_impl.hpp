@@ -421,7 +421,7 @@ SwarmDevice<QuadrotorType>::in_air_async(float meters)
   //   checking_status(takeoff_results_);
   // }
 
-  std::this_thread::sleep_for(std::chrono::seconds(10));
+  std::this_thread::sleep_for(std::chrono::seconds(30));
   // Check if quadrotors have finished taking off
   // if (!check_landed_state(landed_state_results_)) {
   //   // Recheck after at least 10 seconds
