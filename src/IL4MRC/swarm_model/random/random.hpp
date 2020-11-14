@@ -16,6 +16,7 @@
 #include <vector>
 
 #include <IL4MRC/util/logger.hpp>
+#include <IL4MRC/util/time.hpp>
 
 using namespace ILMR;
 
@@ -23,17 +24,17 @@ class RandomModel
 {
 
 public:
-  RandomModel(ignition::math::Vector4d axis_speed);
-  ignition::math::Vector3d Velocity();
+  RandomModel();
+  ignition::math::Vector3d Velocity(ignition::math::Vector4d axis_speed,
+                                    double passed_time);
   RandomModel(RandomModel const&) = delete;
   RandomModel(RandomModel&&) = default;
 
 private:
   int axis_;
-  std::uniform_real_distribution<> distribution_real_x_;
-  std::uniform_real_distribution<> distribution_real_y_;
-  std::uniform_real_distribution<> distribution_real_z_;
   std::random_device random_dev;
   std::mt19937 generator_;
   ignition::math::Vector3d velocity_;
+  Timer model_time;
+  double passed_time_;
 };
