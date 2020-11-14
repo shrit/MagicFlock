@@ -238,8 +238,12 @@ void
 Px4Device::takeoff_async(float meters)
 {
   logger::logger_->debug("Taking off async");
-  action_->set_takeoff_altitude_async(
-    meters, [this](Action::Result result) { _set_takeoff_result = result; });
+  action_->set_takeoff_altitude_async(meters, [this](Action::Result result) {
+    _set_takeoff_result = result;
+    if (_set_takeoff_result != Action::Result::Success)
+      logger::logger_->error("Set takeoff altitude failed: {}",
+                             _set_takeoff_result);
+  });
 
   action_->takeoff_async(
     [this](Action::Result result) { _takeoff_result = result; });
