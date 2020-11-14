@@ -88,7 +88,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     logger_->info("Taking off has finished. Start the flocking model");
     ignition::math::Vector4d gains{ 1, 7, 1, 100 };
     // This destination goes forward
-    ignition::math::Vector3d destination{ 163, 0, 20 };
+    ignition::math::Vector3d destination{ 163, 0, 40 };
     ignition::math::Vector3d max_speed{ 2, 2, 0 };
 
     ignition::math::Vector4d axis_speed{ 0.35, 0.35, 0.15, 4 };
