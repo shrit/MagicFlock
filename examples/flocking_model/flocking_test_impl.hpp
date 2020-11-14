@@ -21,21 +21,13 @@ Flock<QuadrotorType>::go_to_destination()
   std::vector<std::thread> threads;
   /*  Threading Quadrotors */
   ignition::math::Vector3d forward{ 0.4, 0, 0 };
+  quadrotors_.at(0).current_action().action() = forward;
 
-  threads.push_back(std::thread([&]() {
-    quadrotors_.at(0).current_action().action() = forward;
-    swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
-                                       quadrotors_.at(0).current_action());
-  }));
-  std::size_t it = 1;
-  while (true) {
+  for (auto&& it : quadrotors_) { 
     threads.push_back(std::thread([&]() {
-      swarm_.one_quad_execute_trajectory(quadrotors_.at(it).id(),
-                                         quadrotors_.at(it).current_action());
+      swarm_.one_quad_execute_trajectory(it.id(),
+                                         it.current_action());
     }));
-    it++;
-    if (it == quadrotors_.size() - 1)
-      break;
   }
 
   for (auto& thread : threads) {
@@ -46,7 +38,9 @@ Flock<QuadrotorType>::go_to_destination()
 template<class QuadrotorType>
 void
 Flock<QuadrotorType>::run(std::function<void(void)> reset)
-{
+{ 
+  reset();
+  std::this_thread::sleep_for(std::chrono::seconds(35));
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
 
     logger_->info("Episode : {}", episode_);
@@ -83,9 +77,11 @@ Flock<QuadrotorType>::run(std::function<void(void)> reset)
       logger_->info("Quadrotors are far from each other, ending the episode");
       break;
     }
-    for (auto&& it : quadrotors_) {
+    bool leader = true;
+    for (std::size_t i = 1; i < quadrotors_.size(); ++i) {
       logger_->info("Start the flocking model");
-      it.start_flocking_model(gains, quadrotors_.at(0).position(), max_speed);
+      quadrotors_.at(i).start_flocking_model(
+        gains, quadrotors_.at(0).position(), max_speed, leader);
     }
     for (auto&& it : quadrotors_) {
       it.start_sampling_rt_state(50);
