@@ -75,7 +75,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     logger_->info("Episode : {}", episode_);
     timer_.start();
     time_steps_.reset();
-    swarm_.in_air_async(15);
+    swarm_.in_air_async(40);
 
     /**
      * Collect dataset by creating a specific destination.
@@ -89,7 +89,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     ignition::math::Vector4d gains{ 1, 7, 1, 100 };
     // This destination goes forward
     ignition::math::Vector3d destination{ 163, 0, 20 };
-    ignition::math::Vector3d max_speed{ 2, 2, 0.09 };
+    ignition::math::Vector3d max_speed{ 2, 2, 0 };
 
     ignition::math::Vector4d axis_speed{ 0.35, 0.35, 0.15, 4 };
 
@@ -117,7 +117,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
         }
       } else {
         for (auto&& it : quadrotors_) {
-          it.random_model(axis_speed);
+          it.random_model(axis_speed, elapsed_time_);
         }
       }
     };
@@ -129,11 +129,11 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     /* Let us see how these quadrotors are going to move */
     while (true) {
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
-      double passed_time = model_time.stop();
-      logger_->info("Model time in seconds {}", passed_time);
-      if (passed_time > passed_time_ + 3) {
+      elapsed_time_ = model_time.stop();
+      logger_->info("Model time in seconds {}", elapsed_time_);
+      if (elapsed_time_ > passed_time_ + 3) {
         logger_->info("Seconds have passed change the model");
-        passed_time_ = passed_time;
+        passed_time_ = elapsed_time_;
         count++;
       }
 
@@ -161,7 +161,6 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
                       "ending the episode.");
         break;
       }
-      logger_->info("Ending the first counter");
     }
     passed_time_ = 0;
     std::string flight_time = timer_.stop_and_get_time();
