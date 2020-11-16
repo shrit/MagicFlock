@@ -161,7 +161,6 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
 {
   Flocking flock(
     gains, position(), neighbor_positions(), destination, max_speed, leader);
-  logger::logger_->info("Flocking Velocity {}", flock.Velocity());
   current_action_.action() = flock.Velocity();
   current_action_.one_hot_action() = flock.OneHotEncodingVelocity();
   all_actions_.push_back(current_action_);
