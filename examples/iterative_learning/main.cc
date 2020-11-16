@@ -76,11 +76,11 @@ main(int argc, char* argv[])
     quadrotors.push_back(quad);
   }
 
-  // ignition::math::Vector3d right_antenna{ 10, -90, 45 };
-  ignition::math::Vector3d front_antenna{ 100, 0, 45 };
-  std::vector<ignition::math::Vector3d> fix_antennas(1);
-  // fix_antennas.at(0) = right_antenna;
-  fix_antennas.at(0) = front_antenna;
+  ignition::math::Vector3d right_antenna{ 10, -90, 45 };
+  ignition::math::Vector3d back_antenna{ -163, 0, 40 };
+  std::vector<ignition::math::Vector3d> fix_antennas(2);
+  fix_antennas.at(0) = right_antenna;
+  fix_antennas.at(0) = back_antenna;
 
   for (std::size_t i = 0; i < num_of_quads; ++i) {
     quadrotors.at(i).init(i,

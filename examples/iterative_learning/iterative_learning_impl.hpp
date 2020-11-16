@@ -20,12 +20,16 @@ Iterative_learning<QuadrotorType>::generate_trajectory_using_model()
   std::vector<std::thread> threads;
 
   for (auto&& i : quadrotors_) {
-    AnnStatePredictor<QuadrotorType> predict(
+    AnnActionPredictor<QuadrotorType> predict(
       "/meta/lemon/examples/iterative_learning/build/model.bin", "model", i);
     ContinuousActions action = predict.best_predicted_action();
     i.current_action() = action;
     i.current_action().action().Z() = 0;
   }
+
+  ignition::math::Vector3d forward{ 0.4, 0, 0 };
+  quadrotors_.at(0).current_action().action() = forward;
+
 
   /*  Threading QuadCopter */
   for (auto&& it : quadrotors_) {
@@ -53,6 +57,18 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
     timer_.start();
     time_steps_.reset();
     swarm_.in_air_async(15);
+
+    ignition::math::Vector3d up{ 0, 0, -0.5 };
+    quadrotors_.at(0).current_action().action() = up;
+    swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
+                                       quadrotors_.at(0).current_action());
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    ignition::math::Vector3d forward{ 1, 0, 0 };
+    quadrotors_.at(0).current_action().action() = forward;
+    swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
+                                       quadrotors_.at(0).current_action());
+    std::this_thread::sleep_for(std::chrono::seconds(5));
 
     ignition::math::Vector3d destination{ 163, 0, 20 };
 

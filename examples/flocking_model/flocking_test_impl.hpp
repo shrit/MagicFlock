@@ -48,6 +48,18 @@ Flock<QuadrotorType>::run(std::function<void(void)> reset)
     time_steps_.reset();
     swarm_.in_air_async(15);
 
+    ignition::math::Vector3d up{ 0, 0, -0.5 };
+    quadrotors_.at(0).current_action().action() = up;
+    swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
+                                       quadrotors_.at(0).current_action());
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    ignition::math::Vector3d forward{ 1, 0, 0 };
+    quadrotors_.at(0).current_action().action() = forward;
+    swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
+                                       quadrotors_.at(0).current_action());
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+
     /**
      * Collect dataset by creating a specific destination.
      * Each quadrotor use the flocking model to stay close to
@@ -61,7 +73,7 @@ Flock<QuadrotorType>::run(std::function<void(void)> reset)
     ignition::math::Vector4d gains{ 1, 7, 1, 100 };
     // This destination goes forward
     ignition::math::Vector3d destination{ 163, 0, 20 };
-    ignition::math::Vector3d max_speed{ 2, 2, 0.09 };
+    ignition::math::Vector3d max_speed{ 2, 2, 0 };
     //! This destination goes backward
     // ignition::math::Vector3d destination{ -163, 0, 20 };
 

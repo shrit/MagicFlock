@@ -18,23 +18,9 @@ Generator<QuadrotorType>::go_to_destination()
 {
   std::vector<std::thread> threads;
   /*  Threading Quadrotors */
-  ignition::math::Vector3d forward{ 0.4, 0, 0 };
 
-  // threads.push_back(std::thread([&]() {
-  //   quadrotors_.at(0).current_action().action() = forward;
-  //   swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
-  //                                      quadrotors_.at(0).current_action());
-  // }));
-  // std::size_t it = 1;
-  // while (true) {
-  //   threads.push_back(std::thread([&]() {
-  //     swarm_.one_quad_execute_trajectory(quadrotors_.at(it).id(),
-  //                                        quadrotors_.at(it).current_action());
-  //   }));
-  //   it++;
-  //   if (it == quadrotors_.size() - 1)
-  //     break;
-  // }
+  ignition::math::Vector3d forward{ 0.4, 0, 0 };
+  quadrotors_.at(0).current_action().action() = forward;
 
   for (auto&& it : quadrotors_) {
     threads.push_back(std::thread([&]() {
@@ -77,6 +63,18 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     time_steps_.reset();
     swarm_.in_air_async(40);
 
+    ignition::math::Vector3d up{ 0, 0, -0.5 };
+    quadrotors_.at(0).current_action().action() = up;
+    swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
+                                       quadrotors_.at(0).current_action());
+    std::this_thread::sleep_for(std::chrono::seconds(1));
+
+    ignition::math::Vector3d forward{ 1, 0, 0 };
+    quadrotors_.at(0).current_action().action() = forward;
+    swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
+                                       quadrotors_.at(0).current_action());
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+
     /**
      * Collect dataset by creating a specific destination.
      * Each quadrotor use the flocking model to stay close to
@@ -105,15 +103,14 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     model_time.start();
     int count = 0;
     // Check the shape of the swarm, if one is missing then land.
-    bool shape = swarm_.examin_swarm_shape(0.5, 10);
-    if (!shape) {
-      logger_->info("Quadrotors are far from each other, ending the episode");
-      break;
-    }
+
+    bool leader = true;
     std::function<void(void)> action_model = [&]() {
       if (count % 2 == 0) {
-        for (auto&& it : quadrotors_) {
-          it.flocking_model(gains, destination, max_speed);
+        for (std::size_t i = 1; i < quadrotors_.size(); ++i) {
+          logger_->info("Start the flocking model");
+          quadrotors_.at(i).start_flocking_model(
+            gains, quadrotors_.at(0).position(), max_speed, leader);
         }
       } else {
         for (auto&& it : quadrotors_) {
@@ -128,7 +125,11 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
 
     /* Let us see how these quadrotors are going to move */
     while (true) {
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    bool shape = swarm_.examin_swarm_shape(0.5, 10);
+    if (!shape) {
+      logger_->info("Quadrotors are far from each other, ending the episode");
+      break;
+    }      std::this_thread::sleep_for(std::chrono::milliseconds(100));
       elapsed_time_ = model_time.stop();
       logger_->info("Model time in seconds {}", elapsed_time_);
       if (elapsed_time_ > passed_time_ + 3) {
@@ -136,9 +137,10 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
         passed_time_ = elapsed_time_;
         count++;
       }
-
-      for (auto&& it : quadrotors_) {
-        it.sample_state_action_state(action_model, trajectory);
+      if (count % 2 == 0) {
+        for (auto&& it : quadrotors_) {
+          it.sample_state_action_state(action_model, trajectory);
+        }
       }
 
       for (auto&& it : quadrotors_) {
