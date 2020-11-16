@@ -31,7 +31,7 @@ public:
   AnnActionPredictor(
     std::string full_path_to_model,
     std::string model_name,
-    const QuadrotorType& quad);
+    QuadrotorType& quad);
 
   arma::mat predict();
 

@@ -4,7 +4,7 @@ template<class QuadrotorType>
 AnnActionPredictor<QuadrotorType>::AnnActionPredictor(
   std::string full_path_to_model,
   std::string model_name,
-  const QuadrotorType& quad)
+  QuadrotorType& quad)
   : AnnPredictor<QuadrotorType>(quad)
   , model_path_(full_path_to_model)
   , model_name_(model_name)
@@ -30,6 +30,9 @@ AnnActionPredictor<QuadrotorType>::predict()
   if constexpr (std::is_same<typename QuadrotorType::Action,
                              ContinuousActions>::value) {
     labels_.clear();
+    logger::logger_->info("Size of State features matrix: {}",
+                          arma::size(features));
+    logger::logger_->info("State data matrix:\n {}", features.t());
     regression_model.Predict(features, labels_);
   }
 
