@@ -32,6 +32,7 @@ public:
 
   bool arm();
   void arm_async();
+  void disarm_async();
   bool arm_specific_quadrotor(unsigned int id);
 
   void init_speed();

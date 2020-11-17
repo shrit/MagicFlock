@@ -86,6 +86,23 @@ SwarmDevice<QuadrotorType>::arm_async()
 }
 
 template<class QuadrotorType>
+void
+SwarmDevice<QuadrotorType>::disarm_async()
+{
+  std::vector<std::thread> threads;
+  for (auto&& it : quads_) {
+    threads.emplace_back(std::thread([&]() {
+      it.controller_->disarm_async();
+      // arming_results_.emplace_back(it.controller_->disarm_result());
+    }));
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+}
+
+template<class QuadrotorType>
 bool
 SwarmDevice<QuadrotorType>::arm_specific_quadrotor(unsigned int id)
 {
