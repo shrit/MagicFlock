@@ -39,6 +39,7 @@ private:
   std::vector<QuadrotorType>& quadrotors_;
   TimeSteps time_steps_;
   Timer timer_;
+  ignition::math::Vector3d dest_;
   std::shared_ptr<spdlog::logger> logger_;
   std::uniform_int_distribution<> distribution_int_;
   std::random_device random_dev;

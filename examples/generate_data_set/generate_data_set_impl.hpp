@@ -20,18 +20,6 @@ Generator<QuadrotorType>::go_to_destination(int count)
 {
   std::vector<std::thread> threads;
   /*  Threading Quadrotors */
-  ignition::math::Vector3d dest;
-  std::vector<ignition::math::Vector3d> destinations{
-    { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }
-  };
-
-  int random = distribution_int_(generator_);
-  if (count % 4 == 0) {
-    dest = destinations.at(random);
-  }
-
-  quadrotors_.at(0).current_action().action() = dest;
-
   for (auto&& it : quadrotors_) {
     threads.push_back(std::thread([&]() {
       swarm_.one_quad_execute_trajectory(it.id(), it.current_action());
@@ -77,7 +65,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     time_steps_.reset();
     swarm_.in_air_async(40);
 
-    ignition::math::Vector3d up{ 0, 0, -0.5 };
+    ignition::math::Vector3d up{ 0, 0, -1.5 };
     quadrotors_.at(0).current_action().action() = up;
     swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
                                        quadrotors_.at(0).current_action());
@@ -99,7 +87,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     /*  Verify that vectors are clear when starting new episode */
     logger_->info("Taking off has finished. Start the flocking model");
     ignition::math::Vector4d gains{ 1, 7, 1, 100 };
-    ignition::math::Vector3d max_speed{ 2, 2, 0 };
+    ignition::math::Vector3d max_speed{ 1.5, 1.5, 0 };
     ignition::math::Vector4d axis_speed{ 0.35, 0.35, 0.15, 4 };
 
     //! This destination goes forward
@@ -157,25 +145,37 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
         }
       }
 
+      std::vector<ignition::math::Vector3d> destinations{
+        { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }
+      };
+
+      int random = distribution_int_(generator_);
+      if (count % 4 == 0) {
+        logger_->info("Change leader destination NOW");
+        dest_ = destinations.at(random);
+      }
+      quadrotors_.at(0).current_action().action() = dest_;
+
       for (auto&& it : quadrotors_) {
         // Let us see if these are still necessary
-        arma::colvec check_double = it.current_state().Data() - it.last_state().Data();
+        arma::colvec check_double =
+          it.current_state().Data() - it.last_state().Data();
         if (!check_double.is_zero())
           it.save_dataset_sasas();
       }
 
-      shape = swarm_.examin_swarm_shape(0.5, 10);
-      bool has_arrived = swarm_.examin_destination(destination_forward);
+      shape = swarm_.examin_swarm_shape(0.2, 10);
+      // bool has_arrived = swarm_.examin_destination(destination_forward);
 
       if (!shape) {
         logger_->info("Quadrotors are far from each other, ending the episode");
         break;
       }
-      if (has_arrived) {
-        logger_->info("Quadrotors have arrived at specified destination. "
-                      "ending the episode.");
-        break;
-      }
+      // if (has_arrived) {
+      //   logger_->info("Quadrotors have arrived at specified destination. "
+      //                 "ending the episode.");
+      //   break;
+      // }
     }
     passed_time_ = 0;
     std::string flight_time = timer_.stop_and_get_time();
