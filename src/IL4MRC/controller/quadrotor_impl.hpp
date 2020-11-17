@@ -161,9 +161,9 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
 {
   Flocking flock(
     gains, position(), neighbor_positions(), destination, max_speed, leader);
-  current_action_.action() = flock.Velocity();
-  current_action_.one_hot_action() = flock.OneHotEncodingVelocity();
-  all_actions_.push_back(current_action_);
+  current_action().action() = flock.Velocity();
+  current_action().one_hot_action() = flock.OneHotEncodingVelocity();
+  all_actions().push_back(current_action());
 }
 
 template<class flight_controller_t,
@@ -194,8 +194,8 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   random_model(const ignition::math::Vector4d& axis_speed, const double& passed_time)
 {
   std::lock_guard<std::mutex> lock(_random_mutex);
-  current_action_.action() = random.Velocity(axis_speed, passed_time);
-  all_actions_.push_back(current_action_);
+  current_action().action() = random.Velocity(axis_speed, passed_time);
+  all_actions().push_back(current_action());
 }
 
 template<class flight_controller_t,
@@ -353,6 +353,7 @@ State<FilterType, NoiseType, StateType, std::vector<StateType>>
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   current_state() const
 {
+  std::lock_guard<std::mutex> lock(_current_state_mutex);
   return current_state_;
 }
 
@@ -413,6 +414,7 @@ std::vector<State<FilterType, NoiseType, StateType, std::vector<StateType>>>
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   all_states() const
 {
+  std::lock_guard<std::mutex> lock(_all_state_mutex);
   return all_states_;
 }
 
@@ -524,6 +526,7 @@ ActionType&
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   current_action()
 {
+  std::lock_guard<std::mutex> lock(_current_action_mutex);
   return current_action_;
 }
 
@@ -536,6 +539,7 @@ ActionType
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   current_action() const
 {
+  std::lock_guard<std::mutex> lock(_current_action_mutex);
   return current_action_;
 }
 
@@ -548,8 +552,8 @@ ActionType
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   last_action()
 {
-  if (all_actions_.size() > 1) {
-    auto it_action = all_actions_.rbegin();
+  if (all_actions().size() > 1) {
+    auto it_action = all_actions().rbegin();
     it_action = std::next(it_action, 1);
     last_action_ = (*it_action);
   }
@@ -565,8 +569,8 @@ ActionType
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   before_last_action()
 {
-  if (all_actions_.size() > 2) {
-    auto it_action = all_actions_.rbegin();
+  if (all_actions().size() > 2) {
+    auto it_action = all_actions().rbegin();
     it_action = std::next(it_action, 2);
     before_last_action_ = (*it_action);
   }
@@ -582,8 +586,8 @@ ActionType
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   before_2_last_action()
 {
-  if (all_actions_.size() > 3) {
-    auto it_action = all_actions_.rbegin();
+  if (all_actions().size() > 3) {
+    auto it_action = all_actions().rbegin();
     it_action = std::next(it_action, 3);
     before_2_last_action_ = (*it_action);
   }
@@ -599,6 +603,20 @@ std::vector<ActionType>
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   all_actions() const
 {
+  std::lock_guard<std::mutex> lock(_all_action_mutex);
+  return all_actions_;
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class StateType,
+         class ActionType>
+std::vector<ActionType>&
+Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
+  all_actions()
+{
+  std::lock_guard<std::mutex> lock(_all_action_mutex);
   return all_actions_;
 }
 
@@ -611,6 +629,7 @@ void
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   reset_all_actions()
 {
+  std::lock_guard<std::mutex> lock(_all_action_mutex);
   all_actions_.clear();
 }
 

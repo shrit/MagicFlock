@@ -167,6 +167,7 @@ public:
   ActionType before_last_action();
   ActionType before_2_last_action();
   std::vector<ActionType> all_actions() const;
+  std::vector<ActionType>& all_actions();
   void reset_all_actions();
 
   /*  Data set related functions */
@@ -275,6 +276,10 @@ private:
   mutable std::mutex _rx_2_mutex{};
   mutable std::mutex _laser_mutex{};
   mutable std::mutex _laser_scan_mutex{};
+  mutable std::mutex _current_state_mutex{};
+  mutable std::mutex _current_action_mutex{};
+  mutable std::mutex _all_state_mutex{};
+  mutable std::mutex _all_action_mutex{};
 
   /* Sampler related data member*/
   RTSamples state_sampler_, flocking_sampler_, position_sampler_,
