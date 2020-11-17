@@ -10,17 +10,27 @@ Generator<QuadrotorType>::Generator(std::vector<QuadrotorType>& quadrotors,
   , swarm_(quadrotors)
   , quadrotors_(quadrotors)
   , logger_(logger)
+  , distribution_int_(0, 3)
+  , generator_(random_dev())
 {}
 
 template<class QuadrotorType>
 void
-Generator<QuadrotorType>::go_to_destination()
+Generator<QuadrotorType>::go_to_destination(int count)
 {
   std::vector<std::thread> threads;
   /*  Threading Quadrotors */
+  ignition::math::Vector3d dest;
+  std::vector<ignition::math::Vector3d> destinations{
+    { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }
+  };
 
-  ignition::math::Vector3d forward{ 0.4, 0, 0 };
-  quadrotors_.at(0).current_action().action() = forward;
+  int random = distribution_int_(generator_);
+  if (count % 4 == 0) {
+    dest = destinations.at(random);
+  }
+
+  quadrotors_.at(0).current_action().action() = dest;
 
   for (auto&& it : quadrotors_) {
     threads.push_back(std::thread([&]() {
@@ -57,6 +67,10 @@ void
 Generator<QuadrotorType>::run(std::function<void(void)> reset)
 {
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
+    /* Resetting the entire swarm after the end of each episode*/
+    reset();
+    logger_->info("All quadrotors have been reset...");
+    std::this_thread::sleep_for(std::chrono::seconds(35));
 
     logger_->info("Episode : {}", episode_);
     timer_.start();
@@ -85,20 +99,19 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     /*  Verify that vectors are clear when starting new episode */
     logger_->info("Taking off has finished. Start the flocking model");
     ignition::math::Vector4d gains{ 1, 7, 1, 100 };
-    // This destination goes forward
-    ignition::math::Vector3d destination{ 163, 0, 40 };
     ignition::math::Vector3d max_speed{ 2, 2, 0 };
-
     ignition::math::Vector4d axis_speed{ 0.35, 0.35, 0.15, 4 };
 
+    //! This destination goes forward
+    ignition::math::Vector3d destination_forward{ 163, 0, 40 };
     //! This destination goes backward
-    // ignition::math::Vector3d destination{ -163, 0, 20 };
+    ignition::math::Vector3d destination_backword{ -163, 0, 20 };
 
     //! This destination goes left
-    // ignition::math::Vector3d destination{ 0, 163, 20 };
+    ignition::math::Vector3d destination_left{ 0, 163, 20 };
 
     //! This destination goes right
-    // ignition::math::Vector3d destination{ 0, -163, 20 };
+    ignition::math::Vector3d destination_right{ 0, -163, 20 };
     Timer model_time;
     model_time.start();
     int count = 0;
@@ -119,17 +132,18 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
       }
     };
 
-    std::function<void(void)> trajectory = [this]() {
-      this->go_to_destination();
+    std::function<void(void)> trajectory = [&]() {
+      this->go_to_destination(count);
     };
 
     /* Let us see how these quadrotors are going to move */
     while (true) {
-    bool shape = swarm_.examin_swarm_shape(0.5, 10);
-    if (!shape) {
-      logger_->info("Quadrotors are far from each other, ending the episode");
-      break;
-    }      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      bool shape = swarm_.examin_swarm_shape(0.3, 16);
+      if (!shape) {
+        logger_->info("Quadrotors are far from each other, ending the episode");
+        break;
+      }
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
       elapsed_time_ = model_time.stop();
       logger_->info("Model time in seconds {}", elapsed_time_);
       if (elapsed_time_ > passed_time_ + 3) {
@@ -145,14 +159,13 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
 
       for (auto&& it : quadrotors_) {
         // Let us see if these are still necessary
-        // arma::colvec check_double =
-        //   current_state_.Data() - last_state().Data();
-        // if (!check_double.is_zero())
-        it.save_dataset_sasas();
+        arma::colvec check_double = it.current_state().Data() - it.last_state().Data();
+        if (!check_double.is_zero())
+          it.save_dataset_sasas();
       }
 
       shape = swarm_.examin_swarm_shape(0.5, 10);
-      bool has_arrived = swarm_.examin_destination(destination);
+      bool has_arrived = swarm_.examin_destination(destination_forward);
 
       if (!shape) {
         logger_->info("Quadrotors are far from each other, ending the episode");
@@ -172,13 +185,10 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     swarm_.stop_offboard_mode_async();
     std::this_thread::sleep_for(std::chrono::seconds(1));
     swarm_.land();
+
+    swarm_.disarm_async();
     /* Wait to be sure that all of the quads have disarmed */
     std::this_thread::sleep_for(std::chrono::seconds(3));
-    /* Resetting the entire swarm after the end of each episode*/
-    reset();
-
-    logger_->info("All quadrotors have been reset...");
-    std::this_thread::sleep_for(std::chrono::seconds(35));
 
     /*BIAS accelerometer problem after resetting the models*/
 

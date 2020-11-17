@@ -23,7 +23,7 @@ public:
   Generator(std::vector<QuadrotorType>& quadrotors,
             std::shared_ptr<spdlog::logger> logger);
 
-  void go_to_destination();
+  void go_to_destination(int count);
   void stop();
   void run(std::function<void(void)> func);
 
@@ -40,6 +40,9 @@ private:
   TimeSteps time_steps_;
   Timer timer_;
   std::shared_ptr<spdlog::logger> logger_;
+  std::uniform_int_distribution<> distribution_int_;
+  std::random_device random_dev;
+  std::mt19937 generator_;
 };
 
 #include "generate_data_set_impl.hpp"
