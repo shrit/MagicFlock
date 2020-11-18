@@ -110,7 +110,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
       if (count % 2 == 0) {
         for (std::size_t i = 1; i < quadrotors_.size(); ++i) {
           logger_->info("Start the flocking model");
-          quadrotors_.at(i).start_flocking_model(
+          quadrotors_.at(i).flocking_model(
             gains, quadrotors_.at(0).position(), max_speed, leader);
         }
       } else {
@@ -126,23 +126,25 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
 
     /* Let us see how these quadrotors are going to move */
     while (true) {
+
       bool shape = swarm_.examin_swarm_shape(0.3, 16);
       if (!shape) {
         logger_->info("Quadrotors are far from each other, ending the episode");
         break;
       }
+
       std::this_thread::sleep_for(std::chrono::milliseconds(100));
       elapsed_time_ = model_time.stop();
       logger_->info("Model time in seconds {}", elapsed_time_);
+
       if (elapsed_time_ > passed_time_ + 3) {
         logger_->info("Seconds have passed change the model");
         passed_time_ = elapsed_time_;
         count++;
       }
-      if (count % 2 == 0) {
-        for (auto&& it : quadrotors_) {
-          it.sample_state_action_state(action_model, trajectory);
-        }
+
+      for (auto&& it : quadrotors_) {
+        it.sample_state_action_state(action_model, trajectory);
       }
 
       std::vector<ignition::math::Vector3d> destinations{
@@ -155,16 +157,19 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
         dest_ = destinations.at(random);
       }
       quadrotors_.at(0).current_action().action() = dest_;
-
-      for (auto&& it : quadrotors_) {
-        // Let us see if these are still necessary
-        arma::colvec check_double =
-          it.current_state().Data() - it.last_state().Data();
-        if (!check_double.is_zero())
-          it.save_dataset_sasas();
+      if (count % 2 == 0) {
+        for (auto&& it : quadrotors_) {
+          // Let us see if these are still necessary
+          arma::colvec check_double =
+            it.current_state().Data() - it.last_state().Data();
+          if (!check_double.is_zero()) {
+            it.save_dataset_sasas();
+            logger_->info("Current State {}", it.current_state().Data());
+          }
+        }
       }
 
-      shape = swarm_.examin_swarm_shape(0.2, 10);
+      shape = swarm_.examin_swarm_shape(0.2, 16);
       // bool has_arrived = swarm_.examin_destination(destination_forward);
 
       if (!shape) {
