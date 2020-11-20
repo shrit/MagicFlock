@@ -16,6 +16,7 @@ ContinuousActions::action()
 {
   return velocity_vector_;
 }
+
 std::vector<int>
 ContinuousActions::one_hot_action() const
 {
