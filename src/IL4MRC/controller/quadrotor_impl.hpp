@@ -191,7 +191,8 @@ template<class flight_controller_t,
          class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
-  random_model(const ignition::math::Vector4d& axis_speed, const double& passed_time)
+  random_model(const ignition::math::Vector4d& axis_speed,
+               const double& passed_time)
 {
   std::lock_guard<std::mutex> lock(_random_mutex);
   current_action().action() = random.Velocity(axis_speed, passed_time);
@@ -339,9 +340,18 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   sample_state();                   // s t-1
   sample_action(action_to_execute); // a t-1
   trajectory();                     // Execute the a t-1
+  std::this_thread::sleep_for(std::chrono::milliseconds(500));
   sample_state();                   // s t
   sample_action(action_to_execute); // a t
   trajectory();                     // Execute the a t
+  std::this_thread::sleep_for(std::chrono::milliseconds(500));
+  logger::logger_->info("Registering States, last state, Current state {}  {}",
+                        last_state().Data(),
+                        current_state().Data());
+  arma::colvec check_double = current_state().Data() - last_state().Data();
+  if (!check_double.is_zero()) {
+    save_dataset_sasas();
+  }
 }
 
 template<class flight_controller_t,
