@@ -20,6 +20,7 @@ Generator<QuadrotorType>::go_to_destination(int count)
 {
   std::vector<std::thread> threads;
   /*  Threading Quadrotors */
+  quadrotors_.at(0).current_action().action() = dest_;
   for (auto&& it : quadrotors_) {
     threads.push_back(std::thread([&]() {
       swarm_.one_quad_execute_trajectory(it.id(), it.current_action());
@@ -71,7 +72,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
                                        quadrotors_.at(0).current_action());
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    ignition::math::Vector3d forward{ 1, 0, 0 };
+    ignition::math::Vector3d forward{ 1.3, 0, 0 };
     quadrotors_.at(0).current_action().action() = forward;
     swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
                                        quadrotors_.at(0).current_action());
@@ -108,14 +109,14 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     bool leader = true;
     std::function<void(void)> action_model = [&]() {
       if (count % 2 == 0) {
-        for (std::size_t i = 1; i < quadrotors_.size(); ++i) {
-          logger_->info("Start the flocking model");
-          quadrotors_.at(i).flocking_model(
-            gains, quadrotors_.at(0).position(), max_speed, leader);
-        }
+      for (std::size_t i = 1; i < quadrotors_.size(); ++i) {
+        logger_->info("Start the flocking model");
+        quadrotors_.at(i).flocking_model(
+          gains, quadrotors_.at(0).position(), max_speed, leader);
+      }
       } else {
-        for (auto&& it : quadrotors_) {
-          it.random_model(axis_speed, elapsed_time_);
+        for (std::size_t i = 1; i < quadrotors_.size(); ++i) {
+          quadrotors_.at(i).random_model(axis_speed, elapsed_time_);
         }
       }
     };
@@ -123,26 +124,26 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     std::function<void(void)> trajectory = [&]() {
       this->go_to_destination(count);
     };
-
+    int random = 0;
     /* Let us see how these quadrotors are going to move */
     while (true) {
-
-      bool shape = swarm_.examin_swarm_shape(0.3, 16);
+      bool shape = swarm_.examin_swarm_shape(0.1, 30);
       if (!shape) {
         logger_->info("Quadrotors are far from each other, ending the episode");
         break;
       }
 
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
       elapsed_time_ = model_time.stop();
       logger_->info("Model time in seconds {}", elapsed_time_);
 
       if (elapsed_time_ > passed_time_ + 3) {
         logger_->info("Seconds have passed change the model");
+        random = distribution_int_(generator_);
         passed_time_ = elapsed_time_;
         count++;
       }
 
+      // This function will need about 400 ms to be executed
       for (auto&& it : quadrotors_) {
         it.sample_state_action_state(action_model, trajectory);
       }
@@ -151,15 +152,17 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
         { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }
       };
 
-      int random = distribution_int_(generator_);
-      if (count % 4 == 0) {
+      if (count % 2 == 0) {
         logger_->info("Change leader destination NOW");
         dest_ = destinations.at(random);
       }
-      quadrotors_.at(0).current_action().action() = dest_;
+
       if (count % 2 == 0) {
         for (auto&& it : quadrotors_) {
           // Let us see if these are still necessary
+          logger_->info("Registering States, last state, Current state {} {}",
+                        it.last_state().Data(),
+                        it.current_state().Data());
           arma::colvec check_double =
             it.current_state().Data() - it.last_state().Data();
           if (!check_double.is_zero()) {
@@ -169,7 +172,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
         }
       }
 
-      shape = swarm_.examin_swarm_shape(0.2, 16);
+      shape = swarm_.examin_swarm_shape(0.2, 50);
       // bool has_arrived = swarm_.examin_destination(destination_forward);
 
       if (!shape) {
