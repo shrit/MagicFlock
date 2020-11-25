@@ -119,9 +119,9 @@ def plot_3d_generic(generic_file_name):
     print (num_lines)
 
     dataset = np.loadtxt(generic_file_name, delimiter=",")
-    x = dataset[0, :]
-    y = dataset[1, :]
-    z = dataset[2, :]
+    x = dataset[:, 0]
+    y = dataset[:, 1]
+    z = dataset[:, 2]
     return x,y,z
 
 def plot_loss(espisdes_file_name, predic_dataset_file_name, enhanched_dataset_file_name, action):
@@ -238,13 +238,17 @@ def plot_six_generic(file_name,
     plt.savefig(file_name + ".png", dpi=100)
 
 def plot_3D_position(*file_names):
-    for file_name in file_names:
-      a, b, c = plot_3d_generic(file_name)
-      plt.plot(a, b, c)
-      
     figure = plt.figure()
     ax = figure.gca(projection='3d') # get current figure
     ax.legend()
+    ax.set_xlim3d(-100, 100)
+    ax.set_ylim3d(-100,100)
+    ax.set_zlim3d(0,100)
+    for file_name in file_names:
+      a, b, c = plot_3d_generic(file_name)
+      ax.plot(a, b, c)
+
+
     figure.set_size_inches(12, 8)
     plt.savefig(file_name + ".png", dpi=100)
 
