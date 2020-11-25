@@ -189,7 +189,7 @@ public:
 
   template<typename Arg, typename... Args>
   void save_values(std::string name, Arg value, Args... values);
-  void save_position(std::string iteration);
+  void save_position();
 
   /* Topic names related functions */
   std::string wireless_receiver_1_topic_name();
