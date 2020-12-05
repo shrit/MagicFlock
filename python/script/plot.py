@@ -241,8 +241,8 @@ def plot_3D_position(*file_names):
     figure = plt.figure()
     ax = figure.gca(projection='3d') # get current figure
     ax.legend()
-    ax.set_xlim3d(-100, 100)
-    ax.set_ylim3d(-100,100)
+    # ax.set_xlim3d(-100, 100)
+    # ax.set_ylim3d(-100,100)
     ax.set_zlim3d(0,100)
     for file_name in file_names:
       a, b, c = plot_3d_generic(file_name)
