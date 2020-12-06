@@ -12,6 +12,15 @@ public:
   std::string name; /* Name of the transmitter quadrotor */
 };
 
+class FullWiFi
+{
+public:
+  unsigned int id;
+  double antenna; /* Value measured on antenna 1*/
+  double azimuth; /* angle on the x,y surface*/
+  double elevation; /* angle on the y,z surface */
+};
+
 class AntennaDists
 {
 public:
