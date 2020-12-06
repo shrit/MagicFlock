@@ -66,7 +66,7 @@ main(int argc, char* argv[])
   using QuadrotorType = Quadrotor<Px4Device,
                                   EmptyFilter<arma::colvec>,
                                   EmptyNoise<arma::colvec>,
-                                  AntennaDists,
+                                  FullWiFi,
                                   ContinuousActions>;
 
   /*  Create a vector of quadrotors, each one has an id + a label  */

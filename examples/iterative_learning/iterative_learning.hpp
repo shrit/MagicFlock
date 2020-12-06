@@ -7,6 +7,7 @@
 
 /* local includes  */
 #include <IL4MRC/algorithms/ann_action_predictor.hpp>
+#include <IL4MRC/algorithms/ann_state_predictor.hpp>
 #include <IL4MRC/controller/quadrotor.hpp>
 #include <IL4MRC/controller/swarm_device.hpp>
 #include <IL4MRC/metrics/max_distance.hpp>
