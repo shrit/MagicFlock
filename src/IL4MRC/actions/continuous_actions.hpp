@@ -27,9 +27,12 @@ public:
   void set_action(arma::colvec data);
   arma::colvec Data();
   arma::mat all_possible_actions();
+  arma::mat all_possible_actions_one_hot();
 
 private:
   ignition::math::Vector3d velocity_vector_;
-  std::vector<int> one_hot_encoding_action_{1,0,0,0,0,0,0,0,0,0,0,0};
+  std::vector<int> one_hot_encoding_action_{
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+  };
   arma::colvec data_;
 };

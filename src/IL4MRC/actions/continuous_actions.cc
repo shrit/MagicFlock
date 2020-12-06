@@ -67,7 +67,7 @@ ContinuousActions::int_to_action(arma::uword index)
 }
 
 arma::mat
-ContinuousActions::all_possible_actions()
+ContinuousActions::all_possible_actions_one_hot()
 {
   arma::mat all_possible_actions{
     { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
@@ -83,6 +83,25 @@ ContinuousActions::all_possible_actions()
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 },
     { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
   };
+
+  return all_possible_actions;
+}
+
+arma::mat
+ContinuousActions::all_possible_actions()
+{
+  arma::mat all_possible_actions(3, 1000, arma::fill::zeros);
+  arma::uword i = 0;
+  for (double x = 0.0; x < 1; x = x + 0.1) {
+    for (double y = 0.0; y < 1; y = y + 0.1) {
+      for (double z = 0.0; z < 1; z = z + 0.1) {
+        all_possible_actions(0, i) = x;
+        all_possible_actions(1, i) = y;
+        all_possible_actions(2, i) = z;
+        ++i;
+      }
+    }
+  }
 
   return all_possible_actions;
 }
