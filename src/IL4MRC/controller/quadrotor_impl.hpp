@@ -44,6 +44,7 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   neighbor_antenna_positions().resize(num_neighbors_);
   _fix_antenna_positions = fix_antenna_positions;
   neigh_antenna_dists_container().resize(num_neighbors_ + num_of_antenna_src_);
+  neigh_angle_antenna_dists_container().resize(num_neighbors_);
   int num_of_antenna_transmitter = (num_neighbors_ + num_of_antenna_src_) * 2;
   arma::colvec initial_value(num_of_antenna_transmitter);
   initial_value.fill(-55);
@@ -1160,8 +1161,7 @@ void
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   calculate_angle_distances_to_neighbors_antenna()
 {
-  // Finish this function
-  for (std::size_t i = 0; i < neighbor_antenna_positions().size(); ++i) {
+  for (std::size_t i = 0; i < neighbor_positions().size(); ++i) {
     neigh_angle_antenna_dists_container().at(i).antenna =
       position().Distance(neighbor_positions().at(i));
     neigh_angle_antenna_dists_container().at(i).azimuth =

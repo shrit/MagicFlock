@@ -78,14 +78,13 @@ State<FilterType, NoiseType, StateType, ContainerType>::State(
 
   } else if constexpr (std::is_same<StateType, FullWiFi>::value) {
 
-    for (std::size_t j = 0; j < num_of_transmitter; ++j) {
+    for (std::size_t j = 0; j < num_neighbors_; ++j) {
       data.resize(container.size() * 3);
-      if (container.at(j).id != id_) {
-        data.at(i) = container.at(j).antenna;
-        data.at(++i) = container.at(j).azimuth;
-        data.at(++i) = container.at(j).elevation;
-        i = i + 1;
-      }
+      data.at(i) = container.at(j).antenna;
+      data.at(++i) = container.at(j).azimuth;
+      data.at(++i) = container.at(j).elevation;
+      i = i + 1;
+
       data_ = arma.vec_to_arma(data);
     }
 
