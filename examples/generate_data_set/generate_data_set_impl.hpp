@@ -72,7 +72,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
                                        quadrotors_.at(0).current_action());
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    ignition::math::Vector3d forward{ 1.3, 0, 0 };
+    ignition::math::Vector3d forward{ 0.8, 0, 0 };
     quadrotors_.at(0).current_action().action() = forward;
     swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
                                        quadrotors_.at(0).current_action());
@@ -88,8 +88,8 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     /*  Verify that vectors are clear when starting new episode */
     logger_->info("Taking off has finished. Start the flocking model");
     ignition::math::Vector4d gains{ 1, 7, 1, 100 };
-    ignition::math::Vector3d max_speed{ 1.3, 1.3, 0 };
-    ignition::math::Vector4d axis_speed{ 0.28, 0.28, 0.10, 4 };
+    ignition::math::Vector3d max_speed{ 0.8, 0.8, 0.05 };
+    ignition::math::Vector4d axis_speed{ 0.1, 0.1, 0.09, 4 };
 
     //! This destination goes forward
     ignition::math::Vector3d destination_forward{ 163, 0, 40 };
@@ -149,7 +149,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
       }
 
       std::vector<ignition::math::Vector3d> destinations{
-        { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }
+        { 0.5, 0, 0 }, { -0.5, 0, 0 }, { 0, 0.5, 0 }, { 0, -0.5, 0 }
       };
 
       if (count % 2 == 0) {
