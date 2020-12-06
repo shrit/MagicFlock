@@ -34,7 +34,7 @@ AnnStatePredictor<QuadrotorType>::predict()
     regression_model.Predict(features, labels_);
 
     logger::logger_->info("State prediction matrix:\n {}", labels_.t());
-    arma::colvec prefect_data = {2,2,2,2,2,2,2,2,2,2,2,2,0,0};
+    arma::colvec prefect_data = {2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0};
     arma::colvec reduced_prefect_data = {2,2,2,2,0,0};
     this->quad_.all_states().at(0).Data() = prefect_data;
     arma::mat original_state_matrix =

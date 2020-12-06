@@ -15,26 +15,20 @@ AnnPredictor<QuadrotorType>::create_features_matrix()
 
   if constexpr (std::is_same<typename QuadrotorType::Action,
                              ContinuousActions>::value) {
-    // features.insert_rows(features.n_rows, quad_.current_state().Data());
 
-    // arma::mat actions = action_.all_possible_actions();
+    arma::mat actions = action_.all_possible_actions();
 
-    // for (int i = 0; i < 12; ++i) {
-    //   arma::colvec col;
-    //   col.insert_rows(col.n_rows, quad_.last_state().Data());
-    //   col.insert_rows(col.n_rows, arm_.vec_to_arma(quad_.current_action().one_hot_action()));
-    //   col.insert_rows(col.n_rows, quad_.current_state().Data());
-    //   col.insert_rows(col.n_rows, actions.col(i));
+    for (int i = 0; i < actions.n_cols; ++i) {
+      arma::colvec col;
+      col.insert_rows(col.n_rows, quad_.last_state().Data());
+      col.insert_rows(
+        col.n_rows, quad_.current_action().Data());
+      col.insert_rows(col.n_rows, quad_.current_state().Data());
+      col.insert_rows(col.n_rows, actions.col(i));
 
-    //   /*  Create a matrix of several columns, each one is added to on the end */
-    //   features.insert_cols(features.n_cols, col);
-    // }
-     arma::colvec col;
-     col.insert_rows(col.n_rows, quad_.last_state().Data());
-     col.insert_rows(col.n_rows, quad_.current_action().Data());
-     col.insert_rows(col.n_rows, quad_.current_state().Data());
-     
-     features.insert_cols(features.n_cols, col);
+      /*  Create a matrix of several columns, each one is added to on the end */
+      features.insert_cols(features.n_cols, col);
+    }
 
   } else if constexpr (std::is_same<typename QuadrotorType::Action,
                                     DiscretActions>::value) {
