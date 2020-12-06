@@ -6,6 +6,7 @@
  */
 #pragma once
 /* C++ Standard library includes */
+#include <cmath>
 #include <string>
 #include <utility>
 #include <vector>
@@ -34,6 +35,8 @@
 /* Gazebo simulator includes */
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/transport/transport.hh>
+
+constexpr double PI = 3.14159265358979323846; /* pi */
 
 template<class flight_controller_t,
          class FilterType,
@@ -97,6 +100,8 @@ public:
   std::vector<StateType>& rssi_from_neighbors();
   std::vector<AntennaDists> neigh_antenna_dists_container() const;
   std::vector<AntennaDists>& neigh_antenna_dists_container();
+  std::vector<FullWiFi> neigh_angle_antenna_dists_container() const;
+  std::vector<FullWiFi>& neigh_angle_antenna_dists_container();
   LaserScan laser_scan() const;
   LaserScan& laser_scan();
 
@@ -190,7 +195,12 @@ public:
   template<typename Arg, typename... Args>
   void save_values(std::string name, Arg value, Args... values);
   void save_position();
-
+  
+  /* Angle of Arrival function */
+  double aoa_azimuth(ignition::math::Vector3d neighbor_position);
+  double aoa_elevation(ignition::math::Vector3d neighbor_position);
+  void calculate_angle_distances_to_neighbors_antenna();
+  
   /* Topic names related functions */
   std::string wireless_receiver_1_topic_name();
   std::string wireless_receiver_2_topic_name();
@@ -265,6 +275,7 @@ private:
   mutable std::mutex _neighbor_antenna_positions_mutex{};
   mutable std::mutex _fix_antenna_positions_mutex{};
   mutable std::mutex _neigh_antenna_dists_container_mutex{};
+  mutable std::mutex _neigh_angle_antenna_dists_container_mutex{};
   mutable std::mutex _rssi_from_neighbors_mutex{};
   mutable std::mutex _sample_state_mutex{};
   mutable std::mutex _wr_1_position_mutex{};
@@ -298,6 +309,7 @@ private:
   std::vector<ignition::math::Vector3d> _neighbor_antenna_positions;
   std::vector<ignition::math::Vector3d> _fix_antenna_positions;
   std::vector<AntennaDists> _neigh_antenna_dists_container;
+  std::vector<FullWiFi> _neigh_angle_antenna_dists_container;
   std::vector<StateType> _rssi_from_neighbors;
   ignition::math::Vector3d _position;
   ignition::math::Vector3d _wr_1_position;
