@@ -24,9 +24,11 @@ public:
   std::vector<int> one_hot_action() const;
   std::vector<int>& one_hot_action();
   ContinuousActions int_to_action(arma::uword index);
+  ContinuousActions to_action(arma::uword index);
   void set_action(arma::colvec data);
   arma::colvec Data();
-  arma::mat all_possible_actions();
+  void calculate_all_possible_actions();
+  arma::mat all_possible_actions() const;
   arma::mat all_possible_actions_one_hot();
 
 private:
@@ -34,5 +36,6 @@ private:
   std::vector<int> one_hot_encoding_action_{
     1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
   };
+  arma::mat all_possible_actions_;
   arma::colvec data_;
 };

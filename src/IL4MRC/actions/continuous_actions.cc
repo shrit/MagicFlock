@@ -3,7 +3,11 @@
 ContinuousActions::ContinuousActions()
   : velocity_vector_(0, 0, 0)
   , data_(3, arma::fill::zeros)
-{}
+{
+  arma::mat all_possible_actions(3, 1000, arma::fill::zeros);
+  all_possible_actions_ = all_possible_actions;
+  calculate_all_possible_actions();
+}
 
 ignition::math::Vector3d
 ContinuousActions::action() const
@@ -27,6 +31,15 @@ std::vector<int>&
 ContinuousActions::one_hot_action()
 {
   return one_hot_encoding_action_;
+}
+
+ContinuousActions
+ContinuousActions::to_action(arma::uword index)
+{
+  ContinuousActions action;
+  ignition::math::Vector3d velocity;
+  action.set_action(all_possible_actions().col(index));
+  return action;
 }
 
 ContinuousActions
@@ -87,23 +100,26 @@ ContinuousActions::all_possible_actions_one_hot()
   return all_possible_actions;
 }
 
-arma::mat
-ContinuousActions::all_possible_actions()
+void
+ContinuousActions::calculate_all_possible_actions()
 {
-  arma::mat all_possible_actions(3, 1000, arma::fill::zeros);
   arma::uword i = 0;
-  for (double x = 0.0; x < 1; x = x + 0.1) {
-    for (double y = 0.0; y < 1; y = y + 0.1) {
-      for (double z = 0.0; z < 1; z = z + 0.1) {
-        all_possible_actions(0, i) = x;
-        all_possible_actions(1, i) = y;
-        all_possible_actions(2, i) = z;
+  for (arma::uword x = 0; x < 10; x++) {
+    for (arma::uword y = 0; y < 10; y++) {
+      for (arma::uword z = 0; z < 10; z++) {
+        all_possible_actions_(0, i) = (x * 0.1);
+        all_possible_actions_(1, i) = (y * 0.1);
+        all_possible_actions_(2, i) = (z * 0.1);
         ++i;
       }
     }
   }
+}
 
-  return all_possible_actions;
+arma::mat
+ContinuousActions::all_possible_actions() const
+{
+  return all_possible_actions_;
 }
 
 void
