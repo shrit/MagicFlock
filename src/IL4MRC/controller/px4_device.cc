@@ -257,6 +257,14 @@ Px4Device::land_async()
 }
 
 void
+Px4Device::return_to_launch_async()
+{
+  logger::logger_->debug("Return to launch position...");
+  action_->return_to_launch_async(
+    [this](Action::Result result) { _rtl_result = result; });
+}
+
+void
 Px4Device::init_speed()
 {
   offboard_->set_velocity_body({ 0.0f, 0.0f, 0.0f, 0.0f });

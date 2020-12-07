@@ -50,7 +50,8 @@ public:
   bool land();
   void land_async();
   bool land_specific_quadrotor(unsigned int id);
-
+  void return_to_launch();
+  void return_to_launch_async();
   std::vector<position_GPS<double>> positions_GPS();
 
   bool takeoff(float meters);

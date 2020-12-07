@@ -63,7 +63,7 @@ public:
   void takeoff_async();
   void takeoff_async(float meters);
   void land_async();
-
+  void return_to_launch_async();
   /*
    * Y directions seems to be inversed when using Gazebo.
    * I am not sure if it is related to gazebo or PX4
@@ -187,6 +187,7 @@ private:
   Action::Result _arm_result {Action::Result::Unknown};
   Action::Result _disarm_result {Action::Result::Unknown};
   Action::Result _takeoff_result {Action::Result::Unknown};
+  Action::Result _rtl_result {Action::Result::Unknown};
   Action::Result _land_result {Action::Result::Unknown};
   Action::Result _kill_result {Action::Result::Unknown};
   Action::Result _reboot_result {Action::Result::Unknown};

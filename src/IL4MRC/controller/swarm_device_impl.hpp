@@ -293,6 +293,40 @@ SwarmDevice<QuadrotorType>::land_async()
 
 template<class QuadrotorType>
 void
+SwarmDevice<QuadrotorType>::return_to_launch()
+{
+  std::vector<std::thread> threads;
+  for (auto&& it : quads_) {
+    threads.emplace_back(std::thread([&]() {
+      it.controller_->return_to_launch();
+      // landed_results_.emplace_back(it.controller_->return_to_launch_result());
+    }));
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+}
+
+template<class QuadrotorType>
+void
+SwarmDevice<QuadrotorType>::return_to_launch_async()
+{
+  std::vector<std::thread> threads;
+  for (auto&& it : quads_) {
+    threads.emplace_back(std::thread([&]() {
+      it.controller_->return_to_launch_async();
+      // landed_results_.emplace_back(it.controller_->return_to_launch_result());
+    }));
+  }
+
+  for (auto& thread : threads) {
+    thread.join();
+  }
+}
+
+template<class QuadrotorType>
+void
 SwarmDevice<QuadrotorType>::flight_mode_async()
 {
   std::vector<std::thread> threads;
