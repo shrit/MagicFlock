@@ -495,6 +495,23 @@ template<class flight_controller_t,
          class NoiseType,
          class StateType,
          class ActionType>
+State<FilterType, NoiseType, StateType, std::vector<StateType>>
+Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
+  before_3_last_state()
+{
+  if (all_states_.size() > 4) {
+    auto it_state = all_states_.rbegin();
+    it_state = std::next(it_state, 4);
+    before_3_last_state_ = (*it_state);
+  }
+  return before_3_last_state_;
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class StateType,
+         class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   reset_all_states()
@@ -718,6 +735,10 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
 {
   dataset_.save_csv_dataset_2_file(
     name_,
+    vec_.to_std_vector(before_3_last_state().Data()),
+    vec_.to_std_vector(before_2_last_action().Data()),
+    vec_.to_std_vector(before_2_last_state().Data()),
+    vec_.to_std_vector(before_last_action().Data()),
     vec_.to_std_vector(before_last_state().Data()),
     vec_.to_std_vector(last_action().Data()),
     vec_.to_std_vector(last_state().Data()),

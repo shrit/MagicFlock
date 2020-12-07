@@ -86,8 +86,9 @@ public:
   void start_collision_detector(int duration);
   void stop_flocking_model();
   void stop_collision_detector();
-  
-  void random_model(const ignition::math::Vector4d& axis_speed, const double& passed_time);
+
+  void random_model(const ignition::math::Vector4d& axis_speed,
+                    const double& passed_time);
   void flocking_model(const ignition::math::Vector4d& gains,
                       const ignition::math::Vector3d& destination,
                       const ignition::math::Vector3d& max_speed,
@@ -154,6 +155,8 @@ public:
   before_last_state();
   State<FilterType, NoiseType, StateType, std::vector<StateType>>
   before_2_last_state();
+  State<FilterType, NoiseType, StateType, std::vector<StateType>>
+  before_3_last_state();
   std::vector<State<FilterType, NoiseType, StateType, std::vector<StateType>>>
   all_states() const;
   void reset_all_states();
@@ -195,12 +198,12 @@ public:
   template<typename Arg, typename... Args>
   void save_values(std::string name, Arg value, Args... values);
   void save_position();
-  
+
   /* Angle of Arrival function */
   double aoa_azimuth(ignition::math::Vector3d neighbor_position);
   double aoa_elevation(ignition::math::Vector3d neighbor_position);
   void calculate_angle_distances_to_neighbors_antenna();
-  
+
   /* Topic names related functions */
   std::string wireless_receiver_1_topic_name();
   std::string wireless_receiver_2_topic_name();
@@ -248,6 +251,8 @@ private:
     before_last_state_;
   State<FilterType, NoiseType, StateType, std::vector<StateType>>
     before_2_last_state_;
+  State<FilterType, NoiseType, StateType, std::vector<StateType>>
+    before_3_last_state_;
   std::vector<State<FilterType, NoiseType, StateType, std::vector<StateType>>>
     all_states_;
 
