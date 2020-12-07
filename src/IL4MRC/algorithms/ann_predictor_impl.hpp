@@ -15,21 +15,27 @@ AnnPredictor<QuadrotorType>::create_features_matrix()
 
   if constexpr (std::is_same<typename QuadrotorType::Action,
                              ContinuousActions>::value) {
+    // Uncomment the following if you want to predict the state
+    // arma::mat actions = action_.all_possible_actions();
+    // for (int i = 0; i < actions.n_cols; ++i) {
+    //   arma::colvec col;
+    //   col.insert_rows(col.n_rows, quad_.last_state().Data());
+    //   col.insert_rows(
+    //     col.n_rows, quad_.current_action().Data());
+    //   col.insert_rows(col.n_rows, quad_.current_state().Data());
+    //   col.insert_rows(col.n_rows, actions.col(i));
 
-    arma::mat actions = action_.all_possible_actions();
+    //   /*  Create a matrix of several columns, each one is added to on the end
+    //   */ features.insert_cols(features.n_cols, col);
+    // }
 
-    for (int i = 0; i < actions.n_cols; ++i) {
-      arma::colvec col;
-      col.insert_rows(col.n_rows, quad_.last_state().Data());
-      col.insert_rows(
-        col.n_rows, quad_.current_action().Data());
-      col.insert_rows(col.n_rows, quad_.current_state().Data());
-      col.insert_rows(col.n_rows, actions.col(i));
-
-      /*  Create a matrix of several columns, each one is added to on the end */
-      features.insert_cols(features.n_cols, col);
-    }
-
+    // Uncomment the following test the action predictor
+    arma::colvec col;
+    col.insert_rows(col.n_rows, quad_.last_state().Data());
+    col.insert_rows(col.n_rows, quad_.current_action().Data());
+    col.insert_rows(col.n_rows, quad_.current_state().Data());
+    features.insert_cols(features.n_cols, col);
+    
   } else if constexpr (std::is_same<typename QuadrotorType::Action,
                                     DiscretActions>::value) {
 
