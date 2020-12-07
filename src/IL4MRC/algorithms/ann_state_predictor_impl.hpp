@@ -30,10 +30,10 @@ AnnStatePredictor<QuadrotorType>::predict()
 
     logger::logger_->info("Size of State features matrix: {}",
                           arma::size(features));
-    logger::logger_->info("State data matrix:\n {}", features.t());
+    // logger::logger_->info("State data matrix:\n {}", features.t());
     regression_model.Predict(features, labels_);
 
-    logger::logger_->info("State prediction matrix:\n {}", labels_.t());
+    // logger::logger_->info("State prediction matrix:\n {}", labels_.t());
     arma::colvec prefect_data = {2,0,0,2,0,0,2,0,0,2,0,0,2,0,0,2,0,0};
     arma::colvec reduced_prefect_data = {2,2,2,2,0,0};
     this->quad_.all_states().at(0).Data() = prefect_data;
@@ -45,7 +45,7 @@ AnnStatePredictor<QuadrotorType>::predict()
     logger::logger_->info("Index of best action: {}", best_action_index_);
 
     /*  Get the follower action now !! and store it directly */
-    best_action_follower_ = this->action_.int_to_action(best_action_index_);
+    best_action_follower_ = this->action_.to_action(best_action_index_);
 
   } else if constexpr (std::is_same<typename QuadrotorType::Action,
                                     DiscretActions>::value) {
