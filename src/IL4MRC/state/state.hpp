@@ -47,7 +47,7 @@ public:
   const arma::colvec& Encode() const;
 
   // Need to find a solution for this one
-  static constexpr size_t dimension = 16;
+  static constexpr size_t dimension = 18;
 
 private:
   unsigned int id_;
