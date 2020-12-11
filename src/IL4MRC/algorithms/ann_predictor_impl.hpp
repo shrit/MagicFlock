@@ -31,6 +31,10 @@ AnnPredictor<QuadrotorType>::create_features_matrix()
 
     // Uncomment the following test the action predictor
     arma::colvec col;
+    col.insert_rows(col.n_rows, quad_.before_2_last_state().Data());
+    col.insert_rows(col.n_rows, quad_.before_last_action().Data());
+    col.insert_rows(col.n_rows, quad_.before_last_state().Data());
+    col.insert_rows(col.n_rows, quad_.last_action().Data());
     col.insert_rows(col.n_rows, quad_.last_state().Data());
     col.insert_rows(col.n_rows, quad_.current_action().Data());
     col.insert_rows(col.n_rows, quad_.current_state().Data());
