@@ -65,14 +65,15 @@ public:
   void land_async();
   void return_to_launch_async();
   /*
-   * Y directions seems to be inversed when using Gazebo.
+   * Y, Z directions seems to be inversed when using Gazebo.
    * I am not sure if it is related to gazebo or PX4
    * In order to make things work a negative value is required on Y
+   * In order to make things work a negative value is required on Z
    */
   template<typename VecType>
   void set_velocity_vector(VecType vec)
   {
-    offboard_->set_velocity_body({ vec.X(), -vec.Y(), vec.Z(), 0.0f });
+    offboard_->set_velocity_body({ vec.X(), -vec.Y(), -vec.Z(), 0.0f });
   }
 
   /*  Linear trajectories for discret actions*/
