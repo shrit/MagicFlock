@@ -88,7 +88,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     /*  Verify that vectors are clear when starting new episode */
     logger_->info("Taking off has finished. Start the flocking model");
     ignition::math::Vector4d gains{ 1, 7, 1, 100 };
-    ignition::math::Vector3d max_speed{ 0.8, 0.8, 0.05 };
+    ignition::math::Vector3d max_speed{ 1, 1, 0.0 };
     ignition::math::Vector4d axis_speed{ 0.1, 0.1, 0.09, 4 };
 
     //! This destination goes forward
@@ -108,17 +108,17 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
 
     bool leader = true;
     std::function<void(void)> action_model = [&]() {
-      if (count % 2 == 0) {
-        for (std::size_t i = 1; i < quadrotors_.size(); ++i) {
-          logger_->info("Start the flocking model");
-          quadrotors_.at(i).flocking_model(
-            gains, quadrotors_.at(0).position(), max_speed, leader);
-        }
-      } else {
-        for (std::size_t i = 1; i < quadrotors_.size(); ++i) {
-          quadrotors_.at(i).random_model(axis_speed, elapsed_time_);
-        }
+      // if (count % 2 == 0) {
+      for (std::size_t i = 1; i < quadrotors_.size(); ++i) {
+        logger_->info("Start the flocking model");
+        quadrotors_.at(i).flocking_model(
+          gains, quadrotors_.at(0).position(), max_speed, leader);
       }
+      // } else {
+      //   for (std::size_t i = 1; i < quadrotors_.size(); ++i) {
+      //     quadrotors_.at(i).random_model(axis_speed, elapsed_time_);
+      //   }
+      // }
     };
 
     std::function<void(void)> trajectory = [&]() {
@@ -136,20 +136,22 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
       elapsed_time_ = model_time.stop();
       logger_->info("Model time in seconds {}", elapsed_time_);
 
-      if (elapsed_time_ > passed_time_ + 3) {
+      if (elapsed_time_ > passed_time_ + 2) {
         logger_->info("Seconds have passed change the model");
         random = distribution_int_(generator_);
-        passed_time_ = elapsed_time_;
         count++;
       }
-
+      if (elapsed_time_ > passed_time_ + 60) {
+        passed_time_ = elapsed_time_;
+        break;
+      }
       // This function will need about 400 ms to be executed
       for (auto&& it : quadrotors_) {
         it.sample_state_action_state(action_model, trajectory);
       }
 
       std::vector<ignition::math::Vector3d> destinations{
-        { 0.5, 0, 0 }, { -0.5, 0, 0 }, { 0, 0.5, 0 }, { 0, -0.5, 0 }
+        { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }
       };
 
       if (count % 2 == 0) {

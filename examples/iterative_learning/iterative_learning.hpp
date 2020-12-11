@@ -38,10 +38,15 @@ private:
   std::vector<double> step_errors_;
   TimeSteps time_steps_;
   Timer timer_;
-  SwarmDevice<QuadrotorType> swarm_;
   bool start_episode_;
+  double elapsed_time_, passed_time_;
+  SwarmDevice<QuadrotorType> swarm_;
+  ignition::math::Vector3d dest_ ;
   std::vector<QuadrotorType>& quadrotors_;
   std::shared_ptr<spdlog::logger> logger_; 
+  std::uniform_int_distribution<> distribution_int_;
+  std::random_device random_dev;
+  std::mt19937 generator_;
 };
 
 #include "iterative_learning_impl.hpp"

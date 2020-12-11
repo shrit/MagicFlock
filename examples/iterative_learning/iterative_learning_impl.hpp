@@ -6,9 +6,12 @@ Iterative_learning<QuadrotorType>::Iterative_learning(
   std::shared_ptr<spdlog::logger> logger)
   : episode_(0)
   , max_episode_(10000)
+  , passed_time_(0.0)
   , swarm_(quadrotors)
   , quadrotors_(quadrotors)
   , logger_(logger)
+  , distribution_int_(0, 3)
+  , generator_(random_dev())
 {
   // Nothing to do here
 }
@@ -19,22 +22,11 @@ Iterative_learning<QuadrotorType>::generate_trajectory_using_model()
 {
   std::vector<std::thread> threads;
 
-  for (auto&& i : quadrotors_) {
-    AnnStatePredictor<QuadrotorType> predict(
-      "/meta/lemon/examples/iterative_learning/build/model.bin", "model", i);
-    ContinuousActions action = predict.best_predicted_action();
-    i.current_action() = action;
-    i.current_action().action().Z() = 0;
-  }
-
-  ignition::math::Vector3d forward{ 0.4, 0, 0 };
-  quadrotors_.at(0).current_action().action() = forward;
-
-  /*  Threading QuadCopter */
+  quadrotors_.at(0).current_action().action() = dest_;
+  /*  Threading Quadrotor */
   for (auto&& it : quadrotors_) {
     threads.push_back(std::thread([&]() {
-      swarm_.one_quad_execute_trajectory(
-        it.id(), it.current_action());
+      swarm_.one_quad_execute_trajectory(it.id(), it.current_action());
     }));
   }
 
@@ -48,51 +40,117 @@ template<class QuadrotorType>
 void
 Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
 {
-  reset();
-  std::this_thread::sleep_for(std::chrono::seconds(20));
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
 
+    /* Resetting the entire swarm after the end of each episode*/
+    reset();
+    logger_->info("The quadrotors have been reset...");
+    std::this_thread::sleep_for(std::chrono::seconds(35));
     logger_->info("Episode : {}", episode_);
     timer_.start();
     time_steps_.reset();
     swarm_.in_air_async(15);
 
-    ignition::math::Vector3d up{ 0, 0, -0.5 };
+    ignition::math::Vector3d up{ 0, 0, -1.5 };
     quadrotors_.at(0).current_action().action() = up;
     swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
                                        quadrotors_.at(0).current_action());
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    ignition::math::Vector3d forward{ 1, 0, 0 };
+    ignition::math::Vector3d forward{ 0, 1, 0 };
     quadrotors_.at(0).current_action().action() = forward;
     swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
                                        quadrotors_.at(0).current_action());
     std::this_thread::sleep_for(std::chrono::seconds(5));
+    Timer model_time;
+    model_time.start();
+    int count = 0;
 
-    ignition::math::Vector3d destination{ 163, 0, 20 };
+    // bool leader = true;
+    std::function<void(void)> action_model = [&]() {
+      // if (count % 2 == 0) {
+      // for (std::size_t i = 1; i < quadrotors_.size(); ++i) {
+      //   logger_->info("Start the flocking model");
+      //   quadrotors_.at(i).flocking_model(
+      //     gains, quadrotors_.at(0).position(), max_speed, leader);
+      // }
+      // } else {
+      for (auto&& i : quadrotors_) {
+        AnnActionPredictor<QuadrotorType> predict(
+          "/meta/lemon/examples/iterative_learning/build/model.bin",
+          "model",
+          i);
+        ContinuousActions action = predict.best_predicted_action();
+        i.current_action() = action;
+        i.current_action().action().Z() = 0;
+      }
+      // }
+    };
 
-    for (auto&& it : quadrotors_) {
-      it.start_sampling_rt_state(50);
-    }
+    std::function<void(void)> trajectory = [&]() {
+      this->generate_trajectory_using_model();
+    };
 
+    int random = 0;
     while (true) {
-      generate_trajectory_using_model();
+      bool shape = swarm_.examin_swarm_shape(0.1, 100);
+      if (!shape) {
+        logger_->info("Quadrotors are far from each other, ending the episode");
+        break;
+      }
 
-      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+      elapsed_time_ = model_time.stop();
+      logger_->info("Model time in seconds {}", elapsed_time_);
+
+      if (elapsed_time_ > passed_time_ + 2) {
+        logger_->info("Seconds have passed change the model");
+        random = distribution_int_(generator_);
+        passed_time_ = elapsed_time_;
+        count++;
+      }
+
+      for (auto&& it : quadrotors_) {
+        it.sample_state_action_state(action_model, trajectory);
+      }
+
+      std::vector<ignition::math::Vector3d> destinations{
+        { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }
+      };
+
+      if (count % 2 == 0) {
+        logger_->info("Change leader destination NOW");
+        dest_ = destinations.at(random);
+      }
+
+      // if (count % 2 == 0) {
+      for (auto&& it : quadrotors_) {
+        // Let us see if these are still necessary
+        logger_->info("Registering States, last state, Current state {} {}",
+                      it.last_state().Data(),
+                      it.current_state().Data());
+        arma::colvec check_double =
+          it.current_state().Data() - it.last_state().Data();
+        if (!check_double.is_zero()) {
+          it.save_dataset_sasas();
+          logger_->info("Current State {}", it.current_state().Data());
+        }
+      }
+      // }
+
       /*  Check the geometrical shape */
-      bool shape = swarm_.examin_swarm_shape();
-      bool has_arrived = swarm_.examin_destination(destination);
+      shape = swarm_.examin_swarm_shape(0.2, 100);
+      // bool has_arrived = swarm_.examin_destination(destination);
 
       if (!shape) {
         logger_->info("Quadrotors are far from each other, ending the episode");
         break;
       }
 
-      if (has_arrived) {
-        logger_->info("Quadrotors have arrived at specificed destination. "
-                      "ending the episode.");
-        break;
-      }
+      // if (has_arrived) {
+      //   logger_->info("Quadrotors have arrived at specificed destination. "
+      //                 "ending the episode.");
+      //   break;
+      // }
 
       /* Register results */
       /* Save position of quadrotor each 200 ms*/
@@ -102,9 +160,9 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
       // double maxD = max_distance_.check_global_distance(quadrotors_);
       // double minD = min_distance_.check_global_distance(quadrotors_);
 
-     // quadrotors_.at(0).save_values("distance_metric", maxD, minD);
+      // quadrotors_.at(0).save_values("distance_metric", maxD, minD);
     }
-      
+
     for (auto&& it : quadrotors_) {
       it.stop_sampling_rt_state();
     }
@@ -114,16 +172,10 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
     swarm_.stop_offboard_mode_async();
     std::this_thread::sleep_for(std::chrono::seconds(1));
     swarm_.land();
+    swarm_.disarm_async();
     std::this_thread::sleep_for(std::chrono::seconds(3));
-
+    passed_time_ = 0;
     std::string flight_time = timer_.stop_and_get_time();
     logger_->info("Flight time: {}", flight_time);
-
-    /* Resetting the entire swarm after the end of each episode*/
-    reset();
-
-    logger_->info("The quadrotors have been reset...");
-    std::this_thread::sleep_for(std::chrono::seconds(35));
-    logger_->flush();
   }
 }
