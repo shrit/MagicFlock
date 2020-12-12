@@ -40,7 +40,7 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   rssi_from_neighbors().resize(number_of_quad +
                                num_of_antenna_src_); // Max number of quad
   // Max number -1, dont count my position
-  neighbor_positions().resize(num_neighbors_);
+  neighbors().resize(num_neighbors_);
   neighbor_antenna_positions().resize(num_neighbors_);
   _fix_antenna_positions = fix_antenna_positions;
   neigh_antenna_dists_container().resize(num_neighbors_ + num_of_antenna_src_);
@@ -161,7 +161,7 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
                  const bool& leader)
 {
   Flocking flock(
-    gains, position(), neighbor_positions(), destination, max_speed, leader);
+    gains, position(), neighbors(), destination, max_speed, leader);
   current_action().action() = flock.Velocity();
   current_action().one_hot_action() = flock.OneHotEncodingVelocity();
   all_actions().push_back(current_action());
@@ -179,7 +179,7 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   std::lock_guard<std::mutex> lock(_collision_mutex);
 
   collision_detector_sampler_.start(duration, [&]() {
-    CollisionDetector cd(position(), neighbor_positions(), last_action());
+    CollisionDetector cd(position(), neighbors(), last_action());
     if (min_dist_ < 0.5)
       current_action_.action() = cd.Velocity();
   });
@@ -242,7 +242,8 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
     std::size_t j = 0;
     for (std::size_t i = 0; i < quads.size(); ++i) {
       if (id_ != quads.at(i).id()) {
-        neighbor_positions().at(j) = quads.at(i).position();
+        neighbors().at(j).id = quads.at(i).id();
+        neighbors().at(j).position = quads.at(i).position();
         neighbor_antenna_positions().at(j) = quads.at(i).wt_antenna_position();
         // Add two antennas here positions
         // We need to sample the distance not only positions
@@ -734,16 +735,28 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   save_dataset_sasas()
 {
   dataset_.save_csv_dataset_2_file(
-    name_,
-    vec_.to_std_vector(before_3_last_state().Data()),
-    vec_.to_std_vector(before_2_last_action().Data()),
-    vec_.to_std_vector(before_2_last_state().Data()),
-    vec_.to_std_vector(before_last_action().Data()),
-    vec_.to_std_vector(before_last_state().Data()),
-    vec_.to_std_vector(last_action().Data()),
-    vec_.to_std_vector(last_state().Data()),
-    vec_.to_std_vector(current_action().Data()),
-    vec_.to_std_vector(current_state().Data()));
+    name_ + "leader",
+    vec_.to_std_vector(before_3_last_state().leader_data()),
+    vec_.to_std_vector(before_2_last_action().leader_data()),
+    vec_.to_std_vector(before_2_last_state().leader_data()),
+    vec_.to_std_vector(before_last_action().leader_data()),
+    vec_.to_std_vector(before_last_state().leader_data()),
+    vec_.to_std_vector(last_action().leader_data()),
+    vec_.to_std_vector(last_state().leader_data()),
+    vec_.to_std_vector(current_action().leader_data()),
+    vec_.to_std_vector(current_state().leader_data()));
+
+  dataset_.save_csv_dataset_2_file(
+    name_ + "followers",
+    vec_.to_std_vector(before_3_last_state().followers_data()),
+    vec_.to_std_vector(before_2_last_action().followers_data()),
+    vec_.to_std_vector(before_2_last_state().followers_data()),
+    vec_.to_std_vector(before_last_action().followers_data()),
+    vec_.to_std_vector(before_last_state().followers_data()),
+    vec_.to_std_vector(last_action().followers_data()),
+    vec_.to_std_vector(last_state().followers_data()),
+    vec_.to_std_vector(current_action().followers_data()),
+    vec_.to_std_vector(current_state().followers_data()));
 }
 
 template<class flight_controller_t,
@@ -853,10 +866,10 @@ template<class flight_controller_t,
          class ActionType>
 std::vector<ignition::math::Vector3d>
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
-  neighbor_positions() const
+  neighbors() const
 {
-  std::lock_guard<std::mutex> lock(_neighbor_positions_mutex);
-  return _neighbor_positions;
+  std::lock_guard<std::mutex> lock(_neighbor_mutex);
+  return _neighbors;
 }
 
 template<class flight_controller_t,
@@ -866,10 +879,10 @@ template<class flight_controller_t,
          class ActionType>
 std::vector<ignition::math::Vector3d>&
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
-  neighbor_positions()
+  neighbors()
 {
-  std::lock_guard<std::mutex> lock(_neighbor_positions_mutex);
-  return _neighbor_positions;
+  std::lock_guard<std::mutex> lock(_neighbor_mutex);
+  return _neighbors;
 }
 
 template<class flight_controller_t,
@@ -1141,9 +1154,9 @@ std::vector<double>
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   distances_to_neighbors()
 {
-  std::vector<double> distances(neighbor_positions().size());
-  for (std::size_t i = 0; i < neighbor_positions().size(); ++i) {
-    distances.at(i) = position().Distance(neighbor_positions().at(i));
+  std::vector<double> distances(neighbors().size());
+  for (std::size_t i = 0; i < neighbors().size(); ++i) {
+    distances.at(i) = position().Distance(neighbors().at(i).position);
   }
   return distances;
 }
@@ -1182,13 +1195,18 @@ void
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   calculate_angle_distances_to_neighbors_antenna()
 {
-  for (std::size_t i = 0; i < neighbor_positions().size(); ++i) {
+  for (std::size_t i = 0; i < neighbors().size(); ++i) {
+    neigh_angle_antenna_dists_container().at(i).id =
+      position().Distance(neighbors().at(i).id);
+
     neigh_angle_antenna_dists_container().at(i).antenna =
-      position().Distance(neighbor_positions().at(i));
+      position().Distance(neighbors().at(i).position);
+
     neigh_angle_antenna_dists_container().at(i).azimuth =
-      aoa_azimuth(neighbor_positions().at(i));
+      aoa_azimuth(neighbors().at(i).position;
+
     neigh_angle_antenna_dists_container().at(i).elevation =
-      aoa_elevation(neighbor_positions().at(i));
+      aoa_elevation(neighbors().at(i).position);
   }
 }
 
@@ -1446,6 +1464,6 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
 {
   double z = neighbor_position.Z() - height();
   double distance = position().Distance(neighbor_position);
-  double elevation = std::asin(z/distance) * 180 / PI;
+  double elevation = std::asin(z / distance) * 180 / PI;
   return elevation;
 }

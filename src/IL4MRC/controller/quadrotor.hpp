@@ -38,6 +38,11 @@
 
 constexpr double PI = 3.14159265358979323846; /* pi */
 
+struct neighbor {
+  int id;
+  ignition::math::Vector3d position;
+}
+
 template<class flight_controller_t,
          class FilterType,
          class NoiseType,
@@ -117,8 +122,8 @@ public:
   ignition::math::Vector3d& wt_antenna_position();
   ignition::math::Quaternion<double> orientation() const;
   ignition::math::Quaternion<double>& orientation();
-  std::vector<ignition::math::Vector3d>& neighbor_positions();
-  std::vector<ignition::math::Vector3d> neighbor_positions() const;
+  std::vector<ignition::math::Vector3d>& neighbors();
+  std::vector<ignition::math::Vector3d> neighbors() const;
   std::vector<ignition::math::Vector3d>& neighbor_antenna_positions();
   std::vector<ignition::math::Vector3d> neighbor_antenna_positions() const;
   std::vector<ignition::math::Vector3d>& fix_antenna_positions();
@@ -276,7 +281,7 @@ private:
   mutable std::mutex _flocking_mutex{};
   mutable std::mutex _random_mutex{};
   mutable std::mutex _collision_mutex{};
-  mutable std::mutex _neighbor_positions_mutex{};
+  mutable std::mutex _neighbor_mutex{};
   mutable std::mutex _neighbor_antenna_positions_mutex{};
   mutable std::mutex _fix_antenna_positions_mutex{};
   mutable std::mutex _neigh_antenna_dists_container_mutex{};
@@ -310,7 +315,7 @@ private:
   std::string port_number_;
 
   /* Position related data member */
-  std::vector<ignition::math::Vector3d> _neighbor_positions;
+  std::vector<neighbor> _neighbors;
   std::vector<ignition::math::Vector3d> _neighbor_antenna_positions;
   std::vector<ignition::math::Vector3d> _fix_antenna_positions;
   std::vector<AntennaDists> _neigh_antenna_dists_container;
