@@ -49,51 +49,57 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
     logger_->info("Episode : {}", episode_);
     timer_.start();
     time_steps_.reset();
-    swarm_.in_air_async(15);
+    swarm_.in_air_async(40);
+    int random = 0;
+    int count = 0;
+    bool leader = true;
+    std::vector<ignition::math::Vector3d> destinations{
+      { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }
+    };
 
-    ignition::math::Vector3d up{ 0, 0, -1.5 };
+    ignition::math::Vector3d up{ 0, 0, +1.5 };
     quadrotors_.at(0).current_action().action() = up;
     swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
                                        quadrotors_.at(0).current_action());
     std::this_thread::sleep_for(std::chrono::seconds(1));
-
-    ignition::math::Vector3d forward{ 0, 1, 0 };
-    quadrotors_.at(0).current_action().action() = forward;
+    random = distribution_int_(generator_);
+    quadrotors_.at(0).current_action().action() = dest_;
     swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
                                        quadrotors_.at(0).current_action());
     std::this_thread::sleep_for(std::chrono::seconds(5));
     Timer model_time;
     model_time.start();
-    int count = 0;
 
-    // bool leader = true;
+    logger_->info("Taking off has finished. Start the flocking model");
+    ignition::math::Vector4d gains{ 1, 7, 1, 100 };
+    ignition::math::Vector3d max_speed{ 1, 1, 0.3 };
+    ignition::math::Vector4d axis_speed{ 0.1, 0.1, 0.09, 4 };
     std::function<void(void)> action_model = [&]() {
-      // if (count % 2 == 0) {
-      // for (std::size_t i = 1; i < quadrotors_.size(); ++i) {
-      //   logger_->info("Start the flocking model");
-      //   quadrotors_.at(i).flocking_model(
-      //     gains, quadrotors_.at(0).position(), max_speed, leader);
-      // }
-      // } else {
-      for (auto&& i : quadrotors_) {
-        AnnActionPredictor<QuadrotorType> predict(
-          "/meta/lemon/examples/iterative_learning/build/model.bin",
-          "model",
-          i);
-        ContinuousActions action = predict.best_predicted_action();
-        i.current_action() = action;
-        i.current_action().action().Z() = 0;
+      if (count % 2 == 0) {
+        for (std::size_t i = 1; i < quadrotors_.size(); ++i) {
+          logger_->info("Start the flocking model");
+          quadrotors_.at(i).flocking_model(
+            gains, quadrotors_.at(0).position(), max_speed, leader);
+        }
+      } else {
+        for (auto&& i : quadrotors_) {
+          AnnActionPredictor<QuadrotorType> predict(
+            "/meta/lemon/examples/iterative_learning/build/model.bin",
+            "model",
+            i);
+          ContinuousActions action = predict.best_predicted_action();
+          i.current_action() = action;
+          i.current_action().action().Z() = 0;
+        }
       }
-      // }
     };
 
     std::function<void(void)> trajectory = [&]() {
       this->generate_trajectory_using_model();
     };
 
-    int random = 0;
     while (true) {
-      bool shape = swarm_.examin_swarm_shape(0.1, 100);
+      bool shape = swarm_.examin_swarm_shape(0.1, 35);
       if (!shape) {
         logger_->info("Quadrotors are far from each other, ending the episode");
         break;
@@ -105,17 +111,17 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
       if (elapsed_time_ > passed_time_ + 2) {
         logger_->info("Seconds have passed change the model");
         random = distribution_int_(generator_);
-        passed_time_ = elapsed_time_;
         count++;
+      }
+
+      if (elapsed_time_ > passed_time_ + 60) {
+        passed_time_ = elapsed_time_;
+        break;
       }
 
       for (auto&& it : quadrotors_) {
         it.sample_state_action_state(action_model, trajectory);
       }
-
-      std::vector<ignition::math::Vector3d> destinations{
-        { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }
-      };
 
       if (count % 2 == 0) {
         logger_->info("Change leader destination NOW");
@@ -138,7 +144,7 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
       // }
 
       /*  Check the geometrical shape */
-      shape = swarm_.examin_swarm_shape(0.2, 100);
+      shape = swarm_.examin_swarm_shape(0.2, 35);
       // bool has_arrived = swarm_.examin_destination(destination);
 
       if (!shape) {
