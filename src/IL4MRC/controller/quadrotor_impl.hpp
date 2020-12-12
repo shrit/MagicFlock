@@ -164,6 +164,7 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
     gains, position(), neighbors(), destination, max_speed, leader);
   current_action().leader_action() = flock.migrationVelocity();
   current_action().followers_action() = flock.reynoldsVelocity();
+  current_action().action() = flock.Velocity();
   current_action().one_hot_action() = flock.OneHotEncodingVelocity();
   all_actions().push_back(current_action());
 }
@@ -736,7 +737,7 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   save_dataset_sasas()
 {
   dataset_.save_csv_dataset_2_file(
-    name_ + "leader",
+    name_ + "_leader",
     vec_.to_std_vector(before_3_last_state().leader_data()),
     vec_.to_std_vector(before_2_last_action().leader_data()),
     vec_.to_std_vector(before_2_last_state().leader_data()),
@@ -748,7 +749,7 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
     vec_.to_std_vector(current_state().leader_data()));
 
   dataset_.save_csv_dataset_2_file(
-    name_ + "followers",
+    name_ + "_followers",
     vec_.to_std_vector(before_3_last_state().followers_data()),
     vec_.to_std_vector(before_2_last_action().followers_data()),
     vec_.to_std_vector(before_2_last_state().followers_data()),
