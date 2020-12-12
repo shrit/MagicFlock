@@ -12,7 +12,7 @@ Flocking::Flocking(const ignition::math::Vector3d& position,
   // The maximum number of neighbor should be total (size - 1).
   // We have reference to our self
   for (std::size_t i = 0; i < neighbors.size(); ++i) {
-    position_of_neighbors.push_back(neighbors.at(i).position);
+    position_of_neighbors_.push_back(neighbors.at(i).position);
   }
 }
 
@@ -31,7 +31,7 @@ Flocking::Flocking(const ignition::math::Vector4d& gains,
   // The maximum number of neighbor should be total (size - 1).
   // We have reference to our self
   for (std::size_t i = 0; i < neighbors.size(); ++i) {
-    position_of_neighbors.push_back(neighbors.at(i).position);
+    position_of_neighbors_.push_back(neighbors.at(i).position);
   }
 
   // Leader is always the first quadrotors id = 0
