@@ -25,18 +25,20 @@
 
 using namespace ILMR;
 
+struct neighbor;
+
 class Flocking
 {
 
 public:
   Flocking(const ignition::math::Vector3d& position,
-           const std::vector<ignition::math::Vector3d>& position_of_neighbors,
+           const std::vector<neighbor>& neighbors,
            const ignition::math::Vector3d& destination_position,
            const ignition::math::Vector3d& max_speed);
 
   Flocking(const ignition::math::Vector4d& gains,
            const ignition::math::Vector3d& position,
-           const std::vector<ignition::math::Vector3d>& position_of_neighbors,
+           const std::vector<neighbor>& neighbors,
            const ignition::math::Vector3d& destination_position,
            const ignition::math::Vector3d& max_speed,
            const bool& leader);
@@ -51,8 +53,6 @@ public:
   Flocking(Flocking&&) = default;
 
 private:
-  int number_of_neighbors_;
-
   /* These default values are reported in this paper:
    * https://ieeexplore.ieee.org/document/8675652
    * The vector values are the following:
@@ -63,6 +63,7 @@ private:
    */
   ignition::math::Vector4d gains_{ 1, 10, 1, 100 };
   ignition::math::Vector3d position_;
+  int number_of_neighbors_;
   std::vector<ignition::math::Vector3d> position_of_neighbors_;
   ignition::math::Vector3d destination_position_;
   ignition::math::Vector3d max_speed_;
