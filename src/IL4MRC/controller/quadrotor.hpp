@@ -20,6 +20,7 @@
 #include <IL4MRC/metrics/max_distance.hpp>
 #include <IL4MRC/metrics/min_distance.hpp>
 #include <IL4MRC/neighbors/nearest_neighbors.hpp>
+#include <IL4MRC/neighbors/neighbors.hpp>
 #include <IL4MRC/state/state.hpp>
 #include <IL4MRC/swarm_model/collision_detector/collision_detector.hpp>
 #include <IL4MRC/swarm_model/flocking/flocking.hpp>
@@ -37,11 +38,6 @@
 #include <gazebo/transport/transport.hh>
 
 constexpr double PI = 3.14159265358979323846; /* pi */
-
-struct neighbor {
-  int id;
-  ignition::math::Vector3d position;
-}
 
 template<class flight_controller_t,
          class FilterType,
