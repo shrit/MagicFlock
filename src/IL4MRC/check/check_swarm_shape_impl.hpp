@@ -43,8 +43,8 @@ CheckShape<QuadrotorType>::is_good_shape(
   bool good_shape = true;
   for (auto&& q : quads) {
 
-    for (std::size_t i = 0; i < q.neighbor_positions().size(); ++i) {
-      double distance = q.position().Distance(q.neighbor_positions().at(i));
+    for (std::size_t i = 0; i < q.neighbors().size(); ++i) {
+      double distance = q.position().Distance(q.neighbors().at(i).position);
       ILMR::logger::logger_->debug("Distance to neigh: {}", distance);
       if ((distance < lower_threshold_) or (distance > upper_threshold_)) {
         good_shape = false;

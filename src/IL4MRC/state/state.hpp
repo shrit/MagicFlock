@@ -40,9 +40,9 @@ public:
 
   arma::colvec& leader_data();
 
-  arma::colvec follwoers_data() const;
+  arma::colvec followers_data() const;
 
-  arma::colvec& follwoers_data();
+  arma::colvec& followers_data();
 
   arma::colvec ReducedData() const;
 

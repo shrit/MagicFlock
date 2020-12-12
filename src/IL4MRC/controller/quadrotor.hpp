@@ -118,8 +118,8 @@ public:
   ignition::math::Vector3d& wt_antenna_position();
   ignition::math::Quaternion<double> orientation() const;
   ignition::math::Quaternion<double>& orientation();
-  std::vector<ignition::math::Vector3d>& neighbors();
-  std::vector<ignition::math::Vector3d> neighbors() const;
+  std::vector<neighbor>& neighbors();
+  std::vector<neighbor> neighbors() const;
   std::vector<ignition::math::Vector3d>& neighbor_antenna_positions();
   std::vector<ignition::math::Vector3d> neighbor_antenna_positions() const;
   std::vector<ignition::math::Vector3d>& fix_antenna_positions();

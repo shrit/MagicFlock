@@ -865,7 +865,7 @@ template<class flight_controller_t,
          class NoiseType,
          class StateType,
          class ActionType>
-std::vector<ignition::math::Vector3d>
+std::vector<neighbor>
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   neighbors() const
 {
@@ -878,7 +878,7 @@ template<class flight_controller_t,
          class NoiseType,
          class StateType,
          class ActionType>
-std::vector<ignition::math::Vector3d>&
+std::vector<neighbor>&
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   neighbors()
 {
@@ -1198,13 +1198,13 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
 {
   for (std::size_t i = 0; i < neighbors().size(); ++i) {
     neigh_angle_antenna_dists_container().at(i).id =
-      position().Distance(neighbors().at(i).id);
+      neighbors().at(i).id;
 
     neigh_angle_antenna_dists_container().at(i).antenna =
       position().Distance(neighbors().at(i).position);
 
     neigh_angle_antenna_dists_container().at(i).azimuth =
-      aoa_azimuth(neighbors().at(i).position;
+      aoa_azimuth(neighbors().at(i).position);
 
     neigh_angle_antenna_dists_container().at(i).elevation =
       aoa_elevation(neighbors().at(i).position);

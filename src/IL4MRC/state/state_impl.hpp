@@ -95,7 +95,7 @@ State<FilterType, NoiseType, StateType, ContainerType>::State(
     }
     // Extracting followers information
     i = 0;
-    data.reset();
+    data.clear();
     data.resize((container.size() - 1) * 3);
     for (std::size_t j = 0; j < (num_neighbors_ - 1); ++j) {
       if (container.at(j).id != 0) {
