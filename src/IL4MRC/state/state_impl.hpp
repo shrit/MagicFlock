@@ -6,6 +6,8 @@ template<class FilterType,
          class ContainerType>
 State<FilterType, NoiseType, StateType, ContainerType>::State()
   : data_(dimension, arma::fill::zeros)
+  , leader_data_(3, arma::fill::zeros)
+  , followers_data_((dimension - 3), arma::fill::zeros)
   , reduced_data_(6, arma::fill::zeros)
 {
   /* Nothing to do here. */
@@ -18,6 +20,8 @@ template<class FilterType,
 State<FilterType, NoiseType, StateType, ContainerType>::State(
   const arma::colvec& data)
   : data_(data)
+  , leader_data_(3, arma::fill::zeros)
+  , followers_data_((dimension - 3), arma::fill::zeros)
   , reduced_data_(6, arma::fill::zeros)
 {
   /* Nothing to do here. */
@@ -36,6 +40,8 @@ State<FilterType, NoiseType, StateType, ContainerType>::State(
   : id_(id)
   , num_neighbors_(num_neighbors)
   , data_(num_neighbors_ * 2, arma::fill::zeros)
+  , leader_data_(3, arma::fill::zeros)
+  , followers_data_((dimension - 3), arma::fill::zeros)
   , reduced_data_(6, arma::fill::zeros)
 {
   int antenna_size = (num_neighbors_ + num_of_antenna_src) * 2;
@@ -77,16 +83,30 @@ State<FilterType, NoiseType, StateType, ContainerType>::State(
     data_ = arma.vec_to_arma(data);
 
   } else if constexpr (std::is_same<StateType, FullWiFi>::value) {
-
+    // Extracting leader information
     for (std::size_t j = 0; j < num_neighbors_; ++j) {
-      data.resize(container.size() * 3);
-      data.at(i) = container.at(j).antenna;
-      data.at(++i) = container.at(j).azimuth;
-      data.at(++i) = container.at(j).elevation;
-      i = i + 1;
-
-      data_ = arma.vec_to_arma(data);
+      if (container.at(j).id == 0) {
+        data.resize(3);
+        data.at(i) = container.at(j).antenna;
+        data.at(++i) = container.at(j).azimuth;
+        data.at(++i) = container.at(j).elevation;
+      }
+      leader_data_ = arma.vec_to_arma(data);
     }
+    // Extracting followers information
+    i = 0;
+    data.reset();
+    data.resize((container.size() - 1) * 3);
+    for (std::size_t j = 0; j < (num_neighbors_ - 1); ++j) {
+      if (container.at(j).id != 0) {
+        data.at(i) = container.at(j).antenna;
+        data.at(++i) = container.at(j).azimuth;
+        data.at(++i) = container.at(j).elevation;
+        i = i + 1;
+      }
+      followers_data_ = arma.vec_to_arma(data);
+    }
+    data_ = arma::join_cols(leader_data_, followers_data_);
 
   } else if constexpr (std::is_same<StateType, CrapyData>::value) {
     arma::colvec crapy_dataset = { -120, -120, -120, -120, -120, -120,
@@ -111,7 +131,6 @@ template<class FilterType,
 arma::colvec
 State<FilterType, NoiseType, StateType, ContainerType>::Data() const
 {
-  Encode();
   return data_;
 }
 
@@ -123,6 +142,46 @@ arma::colvec&
 State<FilterType, NoiseType, StateType, ContainerType>::Data()
 {
   return data_;
+}
+
+template<class FilterType,
+         class NoiseType,
+         class StateType,
+         class ContainerType>
+arma::colvec
+State<FilterType, NoiseType, StateType, ContainerType>::leader_data() const
+{
+  return leader_data_;
+}
+
+template<class FilterType,
+         class NoiseType,
+         class StateType,
+         class ContainerType>
+arma::colvec&
+State<FilterType, NoiseType, StateType, ContainerType>::leader_data()
+{
+  return leader_data_;
+}
+
+template<class FilterType,
+         class NoiseType,
+         class StateType,
+         class ContainerType>
+arma::colvec
+State<FilterType, NoiseType, StateType, ContainerType>::followers_data() const
+{
+  return followers_data_;
+}
+
+template<class FilterType,
+         class NoiseType,
+         class StateType,
+         class ContainerType>
+arma::colvec&
+State<FilterType, NoiseType, StateType, ContainerType>::followers_data()
+{
+  return followers_data_;
 }
 
 template<class FilterType,
@@ -149,40 +208,10 @@ template<class FilterType,
          class NoiseType,
          class StateType,
          class ContainerType>
-arma::colvec
-State<FilterType, NoiseType, StateType, ContainerType>::TOAs() const
-{
-  return toa_data_;
-}
-
-template<class FilterType,
-         class NoiseType,
-         class StateType,
-         class ContainerType>
-arma::colvec&
-State<FilterType, NoiseType, StateType, ContainerType>::TOAs()
-{
-  return toa_data_;
-}
-
-template<class FilterType,
-         class NoiseType,
-         class StateType,
-         class ContainerType>
-const arma::colvec&
-State<FilterType, NoiseType, StateType, ContainerType>::Encode() const
-{
-  data_ = arma::join_cols(reduced_data_, toa_data_);
-}
-
-template<class FilterType,
-         class NoiseType,
-         class StateType,
-         class ContainerType>
 inline std::ostream&
 operator<<(std::ostream& out,
            const State<FilterType, NoiseType, StateType, ContainerType>& s)
 {
-  out << s.RSSI() << "," << s.TOAs();
+  out << s.Data();
   return out;
 }

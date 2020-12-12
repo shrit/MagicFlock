@@ -36,15 +36,17 @@ public:
 
   arma::colvec& Data();
 
+  arma::colvec leader_data() const;
+
+  arma::colvec& leader_data();
+
+  arma::colvec follwoers_data() const;
+
+  arma::colvec& follwoers_data();
+
   arma::colvec ReducedData() const;
 
   arma::colvec& ReducedData();
-
-  arma::colvec TOAs() const;
-
-  arma::colvec& TOAs();
-
-  const arma::colvec& Encode() const;
 
   // Need to find a solution for this one
   static constexpr size_t dimension = 18;
@@ -54,7 +56,7 @@ private:
   int num_neighbors_;
   ArmaHelper arma;
   arma::colvec data_;
-  arma::colvec toa_data_;
+  arma::colvec leader_data_, followers_data_;
   arma::colvec reduced_data_;
 };
 
