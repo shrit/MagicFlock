@@ -21,6 +21,30 @@ ContinuousActions::action()
   return velocity_vector_;
 }
 
+ignition::math::Vector3d
+ContinuousActions::leader_action() const
+{
+  return leader_velocity_vector_;
+}
+
+ignition::math::Vector3d&
+ContinuousActions::leader_action()
+{
+  return leader_velocity_vector_;
+}
+
+ignition::math::Vector3d
+ContinuousActions::followers_action() const
+{
+  return followers_velocity_vector_;
+}
+
+ignition::math::Vector3d&
+ContinuousActions::followers_action()
+{
+  return followers_velocity_vector_;
+}
+
 std::vector<int>
 ContinuousActions::one_hot_action() const
 {
@@ -137,4 +161,22 @@ ContinuousActions::Data()
   data_.at(1) = velocity_vector_.Y();
   data_.at(2) = velocity_vector_.Z();
   return data_;
+}
+
+arma::colvec
+ContinuousActions::leader_data()
+{
+  leader_data_.at(0) = leader_velocity_vector_.X();
+  leader_data_.at(1) = leader_velocity_vector_.Y();
+  leader_data_.at(2) = leader_velocity_vector_.Z();
+  return leader_data_;
+}
+
+arma::colvec
+ContinuousActions::followers_data()
+{
+  followers_data_.at(0) = followers_velocity_vector_.X();
+  followers_data_.at(1) = followers_velocity_vector_.Y();
+  followers_data_.at(2) = followers_velocity_vector_.Z();
+  return followers_data_;
 }
