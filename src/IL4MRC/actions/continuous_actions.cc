@@ -2,7 +2,11 @@
 
 ContinuousActions::ContinuousActions()
   : velocity_vector_(0, 0, 0)
+  , leader_velocity_vector_(0, 0, 0)
+  , followers_velocity_vector_(0, 0, 0) 
   , data_(3, arma::fill::zeros)
+  , leader_data_(3, arma::fill::zeros)
+  , followers_data_(3, arma::fill::zeros)
 {
   arma::mat all_possible_actions(3, 1000, arma::fill::zeros);
   all_possible_actions_ = all_possible_actions;
