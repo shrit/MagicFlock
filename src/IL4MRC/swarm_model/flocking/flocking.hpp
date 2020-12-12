@@ -65,5 +65,6 @@ private:
   int number_of_neighbors_;
   std::vector<ignition::math::Vector3d> position_of_neighbors_;
   ignition::math::Vector3d destination_position_;
+  ignition::math::Vector3d cohesionVelocity_, separationVelocity_, migrationVelocity_;
   ignition::math::Vector3d max_speed_;
 };

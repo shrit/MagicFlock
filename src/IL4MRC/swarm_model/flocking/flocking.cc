@@ -48,7 +48,6 @@ Flocking::Flocking(const ignition::math::Vector4d& gains,
 ignition::math::Vector3d
 Flocking::cohesionVelocity()
 {
-  ignition::math::Vector3d cohesionVelocity{ 0, 0, 0 };
   double param = gains_.X() / number_of_neighbors_;
   ignition::math::Vector3d total_sum{ 0, 0, 0 }, r_cohs{ 0, 0, 0 };
 
@@ -58,14 +57,13 @@ Flocking::cohesionVelocity()
   }
   logger::logger_->debug("cohesion total sum: {}\n", total_sum);
   logger::logger_->debug("param cohesion: {}\n", param);
-  cohesionVelocity = total_sum * param;
-  return cohesionVelocity;
+  cohesionVelocity_ = total_sum * param;
+  return cohesionVelocity_;
 }
 
 ignition::math::Vector3d
 Flocking::separationVelocity()
 {
-  ignition::math::Vector3d separationVelocity{ 0, 0, 0 };
   double param = -(gains_.Y() / number_of_neighbors_);
   ignition::math::Vector3d total_sum{ 0, 0, 0 };
   ignition::math::Vector3d r_sep{ 0, 0, 0 }, r_sep_norm_2{ 0, 0, 0 };
@@ -82,28 +80,31 @@ Flocking::separationVelocity()
   }
   logger::logger_->debug("Separation total sum: {}", total_sum);
   logger::logger_->debug("param: {}\n", param);
-  separationVelocity = total_sum * param;
-  logger::logger_->debug("SeparationVelocity: {}\n", separationVelocity);
-  return separationVelocity;
+  separationVelocity_ = total_sum * param;
+  logger::logger_->debug("SeparationVelocity: {}\n", separationVelocity_);
+  return separationVelocity_;
 }
 
 ignition::math::Vector3d
 Flocking::migrationVelocity()
 {
-  ignition::math::Vector3d migrationVelocity{ 0, 0, 0 };
   ignition::math::Vector3d r_mig;
   r_mig = destination_position_ - position_;
   r_mig = r_mig.Normalize(); // This will do the entire operation of division
-  migrationVelocity = r_mig * gains_.Z();
+  migrationVelocity_ = r_mig * gains_.Z();
   logger::logger_->debug("Gains Z: {}", gains_.Z());
-  logger::logger_->debug("migration {}", migrationVelocity);
-  return migrationVelocity;
+  logger::logger_->debug("migration {}", migrationVelocity_);
+  return migrationVelocity_;
 }
 
 ignition::math::Vector3d
 Flocking::reynoldsVelocity()
 {
-  return cohesionVelocity() + migrationVelocity();
+  ignition::math::Vector3d coh, sep, rey;
+  coh = cohesionVelocity();
+  sep = separationVelocity();
+  rey = coh + sep;
+  return rey;
 }
 
 ignition::math::Vector3d
