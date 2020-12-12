@@ -1,6 +1,7 @@
 set(SOURCES
   nearest_neighbors.hpp
   nearest_neighbors_impl.hpp
+  neighbors.hpp
 )
 
 set(DIR_SRCS)
