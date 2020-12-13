@@ -100,10 +100,10 @@ Flocking::migrationVelocity()
 ignition::math::Vector3d
 Flocking::reynoldsVelocity()
 {
-  ignition::math::Vector3d coh, sep, rey;
-  coh = cohesionVelocity();
-  sep = separationVelocity();
-  rey = coh + sep;
+  ignition::math::Vector3d rey;
+  cohesionVelocity();
+  separationVelocity();
+  rey = cohesionVelocity_ + separationVelocity_;
   return rey;
 }
 
