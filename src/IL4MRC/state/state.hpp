@@ -29,7 +29,7 @@ public:
   State(unsigned int id,
         int num_neighbors,
         int num_of_antenna_src,
-        const ContainerType& container,
+        ContainerType container,
         FilterType filter);
 
   arma::colvec Data() const;

@@ -35,7 +35,7 @@ State<FilterType, NoiseType, StateType, ContainerType>::State(
   unsigned int id,
   int num_neighbors,
   int num_of_antenna_src,
-  const ContainerType& container,
+  ContainerType container,
   FilterType filter)
   : id_(id)
   , num_neighbors_(num_neighbors)
@@ -51,14 +51,12 @@ State<FilterType, NoiseType, StateType, ContainerType>::State(
   if constexpr (std::is_same<StateType, ReceivedSignal>()) {
 
     for (std::size_t j = 0; j < num_of_transmitter; ++j) {
-
       if (container.at(j).id != id_) {
         data.at(i) = container.at(j).antenna_1;
         data.at(++i) = container.at(j).antenna_2;
         i = i + 1;
       }
     }
-
     data_ = arma.vec_to_arma(data);
     // If a neighbor is out of range, put -110 instead of 0
     data_.replace(0, -110);
@@ -84,28 +82,29 @@ State<FilterType, NoiseType, StateType, ContainerType>::State(
 
   } else if constexpr (std::is_same<StateType, FullWiFi>::value) {
     // Extracting leader information
+    data.resize(3);
+    int leader = 0;
     for (std::size_t j = 0; j < num_neighbors_; ++j) {
       if (container.at(j).id == 0) {
-        data.resize(3);
+        leader = container.at(j).id;
         data.at(i) = container.at(j).antenna;
         data.at(++i) = container.at(j).azimuth;
         data.at(++i) = container.at(j).elevation;
       }
       leader_data_ = arma.vec_to_arma(data);
     }
+    container.erase(container.begin() + leader);
     // Extracting followers information
     i = 0;
     data.clear();
-    data.resize((container.size() - 1) * 3);
-    for (std::size_t j = 0; j < (num_neighbors_ - 1); ++j) {
-      if (container.at(j).id != 0) {
-        data.at(i) = container.at(j).antenna;
-        data.at(++i) = container.at(j).azimuth;
-        data.at(++i) = container.at(j).elevation;
-        i = i + 1;
-      }
-      followers_data_ = arma.vec_to_arma(data);
+    data.resize((container.size()) * 3);
+    for (auto&& j : container) {
+      data.at(i) = j.antenna;
+      data.at(++i) = j.azimuth;
+      data.at(++i) = j.elevation;
+      i = i + 1;
     }
+    followers_data_ = arma.vec_to_arma(data);
     data_ = arma::join_cols(leader_data_, followers_data_);
 
   } else if constexpr (std::is_same<StateType, CrapyData>::value) {
