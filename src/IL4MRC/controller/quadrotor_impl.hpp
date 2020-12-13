@@ -1198,8 +1198,7 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   calculate_angle_distances_to_neighbors_antenna()
 {
   for (std::size_t i = 0; i < neighbors().size(); ++i) {
-    neigh_angle_antenna_dists_container().at(i).id =
-      neighbors().at(i).id;
+    neigh_angle_antenna_dists_container().at(i).id = neighbors().at(i).id;
 
     neigh_angle_antenna_dists_container().at(i).antenna =
       position().Distance(neighbors().at(i).position);
