@@ -31,7 +31,9 @@ public:
   AnnPredictor(QuadrotorType& quad);
 
   arma::mat create_features_matrix();
-
+  arma::mat create_mig_vel_features_matrix();
+  arma::mat create_cohsep_vel_features_matrix();
+  
   template<typename State>
   arma::mat create_state_matrix(State state, arma::uword matrix_size);
 

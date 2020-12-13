@@ -16,11 +16,10 @@
 #include <mlpack/methods/ann/layer/layer.hpp>
 #include <mlpack/methods/ann/loss_functions/mean_squared_error.hpp>
 #include <ensmallen_bits/adam/adam_update.hpp>
-
 /* local includes */
 #include "ann_predictor.hpp"
-#include <IL4MRC/util/logger.hpp>
 #include <IL4MRC/controller/quadrotor.hpp>
+#include <IL4MRC/util/logger.hpp>
 
 using namespace ILMR;
 
@@ -28,27 +27,29 @@ template<class QuadrotorType>
 class AnnActionPredictor : public virtual AnnPredictor<QuadrotorType>
 {
 public:
-  AnnActionPredictor(
+  AnnActionPredictor(QuadrotorType& quad);
+
+  arma::mat predict(std::string full_path_to_model, std::string model_name);
+
+  arma::mat predict_cohsep_velocity(std::string full_path_to_model,
+                                    std::string model_name);
+  arma::mat predict_mig_velocity(std::string full_path_to_model,
+                                 std::string model_name);
+
+  typename QuadrotorType::Action best_predicted_action(
     std::string full_path_to_model,
-    std::string model_name,
-    QuadrotorType& quad);
+    std::string model_name);
 
-  arma::mat predict();
+  typename QuadrotorType::Action best_predicted_mig_action(
+    std::string full_path_to_model,
+    std::string model_name);
 
-  typename QuadrotorType::Action best_predicted_action();
+  typename QuadrotorType::Action best_predicted_cohsep_action(
+    std::string full_path_to_model,
+    std::string model_name);
 
   AnnActionPredictor(AnnActionPredictor const&) = delete;
   AnnActionPredictor(AnnActionPredictor&&) = default;
-
-private:
-  arma::mat labels_;
-  std::string model_path_;
-  std::string model_name_;
-  double real_time_loss_;
-  arma::vec loss_vector_;
-  arma::uword best_action_index_;
-  typename QuadrotorType::Action best_action_;
-  arma::Col<arma::uword> all_predicted_actions_;
 };
 
 #include "ann_action_predictor_impl.hpp"

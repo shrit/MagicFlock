@@ -39,7 +39,7 @@ AnnPredictor<QuadrotorType>::create_features_matrix()
     col.insert_rows(col.n_rows, quad_.current_action().Data());
     col.insert_rows(col.n_rows, quad_.current_state().Data());
     features.insert_cols(features.n_cols, col);
-    
+
   } else if constexpr (std::is_same<typename QuadrotorType::Action,
                                     DiscretActions>::value) {
 
@@ -59,6 +59,48 @@ AnnPredictor<QuadrotorType>::create_features_matrix()
   }
   /*  The return features need to be used in the model in order to
       give back the best action with highest score */
+  return features;
+}
+
+template<class QuadrotorType>
+arma::mat
+AnnPredictor<QuadrotorType>::create_cohsep_vel_features_matrix()
+{
+  arma::mat features;
+
+  if constexpr (std::is_same<typename QuadrotorType::Action,
+                             ContinuousActions>::value) {
+    arma::colvec col;
+    col.insert_rows(col.n_rows, quad_.before_2_last_state().followers_data());
+    col.insert_rows(col.n_rows, quad_.before_last_action().followers_data());
+    col.insert_rows(col.n_rows, quad_.before_last_state().followers_data());
+    col.insert_rows(col.n_rows, quad_.last_action().followers_data());
+    col.insert_rows(col.n_rows, quad_.last_state().followers_data());
+    col.insert_rows(col.n_rows, quad_.current_action().followers_data());
+    col.insert_rows(col.n_rows, quad_.current_state().followers_data());
+    features.insert_cols(features.n_cols, col);
+  }
+  return features;
+}
+
+template<class QuadrotorType>
+arma::mat
+AnnPredictor<QuadrotorType>::create_mig_vel_features_matrix()
+{
+  arma::mat features;
+
+  if constexpr (std::is_same<typename QuadrotorType::Action,
+                             ContinuousActions>::value) {
+    arma::colvec col;
+    col.insert_rows(col.n_rows, quad_.before_2_last_state().leader_data());
+    col.insert_rows(col.n_rows, quad_.before_last_action().leader_data());
+    col.insert_rows(col.n_rows, quad_.before_last_state().leader_data());
+    col.insert_rows(col.n_rows, quad_.last_action().leader_data());
+    col.insert_rows(col.n_rows, quad_.last_state().leader_data());
+    col.insert_rows(col.n_rows, quad_.current_action().leader_data());
+    col.insert_rows(col.n_rows, quad_.current_state().leader_data());
+    features.insert_cols(features.n_cols, col);
+  }
   return features;
 }
 
