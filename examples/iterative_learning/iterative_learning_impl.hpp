@@ -83,13 +83,13 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
         }
       } else {
         for (auto&& i : quadrotors_) {
-          AnnActionPredictor<QuadrotorType> predict(
-            "/meta/lemon/examples/iterative_learning/build/model.bin",
-            "model",
-            i);
-          ContinuousActions action = predict.best_predicted_action();
-          i.current_action() = action;
-          i.current_action().action().Z() = 0;
+          AnnActionPredictor<QuadrotorType> ann(i);
+          ContinuousActions mig_action = ann.best_predicted_mig_action(
+            "/meta/lemon/examples/iterative_learning/build/leader/model.bin", "model");
+          ContinuousActions cohsep_action = ann.best_predicted_cohsep_action(
+            "/meta/lemon/examples/iterative_learning/build/followers/model.bin", "model");
+          i.current_action().action() = mig_action.action() + cohsep_action.action();
+          //i.current_action().action().Z() = 0;
         }
       }
     };
