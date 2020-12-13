@@ -66,13 +66,13 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     time_steps_.reset();
     swarm_.in_air_async(40);
 
-    ignition::math::Vector3d up{ 0, 0, -1.5 };
+    ignition::math::Vector3d up{ 0, 0, +1.5 };
     quadrotors_.at(0).current_action().action() = up;
     swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
                                        quadrotors_.at(0).current_action());
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    ignition::math::Vector3d forward{ 0.8, 0, 0 };
+    ignition::math::Vector3d forward{ 1, 0, 0 };
     quadrotors_.at(0).current_action().action() = forward;
     swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
                                        quadrotors_.at(0).current_action());
@@ -91,16 +91,6 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     ignition::math::Vector3d max_speed{ 1, 1, 0.0 };
     ignition::math::Vector4d axis_speed{ 0.1, 0.1, 0.09, 4 };
 
-    //! This destination goes forward
-    ignition::math::Vector3d destination_forward{ 163, 0, 40 };
-    //! This destination goes backward
-    ignition::math::Vector3d destination_backword{ -163, 0, 20 };
-
-    //! This destination goes left
-    ignition::math::Vector3d destination_left{ 0, 163, 20 };
-
-    //! This destination goes right
-    ignition::math::Vector3d destination_right{ 0, -163, 20 };
     Timer model_time;
     model_time.start();
     int count = 0;
