@@ -19,23 +19,25 @@ class DiscretActions
 public:
   DiscretActions();
 
-  /*  Add action to str printer  */
-  enum class Action
-  {
-    forward,
-    backward,
-    left,
-    right,
-    up,
-    down,
-    NoMove,
-    Unknown,
-  };
+  ignition::math::Vector3d action() const;
 
-  Action action() const;
-  Action& action();
+  ignition::math::Vector3d& action();
+
+  ignition::math::Vector3d leader_action() const;
+
+  ignition::math::Vector3d& leader_action();
+
+  ignition::math::Vector3d followers_action() const;
+
+  ignition::math::Vector3d& followers_action();
+
+  void set_action(arma::colvec data);
+
+  arma::mat all_possible_actions();
 
   arma::colvec Data();
+  arma::colvec leader_data();
+  arma::colvec followers_data();
 
   template<typename Enumeration>
   auto as_integer(Enumeration const value) ->
@@ -44,26 +46,17 @@ public:
     return static_cast<typename std::underlying_type<Enumeration>::type>(value);
   }
 
-  std::string action_to_str(Action action);
-
-  Action int_to_action(int action_value);
-  std::vector<Action> all_possible_actions() const;
-
+  DiscretActions int_to_action(arma::uword index);
   /*  Random action generator */
-  Action random_action_generator();
+  int random_action_generator();
 
 protected:
-  std::uniform_int_distribution<> distribution_int_;
-  std::uniform_real_distribution<> distribution_real_;
-  std::random_device random_dev;
-  std::mt19937 generator_;
+  ignition::math::Vector3d velocity_vector_, leader_velocity_vector_,
+    followers_velocity_vector_;
+  arma::colvec data_;
+  arma::colvec leader_data_;
+  arma::colvec followers_data_;
 
 private:
-  std::vector<Action> possible_actions_ = { Action::forward, Action::backward,
-                                            Action::left,    Action::right,
-                                            Action::up,      Action::down,
-                                            Action::NoMove };
-
-  Action action_;
   OneHotEncoding one_hot_;
 };
