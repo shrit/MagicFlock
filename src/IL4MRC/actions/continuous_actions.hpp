@@ -25,26 +25,19 @@ public:
   ignition::math::Vector3d& leader_action();
   ignition::math::Vector3d followers_action() const;
   ignition::math::Vector3d& followers_action();
-  std::vector<int> one_hot_action() const;
-  std::vector<int>& one_hot_action();
-  ContinuousActions int_to_action(arma::uword index);
   ContinuousActions to_action(arma::uword index);
   void set_action(arma::colvec data);
+  void set_action_leader(arma::colvec data);
+  void set_action_followers(arma::colvec data);
   arma::colvec Data();
   arma::colvec leader_data();
   arma::colvec followers_data();
   void calculate_all_possible_actions();
-  arma::mat all_possible_actions() const;
-  arma::mat all_possible_actions_one_hot();
 
 private:
   ignition::math::Vector3d velocity_vector_;
   ignition::math::Vector3d leader_velocity_vector_;
   ignition::math::Vector3d followers_velocity_vector_;
-  std::vector<int> one_hot_encoding_action_{
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-  };
-  arma::mat all_possible_actions_;
   arma::colvec data_;
   arma::colvec leader_data_;
   arma::colvec followers_data_;
