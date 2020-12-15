@@ -13,37 +13,37 @@ EvaluateModel::EvaluateModel()
 }
 
 void
-EvaluateModel::input(DiscretActions::Action leader_action,
-                     DiscretActions::Action follower_1_action,
-                     DiscretActions::Action follower_2_action)
+EvaluateModel::input(DiscretActions leader_action,
+                     DiscretActions follower_1_action,
+                     DiscretActions follower_2_action)
 {
   global_count_++;
 
-  if (leader_action == follower_1_action) {
-    count_follower_1_++;
-  }
+  // if (leader_action == follower_1_action) {
+  //   count_follower_1_++;
+  // }
 
-  if (leader_action == follower_2_action) {
-    count_follower_2_++;
-  }
+  // if (leader_action == follower_2_action) {
+  //   count_follower_2_++;
+  // }
 
-  if (leader_action == follower_1_action and
-      leader_action == follower_2_action) {
-    count_both_actions_++;
-  }
+  // if (leader_action == follower_1_action and
+  //     leader_action == follower_2_action) {
+  //   count_both_actions_++;
+  // }
 
-  if (leader_action != follower_1_action) {
-    count_bad_action_f1_++;
-  }
+  // if (leader_action != follower_1_action) {
+  //   count_bad_action_f1_++;
+  // }
 
-  if (leader_action != follower_2_action) {
-    count_bad_action_f2_++;
-  }
+  // if (leader_action != follower_2_action) {
+  //   count_bad_action_f2_++;
+  // }
 
-  if (leader_action != follower_1_action and
-      leader_action != follower_2_action) {
-    count_both_bad_actions_++;
-  }
+  // if (leader_action != follower_1_action and
+  //     leader_action != follower_2_action) {
+  //   count_both_bad_actions_++;
+  // }
 }
 
 Evaluation

@@ -23,9 +23,9 @@ class EvaluateModel
 public:
   EvaluateModel();
 
-  void input(DiscretActions::Action leader_action,
-             DiscretActions::Action follower_1_action,
-             DiscretActions::Action follower_2_action);
+  void input(DiscretActions leader_action,
+             DiscretActions follower_1_action,
+             DiscretActions follower_2_action);
 
   Evaluation evaluate();
   void register_evaluation();
