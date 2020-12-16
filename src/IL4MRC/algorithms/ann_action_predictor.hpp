@@ -29,13 +29,6 @@ class AnnActionPredictor : public virtual AnnPredictor<QuadrotorType>
 public:
   AnnActionPredictor(QuadrotorType& quad);
 
-  arma::mat predict(std::string full_path_to_model, std::string model_name);
-
-  arma::mat predict_cohsep_velocity(std::string full_path_to_model,
-                                    std::string model_name);
-  arma::mat predict_mig_velocity(std::string full_path_to_model,
-                                 std::string model_name);
-
   typename QuadrotorType::Action best_predicted_action(
     std::string full_path_to_model,
     std::string model_name);
