@@ -143,6 +143,9 @@ Flocking::Velocity()
   return total;
 }
 
+/*
+ * Keep this function now, probably is going to be removed later.
+ */
 std::vector<int>
 Flocking::OneHotEncodingVelocity()
 {
