@@ -24,6 +24,10 @@ OneHotEncoding::to_one_hot_encoding(ignition::math::Vector3d vec,
   arma::colvec one_hot(number_of_class, arma::fill::zeros);
   // The vector need to have round before being treated
 
+  vec.X() = std::round(vec.X());
+  vec.Y() = std::round(vec.Y());
+  vec.Z() = std::round(vec.Z());
+  
   if (vec.X() == 1 and vec.Y() == 0 && vec.Z() == 0) {
     one_hot.at(0) = 1;
   } else if (vec.X() == -1 and vec.Y() == 0 && vec.Z() == 0) {

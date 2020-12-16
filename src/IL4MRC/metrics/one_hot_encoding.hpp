@@ -2,6 +2,7 @@
 
 #include <IL4MRC/util/logger.hpp>
 #include <mlpack/prereqs.hpp>
+#include <cmath>
 
 class OneHotEncoding
 {
