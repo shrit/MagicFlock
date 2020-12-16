@@ -73,7 +73,7 @@ main(int argc, char* argv[])
                                   EmptyFilter<arma::colvec>,
                                   EmptyNoise<arma::colvec>,
                                   FullWiFi,
-                                  ContinuousActions>;
+                                  DiscretActions>;
 
   /*  Create a vector of quadrotors, each one has an id + a label  */
   std::vector<QuadrotorType> quadrotors;
