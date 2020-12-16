@@ -34,9 +34,9 @@ public:
   arma::mat action_features_matrix();
 
   arma::mat mig_vel_state_features_matrix();
-  arma::mat cohsep_vel_action_features_matrix();
+  arma::mat cohsep_vel_state_features_matrix();
 
-  arma::mat mig_vel_state_features_matrix();
+  arma::mat mig_vel_action_features_matrix();
   arma::mat cohsep_vel_action_features_matrix();
 
   template<typename State>

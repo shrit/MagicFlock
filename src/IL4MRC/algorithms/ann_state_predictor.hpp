@@ -20,8 +20,8 @@
 /* local includes */
 #include "ann_predictor.hpp"
 #include "argmin.hpp"
-#include <IL4MRC/util/logger.hpp>
 #include <IL4MRC/controller/quadrotor.hpp>
+#include <IL4MRC/util/logger.hpp>
 
 using namespace ILMR;
 
@@ -31,10 +31,15 @@ class AnnStatePredictor : public virtual AnnPredictor<QuadrotorType>
 public:
   AnnStatePredictor(QuadrotorType& quad);
 
-  typename QuadrotorType::Action best_predicted_action();
-  typename QuadrotorType::Action best_predicted_mig_action();
-  typename QuadrotorType::Action best_predicted_cohsep_action();
-  
+  typename QuadrotorType::Action best_predicted_action(std::string model_path,
+                                                       std::string model_name);
+  typename QuadrotorType::Action best_predicted_mig_action(
+    std::string model_path,
+    std::string model_name);
+  typename QuadrotorType::Action best_predicted_cohsep_action(
+    std::string model_path,
+    std::string model_name);
+
   AnnStatePredictor(AnnStatePredictor const&) = delete;
   AnnStatePredictor(AnnStatePredictor&&) = default;
 };

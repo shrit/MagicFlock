@@ -30,6 +30,7 @@ AnnPredictor<QuadrotorType>::state_features_matrix()
      */
     features.insert_cols(features.n_cols, col);
   }
+  return features;
 }
 
 template<class QuadrotorType>

@@ -9,7 +9,7 @@ AnnStatePredictor<QuadrotorType>::AnnStatePredictor(
 }
 
 template<class QuadrotorType>
-arma::mat
+typename QuadrotorType::Action
 AnnStatePredictor<QuadrotorType>::best_predicted_action(std::string model_path,
                                                         std::string model_name)
 {
@@ -45,12 +45,12 @@ AnnStatePredictor<QuadrotorType>::best_predicted_action(std::string model_path,
     this->create_state_matrix(this->quad_.all_states().at(0), labels.n_cols);
   Argmin<arma::mat, arma::uword> argmin(original_state_matrix, labels, 1);
 
-  best_action_index_ = argmin.min_index();
-  logger::logger_->info("Index of best action: {}", best_action_index_);
+  arma::uword best_action_index = argmin.min_index();
+  logger::logger_->info("Index of best action: {}", best_action_index);
 
   /*  Get the follower action now !! and store it directly */
   typename QuadrotorType::Action best_action;
-  best_action = this->action_.to_action(best_action_index_);
+  best_action = this->action_.int_to_action(best_action_index);
 
   return best_action;
 }
@@ -94,12 +94,12 @@ AnnStatePredictor<QuadrotorType>::best_predicted_cohsep_action(
     this->create_state_matrix(this->quad_.all_states().at(0), labels.n_cols);
   Argmin<arma::mat, arma::uword> argmin(original_state_matrix, labels, 1);
 
-  best_action_index_ = argmin.min_index();
-  logger::logger_->info("Index of best action: {}", best_action_index_);
+  arma::uword best_action_index = argmin.min_index();
+  logger::logger_->info("Index of best action: {}", best_action_index);
 
   /*  Get the follower action now !! and store it directly */
   typename QuadrotorType::Action best_action;
-  best_action = this->action_.to_action(best_action_index_);
+  best_action = this->action_.int_to_action(best_action_index);
   return best_action;
 }
 
@@ -126,7 +126,7 @@ AnnStatePredictor<QuadrotorType>::best_predicted_mig_action(
    * The objective of this function is to predict only next states
    * This in only valid in the case of discret actions.
    */
-  arma::labels;
+  arma::mat labels;
 
   logger::logger_->info("Size of State features matrix: {}",
                         arma::size(features));
@@ -141,12 +141,12 @@ AnnStatePredictor<QuadrotorType>::best_predicted_mig_action(
     this->create_state_matrix(this->quad_.all_states().at(0), labels.n_cols);
   Argmin<arma::mat, arma::uword> argmin(original_state_matrix, labels, 1);
 
-  best_action_index_ = argmin.min_index();
-  logger::logger_->info("Index of best action: {}", best_action_index_);
+  arma::uword best_action_index = argmin.min_index();
+  logger::logger_->info("Index of best action: {}", best_action_index);
 
   /*  Get the follower action now !! and store it directly */
   typename QuadrotorType::Action best_action;
-  best_action = this->action_.to_action(best_action_index_);
+  best_action = this->action_.int_to_action(best_action_index);
   return best_action;
 }
 
