@@ -1,8 +1,7 @@
 #pragma once
 
 template<class QuadrotorType>
-AnnStatePredictor<QuadrotorType>::AnnStatePredictor(
-  QuadrotorType& quad)
+AnnStatePredictor<QuadrotorType>::AnnStatePredictor(QuadrotorType& quad)
   : AnnPredictor<QuadrotorType>(quad)
 {
   // Nothing to do here.
@@ -88,7 +87,7 @@ AnnStatePredictor<QuadrotorType>::best_predicted_cohsep_action(
 
   // logger::logger_->info("State prediction matrix:\n {}", labels_.t());
   arma::colvec prefect_data = { 2, 0, 0, 2, 0, 0, 2, 0, 0,
-                                2, 0, 0, 2, 0, 0, 2, 0, 0 };
+                                2, 0, 0, 2, 0, 0 };
   this->quad_.all_states().at(0).Data() = prefect_data;
   arma::mat original_state_matrix =
     this->create_state_matrix(this->quad_.all_states().at(0), labels.n_cols);
@@ -134,8 +133,7 @@ AnnStatePredictor<QuadrotorType>::best_predicted_mig_action(
   regression_model.Predict(features, labels);
 
   // logger::logger_->info("State prediction matrix:\n {}", labels_.t());
-  arma::colvec prefect_data = { 2, 0, 0, 2, 0, 0, 2, 0, 0,
-                                2, 0, 0, 2, 0, 0, 2, 0, 0 };
+  arma::colvec prefect_data = { 2, 0, 0 };
   this->quad_.all_states().at(0).Data() = prefect_data;
   arma::mat original_state_matrix =
     this->create_state_matrix(this->quad_.all_states().at(0), labels.n_cols);
@@ -149,4 +147,3 @@ AnnStatePredictor<QuadrotorType>::best_predicted_mig_action(
   best_action = this->action_.int_to_action(best_action_index);
   return best_action;
 }
-
