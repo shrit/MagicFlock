@@ -165,7 +165,6 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   current_action().leader_action() = flock.migrationVelocity();
   current_action().followers_action() = flock.reynoldsVelocity();
   current_action().action() = flock.Velocity();
-  current_action().one_hot_action() = flock.OneHotEncodingVelocity();
   all_actions().push_back(current_action());
 }
 

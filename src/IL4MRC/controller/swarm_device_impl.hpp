@@ -11,34 +11,7 @@ template<class QuadrotorType>
 void
 SwarmDevice<QuadrotorType>::one_quad_execute_trajectory(
   unsigned int id,
-  DiscretActions::Action action,
-  int speed,
-  unsigned int milliseconds)
-{
-  if (action == DiscretActions::Action::left) {
-    quads_.at(id).controller_->left(speed, milliseconds);
-
-  } else if (action == DiscretActions::Action::right) {
-    quads_.at(id).controller_->right(speed, milliseconds);
-
-  } else if (action == DiscretActions::Action::forward) {
-    quads_.at(id).controller_->forward(speed, milliseconds);
-
-  } else if (action == DiscretActions::Action::backward) {
-    quads_.at(id).controller_->backward(speed, milliseconds);
-
-  } else if (action == DiscretActions::Action::up) {
-    quads_.at(id).controller_->up(speed, milliseconds);
-
-  } else if (action == DiscretActions::Action::down) {
-    quads_.at(id).controller_->down(speed, milliseconds);
-  }
-}
-template<class QuadrotorType>
-void
-SwarmDevice<QuadrotorType>::one_quad_execute_trajectory(
-  unsigned int id,
-  ContinuousActions action)
+  typename QuadrotorType::Action action)
 {
   ignition::math::Vector3d vec = action.action();
   logger::logger_->info("Executed id Vec: {} {}", id, vec);

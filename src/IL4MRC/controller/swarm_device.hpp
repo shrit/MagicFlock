@@ -24,11 +24,7 @@ public:
   SwarmDevice(std::vector<QuadrotorType>& quads);
 
   void one_quad_execute_trajectory(unsigned int id,
-                                   DiscretActions::Action action,
-                                   int speed,
-                                   unsigned int milliseconds);
-
-  void one_quad_execute_trajectory(unsigned int id, ContinuousActions action);
+                                   typename QuadrotorType::Action action);
 
   bool arm();
   void arm_async();
