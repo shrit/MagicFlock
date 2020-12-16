@@ -52,7 +52,7 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
     swarm_.in_air_async(40);
     int random = 0;
     int count = 0;
-    bool leader = true;
+    // bool leader = true;
     std::vector<ignition::math::Vector3d> destinations{
       { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }
     };
@@ -75,23 +75,23 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
     ignition::math::Vector3d max_speed{ 1, 1, 0.3 };
     ignition::math::Vector4d axis_speed{ 0.1, 0.1, 0.09, 4 };
     std::function<void(void)> action_model = [&]() {
-      if (count % 2 == 0) {
-        for (std::size_t i = 1; i < quadrotors_.size(); ++i) {
-          logger_->info("Start the flocking model");
-          quadrotors_.at(i).flocking_model(
-            gains, quadrotors_.at(0).position(), max_speed, leader);
-        }
-      } else {
+      // if (count % 2 == 0) {
+      //   for (std::size_t i = 1; i < quadrotors_.size(); ++i) {
+      //     logger_->info("Start the flocking model");
+      //     quadrotors_.at(i).flocking_model(
+      //       gains, quadrotors_.at(0).position(), max_speed, leader);
+      //   }
+      // } else {
         for (auto&& i : quadrotors_) {
-          AnnActionPredictor<QuadrotorType> ann(i);
-          ContinuousActions mig_action = ann.best_predicted_mig_action(
+          AnnStatePredictor<QuadrotorType> ann(i);
+          DiscretActions mig_action = ann.best_predicted_mig_action(
             "/meta/lemon/examples/iterative_learning/build/leader/model.bin", "model");
-          ContinuousActions cohsep_action = ann.best_predicted_cohsep_action(
+          DiscretActions cohsep_action = ann.best_predicted_cohsep_action(
             "/meta/lemon/examples/iterative_learning/build/followers/model.bin", "model");
-          i.current_action().action() = mig_action.action() + cohsep_action.action();
+          i.current_action().action() = mig_action.action(); // + cohsep_action.action();
           //i.current_action().action().Z() = 0;
         }
-      }
+     // }
     };
 
     std::function<void(void)> trajectory = [&]() {
