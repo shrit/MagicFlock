@@ -69,14 +69,14 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
 
     bool is_leader = true;
 
-    std::function<void(QuadrotorType&, QuadrotorType&)>
-      action_model = [&](QuadrotorType& leader, QuadrotorType& quad) {
+    std::function<void(QuadrotorType&, QuadrotorType&)> action_model =
+      [&](QuadrotorType& leader, QuadrotorType& quad) {
         if (count % 2 == 0) {
           logger_->info("Start the flocking model");
           quad.flocking_model(gains, leader.position(), max_speed, is_leader);
 
         } else {
-          quad.random_model(axis_speed, elapsed_time_);
+          // quad.random_model(axis_speed, elapsed_time_);
         }
       };
 
@@ -118,14 +118,14 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
             it.save_dataset_sasas();
           }
         }));
-
-        for (auto& thread : threads) {
-          if (thread.joinable())
-            thread.join();
-        }
       }
 
-      std::this_thread::sleep_for(std::chrono::milliseconds(250));
+      for (auto& thread : threads) {
+        if (thread.joinable())
+          thread.join();
+      }
+
+      // std::this_thread::sleep_for(std::chrono::milliseconds(250));
       std::vector<ignition::math::Vector3d> destinations{
         { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }
       };
