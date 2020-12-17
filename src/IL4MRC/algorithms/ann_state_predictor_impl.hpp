@@ -8,6 +8,24 @@ AnnStatePredictor<QuadrotorType>::AnnStatePredictor(QuadrotorType& quad)
 }
 
 template<class QuadrotorType>
+arma::mat
+AnnStatePredictor<QuadrotorType>::shed_angles(arma::mat labels, bool leader)
+{
+  arma::mat tmp;
+  if (leader) {
+    tmp.insert_rows(tmp.n_rows, labels.row(0));
+
+  } else {
+    tmp.insert_rows(tmp.n_rows, labels.row(0));
+    tmp.insert_rows(tmp.n_rows, labels.row(3));
+    tmp.insert_rows(tmp.n_rows, labels.row(6));
+    tmp.insert_rows(tmp.n_rows, labels.row(9));
+    tmp.insert_rows(tmp.n_rows, labels.row(11));
+  }
+  return tmp;
+}
+
+template<class QuadrotorType>
 typename QuadrotorType::Action
 AnnStatePredictor<QuadrotorType>::best_predicted_action(std::string model_path,
                                                         std::string model_name)
@@ -36,13 +54,14 @@ AnnStatePredictor<QuadrotorType>::best_predicted_action(std::string model_path,
   // logger::logger_->info("State data matrix:\n {}", features.t());
   regression_model.Predict(features, labels);
 
-  // logger::logger_->info("State prediction matrix:\n {}", labels_.t());
-  arma::colvec prefect_data = { 2, 0, 0, 2, 0, 0, 2, 0, 0,
-                                2, 0, 0, 2, 0, 0, 2, 0, 0 };
+  // logger::logger_->info("State prediction matrix:\n {}", labels.t());
+  arma::colvec prefect_data = { 2, 2, 2, 2, 2 };
+  arma::mat distance_labels = shed_angles(labels, false);
   this->quad_.all_states().at(0).Data() = prefect_data;
-  arma::mat original_state_matrix =
-    this->create_state_matrix(this->quad_.all_states().at(0), labels.n_cols);
-  Argmin<arma::mat, arma::uword> argmin(original_state_matrix, labels, 1);
+  arma::mat original_state_matrix = this->create_state_matrix(
+    this->quad_.all_states().at(0), distance_labels.n_cols);
+  Argmin<arma::mat, arma::uword> argmin(
+    original_state_matrix, distance_labels);
 
   arma::uword best_action_index = argmin.min_index();
   logger::logger_->info("Index of best action: {}", best_action_index);
@@ -80,21 +99,24 @@ AnnStatePredictor<QuadrotorType>::best_predicted_cohsep_action(
    */
   arma::mat labels;
 
-  logger::logger_->info("Size of State features matrix: {}",
+ /* logger::logger_->info("Size of CohSep State features matrix: {}",
                         arma::size(features));
-  // logger::logger_->info("State data matrix:\n {}", features.t());
+*/  // logger::logger_->info("State data matrix:\n {}", features.t());
   regression_model.Predict(features, labels);
 
-  // logger::logger_->info("State prediction matrix:\n {}", labels_.t());
-  arma::colvec prefect_data = { 2, 0, 0, 2, 0, 0, 2, 0, 0,
-                                2, 0, 0, 2, 0, 0 };
-  this->quad_.all_states().at(0).Data() = prefect_data;
+  // logger::logger_->info("State prediction matrix:\n {}", labels.t());
+  arma::colvec perfect_data = { 2, 2, 2, 2, 2 };
+  arma::mat distance_labels = shed_angles(labels, false);
+  // logger::logger_->info("Distance label prediction matrix:\n {}",
+  //                       distance_labels.t());
+
   arma::mat original_state_matrix =
-    this->create_state_matrix(this->quad_.all_states().at(0), labels.n_cols);
-  Argmin<arma::mat, arma::uword> argmin(original_state_matrix, labels, 1);
+    this->create_state_matrix(perfect_data, distance_labels.n_cols);
+  Argmin<arma::mat, arma::uword> argmin(
+    original_state_matrix, distance_labels);
 
   arma::uword best_action_index = argmin.min_index();
-  logger::logger_->info("Index of best action: {}", best_action_index);
+ // logger::logger_->info("Index of best action: {}", best_action_index);
 
   /*  Get the follower action now !! and store it directly */
   typename QuadrotorType::Action best_action;
@@ -127,17 +149,20 @@ AnnStatePredictor<QuadrotorType>::best_predicted_mig_action(
    */
   arma::mat labels;
 
-  logger::logger_->info("Size of State features matrix: {}",
+  logger::logger_->info("Size of Mig State features matrix: {}",
                         arma::size(features));
-  // logger::logger_->info("State data matrix:\n {}", features.t());
+  logger::logger_->info("State MIG feature matrix:\n {}", features.t());
   regression_model.Predict(features, labels);
 
-  // logger::logger_->info("State prediction matrix:\n {}", labels_.t());
-  arma::colvec prefect_data = { 2, 0, 0 };
-  this->quad_.all_states().at(0).Data() = prefect_data;
+  logger::logger_->info("State MIG prediction matrix:\n {}", labels.t());
+  arma::colvec perfect_data = { 2 };
+  arma::mat distance_labels = shed_angles(labels, true);
+  logger::logger_->info("Distance label prediction matrix:\n {}",
+                        distance_labels.t());
   arma::mat original_state_matrix =
-    this->create_state_matrix(this->quad_.all_states().at(0), labels.n_cols);
-  Argmin<arma::mat, arma::uword> argmin(original_state_matrix, labels, 1);
+    this->create_state_matrix(perfect_data, distance_labels.n_cols);
+  Argmin<arma::mat, arma::uword> argmin(
+    original_state_matrix, distance_labels);
 
   arma::uword best_action_index = argmin.min_index();
   logger::logger_->info("Index of best action: {}", best_action_index);

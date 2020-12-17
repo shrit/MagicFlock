@@ -139,7 +139,7 @@ AnnPredictor<QuadrotorType>::create_state_matrix(State state,
 {
   arma::mat state_matrix;
   for (int i = 0; i < matrix_size; ++i) {
-    state_matrix.insert_cols(state_matrix.n_cols, state.Data());
+    state_matrix.insert_cols(state_matrix.n_cols, state);
   }
   return state_matrix;
 }
