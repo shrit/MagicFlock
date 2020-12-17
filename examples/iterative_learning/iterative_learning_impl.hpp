@@ -16,22 +16,13 @@ Iterative_learning<QuadrotorType>::Iterative_learning(
   // Nothing to do here
 }
 
-/*
- * When executing the following function
- * it is executing for everyone
- * even if it was called by one quadrotors
- * This means we need to move the thread
- * from this quadrotors into the sampling function
- * Otherwise, it is going to be the hell on earth
- *
- */
-
 template<class QuadrotorType>
 void
 Iterative_learning<QuadrotorType>::execute_trajectory(QuadrotorType& quad)
 {
   // This is executing for everybody
-  // quadrotors_.at(0).current_action().action() = dest_;
+  // Let us try if this trick avoid the leader from using the predictive model
+  quadrotors_.at(0).current_action().action() = dest_;
   swarm_.one_quad_execute_trajectory(quad.id(), quad.current_action());
 }
 
@@ -105,21 +96,26 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
         logger_->info("Quadrotors are far from each other, ending the episode");
         break;
       }
-
+      // Fix the quadrotor issue here, we do not need quadrotor to use this
+      // model
       std::vector<std::thread> threads;
       for (auto&& it : quadrotors_) {
         threads.push_back(std::thread([&]() {
           it.sample_state_action_state(
             action_model, trajectory, it, quadrotors_.at(0));
           logger_->info("Saving dataset NOW!!!!!!!!!!!!!");
-          it.save_dataset_sasas();
+          arma::colvec check_double =
+            it.current_state().Data() - it.last_state().Data();
+          if (!check_double.is_zero()) {
+            it.save_dataset_sasas();
+          }
         }));
-
-        for (auto& thread : threads) {
-          if (thread.joinable())
-            thread.join();
-        }
       }
+
+      for (auto& thread : threads) {
+        thread.join();
+      }
+
       std::this_thread::sleep_for(std::chrono::milliseconds(250));
       elapsed_time_ = model_time.stop();
       logger_->info("Model time in seconds {}", elapsed_time_);
@@ -140,14 +136,6 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
         dest_ = destinations.at(random);
       }
 
-      // for (auto&& it : quadrotors_) {
-      // Let us see if these are still necessary
-      // arma::colvec check_double =
-      //   it.current_state().Data() - it.last_state().Data();
-      // if (!check_double.is_zero()) {
-      // }
-      // }
-
       /*  Check the geometrical shape */
       shape = swarm_.examin_swarm_shape(0.2, 35);
       // bool has_arrived = swarm_.examin_destination(destination);
@@ -156,12 +144,6 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
         logger_->info("Quadrotors are far from each other, ending the episode");
         break;
       }
-
-      // if (has_arrived) {
-      //   logger_->info("Quadrotors have arrived at specificed destination. "
-      //                 "ending the episode.");
-      //   break;
-      // }
 
       /* Register results */
       /* Save position of quadrotor each 200 ms*/
