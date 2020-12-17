@@ -18,7 +18,6 @@ template<class QuadrotorType>
 void
 Generator<QuadrotorType>::execute_trajectory(QuadrotorType& quad)
 {
-  quadrotors_.at(0).current_action().action() = dest_;
   swarm_.one_quad_execute_trajectory(quad.id(), quad.current_action());
 }
 
@@ -65,8 +64,6 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     Timer model_time;
     model_time.start();
     int count = 0;
-    // Check the shape of the swarm, if one is missing then land.
-
     bool is_leader = true;
 
     std::function<void(QuadrotorType&, QuadrotorType&)> action_model =
@@ -107,15 +104,16 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
       }
 
       std::vector<std::thread> threads;
-      for (auto&& it : quadrotors_) {
+      for (std::size_t it = 1; it < quadrotors_.size(); ++it) {
         threads.push_back(std::thread([&]() {
-          it.sample_state_action_state(
-            action_model, trajectory, it, quadrotors_.at(0));
-          logger_->info("Saving dataset NOW!!!!!!!!!!!!!");
+          quadrotors_.at(it).sample_state_action_state(
+            action_model, trajectory, quadrotors_.at(it), quadrotors_.at(0));
+          logger_->info("Saving dataset!");
           arma::colvec check_double =
-            it.current_state().Data() - it.last_state().Data();
+            quadrotors_.at(it).current_state().Data() -
+            quadrotors_.at(it).last_state().Data();
           if (!check_double.is_zero()) {
-            it.save_dataset_sasas();
+            quadrotors_.at(it).save_dataset_sasas();
           }
         }));
       }
@@ -133,6 +131,10 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
         logger_->info("Change leader destination NOW");
         dest_ = destinations.at(random);
       }
+      // leader actions
+      quadrotors_.at(0).current_action().action() = dest_;
+      swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
+                                         quadrotors_.at(0).current_action());
 
       shape = swarm_.examin_swarm_shape(0.2, 50);
       if (!shape) {
