@@ -81,11 +81,7 @@ main(int argc, char* argv[])
     QuadrotorType quad;
     quadrotors.push_back(quad);
   }
-  ignition::math::Vector3d right_antenna{10, -90, 45};
-  ignition::math::Vector3d back_antenna{-163, 0, 40};
-  std::vector<ignition::math::Vector3d> fix_antennas(2);
-  fix_antennas.at(0) = right_antenna;
-  fix_antennas.at(1) = back_antenna;
+  std::vector<ignition::math::Vector3d> fix_antennas(0);
 
   for (std::size_t i = 0; i < num_of_quads; ++i) {
     quadrotors.at(i).init(i,

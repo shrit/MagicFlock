@@ -16,39 +16,10 @@ Generator<QuadrotorType>::Generator(std::vector<QuadrotorType>& quadrotors,
 
 template<class QuadrotorType>
 void
-Generator<QuadrotorType>::go_to_destination(int count)
+Generator<QuadrotorType>::execute_trajectory(QuadrotorType& quad)
 {
-  std::vector<std::thread> threads;
-  /*  Threading Quadrotors */
   quadrotors_.at(0).current_action().action() = dest_;
-  for (auto&& it : quadrotors_) {
-    threads.push_back(std::thread([&]() {
-      swarm_.one_quad_execute_trajectory(it.id(), it.current_action());
-    }));
-  }
-
-  for (auto& thread : threads) {
-    thread.join();
-  }
-}
-
-template<class QuadrotorType>
-void
-Generator<QuadrotorType>::stop()
-{
-  std::vector<std::thread> threads;
-  ignition::math::Vector3d stop{ 0, 0, 0 };
-  /*  Threading Quadrotors */
-  for (auto&& it : quadrotors_) {
-    threads.push_back(std::thread([&]() {
-      it.current_action().action() = stop;
-      swarm_.one_quad_execute_trajectory(it.id(), it.current_action());
-    }));
-  }
-
-  for (auto& thread : threads) {
-    thread.join();
-  }
+  swarm_.one_quad_execute_trajectory(quad.id(), quad.current_action());
 }
 
 template<class QuadrotorType>
@@ -96,24 +67,23 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     int count = 0;
     // Check the shape of the swarm, if one is missing then land.
 
-    bool leader = true;
-    std::function<void(void)> action_model = [&]() {
-      // if (count % 2 == 0) {
-      for (std::size_t i = 1; i < quadrotors_.size(); ++i) {
-        logger_->info("Start the flocking model");
-        quadrotors_.at(i).flocking_model(
-          gains, quadrotors_.at(0).position(), max_speed, leader);
-      }
-      // } else {
-      //   for (std::size_t i = 1; i < quadrotors_.size(); ++i) {
-      //     quadrotors_.at(i).random_model(axis_speed, elapsed_time_);
-      //   }
-      // }
+    bool is_leader = true;
+
+    std::function<void(QuadrotorType&, QuadrotorType&)>
+      action_model = [&](QuadrotorType& leader, QuadrotorType& quad) {
+        if (count % 2 == 0) {
+          logger_->info("Start the flocking model");
+          quad.flocking_model(gains, leader.position(), max_speed, is_leader);
+
+        } else {
+          quad.random_model(axis_speed, elapsed_time_);
+        }
+      };
+
+    std::function<void(QuadrotorType&)> trajectory = [&](QuadrotorType& quad) {
+      this->execute_trajectory(quad);
     };
 
-    std::function<void(void)> trajectory = [&]() {
-      this->go_to_destination(count);
-    };
     int random = 0;
     /* Let us see how these quadrotors are going to move */
     while (true) {
@@ -135,11 +105,27 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
         passed_time_ = elapsed_time_;
         break;
       }
-      // This function will need about 400 ms to be executed
+
+      std::vector<std::thread> threads;
       for (auto&& it : quadrotors_) {
-        it.sample_state_action_state(action_model, trajectory);
+        threads.push_back(std::thread([&]() {
+          it.sample_state_action_state(
+            action_model, trajectory, it, quadrotors_.at(0));
+          logger_->info("Saving dataset NOW!!!!!!!!!!!!!");
+          arma::colvec check_double =
+            it.current_state().Data() - it.last_state().Data();
+          if (!check_double.is_zero()) {
+            it.save_dataset_sasas();
+          }
+        }));
+
+        for (auto& thread : threads) {
+          if (thread.joinable())
+            thread.join();
+        }
       }
 
+      std::this_thread::sleep_for(std::chrono::milliseconds(250));
       std::vector<ignition::math::Vector3d> destinations{
         { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }
       };
@@ -149,34 +135,13 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
         dest_ = destinations.at(random);
       }
 
-      // if (count % 2 == 0) {
-      for (auto&& it : quadrotors_) {
-        // Let us see if these are still necessary
-        logger_->info("Registering States, last state, Current state {} {}",
-                      it.last_state().Data(),
-                      it.current_state().Data());
-        arma::colvec check_double =
-          it.current_state().Data() - it.last_state().Data();
-        if (!check_double.is_zero()) {
-          it.save_dataset_sasas();
-          logger_->info("Current State {}", it.current_state().Data());
-        }
-      }
-      // }
-
       shape = swarm_.examin_swarm_shape(0.2, 50);
-      // bool has_arrived = swarm_.examin_destination(destination_forward);
-
       if (!shape) {
         logger_->info("Quadrotors are far from each other, ending the episode");
         break;
       }
-      // if (has_arrived) {
-      //   logger_->info("Quadrotors have arrived at specified destination. "
-      //                 "ending the episode.");
-      //   break;
-      // }
     }
+
     passed_time_ = 0;
     std::string flight_time = timer_.stop_and_get_time();
     logger_->info("Flight time: {}", flight_time);
