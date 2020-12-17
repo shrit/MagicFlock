@@ -63,6 +63,7 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
                                        quadrotors_.at(0).current_action());
     std::this_thread::sleep_for(std::chrono::seconds(1));
     random = distribution_int_(generator_);
+    dest_ = destinations.at(random);
     quadrotors_.at(0).current_action().action() = dest_;
     swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
                                        quadrotors_.at(0).current_action());
@@ -82,16 +83,19 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
       //       gains, quadrotors_.at(0).position(), max_speed, leader);
       //   }
       // } else {
-        for (auto&& i : quadrotors_) {
-          AnnStatePredictor<QuadrotorType> ann(i);
-          DiscretActions mig_action = ann.best_predicted_mig_action(
-            "/meta/lemon/examples/iterative_learning/build/leader/model.bin", "model");
-          DiscretActions cohsep_action = ann.best_predicted_cohsep_action(
-            "/meta/lemon/examples/iterative_learning/build/followers/model.bin", "model");
-          i.current_action().action() = mig_action.action(); // + cohsep_action.action();
-          //i.current_action().action().Z() = 0;
-        }
-     // }
+      for (auto&& i : quadrotors_) {
+        AnnStatePredictor<QuadrotorType> ann(i);
+        DiscretActions mig_action = ann.best_predicted_mig_action(
+          "/meta/lemon/examples/iterative_learning/build/leader/model.bin",
+          "model");
+        DiscretActions cohsep_action = ann.best_predicted_cohsep_action(
+          "/meta/lemon/examples/iterative_learning/build/followers/model.bin",
+          "model");
+        i.current_action().action() =
+          mig_action.action(); // + cohsep_action.action();
+        // i.current_action().action().Z() = 0;
+      }
+      // }
     };
 
     std::function<void(void)> trajectory = [&]() {
@@ -128,20 +132,14 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
         dest_ = destinations.at(random);
       }
 
-      // if (count % 2 == 0) {
       for (auto&& it : quadrotors_) {
         // Let us see if these are still necessary
-        logger_->info("Registering States, last state, Current state {} {}",
-                      it.last_state().Data(),
-                      it.current_state().Data());
         arma::colvec check_double =
           it.current_state().Data() - it.last_state().Data();
         if (!check_double.is_zero()) {
           it.save_dataset_sasas();
-          logger_->info("Current State {}", it.current_state().Data());
         }
       }
-      // }
 
       /*  Check the geometrical shape */
       shape = swarm_.examin_swarm_shape(0.2, 35);
@@ -167,10 +165,6 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
       // double minD = min_distance_.check_global_distance(quadrotors_);
 
       // quadrotors_.at(0).save_values("distance_metric", maxD, minD);
-    }
-
-    for (auto&& it : quadrotors_) {
-      it.stop_sampling_rt_state();
     }
 
     /* Landing is blocking untill all quadrotors in the swarm touch the
