@@ -121,8 +121,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
       }
 
       for (auto& thread : threads) {
-        if (thread.joinable())
-          thread.join();
+        thread.join();
       }
 
       // std::this_thread::sleep_for(std::chrono::milliseconds(250));
