@@ -16,24 +16,23 @@ Iterative_learning<QuadrotorType>::Iterative_learning(
   // Nothing to do here
 }
 
+/*
+ * When executing the following function
+ * it is executing for everyone
+ * even if it was called by one quadrotors
+ * This means we need to move the thread
+ * from this quadrotors into the sampling function
+ * Otherwise, it is going to be the hell on earth
+ *
+ */
+
 template<class QuadrotorType>
 void
-Iterative_learning<QuadrotorType>::generate_trajectory_using_model()
+Iterative_learning<QuadrotorType>::execute_trajectory(QuadrotorType& quad)
 {
-  std::vector<std::thread> threads;
-
-  quadrotors_.at(0).current_action().action() = dest_;
-  /*  Threading Quadrotor */
-  for (auto&& it : quadrotors_) {
-    threads.push_back(std::thread([&]() {
-      swarm_.one_quad_execute_trajectory(it.id(), it.current_action());
-    }));
-  }
-
-  /* We need to wait until the quadcopters finish their actions */
-  for (auto& thread : threads) {
-    thread.join();
-  }
+  // This is executing for everybody
+  // quadrotors_.at(0).current_action().action() = dest_;
+  swarm_.one_quad_execute_trajectory(quad.id(), quad.current_action());
 }
 
 template<class QuadrotorType>
@@ -52,7 +51,7 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
     swarm_.in_air_async(40);
     int random = 0;
     int count = 0;
-    // bool leader = true;
+    bool is_leader = true;
     std::vector<ignition::math::Vector3d> destinations{
       { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }
     };
@@ -75,32 +74,30 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
     ignition::math::Vector4d gains{ 1, 7, 1, 100 };
     ignition::math::Vector3d max_speed{ 1, 1, 0.3 };
     ignition::math::Vector4d axis_speed{ 0.1, 0.1, 0.09, 4 };
-    std::function<void(void)> action_model = [&]() {
-      // if (count % 2 == 0) {
-      //   for (std::size_t i = 1; i < quadrotors_.size(); ++i) {
-      //     logger_->info("Start the flocking model");
-      //     quadrotors_.at(i).flocking_model(
-      //       gains, quadrotors_.at(0).position(), max_speed, leader);
-      //   }
-      // } else {
-      for (auto&& i : quadrotors_) {
-        AnnStatePredictor<QuadrotorType> ann(i);
-        DiscretActions mig_action = ann.best_predicted_mig_action(
-          "/meta/lemon/examples/iterative_learning/build/leader/model.bin",
-          "model");
-        DiscretActions cohsep_action = ann.best_predicted_cohsep_action(
-          "/meta/lemon/examples/iterative_learning/build/followers/model.bin",
-          "model");
-        i.current_action().action() =
-          mig_action.action(); // + cohsep_action.action();
-        // i.current_action().action().Z() = 0;
-      }
-      // }
-    };
 
-    std::function<void(void)> trajectory = [&]() {
-      this->generate_trajectory_using_model();
-    };
+    std::function<void(QuadrotorType&, QuadrotorType&)>
+
+      action_model = [&](QuadrotorType& leader, QuadrotorType& quad) {
+        if (count % 2 == 0) {
+          quad.flocking_model(gains, leader.position(), max_speed, is_leader);
+
+        } else {
+          AnnStatePredictor<QuadrotorType> ann(quad);
+          DiscretActions mig_action = ann.best_predicted_mig_action(
+            "/meta/lemon/examples/iterative_learning/build/leader/model.bin",
+            "model");
+          DiscretActions cohsep_action = ann.best_predicted_cohsep_action(
+            "/meta/lemon/examples/iterative_learning/build/followers/model.bin",
+            "model");
+          quad.current_action().action() = mig_action.action();
+          // + cohsep_action.action();
+          // i.current_action().action().Z() = 0;
+          quad.all_actions().push_back(quad.current_action());
+        }
+      };
+
+    std::function<void(QuadrotorType & quad)> trajectory =
+      [&](QuadrotorType& quad) { this->execute_trajectory(quad); };
 
     while (true) {
       bool shape = swarm_.examin_swarm_shape(0.1, 35);
@@ -109,6 +106,21 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
         break;
       }
 
+      std::vector<std::thread> threads;
+      for (auto&& it : quadrotors_) {
+        threads.push_back(std::thread([&]() {
+          it.sample_state_action_state(
+            action_model, trajectory, it, quadrotors_.at(0));
+          logger_->info("Saving dataset NOW!!!!!!!!!!!!!");
+          it.save_dataset_sasas();
+        }));
+
+        for (auto& thread : threads) {
+          if (thread.joinable())
+            thread.join();
+        }
+      }
+      std::this_thread::sleep_for(std::chrono::milliseconds(250));
       elapsed_time_ = model_time.stop();
       logger_->info("Model time in seconds {}", elapsed_time_);
 
@@ -123,23 +135,18 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
         break;
       }
 
-      for (auto&& it : quadrotors_) {
-        it.sample_state_action_state(action_model, trajectory);
-      }
-
       if (count % 2 == 0) {
         logger_->info("Change leader destination NOW");
         dest_ = destinations.at(random);
       }
 
-      for (auto&& it : quadrotors_) {
-        // Let us see if these are still necessary
-        arma::colvec check_double =
-          it.current_state().Data() - it.last_state().Data();
-        if (!check_double.is_zero()) {
-          it.save_dataset_sasas();
-        }
-      }
+      // for (auto&& it : quadrotors_) {
+      // Let us see if these are still necessary
+      // arma::colvec check_double =
+      //   it.current_state().Data() - it.last_state().Data();
+      // if (!check_double.is_zero()) {
+      // }
+      // }
 
       /*  Check the geometrical shape */
       shape = swarm_.examin_swarm_shape(0.2, 35);

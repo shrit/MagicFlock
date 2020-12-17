@@ -23,7 +23,7 @@ public:
   Iterative_learning(std::vector<QuadrotorType>& quadrotors,
                      std::shared_ptr<spdlog::logger> logger);
 
-  void generate_trajectory_using_model();
+  void execute_trajectory(QuadrotorType& quad);
   void run(std::function<void(void)> func);
 
   Iterative_learning(Iterative_learning const&) = delete;
