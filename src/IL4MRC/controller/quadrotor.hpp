@@ -136,9 +136,53 @@ public:
    * need for simplers
    */
   void sample_state();
-  void sample_state_action_state(std::function<void(void)> action_to_execute,
-                                 std::function<void(void)> trajectory);
-  void sample_action(std::function<void()> execute_action);
+  void sample_state_action_state(
+    std::function<void(Quadrotor<flight_controller_t,
+                                 FilterType,
+                                 NoiseType,
+                                 StateType,
+                                 ActionType>&,
+                       Quadrotor<flight_controller_t,
+                                 FilterType,
+                                 NoiseType,
+                                 StateType,
+                                 ActionType>&)> action_to_execute,
+    std::function<void(Quadrotor<flight_controller_t,
+                                 FilterType,
+                                 NoiseType,
+                                 StateType,
+                                 ActionType>&)> trajectory,
+    Quadrotor<flight_controller_t,
+              FilterType,
+              NoiseType,
+              StateType,
+              ActionType>& quad,
+    Quadrotor<flight_controller_t,
+              FilterType,
+              NoiseType,
+              StateType,
+              ActionType>& leader);
+
+  void sample_action(std::function<void(Quadrotor<flight_controller_t,
+                                                  FilterType,
+                                                  NoiseType,
+                                                  StateType,
+                                                  ActionType>&,
+                                        Quadrotor<flight_controller_t,
+                                                  FilterType,
+                                                  NoiseType,
+                                                  StateType,
+                                                  ActionType>&)> execute_action,
+                     Quadrotor<flight_controller_t,
+                               FilterType,
+                               NoiseType,
+                               StateType,
+                               ActionType>& leader,
+                     Quadrotor<flight_controller_t,
+                               FilterType,
+                               NoiseType,
+                               StateType,
+                               ActionType>& quad);
 
   /*  State related functions */
   State<FilterType, NoiseType, StateType, std::vector<StateType>>

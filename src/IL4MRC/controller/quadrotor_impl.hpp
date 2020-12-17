@@ -334,9 +334,28 @@ template<class flight_controller_t,
          class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
-  sample_action(std::function<void()> execute_action)
+  sample_action(std::function<void(Quadrotor<flight_controller_t,
+                                             FilterType,
+                                             NoiseType,
+                                             StateType,
+                                             ActionType>&,
+                                   Quadrotor<flight_controller_t,
+                                             FilterType,
+                                             NoiseType,
+                                             StateType,
+                                             ActionType>&)> execute_action,
+                Quadrotor<flight_controller_t,
+                          FilterType,
+                          NoiseType,
+                          StateType,
+                          ActionType>& leader,
+                Quadrotor<flight_controller_t,
+                          FilterType,
+                          NoiseType,
+                          StateType,
+                          ActionType>& quad)
 {
-  execute_action();
+  execute_action(leader, quad);
 }
 
 template<class flight_controller_t,
@@ -346,13 +365,39 @@ template<class flight_controller_t,
          class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
-  sample_state_action_state(std::function<void(void)> action_to_execute,
-                            std::function<void(void)> trajectory)
+  sample_state_action_state(
+    std::function<void(Quadrotor<flight_controller_t,
+                                 FilterType,
+                                 NoiseType,
+                                 StateType,
+                                 ActionType>&,
+                       Quadrotor<flight_controller_t,
+                                 FilterType,
+                                 NoiseType,
+                                 StateType,
+                                 ActionType>&)> action_to_execute,
+    std::function<void(Quadrotor<flight_controller_t,
+                                 FilterType,
+                                 NoiseType,
+                                 StateType,
+                                 ActionType>&)> trajectory,
+    Quadrotor<flight_controller_t,
+              FilterType,
+              NoiseType,
+              StateType,
+              ActionType>& quad,
+    Quadrotor<flight_controller_t,
+              FilterType,
+              NoiseType,
+              StateType,
+              ActionType>& leader)
 {
-  sample_state();                   // s t-1
-  sample_action(action_to_execute); // a t-1
-  trajectory();                     // Execute the a t-1
-  std::this_thread::sleep_for(std::chrono::milliseconds(250));
+  logger::logger_->info("SAMPLING STATE");
+  sample_state(); // s t-1
+  logger::logger_->info("SAMPLING ACTIONS");
+  sample_action(action_to_execute, leader, quad); // a t-1
+  logger::logger_->info("EXECUTING TRAJECTORY");
+  trajectory(quad); // Execute the a t-1
 }
 
 template<class flight_controller_t,
