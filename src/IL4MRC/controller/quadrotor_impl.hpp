@@ -352,19 +352,7 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   sample_state();                   // s t-1
   sample_action(action_to_execute); // a t-1
   trajectory();                     // Execute the a t-1
-  std::this_thread::sleep_for(std::chrono::milliseconds(500));
-  sample_state();                   // s t
-  sample_action(action_to_execute); // a t
-  trajectory();                     // Execute the a t
-  std::this_thread::sleep_for(std::chrono::milliseconds(500));
-  // logger::logger_->info("Registering States, last state, Current state {}
-  // {}",
-  //                       last_state().Data(),
-  //                       current_state().Data());
-  // arma::colvec check_double = current_state().Data() - last_state().Data();
-  // if (!check_double.is_zero()) {
-  //   save_dataset_sasas();
-  // }
+  std::this_thread::sleep_for(std::chrono::milliseconds(250));
 }
 
 template<class flight_controller_t,
