@@ -239,10 +239,11 @@ SwarmDevice<QuadrotorType>::land()
   for (auto& thread : threads) {
     thread.join();
   }
-  if (std::any_of(results.begin(), results.end(), [](bool value) {
-        return value == false;
-      }))
-    return false;
+  // This is causing a strang seg fault from time to time
+  // if (std::any_of(results.begin(), results.end(), [](bool value) {
+  //       return value == false;
+  //     }))
+  //   return false;
 
   return true;
 }
