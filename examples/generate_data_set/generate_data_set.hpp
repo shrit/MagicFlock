@@ -33,7 +33,7 @@ private:
   int episode_;
   int max_episode_;
   bool start_episode_;
-  double passed_time_, elapsed_time_;
+  double passed_time_, elapsed_time_, episode_time_;
   SwarmDevice<QuadrotorType> swarm_;
   std::vector<QuadrotorType>& quadrotors_;
   TimeSteps time_steps_;

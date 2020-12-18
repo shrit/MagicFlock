@@ -7,6 +7,7 @@ Generator<QuadrotorType>::Generator(std::vector<QuadrotorType>& quadrotors,
   , max_episode_(10000)
   , start_episode_(false)
   , passed_time_(0.0)
+  , episode_time_(0.0)
   , swarm_(quadrotors)
   , quadrotors_(quadrotors)
   , logger_(logger)
@@ -18,7 +19,8 @@ template<class QuadrotorType>
 void
 Generator<QuadrotorType>::execute_trajectory(QuadrotorType& quad)
 {
-  swarm_.one_quad_execute_trajectory(quad.id(), quad.current_action());
+  if (quad.id() != 0)
+    swarm_.one_quad_execute_trajectory(quad.id(), quad.current_action());
 }
 
 template<class QuadrotorType>
@@ -68,13 +70,15 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
 
     std::function<void(QuadrotorType&, QuadrotorType&)> action_model =
       [&](QuadrotorType& leader, QuadrotorType& quad) {
-        if (count % 2 == 0) {
+        // if (count % 2 == 0) {
+        if (quad.id() != 0) {
           logger_->info("Start the flocking model");
+          logger_->info("quad id {}", quad.id());
           quad.flocking_model(gains, leader.position(), max_speed, is_leader);
-
-        } else {
-          // quad.random_model(axis_speed, elapsed_time_);
         }
+        // } else {
+        // quad.random_model(axis_speed, elapsed_time_);
+        // }
       };
 
     std::function<void(QuadrotorType&)> trajectory = [&](QuadrotorType& quad) {
@@ -93,36 +97,37 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
       elapsed_time_ = model_time.stop();
       logger_->info("Model time in seconds {}", elapsed_time_);
 
-      if (elapsed_time_ > passed_time_ + 2) {
-        logger_->info("Seconds have passed change the model");
+      if (elapsed_time_ > passed_time_ + 10) {
+        logger_->info("Change the leader destination {}", elapsed_time_);
+        passed_time_ = elapsed_time_;
         random = distribution_int_(generator_);
         count++;
       }
-      if (elapsed_time_ > passed_time_ + 60) {
-        passed_time_ = elapsed_time_;
-        break;
-      }
 
       std::vector<std::thread> threads;
-      for (std::size_t it = 1; it < quadrotors_.size(); ++it) {
+      //     std::size_t it = 1;
+      //      while (true) {
+      for (auto&& it : quadrotors_) {
         threads.push_back(std::thread([&]() {
-          quadrotors_.at(it).sample_state_action_state(
-            action_model, trajectory, quadrotors_.at(it), quadrotors_.at(0));
+          it.sample_state_action_state(
+            action_model, trajectory, it, quadrotors_.at(0));
           logger_->info("Saving dataset!");
           arma::colvec check_double =
-            quadrotors_.at(it).current_state().Data() -
-            quadrotors_.at(it).last_state().Data();
+            it.current_state().Data() - it.last_state().Data();
           if (!check_double.is_zero()) {
-            quadrotors_.at(it).save_dataset_sasas();
+            it.save_dataset_sasas();
           }
         }));
+        /*      it++;
+              if (it == quadrotors_.size() - 1)
+                break;*/
       }
 
       for (auto& thread : threads) {
         thread.join();
       }
 
-      // std::this_thread::sleep_for(std::chrono::milliseconds(250));
+      std::this_thread::sleep_for(std::chrono::milliseconds(250));
       std::vector<ignition::math::Vector3d> destinations{
         { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }
       };
@@ -130,20 +135,25 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
       if (count % 2 == 0) {
         logger_->info("Change leader destination NOW");
         dest_ = destinations.at(random);
+        // leader actions
+        quadrotors_.at(0).current_action().action() = dest_;
+        swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
+                                           quadrotors_.at(0).current_action());
       }
-      // leader actions
-      quadrotors_.at(0).current_action().action() = dest_;
-      swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
-                                         quadrotors_.at(0).current_action());
 
       shape = swarm_.examin_swarm_shape(0.2, 50);
       if (!shape) {
         logger_->info("Quadrotors are far from each other, ending the episode");
         break;
       }
+      if (elapsed_time_ > episode_time_ + 60) {
+        episode_time_ = elapsed_time_;
+        break;
+      }
     }
 
     passed_time_ = 0;
+    episode_time_ = 0;
     std::string flight_time = timer_.stop_and_get_time();
     logger_->info("Flight time: {}", flight_time);
     /* Landing is blocking untill all quadrotors in the swarm touch the
