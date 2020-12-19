@@ -105,8 +105,6 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
       }
 
       std::vector<std::thread> threads;
-      //     std::size_t it = 1;
-      //      while (true) {
       for (auto&& it : quadrotors_) {
         threads.push_back(std::thread([&]() {
           it.sample_state_action_state(
@@ -118,9 +116,6 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
             it.save_dataset_sasas();
           }
         }));
-        /*      it++;
-              if (it == quadrotors_.size() - 1)
-                break;*/
       }
 
       for (auto& thread : threads) {
