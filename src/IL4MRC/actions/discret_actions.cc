@@ -86,6 +86,13 @@ DiscretActions::all_possible_actions()
   return all_possible_actions;
 }
 
+int
+DiscretActions::action_to_int(ignition::math::Vector3d action)
+{
+  int index = one_hot_.to_one_hot_encoding(action, 11).index_max();
+  return index;
+}
+
 DiscretActions
 DiscretActions::int_to_action(arma::uword index)
 {
@@ -112,9 +119,11 @@ DiscretActions::int_to_action(arma::uword index)
     velocity.X() = -1;
     velocity.Y() = -1;
   } else if (index == all_possible_actions().col(8).index_max()) {
-    velocity.X() = 1; velocity.Y() = -1;
+    velocity.X() = 1;
+    velocity.Y() = -1;
   } else if (index == all_possible_actions().col(9).index_max()) {
-    velocity.X() = -1; velocity.Y() = 1;
+    velocity.X() = -1;
+    velocity.Y() = 1;
   } else if (index == all_possible_actions().col(10).index_max()) {
   }
   action.action() = velocity;
@@ -128,4 +137,3 @@ DiscretActions::random_action_generator()
   // Action action = static_cast<Action>(random_action);
   // return action;
 }
-

@@ -46,7 +46,9 @@ public:
     return static_cast<typename std::underlying_type<Enumeration>::type>(value);
   }
 
+  int action_to_int(ignition::math::Vector3d action);
   DiscretActions int_to_action(arma::uword index);
+
   /*  Random action generator */
   int random_action_generator();
 
