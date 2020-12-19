@@ -39,7 +39,7 @@ private:
   TimeSteps time_steps_;
   Timer timer_;
   bool start_episode_;
-  double elapsed_time_, passed_time_;
+  double elapsed_time_, passed_time_, episode_time_;
   SwarmDevice<QuadrotorType> swarm_;
   ignition::math::Vector3d dest_ ;
   std::vector<QuadrotorType>& quadrotors_;

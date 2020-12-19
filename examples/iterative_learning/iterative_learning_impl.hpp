@@ -7,6 +7,7 @@ Iterative_learning<QuadrotorType>::Iterative_learning(
   : episode_(0)
   , max_episode_(10000)
   , passed_time_(0.0)
+  , episode_time_(0.0)
   , swarm_(quadrotors)
   , quadrotors_(quadrotors)
   , logger_(logger)
@@ -20,10 +21,8 @@ template<class QuadrotorType>
 void
 Iterative_learning<QuadrotorType>::execute_trajectory(QuadrotorType& quad)
 {
-  // This is executing for everybody
-  // Let us try if this trick avoid the leader from using the predictive model
-  quadrotors_.at(0).current_action().action() = dest_;
-  swarm_.one_quad_execute_trajectory(quad.id(), quad.current_action());
+  if (quad.id() != 0)
+    swarm_.one_quad_execute_trajectory(quad.id(), quad.current_action());
 }
 
 template<class QuadrotorType>
@@ -42,7 +41,7 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
     swarm_.in_air_async(40);
     int random = 0;
     int count = 0;
-    bool is_leader = true;
+    // bool is_leader = true;
     std::vector<ignition::math::Vector3d> destinations{
       { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }
     };
@@ -69,22 +68,27 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
     std::function<void(QuadrotorType&, QuadrotorType&)>
 
       action_model = [&](QuadrotorType& leader, QuadrotorType& quad) {
-        if (count % 2 == 0) {
-          quad.flocking_model(gains, leader.position(), max_speed, is_leader);
+        // if (count % 2 == 0) {
+        //   if (quad.id() != 0)
+        //     quad.flocking_model(gains, leader.position(), max_speed,
+        //     is_leader);
 
-        } else {
+        // } else {
+        if (quad.id() != 0) {
           AnnStatePredictor<QuadrotorType> ann(quad);
           DiscretActions mig_action = ann.best_predicted_mig_action(
             "/meta/lemon/examples/iterative_learning/build/leader/model.bin",
             "model");
           DiscretActions cohsep_action = ann.best_predicted_cohsep_action(
-            "/meta/lemon/examples/iterative_learning/build/followers/model.bin",
+            "/meta/lemon/examples/iterative_learning/build/followers/"
+            "model.bin",
             "model");
           quad.current_action().action() = mig_action.action();
           // + cohsep_action.action();
           // i.current_action().action().Z() = 0;
           quad.all_actions().push_back(quad.current_action());
         }
+        // }
       };
 
     std::function<void(QuadrotorType & quad)> trajectory =
@@ -96,8 +100,15 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
         logger_->info("Quadrotors are far from each other, ending the episode");
         break;
       }
-      // Fix the quadrotor issue here, we do not need quadrotor to use this
-      // model
+      elapsed_time_ = model_time.stop();
+
+      if (elapsed_time_ > passed_time_ + 2) {
+        logger_->info("Change the leader destination {}", elapsed_time_);
+        passed_time_ = elapsed_time_;
+        random = distribution_int_(generator_);
+        count++;
+      }
+
       std::vector<std::thread> threads;
       for (auto&& it : quadrotors_) {
         threads.push_back(std::thread([&]() {
@@ -117,34 +128,26 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
       }
 
       std::this_thread::sleep_for(std::chrono::milliseconds(250));
-      elapsed_time_ = model_time.stop();
-      logger_->info("Model time in seconds {}", elapsed_time_);
 
-      if (elapsed_time_ > passed_time_ + 2) {
-        logger_->info("Seconds have passed change the model");
-        random = distribution_int_(generator_);
-        count++;
-      }
-
-      if (elapsed_time_ > passed_time_ + 60) {
-        passed_time_ = elapsed_time_;
-        break;
-      }
 
       if (count % 2 == 0) {
         logger_->info("Change leader destination NOW");
         dest_ = destinations.at(random);
+        quadrotors_.at(0).current_action().action() = dest_;
+        swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
+                                           quadrotors_.at(0).current_action());
       }
 
       /*  Check the geometrical shape */
       shape = swarm_.examin_swarm_shape(0.2, 35);
-      // bool has_arrived = swarm_.examin_destination(destination);
-
       if (!shape) {
         logger_->info("Quadrotors are far from each other, ending the episode");
         break;
       }
-
+      if (elapsed_time_ > passed_time_ + 60) {
+        episode_time_ = elapsed_time_;
+        break;
+      }
       /* Register results */
       /* Save position of quadrotor each 200 ms*/
       // for (auto&& it : quadrotors_) {
