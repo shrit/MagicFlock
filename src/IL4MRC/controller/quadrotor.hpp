@@ -219,6 +219,8 @@ public:
   ActionType last_action();
   ActionType before_last_action();
   ActionType before_2_last_action();
+  void predicted_actions(int action);
+  std::vector<int> predicted_actions() const;
   std::vector<ActionType> all_actions() const;
   std::vector<ActionType>& all_actions();
   void reset_all_actions();
@@ -275,6 +277,7 @@ private:
   ActionType last_action_;
   ActionType before_last_action_;
   ActionType before_2_last_action_;
+  std::vector<int> predicted_actions_;
   std::vector<ActionType> all_actions_;
   std::vector<ActionType> action_container_;
 
