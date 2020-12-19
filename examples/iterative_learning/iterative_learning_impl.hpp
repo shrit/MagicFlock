@@ -41,7 +41,7 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
     swarm_.in_air_async(40);
     int random = 0;
     int count = 0;
-    // bool is_leader = true;
+    bool is_leader = true;
     std::vector<ignition::math::Vector3d> destinations{
       { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }
     };
@@ -68,27 +68,28 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
     std::function<void(QuadrotorType&, QuadrotorType&)>
 
       action_model = [&](QuadrotorType& leader, QuadrotorType& quad) {
-        // if (count % 2 == 0) {
-        //   if (quad.id() != 0)
-        //     quad.flocking_model(gains, leader.position(), max_speed,
-        //     is_leader);
+        if (count % 2 == 0) {
+          if (quad.id() != 0)
+            quad.flocking_model(gains, leader.position(), max_speed, is_leader);
 
-        // } else {
-        if (quad.id() != 0) {
-          AnnStatePredictor<QuadrotorType> ann(quad);
-          DiscretActions mig_action = ann.best_predicted_mig_action(
-            "/meta/lemon/examples/iterative_learning/build/leader/model.bin",
-            "model");
-          DiscretActions cohsep_action = ann.best_predicted_cohsep_action(
-            "/meta/lemon/examples/iterative_learning/build/followers/"
-            "model.bin",
-            "model");
-          quad.current_action().action() = mig_action.action();
-          // + cohsep_action.action();
-          // i.current_action().action().Z() = 0;
-          quad.all_actions().push_back(quad.current_action());
+        } else {
+          if (quad.id() != 0) {
+            AnnStatePredictor<QuadrotorType> ann(quad);
+            DiscretActions mig_action = ann.best_predicted_mig_action(
+              "/meta/lemon/examples/iterative_learning/build/leader/model.bin",
+              "model");
+            DiscretActions cohsep_action = ann.best_predicted_cohsep_action(
+              "/meta/lemon/examples/iterative_learning/build/followers/"
+              "model.bin",
+              "model");
+            quad.predicted_actions(
+              mig_action.action_to_int(mig_action.action()));
+
+            // quad.current_action().action() = mig_action.action();
+            // + cohsep_action.followers_action();
+            // i.current_action()._action().Z() = 0;
+          }
         }
-        // }
       };
 
     std::function<void(QuadrotorType & quad)> trajectory =
@@ -129,13 +130,28 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
 
       std::this_thread::sleep_for(std::chrono::milliseconds(250));
 
-
       if (count % 2 == 0) {
         logger_->info("Change leader destination NOW");
         dest_ = destinations.at(random);
-        quadrotors_.at(0).current_action().action() = dest_;
-        swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
-                                           quadrotors_.at(0).current_action());
+
+        for (auto&& it : quadrotors_)
+          if (it.id() == 0) {
+            quadrotors_.at(0).current_action().action() = dest_;
+            swarm_.one_quad_execute_trajectory(
+              quadrotors_.at(0).id(), quadrotors_.at(0).current_action());
+          } else {
+            if (!it.predicted_actions().empty()) {
+              arma::colvec predicted = arma_.vec_to_arma(it.predicted_actions());
+              arma::colvec pdf =
+                arma::normpdf(predicted,
+                              arma::mean(predicted),
+                              arma::stddev(predicted));
+              DiscretActions action;
+              it.current_action() = action.int_to_action(pdf.index_max());
+              it.all_actions().push_back(it.current_action());
+              it.predicted_actions().clear();
+           }
+          }
       }
 
       /*  Check the geometrical shape */

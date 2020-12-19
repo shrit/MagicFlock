@@ -12,6 +12,7 @@
 #include <IL4MRC/controller/swarm_device.hpp>
 #include <IL4MRC/metrics/max_distance.hpp>
 #include <IL4MRC/metrics/min_distance.hpp>
+#include <IL4MRC/util/arma_helper.hpp>
 #include <IL4MRC/util/logger.hpp>
 #include <IL4MRC/util/time.hpp>
 #include <IL4MRC/util/time_steps.hpp>
@@ -47,6 +48,7 @@ private:
   std::uniform_int_distribution<> distribution_int_;
   std::random_device random_dev;
   std::mt19937 generator_;
+  ArmaHelper arma_;
 };
 
 #include "iterative_learning_impl.hpp"
