@@ -37,18 +37,21 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     timer_.start();
     time_steps_.reset();
     swarm_.in_air_async(40);
-
+    int random = 0;
+    std::vector<ignition::math::Vector3d> destinations{
+      { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }
+    };
     ignition::math::Vector3d up{ 0, 0, +1.5 };
     quadrotors_.at(0).current_action().action() = up;
     swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
                                        quadrotors_.at(0).current_action());
     std::this_thread::sleep_for(std::chrono::seconds(1));
-
-    ignition::math::Vector3d forward{ 1, 0, 0 };
-    quadrotors_.at(0).current_action().action() = forward;
+    random = distribution_int_(generator_);
+    dest_ = destinations.at(random);
+    quadrotors_.at(0).current_action().action() = dest_;
     swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
                                        quadrotors_.at(0).current_action());
-    std::this_thread::sleep_for(std::chrono::seconds(5));
+    std::this_thread::sleep_for(std::chrono::seconds(20));
 
     /**
      * Collect dataset by creating a specific destination.
@@ -85,7 +88,6 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
       this->execute_trajectory(quad);
     };
 
-    int random = 0;
     /* Let us see how these quadrotors are going to move */
     while (true) {
       bool shape = swarm_.examin_swarm_shape(0.1, 30);
@@ -123,9 +125,6 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
       }
 
       std::this_thread::sleep_for(std::chrono::milliseconds(250));
-      std::vector<ignition::math::Vector3d> destinations{
-        { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }
-      };
 
       if (count % 2 == 0) {
         logger_->info("Change leader destination NOW");
@@ -141,7 +140,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
         logger_->info("Quadrotors are far from each other, ending the episode");
         break;
       }
-      if (elapsed_time_ > episode_time_ + 60) {
+      if (elapsed_time_ > episode_time_ + 120) {
         episode_time_ = elapsed_time_;
         break;
       }
