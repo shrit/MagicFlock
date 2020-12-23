@@ -8,6 +8,7 @@ set(SOURCES
   propagation_model_impl.hpp
   real_time_samples.hpp
   real_time_samples.cc
+  scheduler.hpp
   time.hpp
   time.cc
   time_steps.hpp
