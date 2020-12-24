@@ -14,6 +14,7 @@
 #include <IL4MRC/metrics/min_distance.hpp>
 #include <IL4MRC/util/arma_helper.hpp>
 #include <IL4MRC/util/logger.hpp>
+#include <IL4MRC/util/scheduler.hpp>
 #include <IL4MRC/util/time.hpp>
 #include <IL4MRC/util/time_steps.hpp>
 
@@ -41,6 +42,7 @@ private:
   Timer timer_;
   bool start_episode_;
   double elapsed_time_, passed_time_, episode_time_;
+  Scheduler sched;
   SwarmDevice<QuadrotorType> swarm_;
   ignition::math::Vector3d dest_ ;
   std::vector<QuadrotorType>& quadrotors_;
