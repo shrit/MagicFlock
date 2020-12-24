@@ -1,10 +1,14 @@
-#include "timer.hpp"
+#include "logger.hpp"
+#include "time.hpp"
 
 class Scheduler
 {
 
 public:
-  Scheduler();
+  Scheduler()
+  {
+    // Nothing to do here
+  }
 
   void start() { timer_.start(); }
 
@@ -13,10 +17,10 @@ public:
                      std::function<void(void)> execute_function)
   {
     elapsed_time_ = timer_.stop();
-    logger_->info("Model time in seconds {}", elapsed_time_);
+    logger::logger_->info("Model time in seconds {}", elapsed_time_);
 
     if (elapsed_time_ > passed_time_ + sec) {
-      logger_->info("Interval has passed change the value", elapsed_time_);
+      logger::logger_->info("Interval has passed change the value", elapsed_time_);
       passed_time_ = elapsed_time_;
       if (value == true)
         value = false;
