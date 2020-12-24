@@ -1,22 +1,22 @@
 <h2 align="center">
-  <br> SPOQ <br>
+  <br> MagicFlock <br>
 </h2>
 
 [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
 
-SPOQ is an easy to use Simulation Platform fOr Quadrotors. SPOQ is a library that intended to make quadrotors simulator easy in Gazebo simulator.
-SPOQ has inituative and simple interface that allows researcher to test algorithms on several quadrotors by writing only several lines of code.
-In additions, the library has a set of simple exaples that can be use a tutorial in order to create and simulate you swarm.
+MagicFlock is an easy to use simulation platform for quadrotors. MagicFlock is a library that intended to make quadrotors simulator easy in Gazebo simulator.
+MagicFlock has intuitive and simple interface that allows researcher to test algorithms on several quadrotors by writing only several lines of code.
+In additions, the library has a set of simple examples that can be use a tutorial in order to create and simulate you swarm.
 
-SPOQ differs from other libraries by the following:
+MagicFlock differs from other libraries by the following:
 
 * It has no dependencies on ROS
-* Support data driven approaches 
-* Simple and inituative interface
+* Support data driven approaches: such as iterative learning or Reinforcement learning
+* Simple and intuitive interface
 * Can be used in Reinforcement learning context
 * Easy to install and to maintain (small amount of dependencies)
 
-After installing SPOQ, a set of examples can be found in `examples\` folder.
+After installing MagicFlock, a set of examples can be found in `examples\` folder.
 A generic example is provided as starter guide to understand the basic simulation principle.
 All examples are documented on gitbook, can be found here.
 Examples implement the algorithm needed to maintain a swarm of quadrotors from
@@ -35,10 +35,11 @@ CMake >=3.10
 If you have Gazebo and all other dependencies installed:
 
 ```
-cd SPOQ
+cd MagicFlock
 mkdir build
 cmake ../
-make -j32
+make -j8
+sudo make install
 
 ```
 * Full documentation can be found here including full installation guide
