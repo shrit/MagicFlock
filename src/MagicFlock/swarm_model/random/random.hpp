@@ -15,8 +15,8 @@
 #include <random>
 #include <vector>
 
-#include <IL4MRC/util/logger.hpp>
-#include <IL4MRC/util/time.hpp>
+#include <MagicFlock/util/logger.hpp>
+#include <MagicFlock/util/time.hpp>
 
 using namespace ILMR;
 

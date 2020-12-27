@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ignition/math/Vector3.hh>
-#include <IL4MRC/util/logger.hpp>
+#include <MagicFlock/util/logger.hpp>
 
 using namespace ILMR;
 

@@ -21,8 +21,8 @@
 #include <ignition/math/Vector4.hh>
 #include <vector>
 
-#include <IL4MRC/neighbors/neighbors.hpp>
-#include <IL4MRC/util/logger.hpp>
+#include <MagicFlock/neighbors/neighbors.hpp>
+#include <MagicFlock/util/logger.hpp>
 
 using namespace ILMR;
 

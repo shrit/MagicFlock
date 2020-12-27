@@ -35,9 +35,9 @@
 #include <unistd.h>
 
 /* ILMR include */
-#include <IL4MRC/simulator/gazebo/ResetModel.pb.h>
-#include <IL4MRC/util/logger.hpp>
-#include <IL4MRC/util/time.hpp>
+#include <MagicFlock/simulator/gazebo/ResetModel.pb.h>
+#include <MagicFlock/util/logger.hpp>
+#include <MagicFlock/util/time.hpp>
 
 template<class QuadrotorType>
 class Gazebo

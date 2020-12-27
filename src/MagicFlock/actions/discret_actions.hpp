@@ -10,7 +10,7 @@
 #include <tuple>
 #include <utility>
 
-#include <IL4MRC/metrics/one_hot_encoding.hpp>
+#include <MagicFlock/metrics/one_hot_encoding.hpp>
 #include <mlpack/prereqs.hpp>
 
 class DiscretActions

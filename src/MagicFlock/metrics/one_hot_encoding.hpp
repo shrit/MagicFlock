@@ -1,6 +1,6 @@
 #pragma once
 
-#include <IL4MRC/util/logger.hpp>
+#include <MagicFlock/util/logger.hpp>
 #include <mlpack/prereqs.hpp>
 #include <cmath>
 

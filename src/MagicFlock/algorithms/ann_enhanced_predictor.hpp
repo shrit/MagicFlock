@@ -13,8 +13,8 @@
 #include "ann_error_predictor.hpp"
 #include "ann_state_predictor.hpp"
 #include "argmin.hpp"
-#include <IL4MRC/util/logger.hpp>
-#include <IL4MRC/controller/quadrotor.hpp>
+#include <MagicFlock/util/logger.hpp>
+#include <MagicFlock/controller/quadrotor.hpp>
 
 template<class QuadrotorType>
 class AnnEnhancedPredictor

@@ -9,7 +9,7 @@
 #include <random>
 #include <utility>
 
-#include <IL4MRC/controller/quadrotor.hpp>
+#include <MagicFlock/controller/quadrotor.hpp>
 
 #include "discret_actions.hpp"
 

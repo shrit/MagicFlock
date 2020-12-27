@@ -11,22 +11,22 @@
 #include <utility>
 #include <vector>
 
-/* IL4MRC library includes */
-#include <IL4MRC/actions/continuous_actions.hpp>
-#include <IL4MRC/actions/discret_actions.hpp>
-#include <IL4MRC/data/dataset.hpp>
-#include <IL4MRC/metrics/exponential_moving_average.hpp>
-#include <IL4MRC/metrics/histogram.hpp>
-#include <IL4MRC/metrics/max_distance.hpp>
-#include <IL4MRC/metrics/min_distance.hpp>
-#include <IL4MRC/neighbors/nearest_neighbors.hpp>
-#include <IL4MRC/neighbors/neighbors.hpp>
-#include <IL4MRC/state/state.hpp>
-#include <IL4MRC/swarm_model/collision_detector/collision_detector.hpp>
-#include <IL4MRC/swarm_model/flocking/flocking.hpp>
-#include <IL4MRC/swarm_model/random/random.hpp>
-#include <IL4MRC/util/Vector.hpp>
-#include <IL4MRC/util/real_time_samples.hpp>
+/* MagicFlock library includes */
+#include <MagicFlock/actions/continuous_actions.hpp>
+#include <MagicFlock/actions/discret_actions.hpp>
+#include <MagicFlock/data/dataset.hpp>
+#include <MagicFlock/metrics/exponential_moving_average.hpp>
+#include <MagicFlock/metrics/histogram.hpp>
+#include <MagicFlock/metrics/max_distance.hpp>
+#include <MagicFlock/metrics/min_distance.hpp>
+#include <MagicFlock/neighbors/nearest_neighbors.hpp>
+#include <MagicFlock/neighbors/neighbors.hpp>
+#include <MagicFlock/state/state.hpp>
+#include <MagicFlock/swarm_model/collision_detector/collision_detector.hpp>
+#include <MagicFlock/swarm_model/flocking/flocking.hpp>
+#include <MagicFlock/swarm_model/random/random.hpp>
+#include <MagicFlock/util/Vector.hpp>
+#include <MagicFlock/util/real_time_samples.hpp>
 
 /* Ignition related headers */
 #include <ignition/math6/ignition/math/Quaternion.hh>

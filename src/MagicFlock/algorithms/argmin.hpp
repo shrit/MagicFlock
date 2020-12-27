@@ -2,7 +2,7 @@
 
 #include <mlpack/core.hpp>
 
-#include <IL4MRC/util/logger.hpp>
+#include <MagicFlock/util/logger.hpp>
 
 template<class InputType = arma::mat, class OutputType = arma::uword>
 class Argmin

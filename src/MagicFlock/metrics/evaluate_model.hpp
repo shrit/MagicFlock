@@ -1,7 +1,7 @@
 #pragma once
 
-#include <IL4MRC/actions/discret_actions.hpp>
-#include <IL4MRC/data/dataset.hpp>
+#include <MagicFlock/actions/discret_actions.hpp>
+#include <MagicFlock/data/dataset.hpp>
 
 /* Standard library includes*/
 #include <vector>

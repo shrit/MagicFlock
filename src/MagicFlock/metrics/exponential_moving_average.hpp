@@ -1,6 +1,6 @@
 #pragma once
 
-#include <IL4MRC/util/logger.hpp>
+#include <MagicFlock/util/logger.hpp>
 
 template<typename type>
 class ExpoMovingAverage

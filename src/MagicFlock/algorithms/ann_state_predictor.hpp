@@ -20,8 +20,8 @@
 /* local includes */
 #include "ann_predictor.hpp"
 #include "argmin.hpp"
-#include <IL4MRC/controller/quadrotor.hpp>
-#include <IL4MRC/util/logger.hpp>
+#include <MagicFlock/controller/quadrotor.hpp>
+#include <MagicFlock/util/logger.hpp>
 
 using namespace ILMR;
 

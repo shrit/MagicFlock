@@ -4,7 +4,7 @@
 #include <vector>
 
 #include <ignition/math6/ignition/math/Vector3.hh>
-#include <IL4MRC/util/Vector.hpp>
+#include <MagicFlock/util/Vector.hpp>
 
 using namespace ILMR;
 

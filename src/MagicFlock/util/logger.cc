@@ -1,4 +1,4 @@
-#include <IL4MRC/util/logger.hpp>
+#include <MagicFlock/util/logger.hpp>
 
 namespace ILMR {
 std::shared_ptr<spdlog::logger> logger::logger_;

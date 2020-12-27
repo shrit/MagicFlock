@@ -10,7 +10,7 @@
 #include <type_traits>
 
 /*  Local includes */
-#include <IL4MRC/util/arma_helper.hpp>
+#include <MagicFlock/util/arma_helper.hpp>
 
 #include "state_types.hpp"
 

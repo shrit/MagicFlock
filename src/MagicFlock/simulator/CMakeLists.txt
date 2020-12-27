@@ -10,5 +10,5 @@ endforeach()
 
 add_subdirectory(gazebo)
 
-set(IL4MRC_SRCS ${IL4MRC_SRCS} ${DIR_SRCS} PARENT_SCOPE)
+set(MagicFlock_SRCS ${MagicFlock_SRCS} ${DIR_SRCS} PARENT_SCOPE)
 

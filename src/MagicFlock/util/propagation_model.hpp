@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-#include <IL4MRC/util/logger.hpp>
+#include <MagicFlock/util/logger.hpp>
 
 using namespace ILMR;
 

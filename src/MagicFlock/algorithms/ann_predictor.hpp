@@ -18,9 +18,9 @@
 #include <mlpack/methods/ann/loss_functions/mean_squared_error.hpp>
 
 /* local includes  */
-#include <IL4MRC/util/arma_helper.hpp>
-#include <IL4MRC/util/logger.hpp>
-#include <IL4MRC/controller/quadrotor.hpp>
+#include <MagicFlock/util/arma_helper.hpp>
+#include <MagicFlock/util/logger.hpp>
+#include <MagicFlock/controller/quadrotor.hpp>
 
 using namespace ILMR;
 
