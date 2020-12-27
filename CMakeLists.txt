@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.9.0)
-project(IL4MRC)
+project(MagicFlock)
 
 include(CMake/cotire.cmake)
 
@@ -30,9 +30,9 @@ find_package(MAVSDK REQUIRED)
 find_package(Boost COMPONENTS date_time REQUIRED)
 find_package(Protobuf REQUIRED)
 
-set(IL4MRC_INCLUDE_DIRS ${IL4MRC_INCLUDE_DIRS} ${MLPACK_INCLUDE_DIRS} 
+set(MagicFlock_INCLUDE_DIRS ${MagicFlock_INCLUDE_DIRS} ${MLPACK_INCLUDE_DIRS} 
   ${ARMADILLO_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS} ${MAVSDK_INCLUDE_DIRS})
-set(IL4MRC_LIBRARIES ${IL4MRC_LIBRARIES} ${MLPACK_LIBRARIES} ${ARMADILLO_LIBRARIES} ${MAVSDK_LIBRARIES} ${BOOST_INCLUDE_DIRS})
+set(MagicFlock_LIBRARIES ${MagicFlock_LIBRARIES} ${MLPACK_LIBRARIES} ${ARMADILLO_LIBRARIES} ${MAVSDK_LIBRARIES} ${BOOST_INCLUDE_DIRS})
 
 include_directories(
   /usr/local/include/mavsdk
@@ -45,7 +45,7 @@ include_directories(
 include_directories(BEFORE ${MLPACK_INCLUDE_DIRS})
 include_directories(BEFORE ${CMAKE_SOURCE_DIR}/src/)
 
-add_subdirectory(src/IL4MRC)
+add_subdirectory(src/MagicFlock)
 
 # target_include_directories(ILMR PUBLIC
 #   src/include
