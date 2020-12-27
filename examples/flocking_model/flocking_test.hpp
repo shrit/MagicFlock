@@ -8,12 +8,12 @@
 #include <vector>
 
 /* ILMR includes  */
-#include <IL4MRC/controller/quadrotor.hpp>
-#include <IL4MRC/controller/swarm_device.hpp>
-#include <IL4MRC/simulator/gazebo.hpp>
-#include <IL4MRC/util/logger.hpp>
-#include <IL4MRC/util/time.hpp>
-#include <IL4MRC/util/time_steps.hpp>
+#include <MagicFlock/controller/quadrotor.hpp>
+#include <MagicFlock/controller/swarm_device.hpp>
+#include <MagicFlock/simulator/gazebo.hpp>
+#include <MagicFlock/util/logger.hpp>
+#include <MagicFlock/util/time.hpp>
+#include <MagicFlock/util/time_steps.hpp>
 
 template<class QuadrotorType>
 class Flock

@@ -16,16 +16,16 @@
 #include "generate_data_set.hpp"
 
 /* ILMR library include  */
-#include <IL4MRC/actions/continuous_actions.hpp>
-#include <IL4MRC/controller/px4_device.hpp>
-#include <IL4MRC/dists/empty_noise.hpp>
-#include <IL4MRC/metrics/cumulative_moving_average.hpp>
-#include <IL4MRC/metrics/empty_filter.hpp>
-#include <IL4MRC/metrics/exponential_moving_average.hpp>
-#include <IL4MRC/simulator/gazebo.hpp>
+#include <MagicFlock/actions/continuous_actions.hpp>
+#include <MagicFlock/controller/px4_device.hpp>
+#include <MagicFlock/dists/empty_noise.hpp>
+#include <MagicFlock/metrics/cumulative_moving_average.hpp>
+#include <MagicFlock/metrics/empty_filter.hpp>
+#include <MagicFlock/metrics/exponential_moving_average.hpp>
+#include <MagicFlock/simulator/gazebo.hpp>
 
 /*  CLI11 library headers */
-#include <IL4MRC/third_party/CLI11.hpp>
+#include <MagicFlock/third_party/CLI11.hpp>
 
 /*
  *  Main file: Start generating dataset

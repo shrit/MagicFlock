@@ -6,17 +6,17 @@
 #include <vector>
 
 /* local includes  */
-#include <IL4MRC/algorithms/ann_action_predictor.hpp>
-#include <IL4MRC/algorithms/ann_state_predictor.hpp>
-#include <IL4MRC/controller/quadrotor.hpp>
-#include <IL4MRC/controller/swarm_device.hpp>
-#include <IL4MRC/metrics/max_distance.hpp>
-#include <IL4MRC/metrics/min_distance.hpp>
-#include <IL4MRC/util/arma_helper.hpp>
-#include <IL4MRC/util/logger.hpp>
-#include <IL4MRC/util/scheduler.hpp>
-#include <IL4MRC/util/time.hpp>
-#include <IL4MRC/util/time_steps.hpp>
+#include <MagicFlock/algorithms/ann_action_predictor.hpp>
+#include <MagicFlock/algorithms/ann_state_predictor.hpp>
+#include <MagicFlock/controller/quadrotor.hpp>
+#include <MagicFlock/controller/swarm_device.hpp>
+#include <MagicFlock/metrics/max_distance.hpp>
+#include <MagicFlock/metrics/min_distance.hpp>
+#include <MagicFlock/util/arma_helper.hpp>
+#include <MagicFlock/util/logger.hpp>
+#include <MagicFlock/util/scheduler.hpp>
+#include <MagicFlock/util/time.hpp>
+#include <MagicFlock/util/time_steps.hpp>
 
 template<class QuadrotorType>
 class Iterative_learning

@@ -17,14 +17,14 @@
 #include "iterative_learning.hpp"
 
 /* ILMR library include  */
-#include <IL4MRC/actions/continuous_actions.hpp>
-#include <IL4MRC/controller/px4_device.hpp>
-#include <IL4MRC/controller/quadrotor.hpp>
-#include <IL4MRC/dists/empty_noise.hpp>
-#include <IL4MRC/dists/gaussian_noise.hpp>
-#include <IL4MRC/metrics/empty_filter.hpp>
-#include <IL4MRC/simulator/gazebo.hpp>
-#include <IL4MRC/third_party/CLI11.hpp>
+#include <MagicFlock/actions/continuous_actions.hpp>
+#include <MagicFlock/controller/px4_device.hpp>
+#include <MagicFlock/controller/quadrotor.hpp>
+#include <MagicFlock/dists/empty_noise.hpp>
+#include <MagicFlock/dists/gaussian_noise.hpp>
+#include <MagicFlock/metrics/empty_filter.hpp>
+#include <MagicFlock/simulator/gazebo.hpp>
+#include <MagicFlock/third_party/CLI11.hpp>
 
 /*
  *  Main file: Start iterative learning

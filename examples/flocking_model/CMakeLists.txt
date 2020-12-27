@@ -17,7 +17,7 @@ include_directories(
   /usr/local/include/mavsdk
   )
 
-set(il4mrc "/usr/local/lib/libIL4MRC.so")
+set(il4mrc "/usr/local/lib/libMagicFlock.so")
 set(ResetPlugin "/usr/local/lib/libResetPlugin.so")
 set(reset_model_msgs "/usr/local/lib/libreset_model_msgs.so")
 set(mlpack "/usr/local/lib/libmlpack.so.3")
