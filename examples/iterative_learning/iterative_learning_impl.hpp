@@ -73,10 +73,10 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
         if (quad.id() != 0) {
           AnnStatePredictor<QuadrotorType> ann(quad);
           DiscretActions mig_action = ann.best_predicted_mig_action(
-            "/meta/lemon/examples/iterative_learning/build/leader/model.bin",
+            "/meta/MagicFlock/examples/iterative_learning/build/leader/model.bin",
             "model");
           DiscretActions cohsep_action = ann.best_predicted_cohsep_action(
-            "/meta/lemon/examples/iterative_learning/build/followers/"
+            "/meta/MagicFlock/examples/iterative_learning/build/followers/"
             "model.bin",
             "model");
           // quad.predicted_actions(
@@ -101,6 +101,7 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
       }
       // increase time steps.
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
+      timeSteps++;
 
       std::vector<std::thread> threads;
       for (auto&& it : quadrotors_) {

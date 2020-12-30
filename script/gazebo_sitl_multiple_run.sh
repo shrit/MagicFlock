@@ -74,14 +74,14 @@ export PX4_SIM_MODEL=${VEHICLE_MODEL:=iris}
 
 echo ${SCRIPT}
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-src_path="/meta/lemon/lib/Firmware"
+src_path="/meta/MagicFlock/lib/Firmware"
 
 build_path=${src_path}/build/px4_sitl_default
 mavlink_udp_port=14560
 mavlink_tcp_port=4560
 world="outdoor"
 
-project_path=/meta/lemon/script
+project_path=/meta/MagicFlock/script
 
 echo "killing running instances"
 pkill -x px4 || true
