@@ -12,6 +12,7 @@ Generator<QuadrotorType>::Generator(std::vector<QuadrotorType>& quadrotors,
   , quadrotors_(quadrotors)
   , logger_(logger)
   , distribution_int_(0, 3)
+  , distribution_int_time(15, 40)
   , generator_(random_dev())
 {}
 
@@ -38,6 +39,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     time_steps_.reset();
     swarm_.in_air_async(40);
     int random = 0;
+    int time_random = 0;
     std::vector<ignition::math::Vector3d> destinations{
       { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }
     };
@@ -47,11 +49,13 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
                                        quadrotors_.at(0).current_action());
     std::this_thread::sleep_for(std::chrono::seconds(1));
     random = distribution_int_(generator_);
+    time_random = distribution_int_time(generator_);
     dest_ = destinations.at(random);
     quadrotors_.at(0).current_action().action() = dest_;
     swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
                                        quadrotors_.at(0).current_action());
-    std::this_thread::sleep_for(std::chrono::seconds(20));
+
+    std::this_thread::sleep_for(std::chrono::seconds(time_random));
 
     /**
      * Collect dataset by creating a specific destination.
