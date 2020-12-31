@@ -94,7 +94,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
 
     /* Let us see how these quadrotors are going to move */
     while (true) {
-      bool shape = swarm_.examin_swarm_shape(0.1, 30);
+      bool shape = swarm_.examin_swarm_shape(0.1, 60);
       if (!shape) {
         logger_->info("Quadrotors are far from each other, ending the episode");
         break;
@@ -139,12 +139,12 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
                                            quadrotors_.at(0).current_action());
       }
 
-      shape = swarm_.examin_swarm_shape(0.2, 50);
+      shape = swarm_.examin_swarm_shape(0.2, 60);
       if (!shape) {
         logger_->info("Quadrotors are far from each other, ending the episode");
         break;
       }
-      if (elapsed_time_ > episode_time_ + 120) {
+      if (elapsed_time_ > episode_time_ + 250) {
         episode_time_ = elapsed_time_;
         break;
       }
@@ -158,12 +158,12 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
      * ground */
     swarm_.stop_offboard_mode_async();
     std::this_thread::sleep_for(std::chrono::seconds(1));
-    swarm_.land();
+    swarm_.land_async();
+    std::this_thread::sleep_for(std::chrono::seconds(60));
 
     swarm_.disarm_async();
     /* Wait to be sure that all of the quads have disarmed */
     std::this_thread::sleep_for(std::chrono::seconds(3));
-
     /*BIAS accelerometer problem after resetting the models*/
 
     /*  The only possible solution was to change the upper limit value
