@@ -687,7 +687,7 @@ template<class flight_controller_t,
          class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
-predicted_actions(int action)
+  predicted_actions(int action)
 {
   predicted_actions_.push_back(action);
 }
@@ -699,7 +699,7 @@ template<class flight_controller_t,
          class ActionType>
 std::vector<int>
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
-predicted_actions() const
+  predicted_actions() const
 {
   return predicted_actions_;
 }
