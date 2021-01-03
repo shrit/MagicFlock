@@ -38,24 +38,27 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     timer_.start();
     time_steps_.reset();
     swarm_.in_air_async(40);
-    int random = 0;
-    int time_random = 0;
+    // int random = 0;
+    // int time_random = 0;
     std::vector<ignition::math::Vector3d> destinations{
-      { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }
+      { 0.7, 0, 0 }, { -0.7, 0, 0 }, { 0, 0.7, 0 }, { 0, -0.7, 0 }
     };
     ignition::math::Vector3d up{ 0, 0, +1.5 };
     quadrotors_.at(0).current_action().action() = up;
     swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
                                        quadrotors_.at(0).current_action());
     std::this_thread::sleep_for(std::chrono::seconds(1));
-    random = distribution_int_(generator_);
-    time_random = distribution_int_time(generator_);
-    dest_ = destinations.at(random);
+    // random = distribution_int_(generator_);
+    // time_random = distribution_int_time(generator_);
+    // dest_ = destinations.at(random);
+
+    dest_ = destinations.at(3);
+
     quadrotors_.at(0).current_action().action() = dest_;
     swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
                                        quadrotors_.at(0).current_action());
 
-    std::this_thread::sleep_for(std::chrono::seconds(time_random));
+    std::this_thread::sleep_for(std::chrono::seconds(50));
 
     /**
      * Collect dataset by creating a specific destination.
@@ -68,7 +71,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     logger_->info("Taking off has finished. Start the flocking model");
     ignition::math::Vector4d gains{ 1, 7, 1, 100 };
     ignition::math::Vector3d max_speed{ 1, 1, 0.0 };
-    ignition::math::Vector4d axis_speed{ 0.1, 0.1, 0.09, 4 };
+    // ignition::math::Vector4d axis_speed{ 0.1, 0.1, 0.09, 4 };
 
     Timer model_time;
     model_time.start();
@@ -91,62 +94,67 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     std::function<void(QuadrotorType&)> trajectory = [&](QuadrotorType& quad) {
       this->execute_trajectory(quad);
     };
+    bool shape = swarm_.examin_swarm_shape(0.1, 15);
+    if (shape) {
+      /* Let us see how these quadrotors are going to move */
+      while (true) {
+        shape = swarm_.examin_swarm_shape(0.2, 15);
+        if (!shape) {
+          logger_->info(
+            "Quadrotors are far from each other, ending the episode");
+          break;
+        }
 
-    /* Let us see how these quadrotors are going to move */
-    while (true) {
-      bool shape = swarm_.examin_swarm_shape(0.1, 60);
-      if (!shape) {
-        logger_->info("Quadrotors are far from each other, ending the episode");
-        break;
-      }
+        elapsed_time_ = model_time.stop();
+        logger_->info("Model time in seconds {}", elapsed_time_);
 
-      elapsed_time_ = model_time.stop();
-      logger_->info("Model time in seconds {}", elapsed_time_);
+        if (elapsed_time_ > passed_time_ + 10) {
+          logger_->info("Change the leader destination {}", elapsed_time_);
+          passed_time_ = elapsed_time_;
+          // random = distribution_int_(generator_);
+          count++;
+        }
 
-      if (elapsed_time_ > passed_time_ + 10) {
-        logger_->info("Change the leader destination {}", elapsed_time_);
-        passed_time_ = elapsed_time_;
-        random = distribution_int_(generator_);
-        count++;
-      }
+        std::vector<std::thread> threads;
+        for (auto&& it : quadrotors_) {
+          threads.push_back(std::thread([&]() {
+            it.sample_state_action_state(
+              action_model, trajectory, it, quadrotors_.at(0));
+            logger_->info("Saving dataset!");
+            arma::colvec check_double =
+              it.current_state().Data() - it.last_state().Data();
+            if (!check_double.is_zero()) {
+              it.save_dataset_sasas();
+            }
+          }));
+        }
 
-      std::vector<std::thread> threads;
-      for (auto&& it : quadrotors_) {
-        threads.push_back(std::thread([&]() {
-          it.sample_state_action_state(
-            action_model, trajectory, it, quadrotors_.at(0));
-          logger_->info("Saving dataset!");
-          arma::colvec check_double =
-            it.current_state().Data() - it.last_state().Data();
-          if (!check_double.is_zero()) {
-            it.save_dataset_sasas();
-          }
-        }));
-      }
+        for (auto& thread : threads) {
+          thread.join();
+        }
 
-      for (auto& thread : threads) {
-        thread.join();
-      }
+        std::this_thread::sleep_for(std::chrono::milliseconds(250));
 
-      std::this_thread::sleep_for(std::chrono::milliseconds(250));
+        // Do not change the leader destination during these tests
+        // if (count % 2 == 0) {
+        //   logger_->info("Change leader destination NOW");
+        //   dest_ = destinations.at(random);
+        //   // leader actions
+        //   quadrotors_.at(0).current_action().action() = dest_;
+        //   swarm_.one_quad_execute_trajectory(
+        //     quadrotors_.at(0).id(), quadrotors_.at(0).current_action());
+        // }
 
-      if (count % 2 == 0) {
-        logger_->info("Change leader destination NOW");
-        dest_ = destinations.at(random);
-        // leader actions
-        quadrotors_.at(0).current_action().action() = dest_;
-        swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
-                                           quadrotors_.at(0).current_action());
-      }
-
-      shape = swarm_.examin_swarm_shape(0.2, 60);
-      if (!shape) {
-        logger_->info("Quadrotors are far from each other, ending the episode");
-        break;
-      }
-      if (elapsed_time_ > episode_time_ + 250) {
-        episode_time_ = elapsed_time_;
-        break;
+        shape = swarm_.examin_swarm_shape(0.2, 15);
+        if (!shape) {
+          logger_->info(
+            "Quadrotors are far from each other, ending the episode");
+          break;
+        }
+        if (elapsed_time_ > episode_time_ + 200) {
+          episode_time_ = elapsed_time_;
+          break;
+        }
       }
     }
 
