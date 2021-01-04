@@ -1506,7 +1506,7 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   double y = neighbor_position.Y() - position().Y();
   double x = neighbor_position.X() - position().X();
 
-  double azimuth = std::atan2(y, x) * 180 / PI;
+  double azimuth = std::atan2(y, x);
   return azimuth;
 }
 
@@ -1521,6 +1521,6 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
 {
   double z = neighbor_position.Z() - height();
   double distance = position().Distance(neighbor_position);
-  double elevation = std::asin(z / distance) * 180 / PI;
+  double elevation = std::asin(z / distance);
   return elevation;
 }
