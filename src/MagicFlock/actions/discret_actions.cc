@@ -56,31 +56,34 @@ DiscretActions::set_action(arma::colvec data)
 arma::colvec
 DiscretActions::Data()
 {
-  return one_hot_.to_one_hot_encoding(velocity_vector_, 11);
+  return one_hot_.to_one_hot_encoding(velocity_vector_, 9);
 }
 
 arma::colvec
 DiscretActions::leader_data()
 {
-  return one_hot_.to_one_hot_encoding(leader_velocity_vector_, 11);
+  return one_hot_.to_one_hot_encoding(leader_velocity_vector_, 9);
 }
 
 arma::colvec
 DiscretActions::followers_data()
 {
-  return one_hot_.to_one_hot_encoding(followers_velocity_vector_, 11);
+  return one_hot_.to_one_hot_encoding(followers_velocity_vector_, 9);
 }
 
 arma::mat
 DiscretActions::all_possible_actions()
 {
   arma::mat all_possible_actions{
-    { 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 }, { 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 },
-    { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 },
+    { 1, 0, 0, 0, 0, 0, 0, 0, 0 },
+    { 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+    { 0, 0, 1, 0, 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 1, 0, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 1, 0, 0, 0, 0 },
+    { 0, 0, 0, 0, 0, 1, 0, 0, 0 },
+    { 0, 0, 0, 0, 0, 0, 1, 0, 0 },
+    { 0, 0, 0, 0, 0, 0, 0, 1, 0 },
+    { 0, 0, 0, 0, 0, 0, 0, 0, 1 },
   };
 
   return all_possible_actions;
@@ -89,7 +92,7 @@ DiscretActions::all_possible_actions()
 int
 DiscretActions::action_to_int(ignition::math::Vector3d action)
 {
-  int index = one_hot_.to_one_hot_encoding(action, 11).index_max();
+  int index = one_hot_.to_one_hot_encoding(action, 9).index_max();
   return index;
 }
 
@@ -108,23 +111,24 @@ DiscretActions::int_to_action(arma::uword index)
     velocity.Y() = 1;
   } else if (index == all_possible_actions().col(3).index_max()) {
     velocity.Y() = -1;
+  // Comment up and down for now
+  // } else if (index == all_possible_actions().col(4).index_max()) {
+  //   velocity.Z() = 1;
+  // } else if (index == all_possible_actions().col(5).index_max()) {
+  //   velocity.Z() = -1;
   } else if (index == all_possible_actions().col(4).index_max()) {
-    velocity.Z() = 1;
+    velocity.X() = 1;
+    velocity.Y() = 1;
   } else if (index == all_possible_actions().col(5).index_max()) {
-    velocity.Z() = -1;
+    velocity.X() = -1;
+    velocity.Y() = -1;
   } else if (index == all_possible_actions().col(6).index_max()) {
     velocity.X() = 1;
-    velocity.Y() = 1;
+    velocity.Y() = -1;
   } else if (index == all_possible_actions().col(7).index_max()) {
     velocity.X() = -1;
-    velocity.Y() = -1;
-  } else if (index == all_possible_actions().col(8).index_max()) {
-    velocity.X() = 1;
-    velocity.Y() = -1;
-  } else if (index == all_possible_actions().col(9).index_max()) {
-    velocity.X() = -1;
     velocity.Y() = 1;
-  } else if (index == all_possible_actions().col(10).index_max()) {
+  } else if (index == all_possible_actions().col(8).index_max()) {
   }
   action.action() = velocity;
   return action;
