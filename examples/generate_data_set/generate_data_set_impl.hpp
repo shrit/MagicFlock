@@ -11,7 +11,7 @@ Generator<QuadrotorType>::Generator(std::vector<QuadrotorType>& quadrotors,
   , swarm_(quadrotors)
   , quadrotors_(quadrotors)
   , logger_(logger)
-  , distribution_int_(0, 7)
+  , distribution_int_(0, 3)
   , distribution_int_time(15, 40)
   , generator_(random_dev())
 {}
@@ -42,8 +42,8 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     // int time_random = 0;
     // { 0, 0, +0.7 },   { 0, 0, -0.7 }, // Remove these two actions permenantly
     std::vector<ignition::math::Vector3d> destinations{
-      { 0.7, 0, 0 },   { -0.7, 0, 0 },    { 0, 0.7, 0 },    { 0, -0.7, 0 },
-      { 0.7, 0.7, 0 }, { -0.7, -0.7, 0 }, { 0.7, -0.7, 0 }, { -0.7, 0.7, 0 }
+      { 0.7, 0, 0 },   { -0.7, 0, 0 },    { 0, 0.7, 0 },    { 0, -0.7, 0 }
+    //  { 0.7, 0.7, 0 }, { -0.7, -0.7, 0 }, { 0.7, -0.7, 0 }, { -0.7, 0.7, 0 }
     };
 
     ignition::math::Vector3d up{ 0, 0, +1.5 };
@@ -61,7 +61,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
                                        quadrotors_.at(0).current_action());
 
-    std::this_thread::sleep_for(std::chrono::seconds(95));
+    std::this_thread::sleep_for(std::chrono::seconds(80));
 
     /**
      * Collect dataset by creating a specific destination.
@@ -97,69 +97,67 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     std::function<void(QuadrotorType&)> trajectory = [&](QuadrotorType& quad) {
       this->execute_trajectory(quad);
     };
-    bool shape = swarm_.examin_swarm_shape(0.1, 15);
-    if (shape) {
-      /* Let us see how these quadrotors are going to move */
-      if (quadrotors_.at(0).height() > 20) {
-        while (true) {
-          shape = swarm_.examin_swarm_shape(0.2, 15);
-          if (!shape) {
-            logger_->info(
-              "Quadrotors are far from each other, ending the episode");
-            break;
-          }
 
-          elapsed_time_ = model_time.stop();
-          logger_->info("Model time in seconds {}", elapsed_time_);
+    /* Let us see how these quadrotors are going to move */
+    if (quadrotors_.at(0).height() > 20) {
+      while (true) {
+        bool shape = swarm_.examin_swarm_shape(0.2, 15);
+        if (!shape) {
+          logger_->info(
+            "Quadrotors are far from each other, ending the episode");
+          break;
+        }
 
-          if (elapsed_time_ > passed_time_ + 10) {
-            logger_->info("Change the leader destination {}", elapsed_time_);
-            passed_time_ = elapsed_time_;
-            // random = distribution_int_(generator_);
-            count++;
-          }
+        elapsed_time_ = model_time.stop();
+        logger_->info("Model time in seconds {}", elapsed_time_);
 
-          std::vector<std::thread> threads;
-          for (auto&& it : quadrotors_) {
-            threads.push_back(std::thread([&]() {
-              it.sample_state_action_state(
-                action_model, trajectory, it, quadrotors_.at(0));
-              logger_->info("Saving dataset!");
-              arma::colvec check_double =
-                it.current_state().Data() - it.last_state().Data();
-              if (!check_double.is_zero()) {
-                it.save_dataset_sasas();
-              }
-            }));
-          }
+        if (elapsed_time_ > passed_time_ + 10) {
+          logger_->info("Change the leader destination {}", elapsed_time_);
+          passed_time_ = elapsed_time_;
+          // random = distribution_int_(generator_);
+          count++;
+        }
 
-          for (auto& thread : threads) {
-            thread.join();
-          }
+        std::vector<std::thread> threads;
+        for (auto&& it : quadrotors_) {
+          threads.push_back(std::thread([&]() {
+            it.sample_state_action_state(
+              action_model, trajectory, it, quadrotors_.at(0));
+            logger_->info("Saving dataset!");
+            arma::colvec check_double =
+              it.current_state().Data() - it.last_state().Data();
+            if (!check_double.is_zero()) {
+              it.save_dataset_sasas();
+            }
+          }));
+        }
 
-          std::this_thread::sleep_for(std::chrono::milliseconds(250));
+        for (auto& thread : threads) {
+          thread.join();
+        }
 
-          // Do not change the leader destination during these tests
-          // if (count % 2 == 0) {
-          //   logger_->info("Change leader destination NOW");
-          //   dest_ = destinations.at(random);
-          //   // leader actions
-          //   quadrotors_.at(0).current_action().action() = dest_;
-          //   swarm_.one_quad_execute_trajectory(
-          //     quadrotors_.at(0).id(), quadrotors_.at(0).current_action());
-          // }
+        std::this_thread::sleep_for(std::chrono::milliseconds(250));
 
-          shape = swarm_.examin_swarm_shape(0.2, 15);
-          if (!shape) {
-            logger_->info(
-              "Quadrotors are far from each other, ending the episode");
-            break;
-          }
+        // Do not change the leader destination during these tests
+        // if (count % 2 == 0) {
+        //   logger_->info("Change leader destination NOW");
+        //   dest_ = destinations.at(random);
+        //   // leader actions
+        //   quadrotors_.at(0).current_action().action() = dest_;
+        //   swarm_.one_quad_execute_trajectory(
+        //     quadrotors_.at(0).id(), quadrotors_.at(0).current_action());
+        // }
 
-          if (elapsed_time_ > episode_time_ + 215) {
-            episode_time_ = elapsed_time_;
-            break;
-          }
+        shape = swarm_.examin_swarm_shape(0.2, 15);
+        if (!shape) {
+          logger_->info(
+            "Quadrotors are far from each other, ending the episode");
+          break;
+        }
+
+        if (elapsed_time_ > episode_time_ + 200) {
+          episode_time_ = elapsed_time_;
+          break;
         }
       }
     }
