@@ -1258,9 +1258,12 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
 
     neigh_angle_antenna_dists_container().at(i).antenna =
       position().Distance(neighbors().at(i).position);
+    std::vector<double> azimuth = aoa_azimuth(neighbors().at(i).position);
 
-    neigh_angle_antenna_dists_container().at(i).azimuth =
-      aoa_azimuth(neighbors().at(i).position);
+    neigh_angle_antenna_dists_container().at(i).azimuth = azimuth.at(0);
+    neigh_angle_antenna_dists_container().at(i).azimuth_0 = azimuth.at(1);
+    neigh_angle_antenna_dists_container().at(i).azimuth_1 = azimuth.at(2);
+    neigh_angle_antenna_dists_container().at(i).azimuth_2 = azimuth.at(3);
 
     neigh_angle_antenna_dists_container().at(i).elevation =
       aoa_elevation(neighbors().at(i).position);
@@ -1499,14 +1502,57 @@ template<class flight_controller_t,
          class NoiseType,
          class StateType,
          class ActionType>
-double
+std::vector<double>
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   aoa_azimuth(ignition::math::Vector3d neighbor_position)
 {
   double y = neighbor_position.Y() - position().Y();
   double x = neighbor_position.X() - position().X();
+  double angle = std::atan2(y, x);
+  if (angle < 0) {
+    double to_add = PI + angle;
+    to_add = std::fabs(to_add);
+    angle = to_add + PI;
+  }
 
-  double azimuth = std::atan2(y, x);
+  std::vector<double> azimuth(4);
+  azimuth.at(0) = angle;
+  if (IsInBounds(angle, 0.0, 0.5) and IsInBounds(angle, 5.9, 6.3)) {
+    azimuth.at(1) = 0.0;
+    azimuth.at(2) = 0.0;
+    azimuth.at(3) = 0.0;
+
+  } else if (IsInBounds(angle, 0.5, 1.0)) {
+    azimuth.at(1) = 0.0;
+    azimuth.at(2) = 0.0;
+    azimuth.at(3) = 1.0;
+
+  } else if (IsInBounds(angle, 1.0, 1.9)) {
+    azimuth.at(1) = 0.;
+    azimuth.at(2) = 1.;
+    azimuth.at(3) = 0.;
+  } else if (IsInBounds(angle, 1.9, 2.7)) {
+    azimuth.at(1) = 0.0;
+    azimuth.at(2) = 1.0;
+    azimuth.at(3) = 1.0;
+  } else if (IsInBounds(angle, 2.7, 3.4)) {
+    azimuth.at(1) = 1.0;
+    azimuth.at(2) = 0.0;
+    azimuth.at(3) = 0.0;
+  } else if (IsInBounds(angle, 3.4, 3.99)) {
+    azimuth.at(1) = 1.0;
+    azimuth.at(2) = 0.0;
+    azimuth.at(3) = 1.0;
+  } else if (IsInBounds(angle, 3.99, 5.3)) {
+    azimuth.at(1) = 1.0;
+    azimuth.at(2) = 1.0;
+    azimuth.at(3) = 0.0;
+  } else if (IsInBounds(angle, 5.3, 5.9)) {
+    azimuth.at(1) = 1.0;
+    azimuth.at(2) = 1.0;
+    azimuth.at(3) = 1.0;
+  }
+
   return azimuth;
 }
 
@@ -1522,5 +1568,7 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
   double z = neighbor_position.Z() - height();
   double distance = position().Distance(neighbor_position);
   double elevation = std::asin(z / distance);
+  // double to_add = PI + elevation;
+  // elevation = to_add + PI;
   return elevation;
 }

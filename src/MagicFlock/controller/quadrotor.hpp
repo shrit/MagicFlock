@@ -247,9 +247,15 @@ public:
   void save_position();
 
   /* Angle of Arrival function */
-  double aoa_azimuth(ignition::math::Vector3d neighbor_position);
+  std::vector<double> aoa_azimuth(ignition::math::Vector3d neighbor_position);
   double aoa_elevation(ignition::math::Vector3d neighbor_position);
   void calculate_angle_distances_to_neighbors_antenna();
+
+  template<typename T>
+  bool IsInBounds(const T& value, const T& low, const T& high)
+  {
+    return !(value < low) && (value < high);
+  }
 
   /* Topic names related functions */
   std::string wireless_receiver_1_topic_name();
