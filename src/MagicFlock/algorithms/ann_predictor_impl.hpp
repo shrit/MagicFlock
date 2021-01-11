@@ -121,11 +121,11 @@ AnnPredictor<QuadrotorType>::mig_vel_action_features_matrix()
   arma::mat features;
   arma::colvec col;
   col.insert_rows(col.n_rows, quad_.before_2_last_state().leader_data());
-  col.insert_rows(col.n_rows, quad_.before_last_action().leader_data());
+  // col.insert_rows(col.n_rows, quad_.before_last_action().leader_data());
   col.insert_rows(col.n_rows, quad_.before_last_state().leader_data());
-  col.insert_rows(col.n_rows, quad_.last_action().leader_data());
+  // col.insert_rows(col.n_rows, quad_.last_action().leader_data());
   col.insert_rows(col.n_rows, quad_.last_state().leader_data());
-  col.insert_rows(col.n_rows, quad_.current_action().leader_data());
+  // col.insert_rows(col.n_rows, quad_.current_action().leader_data());
   col.insert_rows(col.n_rows, quad_.current_state().leader_data());
   features.insert_cols(features.n_cols, col);
   return features;

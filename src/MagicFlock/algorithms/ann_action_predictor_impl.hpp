@@ -53,6 +53,7 @@ AnnActionPredictor<QuadrotorType>::best_predicted_mig_action(std::string model_p
                         arma::size(features));
   logger::logger_->info("Migration matrix:\n {}", features.t());
   regression_model.Predict(features, labels);
+  logger::logger_->info("MiG Model prediction:\n {}", labels.t());
   typename QuadrotorType::Action best_action;
   best_action.set_action(labels);
   return best_action;
