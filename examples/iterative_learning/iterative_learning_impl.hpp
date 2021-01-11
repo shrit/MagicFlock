@@ -27,6 +27,41 @@ Iterative_learning<QuadrotorType>::execute_trajectory(QuadrotorType& quad)
 
 template<class QuadrotorType>
 void
+Iterative_learning<QuadrotorType>::start_predicting_model()
+{
+  while (true) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::vector<std::thread> threads;
+    for (auto&& it : quadrotors_) {
+      threads.push_back(std::thread([&]() {
+        if (it.id() != 0) {
+          AnnStatePredictor<QuadrotorType> ann(it);
+          ContinuousActions mig_action = ann.best_predicted_mig_action(
+            "/meta/MagicFlock/examples/iterative_learning/build/"
+            "model.bin",
+            "model");
+          // ContinuousActions cohsep_action = ann.best_predicted_cohsep_action(
+          //   "/meta/MagicFlock/examples/iterative_learning/build/followers/"
+          //   "model.bin",
+          //   "model");
+          it.current_action().leader_action() = mig_action.action();
+          // current_action().action() = mig_action.action();
+          // it.predicted_actions(mig_action.action_to_int(mig_action.action()));
+          it.all_actions().push_back(it.current_action());
+          // + cohsep_action.followers_action();
+          // i.current_action()._action().Z() = 0;
+        }
+      }));
+    }
+
+    for (auto& thread : threads) {
+      thread.join();
+    }
+  }
+}
+
+template<class QuadrotorType>
+void
 Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
 {
   for (episode_ = 0; episode_ < max_episode_; ++episode_) {
@@ -71,104 +106,108 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
         //     is_leader);
         // } else {
         if (quad.id() != 0) {
-          AnnStatePredictor<QuadrotorType> ann(quad);
-          DiscretActions mig_action = ann.best_predicted_mig_action(
-            "/meta/MagicFlock/examples/iterative_learning/build/leader/model.bin",
-            "model");
-          DiscretActions cohsep_action = ann.best_predicted_cohsep_action(
-            "/meta/MagicFlock/examples/iterative_learning/build/followers/"
+          AnnActionPredictor<QuadrotorType> ann(quad);
+          ContinuousActions mig_action = ann.best_predicted_mig_action(
+            "/meta/MagicFlock/examples/iterative_learning/build/"
             "model.bin",
             "model");
-          // quad.predicted_actions(
-          //   mig_action.action_to_int(mig_action.action()));
-
+          // ContinuousActions cohsep_action = ann.best_predicted_cohsep_action(
+          //   "/meta/MagicFlock/examples/iterative_learning/build/followers/"
+          //   "model.bin",
+          //   "model");
+          quad.current_action().leader_action() = mig_action.action();
           quad.current_action().action() = mig_action.action();
+          //quad.predicted_actions(mig_action.action_to_int(mig_action.action()));
+          quad.all_actions().push_back(quad.current_action());
           // + cohsep_action.followers_action();
           // i.current_action()._action().Z() = 0;
         }
+/*        if (quad.id() != 0) {
+          if (!quad.predicted_actions().empty()) {
+            arma::colvec predicted =
+              arma_.vec_to_arma(quad.predicted_actions());
+            arma::colvec pdf = arma::normpdf(
+              predicted, arma::mean(predicted), arma::stddev(predicted));
+            logger::logger_->info("The PDF of actions is {}", pdf);
+            ContinuousActions action;
+            int action_value = quad.predicted_actions().at(pdf.index_max());
+            quad.current_action() = action.int_to_action(action_value);
+            // quad.all_actions().push_back(quad.current_action());
+            quad.predicted_actions().clear();
+          }
+        }*/
+
         //  }
       };
 
     std::function<void(QuadrotorType & quad)> trajectory =
       [&](QuadrotorType& quad) { this->execute_trajectory(quad); };
 
-    while (true) {
-      // Check shape after taking off
-      bool shape = swarm_.examin_swarm_shape(0.1, 35);
-      if (!shape) {
-        logger_->info("Quadrotors are far from each other, ending the episode");
-        break;
-      }
-      // increase time steps.
-      std::this_thread::sleep_for(std::chrono::milliseconds(500));
-      timeSteps++;
+    // auto async_predictor =
+    //   std::async(std::launch::async, &Iterative_learning<QuadrotorType>::start_predicting_model, this);
+  for (int i =0; i < 10; ++i) {
+    for (auto&& it : quadrotors_) {
+      it.sample_state();
+    }
+  }
 
-      std::vector<std::thread> threads;
-      for (auto&& it : quadrotors_) {
-        threads.push_back(std::thread([&]() {
-          it.sample_state_action_state(
-            action_model, trajectory, it, quadrotors_.at(0));
-          logger_->info("Saving dataset NOW");
-          arma::colvec check_double =
-            it.current_state().Data() - it.last_state().Data();
-          if (!check_double.is_zero()) {
-            it.save_dataset_sasas();
-          }
-        }));
-      }
+    bool shape = swarm_.examin_swarm_shape(0.1, 30);
+    if (shape) {
+      while (true) {
+        // Check shape after taking off
+        shape = swarm_.examin_swarm_shape(0.1, 100);
+        if (!shape) {
+          logger_->info(
+            "Quadrotors are far from each other, ending the episode");
+          break;
+        }
+        // increase time steps.
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        timeSteps++;
 
-      for (auto& thread : threads) {
-        thread.join();
-      }
+        std::vector<std::thread> threads;
+        for (auto&& it : quadrotors_) {
+          threads.push_back(std::thread([&]() {
+            it.sample_state_action_state(
+              action_model, trajectory, it, quadrotors_.at(0));
+            logger_->info("Saving dataset NOW");
+            arma::colvec check_double =
+              it.current_state().Data() - it.last_state().Data();
+            if (!check_double.is_zero()) {
+              it.save_dataset_sasas();
+            }
+          }));
+        }
 
-      // Leader changes its action each 10 times steps.
-      if (timeSteps % 20 == 0) {
-        logger_->info("Change leader destination NOW");
-        random = distribution_int_(generator_);
-        dest_ = destinations.at(random);
-        quadrotors_.at(0).current_action().action() = dest_;
-        swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
-                                           quadrotors_.at(0).current_action());
-      }
+        for (auto& thread : threads) {
+          thread.join();
+        }
 
-      for (auto&& it : quadrotors_) {
-        if (it.id() != 0) {
-          if (!it.predicted_actions().empty()) {
-            // arma::colvec predicted =
-            // arma_.vec_to_arma(it.predicted_actions()); arma::colvec pdf =
-            // arma::normpdf(
-            //   predicted, arma::mean(predicted), arma::stddev(predicted));
-            // logger::logger_->info("The PDF of actions is {}", pdf);
-            // DiscretActions action;
-            // it.current_action() = action.int_to_action(pdf.index_max());
-            // it.all_actions().push_back(it.current_action());
-            // it.predicted_actions().clear();
-          }
+        // Leader changes its action each 10 times steps.
+        if (timeSteps % 20 == 0) {
+          logger_->info("Change leader destination NOW");
+          // random = distribution_int_(generator_);
+          // dest_ = destinations.at(random);
+          quadrotors_.at(0).current_action().action() = dest_;
+          swarm_.one_quad_execute_trajectory(
+            quadrotors_.at(0).id(), quadrotors_.at(0).current_action());
+        }
+
+        /*  Check the geometrical shape */
+        shape = swarm_.examin_swarm_shape(0.2, 100);
+        if (!shape) {
+          logger_->info(
+            "Quadrotors are far from each other, ending the episode");
+          break;
+        }
+
+        if (elapsed_time_ > passed_time_ + 60) {
+          episode_time_ = elapsed_time_;
+          break;
         }
       }
-
-      /*  Check the geometrical shape */
-      shape = swarm_.examin_swarm_shape(0.2, 35);
-      if (!shape) {
-        logger_->info("Quadrotors are far from each other, ending the episode");
-        break;
-      }
-
-      if (elapsed_time_ > passed_time_ + 60) {
-        episode_time_ = elapsed_time_;
-        break;
-      }
-      /* Register results */
-      /* Save position of quadrotor each 200 ms*/
-      // for (auto&& it : quadrotors_) {
-      //   it.save_position(std::to_string(episode_));
-      // }
-      // double maxD = max_distance_.check_global_distance(quadrotors_);
-      // double minD = min_distance_.check_global_distance(quadrotors_);
-
-      // quadrotors_.at(0).save_values("distance_metric", maxD, minD);
     }
-
+//    async_predictor.get();
     /* Landing is blocking untill all quadrotors in the swarm touch the
      * ground */
     swarm_.stop_offboard_mode_async();
@@ -181,3 +220,13 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
     logger_->info("Flight time: {}", flight_time);
   }
 }
+
+/* Register results */
+/* Save position of quadrotor each 200 ms*/
+// for (auto&& it : quadrotors_) {
+//   it.save_position(std::to_string(episode_));
+// }
+// double maxD = max_distance_.check_global_distance(quadrotors_);
+// double minD = min_distance_.check_global_distance(quadrotors_);
+
+// quadrotors_.at(0).save_values("distance_metric", maxD, minD);

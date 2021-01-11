@@ -2,6 +2,7 @@
 
 /*  Standard C++ includes */
 #include <chrono>
+#include <future>
 #include <thread>
 #include <vector>
 
@@ -17,6 +18,7 @@
 #include <MagicFlock/util/scheduler.hpp>
 #include <MagicFlock/util/time.hpp>
 #include <MagicFlock/util/time_steps.hpp>
+#include <MagicFlock/util/real_time_samples.hpp>
 
 template<class QuadrotorType>
 class Iterative_learning
@@ -27,7 +29,7 @@ public:
 
   void execute_trajectory(QuadrotorType& quad);
   void run(std::function<void(void)> func);
-
+  void start_predicting_model();
   Iterative_learning(Iterative_learning const&) = delete;
   Iterative_learning(Iterative_learning&&) = default;
 
@@ -51,6 +53,7 @@ private:
   std::random_device random_dev;
   std::mt19937 generator_;
   ArmaHelper arma_;
+  RTSamples  predict_sampler_;
 };
 
 #include "iterative_learning_impl.hpp"
