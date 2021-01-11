@@ -16,8 +16,11 @@ class FullWiFi
 {
 public:
   unsigned int id;
-  double antenna; /* Value measured on antenna 1*/
-  double azimuth; /* angle on the x,y surface*/
+  double antenna;   /* Value measured on antenna 1 */
+  double azimuth;
+  double azimuth_0; /* angle on the x,y surface */
+  double azimuth_1; /* angle on the x,y surface */
+  double azimuth_2; /* angle on the x,y surface */
   double elevation; /* angle on the y,z surface */
 };
 

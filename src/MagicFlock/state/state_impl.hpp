@@ -82,13 +82,16 @@ State<FilterType, NoiseType, StateType, ContainerType>::State(
 
   } else if constexpr (std::is_same<StateType, FullWiFi>::value) {
     // Extracting leader information
-    data.resize(3);
+    data.resize(6);
     int leader = 0;
     for (std::size_t j = 0; j < num_neighbors_; ++j) {
       if (container.at(j).id == 0) {
         leader = container.at(j).id;
         data.at(i) = container.at(j).antenna;
         data.at(++i) = container.at(j).azimuth;
+        data.at(++i) = container.at(j).azimuth_0;
+        data.at(++i) = container.at(j).azimuth_1;
+        data.at(++i) = container.at(j).azimuth_2;
         data.at(++i) = container.at(j).elevation;
       }
       leader_data_ = arma.vec_to_arma(data);
@@ -97,10 +100,13 @@ State<FilterType, NoiseType, StateType, ContainerType>::State(
     // Extracting followers information
     i = 0;
     data.clear();
-    data.resize((container.size()) * 3);
+    data.resize((container.size()) * 6);
     for (auto&& j : container) {
       data.at(i) = j.antenna;
       data.at(++i) = j.azimuth;
+      data.at(++i) = j.azimuth_0;
+      data.at(++i) = j.azimuth_1;
+      data.at(++i) = j.azimuth_2;
       data.at(++i) = j.elevation;
       i = i + 1;
     }
