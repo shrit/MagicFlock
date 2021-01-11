@@ -122,22 +122,6 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
           // + cohsep_action.followers_action();
           // i.current_action()._action().Z() = 0;
         }
-/*        if (quad.id() != 0) {
-          if (!quad.predicted_actions().empty()) {
-            arma::colvec predicted =
-              arma_.vec_to_arma(quad.predicted_actions());
-            arma::colvec pdf = arma::normpdf(
-              predicted, arma::mean(predicted), arma::stddev(predicted));
-            logger::logger_->info("The PDF of actions is {}", pdf);
-            ContinuousActions action;
-            int action_value = quad.predicted_actions().at(pdf.index_max());
-            quad.current_action() = action.int_to_action(action_value);
-            // quad.all_actions().push_back(quad.current_action());
-            quad.predicted_actions().clear();
-          }
-        }*/
-
-        //  }
       };
 
     std::function<void(QuadrotorType & quad)> trajectory =
@@ -162,7 +146,7 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
           break;
         }
         // increase time steps.
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
         timeSteps++;
 
         std::vector<std::thread> threads;
@@ -186,8 +170,8 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
         // Leader changes its action each 10 times steps.
         if (timeSteps % 20 == 0) {
           logger_->info("Change leader destination NOW");
-          // random = distribution_int_(generator_);
-          // dest_ = destinations.at(random);
+          random = distribution_int_(generator_);
+          dest_ = destinations.at(random);
           quadrotors_.at(0).current_action().action() = dest_;
           swarm_.one_quad_execute_trajectory(
             quadrotors_.at(0).id(), quadrotors_.at(0).current_action());
