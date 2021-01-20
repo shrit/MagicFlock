@@ -12,7 +12,6 @@ Generator<QuadrotorType>::Generator(std::vector<QuadrotorType>& quadrotors,
   , quadrotors_(quadrotors)
   , logger_(logger)
   , distribution_int_(0, 3)
-  , distribution_int_time(15, 40)
   , generator_(random_dev())
 {}
 
@@ -38,37 +37,14 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     timer_.start();
     time_steps_.reset();
     swarm_.in_air_async(40);
-    int random = 0;
-    // int time_random = 0;
-    // { 0, 0, +0.7 },   { 0, 0, -0.7 }, // Remove these two actions permenantly
-    std::vector<ignition::math::Vector3d> destinations{
-      { 0.7, 0, 0 },   { -0.7, 0, 0 },    { 0, 0.7, 0 },    { 0, -0.7, 0 }
-    //  { 0.7, 0.7, 0 }, { -0.7, -0.7, 0 }, { 0.7, -0.7, 0 }, { -0.7, 0.7, 0 }
-    };
-
-    ignition::math::Vector3d up{ 0, 0, +1.5 };
-    quadrotors_.at(0).current_action().action() = up;
-    swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
-                                       quadrotors_.at(0).current_action());
-    std::this_thread::sleep_for(std::chrono::seconds(1));
-    random = distribution_int_(generator_);
-    // time_random = distribution_int_time(generator_);
-    dest_ = destinations.at(random);
-
-    // dest_ = destinations.at(2);
-
-    quadrotors_.at(0).current_action().action() = dest_;
-    swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
-                                       quadrotors_.at(0).current_action());
-
-    std::this_thread::sleep_for(std::chrono::seconds(80));
 
     /**
-     * Collect dataset by creating a specific destination.
+     * Collect dataset by creating learning the cohesion separation model.
      * Each quadrotor use the flocking model to stay close to
-     * its neighbors. All quadrotors have the same destination.
-     * An episode ends when a quadrotor reachs the destination,
-     * or quadrotors are very dispersed.
+     * its neighbors. 
+     * There is no common destination or a specific leader.
+     * Quadrotors start far from each other and when they are close
+     * the episode end.
      */
     /*  Verify that vectors are clear when starting new episode */
     logger_->info("Taking off has finished. Start the flocking model");
@@ -79,7 +55,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     Timer model_time;
     model_time.start();
     int count = 0;
-    bool is_leader = true;
+    bool is_leader = false;
 
     std::function<void(QuadrotorType&, QuadrotorType&)> action_model =
       [&](QuadrotorType& leader, QuadrotorType& quad) {
@@ -101,7 +77,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     /* Let us see how these quadrotors are going to move */
     if (quadrotors_.at(0).height() > 20) {
       while (true) {
-        bool shape = swarm_.examin_swarm_shape(0.2, 15);
+        bool shape = swarm_.examin_swarm_shape(0.2, 1000);
         if (!shape) {
           logger_->info(
             "Quadrotors are far from each other, ending the episode");
@@ -127,7 +103,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
             arma::colvec check_double =
               it.current_state().Data() - it.last_state().Data();
             if (!check_double.is_zero()) {
-              it.save_dataset_sasas();
+              it.save_dataset_sss();
             }
           }));
         }
@@ -136,19 +112,9 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
           thread.join();
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(250));
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-        // Do not change the leader destination during these tests
-        // if (count % 2 == 0) {
-        //   logger_->info("Change leader destination NOW");
-        //   dest_ = destinations.at(random);
-        //   // leader actions
-        //   quadrotors_.at(0).current_action().action() = dest_;
-        //   swarm_.one_quad_execute_trajectory(
-        //     quadrotors_.at(0).id(), quadrotors_.at(0).current_action());
-        // }
-
-        shape = swarm_.examin_swarm_shape(0.2, 15);
+        shape = swarm_.examin_swarm_shape(0.2, 1000);
         if (!shape) {
           logger_->info(
             "Quadrotors are far from each other, ending the episode");

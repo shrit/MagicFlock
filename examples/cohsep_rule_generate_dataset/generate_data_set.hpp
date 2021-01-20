@@ -40,7 +40,7 @@ private:
   Timer timer_;
   ignition::math::Vector3d dest_;
   std::shared_ptr<spdlog::logger> logger_;
-  std::uniform_int_distribution<> distribution_int_, distribution_int_time;
+  std::uniform_int_distribution<> distribution_int_;
   std::random_device random_dev;
   std::mt19937 generator_;
 };
