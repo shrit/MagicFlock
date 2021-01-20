@@ -39,8 +39,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     time_steps_.reset();
     swarm_.in_air_async(40);
     int random = 0;
-    // int time_random = 0;
-    // { 0, 0, +0.7 },   { 0, 0, -0.7 }, // Remove these two actions permenantly
+
     std::vector<ignition::math::Vector3d> destinations{
       { 0.7, 0, 0 },   { -0.7, 0, 0 },    { 0, 0.7, 0 },    { 0, -0.7, 0 }
     //  { 0.7, 0.7, 0 }, { -0.7, -0.7, 0 }, { 0.7, -0.7, 0 }, { -0.7, 0.7, 0 }
@@ -52,10 +51,7 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
                                        quadrotors_.at(0).current_action());
     std::this_thread::sleep_for(std::chrono::seconds(1));
     random = distribution_int_(generator_);
-    // time_random = distribution_int_time(generator_);
     dest_ = destinations.at(random);
-
-    // dest_ = destinations.at(2);
 
     quadrotors_.at(0).current_action().action() = dest_;
     swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
@@ -64,17 +60,16 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
     std::this_thread::sleep_for(std::chrono::seconds(80));
 
     /**
-     * Collect dataset by creating a specific destination.
-     * Each quadrotor use the flocking model to stay close to
-     * its neighbors. All quadrotors have the same destination.
-     * An episode ends when a quadrotor reachs the destination,
-     * or quadrotors are very dispersed.
+     * In the following example, the leader is sent before the follower
+     * for 80 seconds, with a lower speed while the quadrotors are waiting. 
+     * At the end, the followers will start following the leader and reduce 
+     * the distance to it. The episode end after 4 minutes allowing enough
+     * time for the follower to reach the leader.
      */
     /*  Verify that vectors are clear when starting new episode */
     logger_->info("Taking off has finished. Start the flocking model");
     ignition::math::Vector4d gains{ 1, 7, 1, 100 };
     ignition::math::Vector3d max_speed{ 1, 1, 0.0 };
-    // ignition::math::Vector4d axis_speed{ 0.1, 0.1, 0.09, 4 };
 
     Timer model_time;
     model_time.start();
@@ -83,15 +78,11 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
 
     std::function<void(QuadrotorType&, QuadrotorType&)> action_model =
       [&](QuadrotorType& leader, QuadrotorType& quad) {
-        // if (count % 2 == 0) {
         if (quad.id() != 0) {
           logger_->info("Start the flocking model");
           logger_->info("quad id {}", quad.id());
           quad.flocking_model(gains, leader.position(), max_speed, is_leader);
         }
-        // } else {
-        // quad.random_model(axis_speed, elapsed_time_);
-        // }
       };
 
     std::function<void(QuadrotorType&)> trajectory = [&](QuadrotorType& quad) {
@@ -114,7 +105,6 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
         if (elapsed_time_ > passed_time_ + 10) {
           logger_->info("Change the leader destination {}", elapsed_time_);
           passed_time_ = elapsed_time_;
-          // random = distribution_int_(generator_);
           count++;
         }
 
@@ -137,16 +127,6 @@ Generator<QuadrotorType>::run(std::function<void(void)> reset)
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(250));
-
-        // Do not change the leader destination during these tests
-        // if (count % 2 == 0) {
-        //   logger_->info("Change leader destination NOW");
-        //   dest_ = destinations.at(random);
-        //   // leader actions
-        //   quadrotors_.at(0).current_action().action() = dest_;
-        //   swarm_.one_quad_execute_trajectory(
-        //     quadrotors_.at(0).id(), quadrotors_.at(0).current_action());
-        // }
 
         shape = swarm_.examin_swarm_shape(0.2, 15);
         if (!shape) {
