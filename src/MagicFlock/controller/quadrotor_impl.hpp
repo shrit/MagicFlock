@@ -775,12 +775,38 @@ template<class flight_controller_t,
          class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
-  save_dataset_rssi_velocity()
+  save_dataset_state_action()
 {
   // see if it is possible to make current action generic
   dataset_.save_csv_dataset_2_file(name_,
                                    vec_.to_std_vector(current_state().Data()),
                                    current_action().one_hot_action());
+}
+
+template<class flight_controller_t,
+         class FilterType,
+         class NoiseType,
+         class StateType,
+         class ActionType>
+void
+Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
+  save_dataset_sss()
+{
+  dataset_.save_csv_dataset_2_file(
+    name_ + "_leader",
+    vec_.to_std_vector(before_3_last_state().leader_data()),
+    vec_.to_std_vector(before_2_last_state().leader_data()),
+    vec_.to_std_vector(before_last_state().leader_data()),
+    vec_.to_std_vector(last_state().leader_data()),
+    vec_.to_std_vector(current_state().leader_data()));
+
+  dataset_.save_csv_dataset_2_file(
+    name_ + "_followers",
+    vec_.to_std_vector(before_3_last_state().followers_data()),
+    vec_.to_std_vector(before_2_last_state().followers_data()),
+    vec_.to_std_vector(before_last_state().followers_data()),
+    vec_.to_std_vector(last_state().followers_data()),
+    vec_.to_std_vector(current_state().followers_data()));
 }
 
 template<class flight_controller_t,
@@ -815,62 +841,6 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
     vec_.to_std_vector(last_state().followers_data()),
     vec_.to_std_vector(current_action().followers_data()),
     vec_.to_std_vector(current_state().followers_data()));
-}
-
-template<class flight_controller_t,
-         class FilterType,
-         class NoiseType,
-         class StateType,
-         class ActionType>
-void
-Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
-  save_dataset_sasasp()
-{
-  dataset_.save_csv_dataset_2_file(
-    name_ + "_current_predictions",
-    vec_.to_std_vector(before_last_state().Data()),
-    vec_.to_std_vector(last_action().Data()),
-    vec_.to_std_vector(last_state().Data()),
-    vec_.to_std_vector(current_action().Data()),
-    vec_.to_std_vector(current_predicted_state().Data()),
-    vec_.to_std_vector(current_state().Data()));
-}
-
-template<class flight_controller_t,
-         class FilterType,
-         class NoiseType,
-         class StateType,
-         class ActionType>
-void
-Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
-  save_dataset_with_current_enhanced_predictions()
-{
-  dataset_.save_csv_dataset_2_file(
-    name_ + "_enhanced_predictions",
-    vec_.to_std_vector(before_last_state().Data()),
-    vec_.to_std_vector(last_action().Data()),
-    vec_.to_std_vector(last_state().Data()),
-    vec_.to_std_vector(current_action().Data()),
-    vec_.to_std_vector(current_predicted_enhanced_state().Data()),
-    vec_.to_std_vector(current_state().Data()));
-}
-
-template<class flight_controller_t,
-         class FilterType,
-         class NoiseType,
-         class StateType,
-         class ActionType>
-void
-Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
-  save_dataset_with_loss()
-{
-  dataset_.save_csv_dataset_2_file(
-    name_ + "_loss",
-    vec_.to_std_vector(before_last_state().Data()),
-    vec_.to_std_vector(last_action().Data()),
-    vec_.to_std_vector(last_state().Data()),
-    vec_.to_std_vector(current_action().Data()),
-    vec_.to_std_vector(current_loss()));
 }
 
 template<class flight_controller_t,

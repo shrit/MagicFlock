@@ -228,16 +228,11 @@ public:
   /*  Data set related functions */
 
   /* Save dataset as rssi, velocity (r, v)*/
-  void save_dataset_rssi_velocity();
+  void save_dataset_state_action();
   /* Save dataset as state action (s_t-1,a_t-1,s_t,a_t,s_t+1) */
   void save_dataset_sasas();
-  /* Save dataset with predicted state as state action
-   * (s_t-1,a_t-1,s_t,a_t,s_t+1, s^_t+1) */
-  void save_dataset_sasasp();
-  /* Save dataset as state action (s_t-1,a_t-1,s_t,a_t,s_t+1) */
-  void save_dataset_with_current_enhanced_predictions();
-  /* Save dataset as state action (s_t-1,a_t-1,s_t,a_t,s_t+1) */
-  void save_dataset_with_loss();
+  /* Save dataset as state action (s_t-3,s_t-2,s_t-1,s_t,s_t+1) */
+  void save_dataset_sss();
 
   void save_histogram(int count);
   void save_state();
