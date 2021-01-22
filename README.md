@@ -20,27 +20,31 @@ After installing MagicFlock, a set of examples can be found in `examples\` folde
 A generic example is provided as starter guide to understand the basic simulation principle.
 All examples are documented on gitbook, can be found here.
 Examples implement the algorithm needed to maintain a swarm of quadrotors from
-taking off until landing. The objective is to maintain the swarm intact as
+taking off until landing. In addition, to maintain the swarm intact as
 long as possible.
+
+![](3quads.gif)
+![](flocking.gif)
 
 ### Dependencies
 ``` 
 Gazebo >= 8
-mlpack (for machine learning examples)
+mlpack > 3.4 (for machine learning examples)
 CMake >=3.10
-
+Armadillo > 8.400
 ```
 
 ### Installation
 If you have Gazebo and all other dependencies installed:
 
 ```
+git clone https://github.com/shrit/MagicFlock.git
 cd MagicFlock
+git submodule update --init --recursive
 mkdir build
 cmake ../
 make -j8
 sudo make install
-
 ```
 * Full documentation can be found here including full installation guide
 Please refer to our installation guide, to install the libraries and its dependencies.
