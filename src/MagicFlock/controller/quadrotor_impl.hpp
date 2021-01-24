@@ -790,7 +790,7 @@ template<class flight_controller_t,
          class ActionType>
 void
 Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
-  save_dataset_sss()
+  save_dataset_ssssa()
 {
   dataset_.save_csv_dataset_2_file(
     name_ + "_leader",
@@ -798,7 +798,7 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
     vec_.to_std_vector(before_2_last_state().leader_data()),
     vec_.to_std_vector(before_last_state().leader_data()),
     vec_.to_std_vector(last_state().leader_data()),
-    vec_.to_std_vector(current_state().leader_data()));
+    vec_.to_std_vector(current_action().leader_data()));
 
   dataset_.save_csv_dataset_2_file(
     name_ + "_followers",
@@ -806,7 +806,7 @@ Quadrotor<flight_controller_t, FilterType, NoiseType, StateType, ActionType>::
     vec_.to_std_vector(before_2_last_state().followers_data()),
     vec_.to_std_vector(before_last_state().followers_data()),
     vec_.to_std_vector(last_state().followers_data()),
-    vec_.to_std_vector(current_state().followers_data()));
+    vec_.to_std_vector(current_action().followers_data()));
 }
 
 template<class flight_controller_t,

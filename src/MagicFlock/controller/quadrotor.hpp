@@ -231,8 +231,8 @@ public:
   void save_dataset_state_action();
   /* Save dataset as state action (s_t-1,a_t-1,s_t,a_t,s_t+1) */
   void save_dataset_sasas();
-  /* Save dataset as state action (s_t-3,s_t-2,s_t-1,s_t,s_t+1) */
-  void save_dataset_sss();
+  /* Save dataset as state action (s_t-4,s_t-3,s_t-2,s_t-1,a_t) */
+  void save_dataset_ssssa();
 
   void save_histogram(int count);
   void save_state();
