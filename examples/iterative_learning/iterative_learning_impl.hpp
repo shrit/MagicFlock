@@ -40,12 +40,12 @@ Iterative_learning<QuadrotorType>::start_predicting_model()
             "/meta/MagicFlock/examples/iterative_learning/build/"
             "model.bin",
             "model");
-          // ContinuousActions cohsep_action = ann.best_predicted_cohsep_action(
-          //   "/meta/MagicFlock/examples/iterative_learning/build/followers/"
-          //   "model.bin",
-          //   "model");
+          ContinuousActions cohsep_action = ann.best_predicted_cohsep_action(
+            "/meta/MagicFlock/examples/iterative_learning/build/followers/"
+            "model.bin",
+            "model");
           it.current_action().leader_action() = mig_action.action();
-          // current_action().action() = mig_action.action();
+          it.current_action().action() = mig_action.action();
           // it.predicted_actions(mig_action.action_to_int(mig_action.action()));
           it.all_actions().push_back(it.current_action());
           // + cohsep_action.followers_action();
@@ -71,14 +71,17 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
     logger_->info("The quadrotors have been reset...");
     std::this_thread::sleep_for(std::chrono::seconds(35));
     logger_->info("Episode : {}", episode_);
-    timer_.start();
-    time_steps_.reset();
+
     swarm_.in_air_async(40);
+
     int random = 0;
     int timeSteps = 0;
-    sched.start();
-    // bool flocking = true;
-    // bool is_leader = true;
+    int leader_change = 0;
+    bool is_leader = true;
+
+    Timer model_time;
+    model_time.start();
+
     std::vector<ignition::math::Vector3d> destinations{
       { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }
     };
@@ -100,27 +103,30 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
 
     std::function<void(QuadrotorType&, QuadrotorType&)> action_model =
       [&](QuadrotorType& leader, QuadrotorType& quad) {
-        // if (flocking) {
-        //   if (quad.id() != 0)
-        //     quad.flocking_model(gains, leader.position(), max_speed,
-        //     is_leader);
-        // } else {
-        if (quad.id() != 0) {
-          AnnActionPredictor<QuadrotorType> ann(quad);
-          ContinuousActions mig_action = ann.best_predicted_mig_action(
-            "/meta/MagicFlock/examples/iterative_learning/build/"
-            "model.bin",
-            "model");
-          // ContinuousActions cohsep_action = ann.best_predicted_cohsep_action(
-          //   "/meta/MagicFlock/examples/iterative_learning/build/followers/"
-          //   "model.bin",
-          //   "model");
-          quad.current_action().leader_action() = mig_action.action();
-          quad.current_action().action() = mig_action.action();
-          //quad.predicted_actions(mig_action.action_to_int(mig_action.action()));
-          quad.all_actions().push_back(quad.current_action());
-          // + cohsep_action.followers_action();
-          // i.current_action()._action().Z() = 0;
+        if (timeSteps % 2 == 0) {
+          if (quad.id() != 0) {
+            quad.flocking_model(gains, leader.position(), max_speed, is_leader);
+          }
+        } else if (timeSteps % 2 != 0) {
+          logger_->info("EXECUTE THE PREDICTION MODEL NOW");
+          if (quad.id() != 0) {
+            AnnActionPredictor<QuadrotorType> ann(quad);
+            ContinuousActions mig_action = ann.best_predicted_mig_action(
+              "/meta/MagicFlock/examples/iterative_learning/build/leader/"
+              "model.bin",
+              "model");
+            ContinuousActions cohsep_action = ann.best_predicted_cohsep_action(
+              "/meta/MagicFlock/examples/iterative_learning/build/"
+              "followers/"
+              "model.bin",
+              "model");
+            quad.current_action().leader_action() = mig_action.action();
+            quad.current_action().followers_action() = cohsep_action.action();
+            quad.current_action().action() =
+              mig_action.action() + cohsep_action.action();
+            quad.all_actions().push_back(quad.current_action());
+            // i.current_action()._action().Z() = 0;
+          }
         }
       };
 
@@ -128,12 +134,13 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
       [&](QuadrotorType& quad) { this->execute_trajectory(quad); };
 
     // auto async_predictor =
-    //   std::async(std::launch::async, &Iterative_learning<QuadrotorType>::start_predicting_model, this);
-  for (int i =0; i < 10; ++i) {
-    for (auto&& it : quadrotors_) {
-      it.sample_state();
+    //   std::async(std::launch::async,
+    //   &Iterative_learning<QuadrotorType>::start_predicting_model, this);
+    for (int i = 0; i < 10; ++i) {
+      for (auto&& it : quadrotors_) {
+        it.sample_state();
+      }
     }
-  }
 
     bool shape = swarm_.examin_swarm_shape(0.1, 30);
     if (shape) {
@@ -146,8 +153,15 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
           break;
         }
         // increase time steps.
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        timeSteps++;
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+        elapsed_time_ = model_time.stop();
+        logger_->info("Model time in seconds {}", elapsed_time_);
+        leader_change++;
+        if (elapsed_time_ > passed_time_ + 5) {
+          passed_time_ = elapsed_time_;
+          timeSteps++;
+          logger_->info("Increase timeSteps {}", timeSteps);
+        }
 
         std::vector<std::thread> threads;
         for (auto&& it : quadrotors_) {
@@ -155,10 +169,12 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
             it.sample_state_action_state(
               action_model, trajectory, it, quadrotors_.at(0));
             logger_->info("Saving dataset NOW");
-            arma::colvec check_double =
-              it.current_state().Data() - it.last_state().Data();
-            if (!check_double.is_zero()) {
-              it.save_dataset_sasas();
+            if (timeSteps % 2 == 0) {
+              arma::colvec check_double =
+                it.current_state().Data() - it.last_state().Data();
+              if (!check_double.is_zero()) {
+                it.save_dataset_ssssa();
+              }
             }
           }));
         }
@@ -168,7 +184,7 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
         }
 
         // Leader changes its action each 10 times steps.
-        if (timeSteps % 20 == 0) {
+        if (leader_change % 20 == 0) {
           logger_->info("Change leader destination NOW");
           random = distribution_int_(generator_);
           dest_ = destinations.at(random);
@@ -184,14 +200,17 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
             "Quadrotors are far from each other, ending the episode");
           break;
         }
-
-        if (elapsed_time_ > passed_time_ + 60) {
-          episode_time_ = elapsed_time_;
-          break;
-        }
+        // Not required for now
+        // if (elapsed_time_ > passed_time_ + 60) {
+        //   episode_time_ = elapsed_time_;
+        //   break;
+        // }
       }
     }
-//    async_predictor.get();
+    passed_time_ = 0;
+    episode_time_ = 0;
+
+    //    async_predictor.get();
     /* Landing is blocking untill all quadrotors in the swarm touch the
      * ground */
     swarm_.stop_offboard_mode_async();
