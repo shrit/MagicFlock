@@ -84,6 +84,7 @@ State<FilterType, NoiseType, StateType, ContainerType>::State(
     // Extracting leader information
     data.resize(6);
     int leader = 0;
+    i = 0;
     for (std::size_t j = 0; j < num_neighbors_; ++j) {
       if (container.at(j).id == 0) {
         leader = container.at(j).id;
@@ -93,6 +94,7 @@ State<FilterType, NoiseType, StateType, ContainerType>::State(
         data.at(++i) = container.at(j).azimuth_1;
         data.at(++i) = container.at(j).azimuth_2;
         data.at(++i) = container.at(j).elevation;
+        i = i + 1;
       }
       leader_data_ = arma.vec_to_arma(data);
     }
