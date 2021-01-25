@@ -146,7 +146,7 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
     if (shape) {
       while (true) {
         // Check shape after taking off
-        shape = swarm_.examin_swarm_shape(0.1, 100);
+        shape = swarm_.examin_swarm_shape(0.0, 30);
         if (!shape) {
           logger_->info(
             "Quadrotors are far from each other, ending the episode");
@@ -194,7 +194,7 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
         }
 
         /*  Check the geometrical shape */
-        shape = swarm_.examin_swarm_shape(0.2, 100);
+        shape = swarm_.examin_swarm_shape(0.0, 30);
         if (!shape) {
           logger_->info(
             "Quadrotors are far from each other, ending the episode");
