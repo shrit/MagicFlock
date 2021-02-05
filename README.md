@@ -53,7 +53,17 @@ Please refer to our installation guide, to install the libraries and its depende
 If you are using IL4MRC in your research, please cite the following paper, can
 be found here:
 ```
-
+@inproceedings{shrit:hal-03133162,
+  TITLE = {{Iterative Learning for Model Reactive Control: Application to autonomous multi-agent control}},
+  AUTHOR = {Shrit, Omar and Filliat, David and Sebag, Michele},
+  URL = {https://hal.archives-ouvertes.fr/hal-03133162},
+  BOOKTITLE = {{ICARA}},
+  ADDRESS = {Prague, Czech Republic},
+  YEAR = {2021},
+  MONTH = Feb,
+  HAL_ID = {hal-03133162},
+  HAL_VERSION = {v1},
+  }
 ```
 
 ### Contribution
