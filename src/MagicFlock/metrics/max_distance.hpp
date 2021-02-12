@@ -24,9 +24,9 @@ public:
     double max_global_distance = std::numeric_limits<double>::min();
     max_global_distance_ = std::numeric_limits<double>::min();
     for (auto&& q : quads) {
-      for (std::size_t i = 0; i < q.neighbor_positions().size(); ++i) {
+      for (std::size_t i = 0; i < q.neighbors().size(); ++i) {
         max_global_distance =
-          q.position().Distance(q.neighbor_positions().at(i));
+          q.position().Distance(q.neighbors().at(i).position);
         if (max_global_distance > max_global_distance_) {
           max_global_distance_ = max_global_distance;
         }
@@ -39,8 +39,8 @@ public:
   {
     double max_local_distance = std::numeric_limits<double>::min();
     max_local_distance_ = std::numeric_limits<double>::min();
-    for (std::size_t i = 0; i < q.neighbor_positions().size(); ++i) {
-      max_local_distance = q.position().Distance(q.neighbor_positions().at(i));
+    for (std::size_t i = 0; i < q.neighbors().size(); ++i) {
+      max_local_distance = q.position().Distance(q.neighbors().at(i).position);
       if (max_local_distance > max_local_distance_) {
         max_local_distance_ = max_local_distance;
       }
