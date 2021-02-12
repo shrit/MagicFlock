@@ -37,7 +37,7 @@ Iterative_learning<QuadrotorType>::start_predicting_model()
         if (it.id() != 0) {
           AnnStatePredictor<QuadrotorType> ann(it);
           ContinuousActions mig_action = ann.best_predicted_mig_action(
-            "/meta/MagicFlock/examples/iterative_learning/build/"
+            "/meta/MagicFlock/examples/iterative_learning/build/leader/"
             "model.bin",
             "model");
           ContinuousActions cohsep_action = ann.best_predicted_cohsep_action(
@@ -49,7 +49,6 @@ Iterative_learning<QuadrotorType>::start_predicting_model()
           // it.predicted_actions(mig_action.action_to_int(mig_action.action()));
           it.all_actions().push_back(it.current_action());
           // + cohsep_action.followers_action();
-          // i.current_action()._action().Z() = 0;
         }
       }));
     }
@@ -77,7 +76,7 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
     int random = 0;
     int timeSteps = 0;
     int leader_change = 0;
-    bool is_leader = true;
+    // bool is_leader = true;   // For flocking model
 
     Timer model_time;
     model_time.start();
@@ -103,31 +102,31 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
 
     std::function<void(QuadrotorType&, QuadrotorType&)> action_model =
       [&](QuadrotorType& leader, QuadrotorType& quad) {
-        if (timeSteps % 2 == 0) {
-          if (quad.id() != 0) {
-            quad.flocking_model(gains, leader.position(), max_speed, is_leader);
-          }
-        } else if (timeSteps % 2 != 0) {
-          logger_->info("EXECUTE THE PREDICTION MODEL NOW");
-          if (quad.id() != 0) {
-            AnnActionPredictor<QuadrotorType> ann(quad);
-            ContinuousActions mig_action = ann.best_predicted_mig_action(
-              "/meta/MagicFlock/examples/iterative_learning/build/leader/"
-              "model.bin",
-              "model");
-            ContinuousActions cohsep_action = ann.best_predicted_cohsep_action(
-              "/meta/MagicFlock/examples/iterative_learning/build/"
-              "followers/"
-              "model.bin",
-              "model");
-            quad.current_action().leader_action() = mig_action.action();
-            quad.current_action().followers_action() = cohsep_action.action();
-            quad.current_action().action() =
-              mig_action.action() + cohsep_action.action();
-            quad.all_actions().push_back(quad.current_action());
-            // i.current_action()._action().Z() = 0;
-          }
+        // if (timeSteps % 2 == 0) {
+        //   if (quad.id() != 0) {
+        //     quad.flocking_model(gains, leader.position(), max_speed,
+        //     is_leader);
+        //   }
+        // } else if (timeSteps % 2 != 0) {
+        logger_->info("EXECUTE THE PREDICTION MODEL NOW");
+        if (quad.id() != 0) {
+          AnnActionPredictor<QuadrotorType> ann(quad);
+          ContinuousActions mig_action = ann.best_predicted_mig_action(
+            "/meta/MagicFlock/examples/iterative_learning/build/leader/"
+            "model.bin",
+            "model");
+          ContinuousActions cohsep_action = ann.best_predicted_cohsep_action(
+            "/meta/MagicFlock/examples/iterative_learning/build/"
+            "followers/"
+            "model.bin",
+            "model");
+          quad.current_action().leader_action() = mig_action.action();
+          quad.current_action().followers_action() = cohsep_action.action();
+          quad.current_action().action() =
+            mig_action.action() + cohsep_action.action();
+          quad.all_actions().push_back(quad.current_action());
         }
+        // }
       };
 
     std::function<void(QuadrotorType & quad)> trajectory =
@@ -176,8 +175,14 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
                 it.save_dataset_ssssa();
               }
             }
+            it.save_position();
           }));
         }
+
+        double maxD = max_distance_.check_global_distance(quadrotors_);
+        double minD = min_distance_.check_global_distance(quadrotors_);
+
+        quadrotors_.at(0).save_values("distance_metric", maxD, minD);
 
         for (auto& thread : threads) {
           thread.join();
@@ -210,7 +215,7 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
     passed_time_ = 0;
     episode_time_ = 0;
 
-    //    async_predictor.get();
+    // async_predictor.get();
     /* Landing is blocking untill all quadrotors in the swarm touch the
      * ground */
     swarm_.stop_offboard_mode_async();
@@ -223,13 +228,3 @@ Iterative_learning<QuadrotorType>::run(std::function<void(void)> reset)
     logger_->info("Flight time: {}", flight_time);
   }
 }
-
-/* Register results */
-/* Save position of quadrotor each 200 ms*/
-// for (auto&& it : quadrotors_) {
-//   it.save_position(std::to_string(episode_));
-// }
-// double maxD = max_distance_.check_global_distance(quadrotors_);
-// double minD = min_distance_.check_global_distance(quadrotors_);
-
-// quadrotors_.at(0).save_values("distance_metric", maxD, minD);
