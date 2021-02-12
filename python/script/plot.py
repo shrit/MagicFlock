@@ -69,7 +69,6 @@ def drop_columns(dataset_file_name, column_nubmer):
 
     df.to_csv(dataset_file_name_dropped, index = False)
 
-
 def modify_labels(dataset_file_name):
     dataset = genfromtxt(dataset_file_name, delimiter=',')
     y = dataset[:, -1]
@@ -82,22 +81,13 @@ def modify_labels(dataset_file_name):
     new_data_set = np.column_stack((dataset, z))
     np.savetxt(dataset_file_name, new_data_set, delimiter=",")
 
-
 def plot_generic(generic_file_name, xlabel, ylabel):
     num_lines = sum(1 for line in open(generic_file_name))
-    print (num_lines)
 
     y = np.loadtxt(generic_file_name)
     x = np.arange(y.size)
 
-    print(y)
-    z = np.mean(y)
-
-    print ("standard deviation : ", np.std(y))
-    print("mean value:", z)
-
     plt.plot(x, y, color='blue')
-
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
 
@@ -124,119 +114,6 @@ def plot_3d_generic(generic_file_name):
     z = dataset[:, 2]
     return x,y,z
 
-def plot_loss(espisdes_file_name, predic_dataset_file_name, enhanched_dataset_file_name, action):
-  
-    # mat = genfromtxt(loss_file_name, delimiter=',')
-    # state_mat = genfromtxt(dataset_file_name, delimiter=',')
-    predic_state_mat = genfromtxt(predic_dataset_file_name, delimiter=',')
-    en_predic_state_mat = genfromtxt(enhanched_dataset_file_name, delimiter=',')
-
-    act = np.loadtxt(action)
-
-    z = np.loadtxt(espisdes_file_name);
-
-    v = np.arange(z.size)
-
-    # real_loss = mat[:,9]
-    # predicted_loss = mat[:, 4]
-    # d1_p_e = mat[:, 0]
-    # d2_p_e = mat[:, 1]
-    # d3_p_e = mat[:, 2]
-    # h_p_e  = mat[:, 3]
-
-    # d1_r_e = mat[:, 5]
-    # d2_r_e = mat[:, 6]
-    # d3_r_e = mat[:, 7]
-    # h_r_e  = mat[:, 8]
-
-    x = np.arange(len(act));
-    
-    bo = np.empty([z.size], bool)
-
-    d1_st = predic_state_mat[:,26]
-    d1_st_e = predic_state_mat[:,22]
-    d1_st_e2 = en_predic_state_mat[:,22]
- 
-
-    # d2_st = state_mat[:,23]
-    # d2_st_e = np.empty([d1_st.size])
-    # d2_st_e2 = np.empty([d1_st.size])
-
-    # d3_st = state_mat[:,24]
-    # d3_st_e = np.empty([d1_st.size])
-    # d3_st_e2 = np.empty([d1_st.size])
-    
-    # d4_st = state_mat[:,25]
-    # d4_st_e = np.empty([d1_st.size])
-    # d4_st_e2 = np.empty([d1_st.size])
-
-    # for i in range(len(d4_st)):
-    #   d4_st_e[i] = d4_st[i] - h_r_e[i]
-    #   d4_st_e2[i] = d4_st[i] - h_p_e[i]
-          
-    
-    for i in range(len(z)):
-      if z[i] % 2 == 0:
-       bo[i] = True
-      else:
-       bo[i] = False
-
-    print(bo)
-
-    plt.fill_between(v, 0, +5, where=bo, facecolor='red', alpha=0.09)
-    # plt.plot(x, real_loss, color='blue', label="real loss")
-    # plt.plot(x, predicted_loss, color='red', label="predicted loss")
-    # plt.plot(x, d1_p_e, color='navy', label="prediction error on d1")
-    # plt.plot(x, d2_p_e, color='green', label="prediction error on d2")
-    # plt.plot(x, d3_p_e, color='purple', label="prediction error on d3")
-    # plt.plot(x, h_p_e, color='yellow', label="prediction error on delta h")
-
-    # plt.plot(x, d1_r_e, color='darkred', label="real error on d1")
-    # plt.plot(x, d2_r_e, color='brown', label="real error on d2")
-    # plt.plot(x, d3_r_e, color='orange',   label="real error on d3")
-    # plt.plot(x, h_r_e, color='black',  label="real error on delta h")
-
-    plt.plot(x, d1_st, color='blue', label="h State")
-    plt.plot(x, d1_st_e, color='red', label="h predicted State")
-    plt.plot(x, d1_st_e2, color='black', label="h with enhanced predicted State")
-    plt.plot(x, act, color='green', label="Actions") 
-    plt.title("Real error vs prediction error")
-    plt.xlabel('Time steps')
-    plt.ylabel('Distance in meter')
-    plt.legend()
-    plt.grid()
-    figure = plt.gcf() # get current figure
-    figure.set_size_inches(21, 18)
-    plt.savefig(espisdes_file_name + ".svg", dpi=100)    
-    
-def plot_six_generic(file_name,
-                     file_name_2,
-                     file_name_3,
-                     file_name_4,
-                     file_name_5,
-                     file_name_6):
-    a, b = plot_generic(file_name)
-    c, d = plot_generic(file_name_2)
-    e, f = plot_generic(file_name_3)
-    g, h = plot_generic(file_name_4)
-    i, j = plot_generic(file_name_5)
-    k, l = plot_generic(file_name_6)
-    plt.plot(a, b, color='blue', label="forward")
-    plt.plot(c, d, color='orange', label="backward")
-    plt.plot(e, f, color='green', label="left")
-    plt.plot(g, h, color='black', label="right")
-    plt.plot(i, j, color='red', label="up")
-    plt.plot(k, l, color='brown', label="down")
-
-    plt.title("Comparing distance between alice and charlie on different actions")
-    plt.xlabel('sample number: 1 second equal 20')
-    plt.ylabel('Distance between alice and charlie')
-    plt.legend()
-    plt.grid()
-    figure = plt.gcf() # get current figure
-    figure.set_size_inches(12, 8)
-    plt.savefig(file_name + ".png", dpi=100)
-
 def plot_3D_position(*file_names):
     figure = plt.figure()
     ax = figure.gca(projection='3d') # get current figure
@@ -248,89 +125,41 @@ def plot_3D_position(*file_names):
       a, b, c = plot_3d_generic(file_name)
       ax.plot(a, b, c)
 
+    figure.set_size_inches(12, 8)
+    plt.savefig(file_name + ".svg", dpi=100)
+
+def plot_2D_position(*file_names):
+    figure = plt.figure()
+    ax = figure.gca(projection='3d') # get current figure
+    ax.legend()
+    # ax.set_xlim3d(-100, 100)
+    # ax.set_ylim3d(-100,100)
+    ax.set_zlim3d(0,100)
+    for file_name in file_names:
+      a, b = plot_2d_generic(file_name)
+      ax.plot(a, b)
 
     figure.set_size_inches(12, 8)
-    plt.savefig(file_name + ".png", dpi=100)
-
-"""
-Error files need to be formated as one column file
-This column contain the mean error of each flight
-"""
-def plot_flight_error(error_file_name):
-    num_lines = sum(1 for line in open(error_file_name))
-    print (num_lines)
-
-    y = np.loadtxt(error_file_name)
-    x = np.arange(y.size)
-
-    print(y)
-    z = np.mean(y)
-
-    print ("error standard deviation : ", np.std(y))
-    print(z)
-
-    plt.plot(x, y, color='blue')
-
-    plt.xlabel('Number of flight')
-    plt.ylabel('Error of deformation combined totatly in m')
-
-    figure = plt.gcf() # get current figure
-    figure.set_size_inches(25, 6)
-
-    plt.savefig(error_file_name + ".svg", dpi=100, format="svg")
-
-"""
-Count files need to be formated as one column file
-This column contain the number of steps of each flight
-"""
-
-def plot_flight_count(count_file_name):
-
-    num_lines = sum(1 for line in open(count_file_name))
-    print (num_lines)
-
-    y = np.loadtxt(count_file_name)
-    x = np.arange(y.size)
-    z = np.mean(y)
-
-    print ("count deviation: ", np.std(y) )
-    print(z)
-
-    plt.plot(x, y, color='blue')
-
-    plt.xlabel('Number of flights')
-    plt.ylabel('Controller Counts before deformation')
-
-    figure = plt.gcf() # get current figure
-    figure.set_size_inches(25, 6)
-
-    plt.savefig(count_file_name + ".png", dpi=100)
-
+    plt.savefig(file_name + ".svg", dpi=100)
 
 def plot_histogram(count_file_name, histogram_file_name):
     x = np.loadtxt(count_file_name)
     plt.hist(x, bins=3)
-
     plt.xlabel('Number of time steps per episode')
     plt.ylabel('Frequency')
-
     figure = plt.gcf()
     figure.set_size_inches(25, 6)
 
     plt.savefig(histogram_file_name + ".png", dpi=100)
 
-
 def plot_histogram_2d(histogram_file_name):
 
     data = pd.read_csv(histogram_file_name, sep=' ',header=None, index_col =0)
-
     data.plot(kind='bar')
     plt.xlabel('Number of time steps per episode')
     plt.ylabel('Frequency')
-
     figure = plt.gcf() # get current figure
     figure.set_size_inches(10, 6)
-
     plt.savefig(histogram_file_name + ".png", dpi=100)
 
 def cumulative_histogram(filename):
@@ -344,52 +173,20 @@ def cumulative_histogram(filename):
 
     return x, z
 
-def plot_one_cumulative_histogram(histogram_file_name):
-    x, z = cumulative_histogram(histogram_file_name)
+def plot_cumulative_histogram(*histogram_file_names):
 
-    plt.plot(x, z, color='blue')
-    plt.xlabel('Number of time steps per episode')
-    plt.ylabel('CDF')
-    plt.grid()
-    figure = plt.gcf() # get current figure
-    figure.set_size_inches(25, 6)
-    plt.savefig(histogram_file_name + "one_cumulative_.png", dpi=100)
+    for histogram_file_name in histogram_file_names:
+      x, y = cumulative_histogram(histogram_file_name)
+      plt.plot(x, y)
 
-def plot_two_cumulative_histogram(histogram_file_name,
-                                  histogram_file_name_2):
-    x, y = cumulative_histogram(histogram_file_name)
-    i, j = cumulative_histogram(histogram_file_name_2)
-
-    plt.plot(x, y, color='blue', label="Phase 1")
-    plt.plot(i, j, color='green', label="Phase 2")
-
-    plt.title("Cumulative distribution function of random and trained controller")
-    plt.xlabel('Number of time steps executed by the follower per episode')
-    plt.ylabel('cdf')
-    plt.legend()
-    plt.grid()
-    figure = plt.gcf() # get current figure
-    figure.set_size_inches(12, 8)
-    plt.savefig(histogram_file_name + "two_cumulative_.svg", dpi=100)
-
-def plot_three_cumulative_histogram(histogram_file_name,
-                                    histogram_file_name_2,
-                                    histogram_file_name_3):
-    x, y = cumulative_histogram(histogram_file_name)
-    a, b = cumulative_histogram(histogram_file_name_2)
-    i, j = cumulative_histogram(histogram_file_name_3)
-    plt.plot(x, y, color='blue', label="Phase 1")
-    plt.plot(a, b, color='orange', label="Phase 2")
-    plt.plot(i, j, color='green', label="Oracle")
-
-    plt.title("Cumulative distribution function of random, knn and trained controller")
+    plt.title("Cumulative distribution function")
     plt.xlabel('Number of time steps executed by the follower per episode')
     plt.ylabel('Percentage of episodes')
     plt.legend()
     plt.grid()
     figure = plt.gcf() # get current figure
     figure.set_size_inches(12, 8)
-    plt.savefig(histogram_file_name + "three_cumulative_.svg", dpi=100)
+    plt.savefig(histogram_file_name + "cumulative_.svg", dpi=100)
 
 if __name__ == '__main__':
 
@@ -409,11 +206,8 @@ if __name__ == '__main__':
     parser.add_argument('--dataset_file_name', metavar="dataset file name", type=str, nargs="+", help="Enter dataset file name to plot")
     parser.add_argument('--position_files_name', metavar="3D position file name", type=str, nargs="+", help="Enter 3d position files to plot")
     parser.add_argument('--tsne_dataset_file_name', metavar="dataset file name", type=str, nargs="+", help="Enter dataset file name to plot using tsne")
-    parser.add_argument('--loss_file_name', metavar="loss file name", type=str, nargs="+", help="Enter loss file name to plot")
     parser.add_argument('--generic_file_name', metavar="generic file name", type=str, help="Enter a generic file to plot with one column")
-    parser.add_argument('--six_generic_file_name', metavar="generic file name", type=str, nargs="+", help="Enter a generic file to plot with one column")
     parser.add_argument('--error_file_name', metavar="error file name", type=str, help="Enter error file name that has the mean value of each flight")
-    parser.add_argument('--count_file_name', metavar="count file name", type=str, help="Enter flight count file name  ")
     parser.add_argument('--histogram_file_name', metavar="histogram file name", type=str, help="Enter a histogram file name, two column file name, nuumber of steps and frequency")
     parser.add_argument('--cumulative_histogram_files_name', metavar=" histogram file name", type=str, nargs="+" ,help="Enter one or more histogram file name, each file is a two column file name, number of steps and frequency, the script will generate automatically the cumulative histogram")
     parser.add_argument('--drop_columns', metavar=" drop column", type=int ,help="Enter column number to delete from dataset")
@@ -433,17 +227,6 @@ if __name__ == '__main__':
         ylabel = input('Enter your ylabel:')
         plot_generic(args.generic_file_name, xlabel, ylabel)
 
-    elif args.six_generic_file_name:
-        plot_six_generic(args.six_generic_file_name[0],
-                         args.six_generic_file_name[1],
-                         args.six_generic_file_name[2],
-                         args.six_generic_file_name[3],
-                         args.six_generic_file_name[4],
-                         args.six_generic_file_name[5])
-
-    elif args.count_file_name:
-        plot_flight_count(args.count_file_name)
-
     elif args.dataset_file_name:
         modify_labels(args.dataset_file_name)
 
@@ -453,16 +236,8 @@ if __name__ == '__main__':
     elif args.tsne_dataset_file_name:
         plot_dataset_tsne(args.tsne_dataset_file_name[0], args.tsne_dataset_file_name[1], args.tsne_dataset_file_name[2], args.tsne_dataset_file_name[3], args.tsne_dataset_file_name[4], args.tsne_dataset_file_name[5])
 
-    elif args.loss_file_name:
-        plot_loss(args.loss_file_name[0], args.loss_file_name[1], args.loss_file_name[2], args.loss_file_name[3])
-
     elif args.histogram_file_name:
         plot_histogram_2d(args.histogram_file_name)
 
     elif args.cumulative_histogram_files_name:
-        if isinstance(args.cumulative_histogram_files_name, str):
-            plot_one_cumulative_histogram(args.cumulative_histogram_files_name)
-        elif isinstance(args.cumulative_histogram_files_name, list):
-            plot_two_cumulative_histogram(args.cumulative_histogram_files_name[0],
-                                          args.cumulative_histogram_files_name[1])
-                                         # args.cumulative_histogram_files_name[2])
+        plot_cumulative_histogram(*args.cumulative_histogram_files_name)
