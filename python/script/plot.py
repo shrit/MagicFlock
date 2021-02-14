@@ -108,7 +108,7 @@ def plot_2d_generic(generic_file_name):
     num_lines = sum(1 for line in open(generic_file_name))
     print (num_lines)
 
-    dataset = np.loadtxt(generic_file_name)
+    dataset = np.loadtxt(generic_file_name, delimiter=",")
     x = dataset[:, 0]
     y = dataset[:, 1]
     return x,y
@@ -127,8 +127,6 @@ def plot_3D_position(*file_names):
     figure = plt.figure()
     ax = figure.gca(projection='3d') # get current figure
     ax.legend()
-    # ax.set_xlim3d(-100, 100)
-    # ax.set_ylim3d(-100,100)
     ax.set_zlim3d(0,100)
     for file_name in file_names:
       a, b, c = plot_3d_generic(file_name)
@@ -141,7 +139,7 @@ def plot_2D_position(*file_names):
     figure = plt.figure()
     for file_name in file_names:
       a, b = plot_2d_generic(file_name)
-      ax.plot(a, b)
+      plt.plot(a, b)
 
     figure.set_size_inches(12, 8)
     plt.savefig(file_name + ".svg", dpi=100)
@@ -236,10 +234,10 @@ if __name__ == '__main__':
         modify_labels(args.dataset_file_name)
 
     elif args.position_3D_files_name:
-        plot_3D_position(*args.position_files_name)
+        plot_3D_position(*args.position_3D_files_name)
 
     elif args.position_2D_files_name:
-        plot_2D_position(*args.position_files_name)
+        plot_2D_position(*args.position_2D_files_name)
 
     elif args.tsne_dataset_file_name:
         plot_dataset_tsne(args.tsne_dataset_file_name[0], args.tsne_dataset_file_name[1], args.tsne_dataset_file_name[2], args.tsne_dataset_file_name[3], args.tsne_dataset_file_name[4], args.tsne_dataset_file_name[5])
