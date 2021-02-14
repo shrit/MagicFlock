@@ -69,32 +69,18 @@ def drop_columns(dataset_file_name, column_nubmer):
 
     df.to_csv(dataset_file_name_dropped, index = False)
 
-def modify_labels(dataset_file_name):
-    dataset = genfromtxt(dataset_file_name, delimiter=',')
-    y = dataset[:, -1]
-    dataset = dataset[:, :-1]
-    print(y)
-    z =[]
-    for i in y:
-        z.append(math.log10(i + 1e-7))
-
-    new_data_set = np.column_stack((dataset, z))
-    np.savetxt(dataset_file_name, new_data_set, delimiter=",")
-
-def plot_generic(generic_file_name, xlabel, ylabel):
+def plot_2labels_generic(generic_file_name):
     num_lines = sum(1 for line in open(generic_file_name))
 
-    y = np.loadtxt(generic_file_name)
+    dataset = np.loadtxt(generic_file_name, delimiter=",")
+    y = dataset[:, 0]
+    z = dataset[:, 1]
     x = np.arange(y.size)
-
-    plt.plot(x, y, color='blue')
-    plt.xlabel(xlabel)
-    plt.ylabel(ylabel)
-
+    plt.plot(x, y)
+    plt.plot(x, z)
     figure = plt.gcf() # get current figure
     figure.set_size_inches(10, 6)
-
-    plt.savefig(generic_file_name + ".png", dpi=100, format="png")
+    plt.savefig(generic_file_name + ".svg", dpi=100)
 
 def plot_generic(generic_file_name):
     num_lines = sum(1 for line in open(generic_file_name))
@@ -210,7 +196,7 @@ if __name__ == '__main__':
     parser.add_argument('--position_2D_files_name', metavar="2D position file name", type=str, nargs="+", help="Enter 3d position files to plot")
     parser.add_argument('--tsne_dataset_file_name', metavar="dataset file name", type=str, nargs="+", help="Enter dataset file name to plot using tsne")
     parser.add_argument('--generic_file_name', metavar="generic file name", type=str, help="Enter a generic file to plot with one column")
-    parser.add_argument('--error_file_name', metavar="error file name", type=str, help="Enter error file name that has the mean value of each flight")
+    parser.add_argument('--generic_label_file_name', metavar="generic label file name", type=str, help="Enter generic file name to plot y,z")
     parser.add_argument('--histogram_file_name', metavar="histogram file name", type=str, help="Enter a histogram file name, two column file name, nuumber of steps and frequency")
     parser.add_argument('--cumulative_histogram_files_name', metavar=" histogram file name", type=str, nargs="+" ,help="Enter one or more histogram file name, each file is a two column file name, number of steps and frequency, the script will generate automatically the cumulative histogram")
     parser.add_argument('--drop_columns', metavar=" drop column", type=int ,help="Enter column number to delete from dataset")
@@ -222,13 +208,8 @@ if __name__ == '__main__':
         parser.print_help(sys.stderr)
         sys.exit(1)
 
-    if args.error_file_name:
-        plot_flight_error(args.error_file_name)
-
-    elif args.generic_file_name:
-        xlabel = input('Enter your xlabel:')
-        ylabel = input('Enter your ylabel:')
-        plot_generic(args.generic_file_name, xlabel, ylabel)
+    if args.generic_label_file_name:
+        plot_2labels_generic(args.generic_label_file_name)
 
     elif args.dataset_file_name:
         modify_labels(args.dataset_file_name)
