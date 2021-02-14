@@ -103,6 +103,15 @@ def plot_generic(generic_file_name):
     y = np.loadtxt(generic_file_name)
     x = np.arange(y.size)
     return x,y
+
+def plot_2d_generic(generic_file_name):
+    num_lines = sum(1 for line in open(generic_file_name))
+    print (num_lines)
+
+    dataset = np.loadtxt(generic_file_name)
+    x = dataset[:, 0]
+    y = dataset[:, 1]
+    return x,y
     
 def plot_3d_generic(generic_file_name):
     num_lines = sum(1 for line in open(generic_file_name))
@@ -130,11 +139,6 @@ def plot_3D_position(*file_names):
 
 def plot_2D_position(*file_names):
     figure = plt.figure()
-    ax = figure.gca(projection='3d') # get current figure
-    ax.legend()
-    # ax.set_xlim3d(-100, 100)
-    # ax.set_ylim3d(-100,100)
-    ax.set_zlim3d(0,100)
     for file_name in file_names:
       a, b = plot_2d_generic(file_name)
       ax.plot(a, b)
@@ -204,7 +208,8 @@ if __name__ == '__main__':
         '''))
 
     parser.add_argument('--dataset_file_name', metavar="dataset file name", type=str, nargs="+", help="Enter dataset file name to plot")
-    parser.add_argument('--position_files_name', metavar="3D position file name", type=str, nargs="+", help="Enter 3d position files to plot")
+    parser.add_argument('--position_3D_files_name', metavar="3D position file name", type=str, nargs="+", help="Enter 3d position files to plot")
+    parser.add_argument('--position_2D_files_name', metavar="2D position file name", type=str, nargs="+", help="Enter 3d position files to plot")
     parser.add_argument('--tsne_dataset_file_name', metavar="dataset file name", type=str, nargs="+", help="Enter dataset file name to plot using tsne")
     parser.add_argument('--generic_file_name', metavar="generic file name", type=str, help="Enter a generic file to plot with one column")
     parser.add_argument('--error_file_name', metavar="error file name", type=str, help="Enter error file name that has the mean value of each flight")
@@ -230,8 +235,11 @@ if __name__ == '__main__':
     elif args.dataset_file_name:
         modify_labels(args.dataset_file_name)
 
-    elif args.position_files_name:
+    elif args.position_3D_files_name:
         plot_3D_position(*args.position_files_name)
+
+    elif args.position_2D_files_name:
+        plot_2D_position(*args.position_files_name)
 
     elif args.tsne_dataset_file_name:
         plot_dataset_tsne(args.tsne_dataset_file_name[0], args.tsne_dataset_file_name[1], args.tsne_dataset_file_name[2], args.tsne_dataset_file_name[3], args.tsne_dataset_file_name[4], args.tsne_dataset_file_name[5])
