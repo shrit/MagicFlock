@@ -34,6 +34,22 @@ public:
     }
     return min_global_distance_;
   }
+  
+  double check_global_distance_no_leader(const std::vector<QuadrotorType>& quads)
+  {
+    double min_global_distance = std::numeric_limits<double>::max();
+    min_global_distance_ = std::numeric_limits<double>::max();
+    for (std::size_t j = 1; j < quads.size(); ++j) {
+      for (std::size_t i = 1; i < quads.at(j).neighbors().size(); ++i) {
+        min_global_distance =
+          quads.at(j).position().Distance(quads.at(j).neighbors().at(i).position);
+        if (min_global_distance < min_global_distance_) {
+          min_global_distance_ = min_global_distance;
+        }
+      }
+    }
+    return min_global_distance_;
+  }
 
   double check_local_distance(const QuadrotorType& q)
   {
