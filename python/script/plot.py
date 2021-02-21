@@ -76,6 +76,7 @@ def plot_2labels_generic(generic_file_name):
     y = dataset[:, 0]
     z = dataset[:, 1]
     x = np.arange(y.size)
+    plt.ylim(-1, 12)
     plt.plot(x, y)
     plt.plot(x, z)
     figure = plt.gcf() # get current figure
