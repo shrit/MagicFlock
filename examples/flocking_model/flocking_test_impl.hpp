@@ -18,21 +18,10 @@ Flock<QuadrotorType>::Flock(std::vector<QuadrotorType>& quadrotors,
 
 template<class QuadrotorType>
 void
-Flock<QuadrotorType>::go_to_destination()
+Flock<QuadrotorType>::execute_trajectory(QuadrotorType& quad)
 {
-  std::vector<std::thread> threads;
-  /*  Threading Quadrotors */
-  quadrotors_.at(0).current_action().action() = dest_;
-
-  for (auto&& it : quadrotors_) {
-    threads.push_back(std::thread([&]() {
-      swarm_.one_quad_execute_trajectory(it.id(), it.current_action());
-    }));
-  }
-
-  for (auto& thread : threads) {
-    thread.join();
-  }
+  if (quad.id() != 0)
+    swarm_.one_quad_execute_trajectory(quad.id(), quad.current_action());
 }
 
 template<class QuadrotorType>
@@ -44,18 +33,34 @@ Flock<QuadrotorType>::run(std::function<void(void)> reset)
     logger_->info("All quadrotors have been reset...");
     std::this_thread::sleep_for(std::chrono::seconds(35));
     logger_->info("Episode : {}", episode_);
-    timer_.start();
-    time_steps_.reset();
+
     swarm_.in_air_async(40);
 
-    ignition::math::Vector3d up{ 0, 0, -0.5 };
+    int timeSteps = 0;
+    int leader_change = 0;
+    bool is_leader = true; // For flocking model
+    size_t inc = 0;
+
+    Timer model_time;
+    model_time.start();
+
+    std::vector<ignition::math::Vector3d> destinations{
+      { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }
+    };
+
+    std::vector<ignition::math::Vector3d> leader_actions{
+      { -1, 0, 0 }, { -1, 0, 0 }, { 0, -1, 0 }, { 1, 0, 0 }, { 1, 0, 0 }, { 0, -1, 0 },
+      { -1, 0, 0 }, { -1, 0, 0 }, { 0, -1, 0 }, { 1, 0, 0 }, { 1, 0, 0 }, { 0, -1, 0 },
+      { -1, 0, 0 }, { -1, 0, 0 }, { 0, -1, 0 }, { 1, 0, 0 }, { 1, 0, 0 }, { 0, -1, 0 }
+    };
+
+    ignition::math::Vector3d up{ 0, 0, 1.5 };
     quadrotors_.at(0).current_action().action() = up;
     swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
                                        quadrotors_.at(0).current_action());
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
-    ignition::math::Vector3d forward{ 1, 0, 0 };
-    quadrotors_.at(0).current_action().action() = forward;
+    quadrotors_.at(0).current_action().action() = destinations.at(2);
     swarm_.one_quad_execute_trajectory(quadrotors_.at(0).id(),
                                        quadrotors_.at(0).current_action());
     std::this_thread::sleep_for(std::chrono::seconds(5));
@@ -72,99 +77,95 @@ Flock<QuadrotorType>::run(std::function<void(void)> reset)
     ignition::math::Vector4d gains{ 1, 7, 1, 100 };
     ignition::math::Vector3d max_speed{ 2, 2, 0 };
 
-    //! This destination goes forward
-    ignition::math::Vector3d destination_forward{ 163, 0, 40 };
-    //! This destination goes backward
-    ignition::math::Vector3d destination_backword{ -163, 0, 20 };
+    std::function<void(QuadrotorType&, QuadrotorType&)> action_model =
+      [&](QuadrotorType& leader, QuadrotorType& quad) {
+        if (quad.id() != 0) {
+          quad.flocking_model(gains, leader.position(), max_speed, is_leader);
+        }
+      };
 
-    //! This destination goes left
-    ignition::math::Vector3d destination_left{ 0, 163, 20 };
+    std::function<void(QuadrotorType & quad)> trajectory =
+      [&](QuadrotorType& quad) { this->execute_trajectory(quad); };
 
-    //! This destination goes right
-    ignition::math::Vector3d destination_right{ 0, -163, 20 };
+    bool shape = swarm_.examin_swarm_shape(0.1, 30);
+    if (shape) {
+      while (true) {
+        // Check shape after taking off
+        shape = swarm_.examin_swarm_shape(0.0, 30);
+        if (!shape) {
+          logger_->info(
+            "Quadrotors are far from each other, ending the episode");
+          break;
+        }
+        // increase time steps.
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+        elapsed_time_ = model_time.stop();
+        logger_->info("Model time in seconds {}", elapsed_time_);
+        leader_change++;
+        if (elapsed_time_ > passed_time_ + 5) {
+          passed_time_ = elapsed_time_;
+          timeSteps++;
+          logger_->info("Increase timeSteps {}", timeSteps);
+        }
 
-    // Check the shape of the swarm, if one is missing then land.
-    bool shape = swarm_.examin_swarm_shape(0.5, 10);
-    if (!shape) {
-      logger_->info("Quadrotors are far from each other, ending the episode");
-      break;
-    }
-    Timer model_time;
-    model_time.start();
-    int count = 0;
-    bool leader = true;
-    for (std::size_t i = 1; i < quadrotors_.size(); ++i) {
-      logger_->info("Start the flocking model");
-      quadrotors_.at(i).start_flocking_model(
-        gains, quadrotors_.at(0).position(), max_speed, leader);
-    }
+        std::vector<std::thread> threads;
+        for (auto&& it : quadrotors_) {
+          threads.push_back(std::thread([&]() {
+            it.sample_state_action_state(
+              action_model, trajectory, it, quadrotors_.at(0));
+            logger_->info("Saving dataset NOW");
+            if (timeSteps % 2 == 0) {
+              arma::colvec check_double =
+                it.current_state().Data() - it.last_state().Data();
+              if (!check_double.is_zero()) {
+                it.save_dataset_ssssa();
+              }
+            }
+            it.save_position();
+          }));
+        }
 
-    int random = 0;
-    /* Let us see how these quadrotors are going to move */
-    while (true) {
-      shape = swarm_.examin_swarm_shape(0.5, 10);
+        double maxD = max_distance_.check_global_distance(quadrotors_);
+        double minD = min_distance_.check_global_distance(quadrotors_);
 
-      if (!shape) {
-        logger_->info("Quadrotors are far from each other, ending the episode");
-        break;
+        quadrotors_.at(0).save_values("distance_metric", maxD, minD);
+
+        for (auto& thread : threads) {
+          thread.join();
+        }
+
+        // Leader changes its action each 10 times steps.
+       if (leader_change % 20 == 0) {
+          if (inc < leader_actions.size()) {
+            quadrotors_.at(0).current_action().action() =
+              leader_actions.at(inc);
+            swarm_.one_quad_execute_trajectory(
+              quadrotors_.at(0).id(), quadrotors_.at(0).current_action());
+            inc = inc + 1;
+          } else {
+            break;
+          }
+        }
+
+        /*  Check the geometrical shape */
+        shape = swarm_.examin_swarm_shape(0.0, 30);
+        if (!shape) {
+          logger_->info(
+            "Quadrotors are far from each other, ending the episode");
+          break;
+        }
       }
-      std::this_thread::sleep_for(std::chrono::milliseconds(150));
-      elapsed_time_ = model_time.stop();
-      logger_->info("Model time in seconds {}", elapsed_time_);
-
-      if (elapsed_time_ > passed_time_ + 3) {
-        logger_->info("Seconds have passed change the model");
-        random = distribution_int_(generator_);
-        passed_time_ = elapsed_time_;
-        count++;
-      }
-      go_to_destination();
-
-      for (auto&& it : quadrotors_) {
-       it.save_position(); 
-      }
     }
-
-    std::vector<ignition::math::Vector3d> destinations{
-      { 1, 0, 0 }, { -1, 0, 0 }, { 0, 1, 0 }, { 0, -1, 0 }
-    };
-
-    if (count % 2 == 0) {
-      logger_->info("Change leader destination NOW");
-      dest_ = destinations.at(random);
-    }
-    for (auto&& it : quadrotors_) {
-      it.stop_flocking_model();
-    }
-
-    std::string flight_time = timer_.stop_and_get_time();
-    logger_->info("Flight time: {}", flight_time);
+    passed_time_ = 0;
     /* Landing is blocking untill all quadrotors in the swarm touch the
      * ground */
     swarm_.stop_offboard_mode_async();
     std::this_thread::sleep_for(std::chrono::seconds(1));
     swarm_.land();
     swarm_.disarm_async();
-
-    /* Wait to be sure that all of the quads have disarmed */
     std::this_thread::sleep_for(std::chrono::seconds(3));
-
-    /*BIAS accelerometer problem after resetting the models*/
-
-    /*  The only possible solution was to change the upper limit value
-     * for the bias inside thee code of the firmware directly. The
-     * solution can be found at this link:
-     * https://github.com/PX4/Firmware/issues/10833 Where they propose
-     * to increase the value of COM_ARM_EKF_AB. Note that, the default
-     * value is 0.00024 I have increased it to 0.00054 which is very
-     * high to the usual stadard. Otherwise there is no way to do the
-     * simulation. Remember, the reboot() function in the MAVSDK
-     * action class is not implemented at the time of writing this
-     * comment, and maybe it will never be implemented as it is quite
-     * complicated to reboot the px4 software from the simulator. I
-     * understand this choice, we need to leave a big sleep_for after
-     * resetting the quadcopters, that is going to helpe resetting the
-     * accelerometer values without any problems!
-     */
+    passed_time_ = 0;
+    std::string flight_time = timer_.stop_and_get_time();
+    logger_->info("Flight time: {}", flight_time);
   }
 }
