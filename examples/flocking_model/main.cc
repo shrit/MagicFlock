@@ -100,7 +100,7 @@ main(int argc, char* argv[])
   /*  Gazebo simulator */
   Gazebo<QuadrotorType> gz(quadrotors);
   gz.start_simulation(
-    "/meta/lemon/script/gazebo_sitl_multiple_run.sh", num_of_quads, "iris");
+    "../../../script/gazebo_sitl_multiple_run.sh", num_of_quads, "iris");
 
   logger->info(
     "Waiting for 30 seconds until gazebo start and spawining finish");
