@@ -32,7 +32,7 @@ def plot_dataset_tsne(dataset_file_name, dataset_file_name2, dataset_file_name3,
 
     data_1  = mat[:np.size(train_matrix,0), :]
     print("Original shape: ", train_matrix.shape, "New Shape: ", data_1.shape)
-    print ("Mat shape", mat.shape) 
+    print("Mat shape", mat.shape) 
     data_2 = mat[np.size(train_matrix, 0):np.size(train_matrix, 0) + np.size(train_2_matrix, 0) , :]
     print("Original shape: ", train_2_matrix.shape, "New Shape: ", data_2.shape)
 
