@@ -185,7 +185,7 @@ public:
                         time_stream.str() + "/action" + time_stream.str();
   }
 
-  arma::mat submat_using_indices(arma::mat& matrix_to_sub, arma::Mat<size_t>)
+  arma::mat submat_using_indices(arma::mat& matrix_to_sub, arma::Mat<size_t>& indices)
   {
     arma::rowvec row;
     arma::mat submatrix;
