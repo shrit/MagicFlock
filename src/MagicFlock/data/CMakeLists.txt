@@ -1,6 +1,5 @@
 set(SOURCES
   dataset.hpp
-  dataset.cc
   dataset_impl.hpp
 )
 
