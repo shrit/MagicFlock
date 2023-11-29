@@ -2,7 +2,6 @@ set(SOURCES
   arma_helper.hpp
   arma_helper_impl.hpp
   logger.hpp
-  logger.cc
   position_gps.hpp
   propagation_model.hpp
   propagation_model_impl.hpp
