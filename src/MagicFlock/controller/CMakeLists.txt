@@ -1,6 +1,6 @@
 set(SOURCES
   px4_device.hpp
-  px4_device.cc
+  px4_device_impl.hpp
   quadrotor.hpp
   quadrotor_impl.hpp
   swarm_device.hpp
