@@ -1,6 +1,6 @@
 #include "px4_device.hpp"
 
-Px4Device::Px4Device(std::string socket, std::string port)
+inline Px4Device::Px4Device(std::string socket, std::string port)
 {
   std::string connection_url = socket + "://:" + port;
   logger::logger_->debug("connection_url: {}", connection_url);
@@ -21,7 +21,7 @@ Px4Device::Px4Device(std::string socket, std::string port)
   quad_health();
 }
 
-ConnectionResult
+inline ConnectionResult
 Px4Device::connect_to_quad(std::string connection_url)
 {
   ConnectionResult connection_result;
@@ -34,7 +34,7 @@ Px4Device::connect_to_quad(std::string connection_url)
   return connection_result;
 }
 
-bool
+inline bool
 Px4Device::discover_system()
 {
   bool discovered_system = false;
@@ -50,7 +50,7 @@ Px4Device::discover_system()
   return discovered_system;
 }
 
-bool
+inline bool
 Px4Device::arm()
 {
   logger::logger_->debug("Arming...");
@@ -62,7 +62,7 @@ Px4Device::arm()
   return true;
 }
 
-bool
+inline bool
 Px4Device::reboot()
 {
   logger::logger_->debug("Rebooting...");
@@ -74,7 +74,7 @@ Px4Device::reboot()
   return true;
 }
 
-bool
+inline bool
 Px4Device::takeoff()
 {
   const Action::Result takeoff_result = action_->takeoff();
@@ -98,7 +98,7 @@ Px4Device::takeoff()
   return true;
 }
 
-bool
+inline bool
 Px4Device::takeoff(float meters)
 {
   bool altitude = set_takeoff_altitude(meters);
@@ -128,7 +128,7 @@ Px4Device::takeoff(float meters)
   return true;
 }
 
-bool
+inline bool
 Px4Device::land()
 {
   // const bool offboard = stop_offboard_mode();
@@ -150,7 +150,7 @@ Px4Device::land()
   return true;
 }
 
-bool
+inline bool
 Px4Device::return_to_launch()
 {
   logger::logger_->debug("Return to launch position...");
@@ -162,7 +162,7 @@ Px4Device::return_to_launch()
   return true;
 }
 
-bool
+inline bool
 Px4Device::set_takeoff_altitude(float meters)
 {
   logger::logger_->debug("Setting altitude takeoff to: {} ", meters, "meters");
@@ -175,7 +175,7 @@ Px4Device::set_takeoff_altitude(float meters)
   return true;
 }
 
-bool
+inline bool
 Px4Device::set_altitude_rtl_max(float meters)
 {
   logger::logger_->debug("Set altitude rtl...");
@@ -189,14 +189,14 @@ Px4Device::set_altitude_rtl_max(float meters)
   return true;
 }
 
-void
+inline void
 Px4Device::arm_async()
 {
   logger::logger_->debug("Arming async");
   action_->arm_async([this](Action::Result result) { _arm_result = result; });
 }
 
-void
+inline void
 Px4Device::disarm_async()
 {
   logger::logger_->debug("Disarming async");
@@ -204,21 +204,21 @@ Px4Device::disarm_async()
     [this](Action::Result result) { _disarm_result = result; });
 }
 
-void
+inline void
 Px4Device::kill_async()
 {
   logger::logger_->debug("kill async");
   action_->kill_async([this](Action::Result result) { _kill_result = result; });
 }
 
-void
+inline void
 Px4Device::reboot_async()
 {
   logger::logger_->debug("Rebooting async");
   action_->reboot_async(
     [this](Action::Result result) { _reboot_result = result; });
 }
-void
+inline void
 Px4Device::shutdown_async()
 {
   logger::logger_->debug("Shutdown async");
@@ -226,7 +226,7 @@ Px4Device::shutdown_async()
     [this](Action::Result result) { _shutdown_result = result; });
 }
 
-void
+inline void
 Px4Device::takeoff_async()
 {
   logger::logger_->debug("Taking off async");
@@ -234,7 +234,7 @@ Px4Device::takeoff_async()
     [this](Action::Result result) { _takeoff_result = result; });
 }
 
-void
+inline void
 Px4Device::takeoff_async(float meters)
 {
   logger::logger_->debug("Taking off async");
@@ -249,14 +249,14 @@ Px4Device::takeoff_async(float meters)
     [this](Action::Result result) { _takeoff_result = result; });
 }
 
-void
+inline void
 Px4Device::land_async()
 {
   logger::logger_->debug("Landing async");
   action_->land_async([this](Action::Result result) { _land_result = result; });
 }
 
-void
+inline void
 Px4Device::return_to_launch_async()
 {
   logger::logger_->debug("Return to launch position...");
@@ -264,13 +264,13 @@ Px4Device::return_to_launch_async()
     [this](Action::Result result) { _rtl_result = result; });
 }
 
-void
+inline void
 Px4Device::init_speed()
 {
   offboard_->set_velocity_body({ 0.0f, 0.0f, 0.0f, 0.0f });
 }
 
-bool
+inline bool
 Px4Device::start_offboard_mode()
 {
   logger::logger_->debug("Start offboard mode");
@@ -282,7 +282,7 @@ Px4Device::start_offboard_mode()
   return true;
 }
 
-bool
+inline bool
 Px4Device::stop_offboard_mode()
 {
   logger::logger_->debug("Stop offboard mode");
@@ -294,7 +294,7 @@ Px4Device::stop_offboard_mode()
   return true;
 }
 
-void
+inline void
 Px4Device::start_offboard_mode_async()
 {
   logger::logger_->debug("Start offboard mode");
@@ -302,7 +302,7 @@ Px4Device::start_offboard_mode_async()
     [this](Offboard::Result results) { _start_offboard_result = results; });
 }
 
-void
+inline void
 Px4Device::stop_offboard_mode_async()
 {
   logger::logger_->debug("Stop offboard mode");
@@ -310,70 +310,70 @@ Px4Device::stop_offboard_mode_async()
     [this](Offboard::Result results) { _stop_offboard_result = results; });
 }
 
-Action::Result
+inline Action::Result
 Px4Device::arm_result() const
 {
   std::lock_guard<std::mutex> lock(_arm_result_mutex);
   return _arm_result;
 }
 
-Action::Result
+inline Action::Result
 Px4Device::disarm_result() const
 {
   std::lock_guard<std::mutex> lock(_disarm_result_mutex);
   return _disarm_result;
 }
 
-Action::Result
+inline Action::Result
 Px4Device::takeoff_result() const
 {
   std::lock_guard<std::mutex> lock(_takeoff_result_mutex);
   return _takeoff_result;
 }
 
-Action::Result
+inline Action::Result
 Px4Device::land_result() const
 {
   std::lock_guard<std::mutex> lock(_land_result_mutex);
   return _land_result;
 }
 
-Action::Result
+inline Action::Result
 Px4Device::kill_result() const
 {
   std::lock_guard<std::mutex> lock(_kill_result_mutex);
   return _kill_result;
 }
 
-Action::Result
+inline Action::Result
 Px4Device::reboot_result() const
 {
   std::lock_guard<std::mutex> lock(_reboot_result_mutex);
   return _reboot_result;
 }
 
-Action::Result
+inline Action::Result
 Px4Device::shutdown_result() const
 {
   std::lock_guard<std::mutex> lock(_shutdown_result_mutex);
   return _shutdown_result;
 }
 
-Action::Result
+inline Action::Result
 Px4Device::set_takeoff_result() const
 {
   std::lock_guard<std::mutex> lock(_set_takeoff_result_mutex);
   return _set_takeoff_result;
 }
 
-Offboard::Result
+inline Offboard::Result
 Px4Device::start_offboard_result() const
 {
   std::lock_guard<std::mutex> lock(_start_offboard_result_mutex);
   return _start_offboard_result;
 }
 
-Offboard::Result
+inline Offboard::Result
 Px4Device::stop_offboard_result() const
 {
   std::lock_guard<std::mutex> lock(_stop_offboard_result_mutex);
@@ -382,7 +382,7 @@ Px4Device::stop_offboard_result() const
 
 /*  Use the following functions set in order to generate trajectory or a
   dataset */
-void
+inline void
 Px4Device::up(float speed, unsigned int milliseconds_)
 {
   logger::logger_->debug("Up !");
@@ -391,7 +391,7 @@ Px4Device::up(float speed, unsigned int milliseconds_)
   offboard_->set_velocity_body({ 0.0f, 0.0f, 0.0f, 0.0f });
 }
 
-void
+inline void
 Px4Device::down(float speed, unsigned int milliseconds_)
 {
   logger::logger_->debug("Down !");
@@ -400,7 +400,7 @@ Px4Device::down(float speed, unsigned int milliseconds_)
   offboard_->set_velocity_body({ 0.0f, 0.0f, 0.0f, 0.0f });
 }
 
-void
+inline void
 Px4Device::right(float speed, unsigned int milliseconds_)
 {
   logger::logger_->debug("Right now !");
@@ -409,7 +409,7 @@ Px4Device::right(float speed, unsigned int milliseconds_)
   offboard_->set_velocity_body({ 0.0f, 0.0f, 0.0f, 0.0f });
 }
 
-void
+inline void
 Px4Device::left(float speed, unsigned int milliseconds_)
 {
   logger::logger_->debug("Left now !");
@@ -418,7 +418,7 @@ Px4Device::left(float speed, unsigned int milliseconds_)
   offboard_->set_velocity_body({ 0.0f, 0.0f, 0.0f, 0.0f });
 }
 
-void
+inline void
 Px4Device::forward(float speed, unsigned int milliseconds_)
 {
   logger::logger_->debug("Forward !");
@@ -427,7 +427,7 @@ Px4Device::forward(float speed, unsigned int milliseconds_)
   offboard_->set_velocity_body({ 0.0f, 0.0f, 0.0f, 0.0f });
 }
 
-void
+inline void
 Px4Device::backward(float speed, unsigned int milliseconds_)
 {
   logger::logger_->debug("Backward !");
@@ -444,7 +444,7 @@ Px4Device::backward(float speed, unsigned int milliseconds_)
     function with a timers that indicate the number of seconds you would
     like the quadrotors to move more precisely. Otherwise it would be
     impossible to ensure the distances between the quadrotors*/
-void
+inline void
 Px4Device::up(float speed)
 {
   logger::logger_->debug("Up !");
@@ -453,7 +453,7 @@ Px4Device::up(float speed)
   offboard_->set_velocity_body({ 0.0f, 0.0f, 0.0f, 0.0f });
 }
 
-void
+inline void
 Px4Device::down(float speed)
 {
   logger::logger_->debug("Down !");
@@ -462,7 +462,7 @@ Px4Device::down(float speed)
   offboard_->set_velocity_body({ 0.0f, 0.0f, 0.0f, 0.0f });
 }
 
-void
+inline void
 Px4Device::right(float speed)
 {
   logger::logger_->debug("Right !");
@@ -471,7 +471,7 @@ Px4Device::right(float speed)
   offboard_->set_velocity_body({ 0.0f, 0.0f, 0.0f, 0.0f });
 }
 
-void
+inline void
 Px4Device::left(float speed)
 {
   logger::logger_->debug("Left !");
@@ -481,7 +481,7 @@ Px4Device::left(float speed)
 }
 
 /*  Speed in m/s */
-void
+inline void
 Px4Device::forward(float speed)
 {
   logger::logger_->debug("Forward !");
@@ -491,7 +491,7 @@ Px4Device::forward(float speed)
 }
 
 /* Going forward and left at the same time in a circular movement */
-void
+inline void
 Px4Device::forward_left(float speed)
 {
   logger::logger_->debug("Forward !");
@@ -501,7 +501,7 @@ Px4Device::forward_left(float speed)
 }
 
 /* Going forward and right at the same time in a circular movement */
-void
+inline void
 Px4Device::forward_right(float speed)
 {
   logger::logger_->debug("Forward !");
@@ -510,7 +510,7 @@ Px4Device::forward_right(float speed)
   offboard_->set_velocity_body({ 0.0f, 0.0f, 0.0f, 0.0f });
 }
 
-void
+inline void
 Px4Device::backward(float speed)
 {
   logger::logger_->debug("Backward !");
@@ -520,7 +520,7 @@ Px4Device::backward(float speed)
 }
 
 /* Going backward and left at the same time in a circular movement */
-void
+inline void
 Px4Device::backward_left(float speed)
 {
   logger::logger_->debug("Backward !");
@@ -530,7 +530,7 @@ Px4Device::backward_left(float speed)
 }
 
 /* Going backward and right at the same time in a circular movement */
-void
+inline void
 Px4Device::backward_right(float speed)
 {
   logger::logger_->debug("Backward !");
@@ -540,7 +540,7 @@ Px4Device::backward_right(float speed)
 }
 
 // add later the angular yaw speed
-void
+inline void
 Px4Device::turnToLeft()
 {
   logger::logger_->debug("Rotate left!");
@@ -550,7 +550,7 @@ Px4Device::turnToLeft()
 }
 
 // add later the angular yaw speed
-void
+inline void
 Px4Device::turnToRight()
 {
   logger::logger_->debug("Rotate right");
@@ -559,7 +559,7 @@ Px4Device::turnToRight()
   offboard_->set_velocity_body({ 0.0f, 0.0f, 0.0f, 0.0f });
 }
 
-position_GPS<double>
+inline position_GPS<double>
 Px4Device::get_position_GPS()
 {
   position_GPS<double> pos;
@@ -570,21 +570,21 @@ Px4Device::get_position_GPS()
   return pos;
 }
 
-void
+inline void
 Px4Device::position_async()
 {
   telemetry_->subscribe_position(
     [this](Telemetry::Position position) { this->position_ = position; });
 }
 
-void
+inline void
 Px4Device::landed_state_async()
 {
   telemetry_->subscribe_landed_state(
     [this](Telemetry::LandedState landed) { this->_landed_state = landed; });
 }
 
-void
+inline void
 Px4Device::flight_mode_async()
 {
   telemetry_->subscribe_flight_mode([this](Telemetry::FlightMode flight_mode) {
@@ -592,21 +592,21 @@ Px4Device::flight_mode_async()
   });
 }
 
-Telemetry::LandedState
+inline Telemetry::LandedState
 Px4Device::landed_state() const
 {
   std::lock_guard<std::mutex> lock(_landed_state_mutex);
   return _landed_state;
 }
 
-Telemetry::FlightMode
+inline Telemetry::FlightMode
 Px4Device::flight_mode() const
 {
   std::lock_guard<std::mutex> lock(_flight_mode_mutex);
   return _flight_mode;
 }
 
-bool
+inline bool
 Px4Device::execute_px4_shell_command(std::string command)
 {
   Shell::Result shell_results = shell_->send(command);
@@ -618,7 +618,7 @@ Px4Device::execute_px4_shell_command(std::string command)
   return true;
 }
 
-bool
+inline bool
 Px4Device::receive_px4_shell_reponse()
 {
   // shell_->subscribe_receive(
@@ -628,13 +628,13 @@ Px4Device::receive_px4_shell_reponse()
   return true;
 }
 
-Telemetry::PositionVelocityNed
+inline Telemetry::PositionVelocityNed
 Px4Device::get_position_ned() const
 {
   return _position_ned;
 }
 
-double
+inline double
 Px4Device::DistanceFrom(std::shared_ptr<Px4Device> a)
 {
   Telemetry::PositionVelocityNed a_position = a->get_position_ned();
@@ -642,7 +642,7 @@ Px4Device::DistanceFrom(std::shared_ptr<Px4Device> a)
   return CalculateDistance(my_position, a_position);
 }
 
-double
+inline double
 Px4Device::CalculateDistance(Telemetry::PositionVelocityNed& a,
                              Telemetry::PositionVelocityNed& b)
 {
@@ -651,14 +651,14 @@ Px4Device::CalculateDistance(Telemetry::PositionVelocityNed& a,
                    std::pow((a.position.down_m - b.position.down_m), 2));
 }
 
-void
+inline void
 Px4Device::position_ned_async()
 {
   telemetry_->subscribe_position_velocity_ned(
     [this](Telemetry::PositionVelocityNed pvn) { this->_position_ned = pvn; });
 }
 
-std::function<void(Calibration::Result, Calibration::ProgressData)>
+inline std::function<void(Calibration::Result, Calibration::ProgressData)>
 Px4Device::create_calibration_callback(std::promise<void>& calibration_promise)
 {
   return [&calibration_promise](const Calibration::Result result,
@@ -686,7 +686,7 @@ Px4Device::create_calibration_callback(std::promise<void>& calibration_promise)
   };
 }
 
-void
+inline void
 Px4Device::calibrate_accelerometer()
 {
   logger::logger_->debug("Calibrating accelerometer...");
@@ -698,7 +698,7 @@ Px4Device::calibrate_accelerometer()
   calibration_future.wait();
 }
 
-void
+inline void
 Px4Device::quad_health()
 {
   telemetry_->subscribe_health(
@@ -724,7 +724,7 @@ Px4Device::quad_health()
   }
 }
 
-Telemetry::Result
+inline Telemetry::Result
 Px4Device::set_rate_result()
 {
   const Telemetry::Result set_rate_result = telemetry_->set_rate_position(1.0);
